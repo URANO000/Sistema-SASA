@@ -1,35 +1,121 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useState } from "react";
+import "./index.css";
+import "./App.css";
+
+import Navbar from "./components/Navbar";
+import Sidebar from "./components/Sidebar";
+import Footer from "./components/Footer";
+import Breadcrumb from "./components/Breadcrumb";
+
+import Dashboard from "./components/Dashboard";
+import Table from "./components/Table";
+import Formulario from "./components/Formulario";
+import Modal from "./components/Modal";
+
+import Notificaciones from "./components/Notificaciones";
+import Auditoria from "./components/Auditoria";
+import Involucrados from "./components/Involucrados";
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [page, setPage] = useState("dashboard");
+  const [openModal, setOpenModal] = useState(false);
+  const [ticketSeleccionado, setTicketSeleccionado] = useState(null);
+  const abrirModalEliminar = (idTicket) => {
+    setTicketSeleccionado(idTicket);
+    setOpenModal(true);
+  };
+
+  const cerrarModal = () => {
+    setOpenModal(false);
+    setTicketSeleccionado(null);
+  };
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+    <div className="min-h-screen bg-slate-950 text-slate-50 flex flex-col">
+      <Navbar />
+
+      <div className="flex flex-1">
+        <Sidebar page={page} onChangePage={setPage} />
+
+        <main className="flex-1 px-6 py-6 md:px-10">
+          <section className="max-w-7xl mx-auto space-y-6">
+            {page === "dashboard" && (
+              <>
+            <Breadcrumb
+                  items={[
+                    { label: "Inicio" },
+                    { label: "Dashboard" },
+                  ]}
+                />
+                <header className="flex flex-col gap-2">
+                  <h1 className="text-2xl font-semibold tracking-tight">
+                    Dashboard por rol
+                  </h1>
+                  <p className="text-sm text-slate-400">
+                    Tarjetas de estado y métricas generales del sistema.
+                  </p>
+                </header>
+                <Dashboard />
+              </>
+            )}
+            {page === "tiquetes" && (
+              <>
+                   <Breadcrumb
+                  items={[
+                    { label: "Inicio" },
+                    { label: "Tiquetes" },
+                    { label: "Listado" },
+                  ]}
+                />
+                <header className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+                  <div>
+                    <h1 className="text-2xl font-semibold tracking-tight">
+                      Gestión de tiquetes
+                    </h1>
+                  </div>
+                </header>
+                <Table onDeleteTicket={abrirModalEliminar} />
+                <Formulario />
+              </>
+            )}
+            {page === "notificaciones" && (
+              <>
+               <Breadcrumb
+                  items={[
+                    { label: "Inicio" },
+                    { label: "Notificaciones" },
+                    { label: "Centro" },
+                  ]}
+                />
+                <header className="flex flex-col gap-2">
+                  <h1 className="text-2xl font-semibold tracking-tight">
+                    Centro de notificaciones
+                  </h1>
+                </header>
+                <Notificaciones />
+                <Involucrados />
+                <Auditoria />
+              </>
+            )}
+          </section>
+        </main>
       </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+      <Footer />
+      <Modal
+        open={openModal}
+        ticketId={ticketSeleccionado}
+        onCancel={cerrarModal}
+        onConfirm={() => {
+          alert(
+            ticketSeleccionado
+              ? `Se eliminaría el caso ${ticketSeleccionado} (solo UI).`
+              : "Se eliminaría el caso seleccionado (solo UI)."
+          );
+          cerrarModal();
+        }}
+      />
+    </div>
+  );
 }
 
-export default App
+export default App;
