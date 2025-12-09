@@ -2,12 +2,14 @@ import React from "react";
 
 function Footer() {
   return (
-    <footer className="border-t border-slate-800 bg-slate-950/95 text-[11px] text-slate-500">
-      <div className="max-w-6xl mx-auto flex flex-col gap-1 px-6 py-3 md:flex-row md:items-center md:justify-between">
-        <span>
-          © 2025 Sistema de Atención y Servicios al Asociado
+    <footer className="rounded-base shadow-xs ">
+      <div className="h-1 w-full mx-auto max-w-7xl md:flex md:items-center md:justify-between">
+        {/* <div className="footer-logo flex justify-center md:jusitfy-end">
+          <img alt="logo sasa" src="../public/logo-sasa.png" className="img-logo"></img>
+        </div> */}
+        <span className="justify-center text-sm text-body sm:text-center">© 2025 
+          <a href="#" className="hover:underline"> Sistemas Analíticos</a>
         </span>
-        <span>Prototipo de frontend </span>
       </div>
     </footer>
   );

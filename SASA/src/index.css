@@ -1,32 +1,38 @@
-@import "tailwindcss";
 @import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;800&display=swap");
 
-  :root {
-    font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
-    line-height: 1.5;
-    font-weight: 400;
+@layer {
+  @import "tailwindcss";
+}
 
-    color-scheme: light dark;
-    color: rgba(255, 255, 255, 0.87);
-    background-color: #242424;
+:root {
+  --sasa-primary: #B7041A;
+  /* rojo principal */
+  --sasa-primary-2: #E00319;
+  /* rojo secundario */
+  --sasa-primary-3: #FF1A3B;
+  /* rojo acento */
+  --sasa-black: #000000;
+  --sasa-gray: #BFBFBF;
+  --sasa-gray-light: #DBDBDB;
+  --light-highlight: #F9FAFB;
+  --sasa-accent: #4EBBD6;
+  /* celeste corporativo */
 
-    font-synthesis: none;
-    text-rendering: optimizeLegibility;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
+  color-scheme: light dark;
+  color: #282828;
+  background-color: var(--color-light-hightlight);
+}
 
-    --sasa-primary: #B7041A;
-    /* rojo principal */
-    --sasa-primary-2: #E00319;
-    /* rojo secundario */
-    --sasa-primary-3: #FF1A3B;
-    /* rojo acento */
-    --sasa-black: #000000;
-    --sasa-gray: #BFBFBF;
-    --sasa-gray-light: #DBDBDB;
-    --sasa-accent: #4EBBD6;
-    /* celeste corporativo */
-  }
+/*THEME FOR TAILWIND*/
+@theme {
+  --font-montserrat: "Montserrat", sans-serif;
+  --color-primary: var(--sasa-primary);
+  --color-primary-2: var(--sasa-primary2);
+  --color-primary-3: var(--sasa-primary-3);
+  --color-accent: var(--sasa-accent);
+  --color-light-hightlight: var(--light-highlight);
+
+}
 
 
 a {
@@ -40,17 +46,74 @@ a:hover {
 }
 
 body {
-  margin: 0;
-  display: flex;
-  place-items: center;
-  min-width: 320px;
-  min-height: 100vh;
   font-family: "Montserrat", system-ui, -apple-system, BlinkMacSystemFont,
     "Segoe UI", sans-serif;
-  background-color: var(--sasa-black);
-  color: var(--sasa-gray-light);
+  line-height: 1.5;
+  font-weight: 400;
 }
 
+main{
+  margin: 0px 30px 0px 30px;
+}
+
+/*--------------------------------------------------------------------------*/
+/* GLOBAL STYLING FOR MAIN COMPONENTS */
+
+/* Card styling*/
+.card{
+  background-color:#ffffff;
+  border: 1px solid #dfe7ef;
+  padding:2rem;
+  margin-bottom: 2rem;
+  border-radius: 12px;
+}
+
+/*Footer styles*/
+footer {
+  background-color: #ffffff;
+  padding: 2rem 0;
+  margin-top: 2rem;
+  border-top: 1px solid #e9ecef;
+}
+
+.footer-logo {
+  max-height: 80px;
+  width: auto;
+}
+
+/*Navbar styles*/
+
+.custom-navbar {
+  background-color: #ffffff;
+  border-bottom: 1px solid #e9ecef;
+  box-shadow: 0 3px 5px rgba(0,0,0,.02),0 0 2px rgba(0,0,0,.05),0 1px 4px rgba(0,0,0,.08);
+  min-height: 100px;
+  min-width: 100%;
+}
+
+.nav-img {
+  max-height: 60px;
+  width: auto;
+}
+
+.accentBtn {
+  background-color: var(--sasa-accent);
+  color: #ffffff;
+}
+
+/*Sidebar styles*/
+aside {
+  background-color: var(--light-highlight);
+}
+
+/*Logo styles*/
+.img-logo {
+  height: auto;
+  max-width: 100%;
+}
+
+
+/*--------------------------------------------------------------------------*/
 
 h1 {
   font-size: 3.2em;
@@ -75,13 +138,13 @@ button:hover {
 
 button:focus,
 button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
+  outline: 6px auto -webkit-focus-ring-color;
 }
 
-@media (prefers-color-scheme: light) {
+@media (prefers-color-scheme: dark) {
   :root {
-    color: #213547;
-    background-color: #ffffff;
+    background-color: #0e0e0e;
+    color: var(--sasa-gray-light);
   }
 
   a:hover {
