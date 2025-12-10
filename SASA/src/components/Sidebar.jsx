@@ -6,16 +6,15 @@ const sections = [
   {
     title: "Principal",
     items: [
-      { key: "dashboard", label: "Dashboard", icon: "📊" },
-      { key: "tiquetes", label: "Tiquetes", icon: "📂" },
-      { key: "notificaciones", label: "Notificaciones", icon: "🔔" },
+      { key: "dashboard", label: "Dashboard", icon: "pi pi-chart-bar" },
+      { key: "tiquetes", label: "Módulo de Tiquetes", icon: "pi pi-ticket" },
+      { key: "admin", label: "Módulo Administrativo", icon: "pi pi-sliders-v" },
     ],
   },
   {
     title: "Configuración",
     items: [
-      { key: "usuarios", label: "Usuarios", icon: "👥", disabled: true },
-      { key: "parametros", label: "Parámetros", icon: "⚙️", disabled: true },
+      { key: "ajustes", label: "Parámetros", icon: "pi pi-cog"},
     ],
   },
 ];

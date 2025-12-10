@@ -14,13 +14,13 @@
   --sasa-black: #000000;
   --sasa-gray: #BFBFBF;
   --sasa-gray-light: #DBDBDB;
-  --light-highlight: #F9FAFB;
   --sasa-accent: #4EBBD6;
+  --light-font: #282828;
   /* celeste corporativo */
 
   color-scheme: light dark;
   color: #282828;
-  background-color: var(--color-light-hightlight);
+  background-color: #F9FAFB;
 }
 
 /*THEME FOR TAILWIND*/
@@ -30,7 +30,6 @@
   --color-primary-2: var(--sasa-primary2);
   --color-primary-3: var(--sasa-primary-3);
   --color-accent: var(--sasa-accent);
-  --color-light-hightlight: var(--light-highlight);
 
 }
 
@@ -52,7 +51,16 @@ body {
   font-weight: 400;
 }
 
-main{
+/* ::-webkit-scrollbar{
+  background-color: #ffffff;
+}
+
+::-webkit-scrollbar-thumb{
+  background-color: var(--sasa-primary);
+  border-radius: 2rem;
+} */
+
+.main-wrapper {
   margin: 0px 30px 0px 30px;
 }
 
@@ -60,12 +68,18 @@ main{
 /* GLOBAL STYLING FOR MAIN COMPONENTS */
 
 /* Card styling*/
-.card{
-  background-color:#ffffff;
+.card {
+  background-color: #ffffff;
   border: 1px solid #dfe7ef;
-  padding:2rem;
+  padding: 2rem;
   margin-bottom: 2rem;
   border-radius: 12px;
+}
+
+/*Custom icon properties, make sure all icons look the same, have the same color, etc*/
+.custom-icon {
+  font-size: 1.5rem;
+  color: var(--light-font);
 }
 
 /*Footer styles*/
@@ -86,7 +100,7 @@ footer {
 .custom-navbar {
   background-color: #ffffff;
   border-bottom: 1px solid #e9ecef;
-  box-shadow: 0 3px 5px rgba(0,0,0,.02),0 0 2px rgba(0,0,0,.05),0 1px 4px rgba(0,0,0,.08);
+  box-shadow: 0 3px 5px rgba(0, 0, 0, .02), 0 0 2px rgba(0, 0, 0, .05), 0 1px 4px rgba(0, 0, 0, .08);
   min-height: 100px;
   min-width: 100%;
 }
@@ -96,9 +110,43 @@ footer {
   width: auto;
 }
 
-.accentBtn {
-  background-color: var(--sasa-accent);
-  color: #ffffff;
+.nav-end {
+  cursor: pointer;
+  gap: 1.5rem;
+  /* This is equal to gap-6*/
+  margin: 0px 1.5rem 0px 1.5rem;
+}
+
+.nav-start i {
+  cursor: pointer;
+  gap: 1.5rem;
+  /* This is equal to gap-6*/
+  margin: 0px 1.5rem 0px 1.5rem;
+}
+
+.p-menubar-button {
+  display: none !important;
+}
+
+.profile-menu {
+  border: 1px solid #e9ecef;
+  height: auto;
+}
+
+.custom-profile-item {
+  padding: 1rem !important;
+}
+
+.p-menu .p-menuitem-icon {
+  margin-right: 0.75rem;
+}
+
+.p-menu .p-menuitem-link {
+  padding: 1rem;
+}
+
+.log-out-item {
+  color: var(--color-primary-2)
 }
 
 /*Sidebar styles*/
@@ -151,7 +199,20 @@ button:focus-visible {
     color: #747bff;
   }
 
-  button {
-    background-color: #f9f9f9;
+
+  .custom-navbar {
+    background-color: var(--sasa-black);
+    border-bottom: 1px solid #19191a;
+    box-shadow: 0 3px 5px rgba(0, 0, 0, .02), 0 0 2px rgba(0, 0, 0, .05), 0 1px 4px rgba(0, 0, 0, .08);
+  }
+
+  .card {
+    background-color: var(--sasa-black);
+    border: 1px solid #19191a;
+  }
+
+  .custom-icon {
+    font-size: 1.5rem;
+    color: var(--sasa-gray-light);
   }
 }

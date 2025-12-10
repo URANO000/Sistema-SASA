@@ -4,7 +4,7 @@ import { Routes, Route, Outlet, BrowserRouter } from 'react-router-dom';
 
 import Navbar from "./components/Navbar";
 import Sidenav from "./components/Sidebar";
-import Home from "./pages/Misc/Homepage";
+import Home from "./pages/Homepage";
 import Footer from "./components/Footer";
 // import Breadcrumb from "./components/Breadcrumb";
 
