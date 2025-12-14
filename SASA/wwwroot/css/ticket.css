@@ -1,0 +1,12 @@
+﻿.table td, .table th {
+    vertical-align: middle;
+}
+
+.btn-link {
+    color: var(--primary-color);
+}
+
+    .btn-link:hover {
+        color: var(--secondary-color);
+        text-decoration: none;
+    }

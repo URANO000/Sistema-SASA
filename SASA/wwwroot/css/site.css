@@ -11,13 +11,14 @@
     --accent-1: #0d6efd;
     --accent-2: #146c43;
     --card-bg-light: #FFFF;
-    --content-bg: linear-gradient(to bottom right, rgba(255, 255, 255, 0) 49.9%, rgba(255, 255, 255, 1) 50.1%);
     
 }
 
 body {
     font-family: 'Montserrat', sans-serif !important;
     margin-bottom: 60px;
+    background: #E9ECEF;
+    background: linear-gradient(178deg,rgba(233, 236, 239, 1) 0%, rgba(248, 249, 250, 1) 100%);
 }
 
 h1 {
@@ -233,7 +234,6 @@ html {
 
 /* Content area - for mobile*/
 .content {
-    background: linear-gradient(to bottom right, rgba(255, 255, 255, 0) 49.9%, rgba(255, 255, 255, 1) 50.1%);
     min-height: 100vh;
     padding: 1rem;
 }
@@ -269,7 +269,11 @@ html {
  }
 
  /* This is for tables*/
-.table-container {
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
+
+/*Overall cards*/
+.card {
+    border-radius: 12px;
+    border: none;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    background-color: white;
 }
