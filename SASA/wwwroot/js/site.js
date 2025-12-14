@@ -18,3 +18,10 @@ document.getElementById("sidebarClose")
             .classList.toggle("open");
     });
 
+document.querySelectorAll(".dropdown-toggle-btn")
+    .forEach(button => {
+        button.addEventListener("click", () => {
+            button.closest(".nav-section")
+                .classList.toggle("open");
+        });
+    });
