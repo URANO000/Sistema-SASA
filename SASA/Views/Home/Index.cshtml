@@ -1,8 +1,43 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "Inicio";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="dashboard-grid">
+
+    <div class="kpi-card kpi-open">
+        <div class="kpi-top">
+            <h2 class="kpi-title">Abiertos</h2>
+            <div class="kpi-icon">
+                <i class="bi bi-exclamation-circle"></i>
+            </div>
+        </div>
+
+        <p class="kpi-value">12</p>
+        <div class="kpi-sub">Tiquetes pendientes de atención</div>
+    </div>
+
+    <div class="kpi-card kpi-progress">
+        <div class="kpi-top">
+            <h2 class="kpi-title">En Proceso</h2>
+            <div class="kpi-icon">
+                <i class="bi bi-hourglass-split"></i>
+            </div>
+        </div>
+
+        <p class="kpi-value">5</p>
+        <div class="kpi-sub">Tiquetes asignados y en seguimiento</div>
+    </div>
+
+    <div class="kpi-card kpi-closed">
+        <div class="kpi-top">
+            <h2 class="kpi-title">Cerrados</h2>
+            <div class="kpi-icon">
+                <i class="bi bi-check2-circle"></i>
+            </div>
+        </div>
+
+        <p class="kpi-value">20</p>
+        <div class="kpi-sub">Tiquetes finalizados recientemente</div>
+    </div>
+
 </div>
