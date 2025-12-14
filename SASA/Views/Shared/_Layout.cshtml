@@ -3,44 +3,67 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - SASA</title>
+    <title>@ViewData["Sistema de gestion SASA"] Sistema de gestión SASA</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/SASA.styles.css" asp-append-version="true" />
+
+    <!-- This is for the extra things we need like fonts, icons, etc-->
+    <!-- Font Montserrat -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!--Bootstrap icons-->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
 </head>
 <body>
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">SASA</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                        </li>
-                    </ul>
-                </div>
+    <!--TOPBAR LAYOUT-->
+    <header class="topbar-custom">
+        <button class="btn btn-link text-white icon-btn" id="sidebarToggle">
+            <i class="bi bi-list fs-3"></i>
+        </button>
+
+        <div class="logo-sasa">
+            <img src="/img/logo-blanco.png" alt="logo-sasa" />
+        </div>
+
+        <div class="topbar-actions">
+            <i class="bi bi-person-circle fs-4"></i>
+        </div>
+        
+    </header>
+
+    <!--SIDEBAR LAYOUT-->
+    <aside class="sidebar-custom" id="sidebar">
+        <div class="sidebar-header">
+            <img src="/img/logo-blanco.png" alt="logo-sasa" class="sidebar-logo"  />
+            <button class="btn btn-link icon-btn" id="sidebarClose">
+                <i class="bi bi-x-lg custom-icon"></i>
+            </button>
+        </div>
+        <nav class="sidebar-nav">
+            <!--Sections of the navbar-->
+            <div class="nav-section">
+                <span class="section-title">General</span>
+                <a href="#" class="nav-link">
+                    <i class="bi bi-speedometer2"></i>
+                    Dashboard
+                </a>
             </div>
         </nav>
-    </header>
-    <div class="container">
+    </aside>
+
+
+    <!--MAIN CONTENT-->
+    <div class="content">
         <main role="main" class="pb-3">
             @RenderBody()
         </main>
     </div>
 
-    <footer class="border-top footer text-muted">
+@*     <footer class="border-top footer text-muted">
         <div class="container">
             &copy; 2025 - SASA - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
         </div>
-    </footer>
+    </footer> *@
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>

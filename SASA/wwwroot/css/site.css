@@ -1,3 +1,32 @@
+/* ROOT COLORS*/
+:root {
+    --primary-color: #012473;
+    --secondary-color: #013599;
+    --danger-color: #E00319;
+    --success-color: #198754;
+    --surface-dark: #0b1c3d;
+    --text-dark: #212121;
+    --text-light: #FFFF;
+    --text-muted: #adb5bd;
+    --accent-1: #0d6efd;
+    --accent-2: #146c43;
+    --card-bg-light: #FFFF;
+    --content-bg: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+}
+
+body {
+    font-family: 'Montserrat', sans-serif !important;
+    margin-bottom: 60px;
+}
+
+h1 {
+    font-size: 2em;
+}
+
+h2 {
+    font-size: 1.5em;
+}
+
 html {
   font-size: 14px;
 }
@@ -17,6 +46,118 @@ html {
   min-height: 100%;
 }
 
-body {
-  margin-bottom: 60px;
+
+/* This is for the custom navbar*/
+.topbar-custom {
+    height: 56px;
+    background-color: var(--primary-color);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 1rem;
+    color: var(--text-light);
+}
+
+.logo-sasa img{
+    height: 32px;
+}
+
+/* this is for custom sidebar*/
+.sidebar-custom {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 260px;
+    background-color: var(--surface-dark);
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+    z-index: 1050;
+}
+
+.sidebar-custom.open{
+    transform: translateX(0);
+}
+
+.sidebar-header {
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 1rem;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+.sidebar-nav{
+    padding: 1rem 0;
+}
+
+.nav-section{
+    margin-bottom: 1rem;
+}
+
+.section-title{
+    display:block;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    text-decoration: none;
+    padding: 0.5rem 1.5rem;
+}
+
+.sidebar-custom .nav-link {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.5rem 1.5rem;
+    color: var(--text-light);
+    text-decoration: none;
+}
+
+.sidebar-custom .nav-link:hover{
+    background-color: rgb(255, 255, 255, 0.1);
+}
+
+.sidebar-logo{
+    height: 36px;
+}
+
+/* Content area - for mobile*/
+.content{
+    background-color: var(--content-bg);
+    min-height: 100vh;
+    padding: 1rem;
+}
+
+/* Desktop */
+@media (min-width:992px){
+    .content{
+        margin-left:250px;
+        padding: 2rem;
+    }
+
+    .logo-sasa{
+        display: none;
+    }
+}
+
+/*This is for cards, mostly look, borders, feel*/
+
+
+
+/*This is for icons sitewide, taking into consideration mobile*/
+ .custom-icon{
+     color:#FFFF;
+
+ }
+
+ .icon-btn{
+     text-decoration: none;
+     background-color: none;
+ }
+
+ /* This is for tables*/
+.table-container {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
 }
