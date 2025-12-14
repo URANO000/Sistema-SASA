@@ -43,3 +43,36 @@ document.getElementById('fakeSubmitTicket')?.addEventListener('click', function 
 
     //User can close if they want
 });
+
+//For now, this is only for show, triggers my success modal
+document.getElementById('fakeCancelTicket')?.addEventListener('click', function () {
+
+    //It immediately closes add ticket modal window
+    const addModal = bootstrap.Modal.getInstance(
+        document.getElementById('cancelConfirm')
+    );
+    addModal?.hide();
+
+    //Shows success modal
+    const successModal = new bootstrap.Modal(
+        document.getElementById('successModal')
+    );
+    successModal.show();
+
+    //User can close if they want
+});
+
+//For now, this is only for show, triggers my success modal
+document.getElementById('fakeEditTicket')?.addEventListener('click', function () {
+    //Shows success modal
+        
+    const successModal = new bootstrap.Modal(
+        document.getElementById('successModal')
+    );
+    successModal.show();
+
+    //I need to add nav back to list
+
+    const guardarBtn = document.getElementById("fakeEditTicket");
+    guardarBtn.classList.add(`asp-area="" asp-controller="Tiquete" asp-action="Index"`);
+});
