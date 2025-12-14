@@ -25,3 +25,21 @@ document.querySelectorAll(".dropdown-toggle-btn")
                 .classList.toggle("open");
         });
     });
+
+//For now, this is only for show, triggers my success modal
+document.getElementById('fakeSubmitTicket')?.addEventListener('click', function () {
+
+    //It immediately closes add ticket modal window
+    const addModal = bootstrap.Modal.getInstance(
+        document.getElementById('addTicketModal')
+    );
+    addModal?.hide();
+
+    //Shows success modal
+    const successModal = new bootstrap.Modal(
+        document.getElementById('successModal')
+    );
+    successModal.show();
+
+    //User can close if they want
+});

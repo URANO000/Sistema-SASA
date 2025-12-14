@@ -268,11 +268,16 @@ html {
      background-color: none;
  }
 
+    .icon-btn:focus, .icon-btn:active, .icon-btn:hover {
+        box-shadow: none !important;
+        outline: 0;
+    }
+
  /* This is for tables*/
 
 /*Overall cards*/
 .card {
-    border-radius: 12px;
+    border-radius: 8px;
     border: none;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
     background-color: white;
