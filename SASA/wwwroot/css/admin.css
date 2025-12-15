@@ -1,2 +1,33 @@
-﻿body {
+﻿
+.table-custom thead {
+    height: 5vh;
+    background-color: #f9fafb;
+    border-bottom: rgba(0, 0, 0, .05);
+}
+
+.table td, .table th {
+    vertical-align: middle;
+}
+
+.btn-link {
+    color: var(--primary-color);
+}
+
+    .btn-link:hover {
+        color: var(--secondary-color);
+        text-decoration: none;
+    }
+
+.btn-custom {
+    background-color: var(--primary-color);
+    color: var(--text-light);
+}
+
+.detail-btn {
+    color: var(--accent-2);
+    font-weight: bold;
+}
+
+.edit-btn {
+    color: var(--accent-1);
 }
