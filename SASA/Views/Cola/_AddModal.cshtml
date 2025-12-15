@@ -1,0 +1,90 @@
+﻿<div class="modal fade" id="addQueueModal" tabindex="-1">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content">
+
+            <!-- Header -->
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="bi bi-collection me-2"></i>
+                    Crear Nueva Cola de Trabajo
+                </h5>
+                <button type="button"
+                        class="btn-close icon-btn"
+                        data-bs-dismiss="modal"></button>
+            </div>
+
+            <!-- Body -->
+            <div class="modal-body">
+                <div class="form-container">
+
+                    <div class="form-content">
+                        <p class="section-subtitle">
+                            Complete los campos requeridos para crear una nueva cola.
+                        </p>
+
+                        <div class="row g-3">
+
+                            <!-- Cliente -->
+                            <div class="col-md-6">
+                                <label class="form-label required-field">Cliente</label>
+                                <select class="form-select is-valid">
+                                    <option>Cliente A</option>
+                                    <option>Cliente B</option>
+                                    <option>Cliente C</option>
+                                </select>
+                            </div>
+
+                            <!-- Nombre de la Cola -->
+                            <div class="col-md-6">
+                                <label class="form-label required-field">Nombre de la Cola</label>
+                                <input type="text"
+                                       class="form-control is-valid"
+                                       placeholder="Ej. Soporte Nivel 1">
+                                <div class="valid-feedback">
+                                    Nombre disponible.
+                                </div>
+                            </div>
+
+                            <!-- Prioridad -->
+                            <div class="col-md-4">
+                                <label class="form-label required-field">Prioridad</label>
+                                <select class="form-select is-valid">
+                                    <option>Alta</option>
+                                    <option selected>Media</option>
+                                    <option>Baja</option>
+                                </select>
+                            </div>
+
+                            <!-- Descripción -->
+                            <div class="col-12">
+                                <label class="form-label">Descripción</label>
+                                <textarea class="form-control"
+                                          rows="3"
+                                          placeholder="Uso de la cola, alcance o reglas internas"></textarea>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <!-- Footer -->
+                    <div class="modal-footer-custom">
+                        <div class="d-flex justify-content-end gap-2">
+                            <button type="button"
+                                    class="btn btn-outline-secondary"
+                                    data-bs-dismiss="modal">
+                                Cancelar
+                            </button>
+                            <button type="button"
+                                    class="btn btn-success-custom text-white"
+                                    id="fakeCreateQueue">
+                                Crear Cola
+                            </button>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>

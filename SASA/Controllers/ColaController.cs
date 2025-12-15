@@ -2,18 +2,20 @@
 
 namespace SASA.Controllers
 {
-    public class AdminController : Controller
+    public class ColaController : Controller
     {
         public IActionResult Index()
         {
             return View();
         }
-        public IActionResult Dashboard()
+        public IActionResult Edit()
         {
             return View();
         }
 
-
-
+        public IActionResult Details()
+        {
+            return View();
+        }
     }
 }
