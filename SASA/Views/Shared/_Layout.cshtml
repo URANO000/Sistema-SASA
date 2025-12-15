@@ -59,6 +59,15 @@
                 <button class="btn btn-link text-white p-0" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                     <i class="bi bi-person-circle fs-4"></i>
                 </button>
+                <ul class="dropdown-menu dropdown-menu-end">
+                    <li><a class="dropdown-item text-black dp-item" href="#">Perfil</a></li>
+                    <li><a class="dropdown-item text-black dp-item" href="#">Ajustes</a></li>
+                    <li>
+                        <form method="post" action="/logout" class="d-inline">
+                            @Html.AntiForgeryToken()
+                            <button type="submit" class="dropdown-item text-danger dp-item">Salir</button>
+                        </form>
+                    </li>
 
                 <ul class="dropdown-menu dropdown-menu-end user-menu">
                     <li class="px-3 py-2">

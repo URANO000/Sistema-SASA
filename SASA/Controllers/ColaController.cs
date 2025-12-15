@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using SASA.Filters; 
 
 namespace SASA.Controllers
 {
+    [RequireAuth]
     public class ColaController : Controller
     {
         public IActionResult Index()

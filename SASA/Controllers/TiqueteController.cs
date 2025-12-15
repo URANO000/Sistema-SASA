@@ -1,8 +1,10 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using SASA.Filters;
 
 namespace SASA.Controllers
 {
+    [RequireAuth]
     public class TiqueteController : Controller
     {
         //GET: TiqueteController
