@@ -1,7 +1,11 @@
 ﻿<div>
     <!-- Header -->
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <h2 class="mb-0">Dashboard de Tiquetes</h2>
+    <div class="card mb-3">
+        <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h2 class="mb-0 fw-bold">Dashboard de Tiquetes</h2>
+            </div>
+        </div>
     </div>
     <div class="row g-3 mb-4">
         <div class="col-md-3">
@@ -42,35 +46,36 @@
     </div>
 
     <!--Charts start coming in here, using the chart.js cdn located in Layout-->
-</div>
-<div class="row mb-4">
-    <div class="col-md-4">
-        <div class="card">
-            <div class="card-body">
-                <h6 class="section-title">Tiquetes por Estado</h6>
-                <canvas id="estadoChart"></canvas>
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h6 class="section-title">Tiquetes por Estado</h6>
+                    <canvas id="estadoChart"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-body">
+                    <h6 class="section-title">Tiquetes por Prioridad</h6>
+                    <canvas id="prioridadChart"></canvas>
+                </div>
             </div>
         </div>
     </div>
-    <div class="col-md-7">
-        <div class="card">
-            <div class="card-body">
-                <h6 class="section-title">Tiquetes por Prioridad</h6>
-                <canvas id="prioridadChart"></canvas>
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <h6 class="section-title">Evolución de Tiquetes</h6>
+                    <canvas id="trendChart"></canvas>
+                </div>
             </div>
         </div>
     </div>
 </div>
-<div class="row mb-4">
-    <div class="col-md-6">
-        <div class="card">
-            <div class="card-body">
-                <h6 class="section-title">Evolución de Tiquetes</h6>
-                <canvas id="trendChart"></canvas>
-            </div>
-        </div>
-    </div>
-</div>
+
 
 <script>
     //Now, this is only here for demo purposes, not real implementation. In any case, the js would be found in its own file
