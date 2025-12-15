@@ -1,0 +1,39 @@
+﻿/*First for success modal*/
+.success-modal {
+    border-radius: 14px;
+}
+
+.success-icon {
+    font-size: 3.5rem;
+    color: var(--success-color);
+}
+
+.success-title {
+    font-weight: 700;
+    color: var(--primary-color);
+}
+
+.success-message {
+    font-size: 0.95rem;
+    color: #6c757d;
+}
+
+/*Then for error modal*/
+.error-modal {
+    border-radius: 14px;
+}
+
+.error-icon {
+    font-size: 3.5rem;
+    color: var(--danger-color);
+}
+
+.error-title {
+    font-weight: 700;
+    color: var(--danger-color);
+}
+
+.error-message {
+    font-size: 0.95rem;
+    color: #6c757d;
+}
