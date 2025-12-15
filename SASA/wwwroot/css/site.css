@@ -1,3 +1,33 @@
+/* ROOT COLORS*/
+:root {
+    --primary-color: #012473;
+    --secondary-color: #013599;
+    --danger-color: #E00319;
+    --success-color: #198754;
+    --surface-dark: #0b1c3d;
+    --text-dark: #212121;
+    --text-light: #FFFF;
+    --text-muted: #adb5bd;
+    --accent-1: #0d6efd;
+    --accent-2: #146c43;
+    --card-bg-light: #FFFF;
+    --content-bg: linear-gradient(to bottom right, rgba(255, 255, 255, 0) 49.9%, rgba(255, 255, 255, 1) 50.1%);
+    
+}
+
+body {
+    font-family: 'Montserrat', sans-serif !important;
+    margin-bottom: 60px;
+}
+
+h1 {
+    font-size: 2em;
+}
+
+h2 {
+    font-size: 1.5em;
+}
+
 html {
   font-size: 14px;
 }
@@ -17,6 +47,229 @@ html {
   min-height: 100%;
 }
 
-body {
-  margin-bottom: 60px;
+
+/* This is for the custom navbar*/
+.topbar-custom {
+    height: 56px;
+    background-color: var(--primary-color);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 1rem;
+    color: var(--text-light);
+    box-shadow: 0 8px 6px -6px #999;
+}
+
+
+.topbar-left {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem
+}
+
+.topbar-actions{
+    display:flex;
+    gap: 1.5rem;
+    align-items: center;
+    margin: 0 1rem;
+}
+
+.topbar-actions p{
+    margin-top: 1rem;
+    color: var(--text-muted)
+}
+
+.dp-item {
+    color: var(--text-dark);
+    padding: 0.75rem;
+}
+
+.dp-item:hover{
+    background-color: rgb(0, 0, 0, 0.10);
+}
+
+.logo-sasa{
+    display:flex;
+    gap: 0.75rem;
+}
+
+/*
+.logo-sasa h1{
+    margin-top: 0.50rem;
+    font-size: 1rem;
+}*/
+
+.logo-sasa img{
+    height: 32px;
+}
+
+.notification-wrapper {
+    position: relative;
+}
+
+.notification-badge {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    min-width: 18px;
+    height: 18px;
+    padding: 0 5px;
+    background-color: var(--danger-color);
+    color: #fff;
+    font-size: 0.65rem;
+    font-weight: 600;
+    border-radius: 999px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* this is for custom sidebar*/
+.sidebar-custom {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 260px;
+    background-color: var(--surface-dark);
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+    z-index: 1050;
+}
+
+.sidebar-custom.open{
+    transform: translateX(0);
+}
+
+.sidebar-header {
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 1rem;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+.sidebar-nav{
+    padding: 1rem 0;
+}
+
+.nav-section{
+    margin-bottom: 1rem;
+}
+
+.section-title{
+    display:block;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    text-decoration: none;
+    padding: 0.5rem 1.5rem;
+}
+
+.sidebar-custom .nav-link {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.5rem 1.5rem;
+    color: var(--text-light);
+    text-decoration: none;
+}
+
+.sidebar-custom .nav-link:hover{
+    background-color: rgb(255, 255, 255, 0.1);
+}
+
+.sidebar-logo{
+    height: 32px;
+}
+
+/*Dropdown things and styles*/
+.dropdown-toggle-btn {
+    width: 100%;
+    background: none;
+    border: none;
+    text-align: left;
+    cursor: pointer;
+}
+
+    /* Chevron animationn */
+    .dropdown-toggle-btn .bi-chevron-down {
+        transition: transform 0.25s ease;
+    }
+
+/* Submenu container */
+.submenu {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+}
+
+/* Expanded state */
+.nav-section.open .submenu {
+    max-height: 500px; /* safe value */
+}
+
+.nav-section.open .bi-chevron-down {
+    transform: rotate(180deg);
+}
+
+/* Submenu links */
+.submenu-link{
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.45rem 3rem;
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    text-decoration: none;
+}
+
+    .submenu-link:hover {
+        background-color: rgba(255,255,255,0.08);
+        color: var(--text-light);
+    }
+
+
+/* Content area - for mobile*/
+.content {
+    background: linear-gradient(to bottom right, rgba(255, 255, 255, 0) 49.9%, rgba(255, 255, 255, 1) 50.1%);
+    min-height: 100vh;
+    padding: 1rem;
+}
+
+/* Desktop */
+@media (min-width:992px){
+    .content{
+        padding: 2rem;
+    }
+
+    .logo-sasa{
+       height: 40px;
+    }
+
+    .topbar-custom {
+        height: 60px;
+    }
+}
+
+/*This is for cards, mostly look, borders, feel*/
+
+
+
+/*This is for icons sitewide, taking into consideration mobile*/
+ .custom-icon{
+     color:#FFFF;
+
+ }
+
+ .icon-btn{
+     text-decoration: none;
+     background-color: none;
+ }
+
+ /* This is for tables*/
+.table-container {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
 }
