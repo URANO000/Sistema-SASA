@@ -1,0 +1,93 @@
+﻿
+<div class="container-fluid">
+
+    <!-- Header -->
+    <div class="card mb-3">
+        <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h2 class="mb-0 fw-bold">Gestión de Formularios</h2>
+                <button class="btn btn-custom"
+                        data-bs-toggle="modal" data-bs-target="#addFormModal">
+                    <i class="bi bi-plus-lg"></i>
+                    Nuevo Formulario
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!--BODY-->
+    <!-- Search-->
+    <div class="card mb-3">
+        <div class="card-body">
+            <div class="row mb-3">
+                <div class="col-md-4">
+                    <input type="text"
+                           class="form-control"
+                           placeholder="Buscar formulario o servicio...">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Table -->
+    <div class="table-responsive card">
+        <table class="table table-hover align-middle table-custom">
+            <thead class="table-light">
+                <tr>
+                    <th>Acciones</th>
+                    <th>Formulario</th>
+                    <th>Servicio asociado</th>
+                    <th>Campos</th>
+                    <th>Estado</th>
+                </tr>
+            </thead>
+            <tbody>
+
+                <tr>
+                    <td>
+                        <a class="btn btn-link icon-btn" asp-area="" asp-controller="Formulario" asp-action="Details">
+                            <i class="bi bi-eye detail-btn"></i>
+                        </a>
+                        <a class="btn btn-link icon-btn" asp-area="" asp-controller="Formulario" asp-action="Edit">
+                            <i class="fa-regular fa-pen-to-square edit-btn"></i>
+                        </a>
+                    </td>
+                    <td>Formulario 1</td>
+                    <td>
+                        <span class="badge bg-primary">Servicio 1</span>
+                    </td>
+                    <td>6</td>
+                    <td>
+                        <span class="badge bg-success">Activo</span>
+                    </td>
+  
+                </tr>
+
+                <tr>
+                    <td>
+                        <a class="btn btn-link icon-btn" asp-area="" asp-controller="Formulario" asp-action="Details">
+                            <i class="bi bi-eye detail-btn"></i>
+                        </a>
+
+                        <a class="btn btn-link icon-btn" asp-area="" asp-controller="Formulario" asp-action="Edit">
+                            <i class="fa-regular fa-pen-to-square edit-btn"></i>
+                        </a>
+                    </td>
+                    <td>Formulario 2</td>
+                    <td>
+                        <span class="badge bg-primary">Servicio 2</span>
+                    </td>
+                    <td>4</td>
+                    <td>
+                        <span class="badge bg-secondary">Inactivo</span>
+                    </td>
+                </tr>
+
+            </tbody>
+        </table>
+    </div>
+
+
+</div>
+
+@await Html.PartialAsync("_AddFormulario")
