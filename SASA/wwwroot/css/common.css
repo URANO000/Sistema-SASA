@@ -1,4 +1,8 @@
 ﻿
+html, body {
+    font-family: 'Montserrat', sans-serif;
+}
+
 .table-custom thead {
     height: 5vh;
     
@@ -129,13 +133,13 @@
     }
 
         .timeline li::before {
+            list-style: none;
             content: '';
             position: absolute;
             left: 0;
             top: 0.4rem;
             width: 8px;
             height: 8px;
-            background-color: var(--primary-color);
             border-radius: 50%;
         }
 
@@ -143,3 +147,21 @@
     font-size: 0.75rem;
     color: #6c757d;
 }
+
+:root {
+    --sasa-primary: #0a2f73;
+}
+
+.btn-sasa-primary {
+    background-color: var(--sasa-primary);
+    border-color: var(--sasa-primary);
+    color: #fff;
+}
+
+    .btn-sasa-primary:hover,
+    .btn-sasa-primary:focus {
+        background-color: var(--sasa-primary);
+        border-color: var(--sasa-primary);
+        filter: brightness(0.92);
+        color: #fff;
+    }

@@ -1,21 +1,23 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using SASA.Filters;
+using SASA.Filters; 
 
 namespace SASA.Controllers
 {
     [RequireAuth]
-    public class AdminController : Controller
+    public class ColaController : Controller
     {
         public IActionResult Index()
         {
             return View();
         }
-        public IActionResult Dashboard()
+        public IActionResult Edit()
         {
             return View();
         }
 
-
-
+        public IActionResult Details()
+        {
+            return View();
+        }
     }
 }
