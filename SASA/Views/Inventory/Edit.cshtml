@@ -1,0 +1,74 @@
+@{
+    ViewData["Title"] = "Editar Activo";
+}
+
+<div class="container-fluid">
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+
+            <div class="mb-4">
+                <h4 class="mb-0">Editar Activo</h4>
+                <small class="text-muted">
+                    Actualice la información de un activo existente.
+                </small>
+            </div>
+
+            <form>
+
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <label class="form-label">Código del Activo</label>
+                        <input type="text" class="form-control" value="INV-001" readonly>
+                    </div>
+
+                    <div class="col-md-8">
+                        <label class="form-label">Nombre del Activo</label>
+                        <input type="text" class="form-control" value="Dell Latitude Laptop">
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label">Tipo de Activo</label>
+                        <select class="form-select">
+                            <option>Dispositivo</option>
+                            <option>Herramienta</option>
+                            <option>Mobiliario</option>
+                            <option>Otro</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label">Estado</label>
+                        <select class="form-select">
+                            <option selected>Activo</option>
+                            <option>En Mantenimiento</option>
+                            <option>Fuera de Servicio</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label">Descripción</label>
+                    <textarea class="form-control" rows="4">
+Equipo portátil corporativo asignado para uso interno.
+                    </textarea>
+                </div>
+
+                <div class="d-flex justify-content-end">
+                    <a asp-controller="Inventory" asp-action="Detail" asp-route-id="1"
+                        class="btn btn-outline-secondary me-2">
+                        Cancelar
+                    </a>
+
+                    <button type="submit" class="btn btn-primary">
+                        Guardar Cambios
+                    </button>
+                </div>
+
+            </form>
+
+        </div>
+    </div>
+</div>
