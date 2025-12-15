@@ -2,9 +2,13 @@
 
 namespace SASA.Controllers
 {
-    public class UsuarioController : Controller
+    public class ColaController : Controller
     {
         public IActionResult Index()
+        {
+            return View();
+        }
+        public IActionResult Edit()
         {
             return View();
         }
@@ -13,16 +17,5 @@ namespace SASA.Controllers
         {
             return View();
         }
-
-        public IActionResult Add()
-        {
-            return View();
-        }
-
-        public IActionResult Edit()
-        {
-            return View();
-        }
-
     }
 }

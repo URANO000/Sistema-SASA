@@ -125,3 +125,46 @@ document.getElementById('fakeSubmitUser')?.addEventListener('click', function ()
 
     //User can close if they want
 });
+
+
+//-------------------QUEUE-------------------
+document.getElementById('fakeCreateQueue')?.addEventListener('click', function () {
+
+    //It immediately closes add ticket modal window
+    const addModal = bootstrap.Modal.getInstance(
+        document.getElementById('addQueueModal')
+    );
+    addModal?.hide();
+
+    //Shows success modal
+    const successModal = new bootstrap.Modal(
+        document.getElementById('successModal')
+    );
+    successModal.show();
+
+    //User can close if they want
+});
+
+document.getElementById('fakeEditQueue')?.addEventListener('click', function () {
+    //Shows success modal
+
+    const successModal = new bootstrap.Modal(
+        document.getElementById('successModal')
+    );
+    successModal.show();
+
+    //I need to add nav back to list
+});
+
+
+//------------------FORMS----------------------------
+document.getElementById('fakeEditForm')?.addEventListener('click', function () {
+    //Shows success modal
+
+    const successModal = new bootstrap.Modal(
+        document.getElementById('successModal')
+    );
+    successModal.show();
+
+    //I need to add nav back to list
+});

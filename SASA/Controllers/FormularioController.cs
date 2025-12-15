@@ -10,7 +10,20 @@ namespace SASA.Controllers
 
         }
 
-        public IActionResult Formularios()
+        public IActionResult Index()
+        {
+            return View();
+        }
+
+        public IActionResult Edit()
+        {
+            return View();
+        }
+        public IActionResult Details()
+        {
+            return View();
+        }
+        public IActionResult FormularioBuilder()
         {
             return View();
         }

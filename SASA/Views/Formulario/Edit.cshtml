@@ -1,0 +1,177 @@
+﻿<link rel="stylesheet" href="~/css/common.css" asp-append-version="true" />
+
+<div class="container-fluid">
+
+    <!-- HEADER -->
+    <div class="card mb-3">
+        <div class="card-body">
+
+            <a class="btn btn-link px-0"
+               asp-controller="Formulario"
+               asp-action="Index">
+                <i class="bi bi-arrow-left"></i> Volver a formularios
+            </a>
+
+            <div class="d-flex justify-content-between align-items-center mt-2">
+                <div>
+                    <h4 class="mb-1">Editar Formulario: Solicitud de Soporte</h4>
+                    <small class="text-muted">
+                        Servicio asociado: Servicio 2
+                    </small>
+                </div>
+
+                <span class="badge bg-success">Activo</span>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- BUILDER -->
+    <div class="row g-4">
+
+        <!-- LEFT: FIELD PALETTE -->
+        <div class="col-lg-3">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h6 class="section-title mb-3">Campos disponibles</h6>
+
+                    <div class="d-flex flex-column gap-2">
+
+                        <button class="btn btn-outline-secondary text-start">
+                            <i class="bi bi-fonts me-2"></i>
+                            Texto corto
+                        </button>
+
+                        <button class="btn btn-outline-secondary text-start">
+                            <i class="bi bi-card-text me-2"></i>
+                            Texto largo
+                        </button>
+
+                        <button class="btn btn-outline-secondary text-start">
+                            <i class="bi bi-list-check me-2"></i>
+                            Selección
+                        </button>
+
+                        <button class="btn btn-outline-secondary text-start">
+                            <i class="bi bi-calendar-event me-2"></i>
+                            Fecha
+                        </button>
+
+                        <button class="btn btn-outline-secondary text-start">
+                            <i class="bi bi-paperclip me-2"></i>
+                            Adjuntos
+                        </button>
+
+                    </div>
+
+                    <small class="text-muted d-block mt-3">
+                        Haga clic para agregar campos al formulario.
+                    </small>
+                </div>
+            </div>
+        </div>
+
+        <!-- CENTER: FORM CANVAS -->
+        <div class="col-lg-6">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h6 class="section-title mb-3">Estructura del formulario</h6>
+
+                    <div class="border rounded p-3 bg-light">
+
+                        <!-- Active field -->
+                        <div class="mb-3 field-item active-field p-2 rounded border">
+                            <label class="form-label required-field">
+                                Motivo de la solicitud
+                            </label>
+                            <input type="text" class="form-control" disabled>
+                        </div>
+
+                        <div class="mb-3 field-item p-2 rounded border">
+                            <label class="form-label">
+                                Fecha de inicio
+                            </label>
+                            <input type="date" class="form-control" disabled>
+                        </div>
+
+                        <div class="mb-3 field-item p-2 rounded border">
+                            <label class="form-label">
+                                Adjuntar comprobante
+                            </label>
+                            <input type="file" class="form-control" disabled>
+                        </div>
+
+                    </div>
+
+                    <small class="text-muted d-block mt-2">
+                        Seleccione un campo para editar su configuración.
+                    </small>
+                </div>
+            </div>
+        </div>
+
+        <!-- RIGHT: FIELD SETTINGS -->
+        <div class="col-lg-3">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h6 class="section-title mb-3">Configuración del campo</h6>
+
+                    <div class="mb-3">
+                        <label class="form-label required-field">Etiqueta</label>
+                        <input type="text"
+                               class="form-control"
+                               value="Motivo de la solicitud">
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Campo obligatorio</label>
+                        <div class="form-check">
+                            <input class="form-check-input"
+                                   type="checkbox"
+                                   checked>
+                            <label class="form-check-label">
+                                Requerido
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Texto de ayuda</label>
+                        <input type="text"
+                               class="form-control"
+                               placeholder="Ej. Describa el motivo">
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Tipo de campo</label>
+                        <input type="text"
+                               class="form-control"
+                               value="Texto corto"
+                               disabled>
+                    </div>
+
+                    <hr>
+
+                    <button class="btn btn-outline-danger w-100">
+                        <i class="bi bi-trash me-2"></i>
+                        Eliminar campo
+                    </button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ACTIONS -->
+    <div class="d-flex justify-content-end gap-2 mt-4">
+        <a class="btn btn-outline-secondary"
+           asp-controller="Formulario"
+           asp-action="Index">
+            Cancelar
+        </a>
+        <button class="btn btn-primary-custom text-white" id="fakeEditForm">
+            Guardar formulario
+        </button>
+    </div>
+
+</div>

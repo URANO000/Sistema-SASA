@@ -8,14 +8,6 @@ namespace SASA.Controllers
         {
             return View();
         }
-        public IActionResult ColasTrabajo()
-        {
-            return View();
-        }
-        public IActionResult Formularios()
-        {
-            return View();
-        }
         public IActionResult Dashboard()
         {
             return View();

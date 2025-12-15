@@ -6,6 +6,7 @@
     <title>@ViewData["Sistema de gestion SASA"] Sistema de gestión SASA</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/common.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/SASA.styles.css" asp-append-version="true" />
 
     <!-- This is for the extra things we need like fonts, icons, etc-->
@@ -93,11 +94,11 @@
 
                 <!-- Dropdown items -->
                 <div class="submenu">
-                    <a asp-area="" asp-controller="Usuario" asp-action="Usuarios" class="submenu-link">
+                    <a asp-area="" asp-controller="Usuario" asp-action="Index" class="submenu-link">
                         <i class=""></i>
                         Gestión de Usuarios
                     </a>
-                    <a asp-area="" asp-controller="Formulario" asp-action="Formularios" class="submenu-link">
+                    <a asp-area="" asp-controller="Formulario" asp-action="Index" class="submenu-link">
                         <i class=""></i>
                         Gestión de Formularios
                     </a>
@@ -105,7 +106,7 @@
                         <i class=""></i>
                         Gestión de Tiquetes
                     </a>
-                    <a asp-area="" asp-controller="Admin" asp-action="ColasTrabajo" class="submenu-link">
+                    <a asp-area="" asp-controller="Cola" asp-action="Index" class="submenu-link">
                         <i class=""></i>
                         Gestión de Colas
                     </a>
