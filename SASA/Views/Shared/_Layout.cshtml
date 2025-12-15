@@ -6,6 +6,7 @@
     <title>@ViewData["Sistema de gestion SASA"] Sistema de gestión SASA</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/common.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/SASA.styles.css" asp-append-version="true" />
 
     <!-- This is for the extra things we need like fonts, icons, etc-->
@@ -19,7 +20,14 @@
     <link rel="stylesheet" href="~/css/sasa-ui.css" />
     <!--Bootstrap icons-->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <!--Chart js CDN-->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
+
+<!--Global modal, for now at least-->
+@await Html.PartialAsync("_SuccessModal")
+@await Html.PartialAsync("_ErrorModal")
+<!---------------------------------->
 <body>
     <!--TOPBAR LAYOUT-->
     <header class="topbar-custom">
@@ -29,7 +37,9 @@
             </button>
 
             <div class="logo-sasa">
-                <img src="/img/logo-blanco-custom.png" alt="logo-sasa" asp-area="" asp-controller="Home" asp-action="Index" />
+                <a class="btn btn-link icon-btn" asp-area="" asp-controller="Home" asp-action="Index">
+                    <img src="/img/logo-blanco-custom.png" alt="logo-sasa" />
+                </a>
 @*                 <h1>Sistema de Gestión SASA</h1> *@
             </div>
         </div>
@@ -81,7 +91,7 @@
             <!--Sections of the navbar-->
             <div class="nav-section">
                 <span class="section-title">General</span>
-                <a asp-controller="Home" asp-action="Index" class="nav-link">
+                <a asp-controller="Admin" asp-action="Dashboard" class="nav-link">
                     <i class="bi bi-bar-chart"></i>
                     Dashboard
                 </a>
@@ -99,19 +109,19 @@
 
                 <!-- Dropdown items -->
                 <div class="submenu">
-                    <a href="#" class="submenu-link">
+                    <a asp-area="" asp-controller="Usuario" asp-action="Index" class="submenu-link">
                         <i class=""></i>
                         Gestión de Usuarios
                     </a>
-                    <a href="#" class="submenu-link">
+                    <a asp-area="" asp-controller="Formulario" asp-action="Index" class="submenu-link">
                         <i class=""></i>
                         Gestión de Formularios
                     </a>
-                    <a href="#" class="submenu-link">
+                    <a asp-area="" asp-controller="Tiquete" asp-action="Index" class="submenu-link">
                         <i class=""></i>
                         Gestión de Tiquetes
                     </a>
-                    <a href="#" class="submenu-link">
+                    <a asp-area="" asp-controller="Cola" asp-action="Index" class="submenu-link">
                         <i class=""></i>
                         Gestión de Colas
                     </a>
@@ -156,8 +166,8 @@
 
                 <!--Dropdown items-->
                 <div class="submenu">
-                    <a asp-controller="Tiquetes" asp-action="Index" class="submenu-link">
-                        <i class="bi bi-ticket-perforated"></i>
+                    <a asp-area="" asp-controller="Tiquete" asp-action="Index" class="submenu-link">
+                        <i class=""></i>
                         Gestión de Tiquetes
                     </a>
 
@@ -195,6 +205,7 @@
             &copy; 2025 - SASA - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
         </div>
     </footer> *@
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js" integrity="sha512-fD9DI5bZwQxOi7MhYWnnNPlvXdp/2Pj3XSTRrFs5FQa4mizyGLnJcN6tuvUS6LbmgN1ut+XGSABKvjN0H6Aoow==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>

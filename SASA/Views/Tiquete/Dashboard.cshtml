@@ -1,0 +1,136 @@
+﻿<div>
+    <!-- Header -->
+    <div class="card mb-3">
+        <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h2 class="mb-0 fw-bold">Dashboard de Tiquetes</h2>
+            </div>
+        </div>
+    </div>
+    <div class="row g-3 mb-4">
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h6 class="text-muted">Abiertos</h6>
+                    <h3 class="fw-bold text-primary">18</h3>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h6 class="text-muted">En Proceso</h6>
+                    <h3 class="fw-bold text-warning">7</h3>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h6 class="text-muted">Cerrados</h6>
+                    <h3 class="fw-bold text-success">42</h3>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h6 class="text-muted">Cancelados</h6>
+                    <h3 class="fw-bold text-danger">3</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!--Charts start coming in here, using the chart.js cdn located in Layout-->
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h6 class="section-title">Tiquetes por Estado</h6>
+                    <canvas id="estadoChart"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-body">
+                    <h6 class="section-title">Tiquetes por Prioridad</h6>
+                    <canvas id="prioridadChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <h6 class="section-title">Evolución de Tiquetes</h6>
+                    <canvas id="trendChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    //Now, this is only here for demo purposes, not real implementation. In any case, the js would be found in its own file
+        new Chart(document.getElementById('estadoChart'), {
+        type: 'doughnut',
+        data: {
+            labels: ['Abiertos', 'En Progreso', 'Cerrados'],
+            datasets: [{
+                data: [18, 7, 42],
+                backgroundColor: ['#012473', '#0347b8', '#d4a147']
+            }]
+        },
+        options: {
+            plugins: {
+                legend: { position: 'bottom' }
+            }
+        }
+    });
+
+            new Chart(document.getElementById('prioridadChart'), {
+            type: 'bar',
+            data: {
+                labels: ['Alta', 'Media', 'Baja'],
+                datasets: [{
+                    data: [12, 30, 25],
+                    backgroundColor: '#0347b8'
+                }]
+            },
+            options: {
+                plugins: { legend: { display: false } }
+            }
+        });
+
+            new Chart(document.getElementById('trendChart'), {
+        type: 'line',
+        data: {
+            labels: ['Lun', 'Mar', 'Mié', 'Jue', 'Vie'],
+            datasets: [
+                {
+                    label: 'Creados',
+                    data: [5, 8, 6, 9, 4],
+                    borderColor: '#0d6efd'
+                },
+                {
+                    label: 'Cerrados',
+                    data: [3, 6, 7, 5, 8],
+                    borderColor: '#d4a147'
+                },
+                {
+                    label: 'Cancelados',
+                    data: [2, 3, 1, 2, 2],
+                    borderColor: '#da0c00'
+                }
+            ]
+        }
+    });
+
+</script>
