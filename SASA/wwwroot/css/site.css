@@ -29,6 +29,10 @@ h2 {
     font-size: 1.5em;
 }
 
+.text-danger-custom{
+    color:var(--danger-color);
+}
+
 html {
   font-size: 14px;
 }
@@ -254,7 +258,6 @@ html {
     }
 }
 
-/*This is for cards, mostly look, borders, feel*/
 
 
 
@@ -274,8 +277,6 @@ html {
         outline: 0;
     }
 
- /* This is for tables*/
-
 /*Overall cards*/
 .card {
     border-radius: 8px;
@@ -284,18 +285,8 @@ html {
     background-color: white;
 }
 
-.card {
-    animation: fadeInUp 0.5s ease;
-}
+/*some button stuff*/
 
-@keyframes fadeInUp {
-    from {
-        opacity: 0;
-        transform: translateY(20px);
-    }
-
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+.btn-danger-custom{
+    background-color: var(--danger-color);
 }

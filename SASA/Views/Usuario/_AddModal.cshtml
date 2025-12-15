@@ -1,0 +1,106 @@
+﻿<div class="modal fade" id="addUserModal" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+
+            <!-- Header -->
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="bi bi-person-plus me-2"></i>
+                    Crear Nuevo Usuario
+                </h5>
+                <button type="button"
+                        class="btn-close icon-btn"
+                        data-bs-dismiss="modal"></button>
+            </div>
+
+            <!-- Body -->
+            <div class="modal-body">
+                <div class="form-container">
+
+                    <div class="form-content">
+                        <p class="section-subtitle">
+                            Ingrese la información básica para registrar un nuevo usuario en el sistema.
+                        </p>
+
+                        <div class="row g-3">
+
+                            <!-- Nombre completo -->
+                            <div class="col-md-6">
+                                <label class="form-label required-field">Nombre completo</label>
+                                <input type="text"
+                                       class="form-control"
+                                       placeholder="Ej. María Fernanda López Gómez">
+                            </div>
+
+                            <!-- Correo -->
+                            <div class="col-md-6">
+                                <label class="form-label required-field">Correo electrónico</label>
+                                <input type="email"
+                                       class="form-control"
+                                       placeholder="usuario@empresa.com">
+                            </div>
+                            <!--Departamento-->
+                            <div class="col-md-6">
+                                <label class="form-label required-field">Departamento</label>
+                                <select class="form-select">
+                                    <option value="">Seleccione un departamento</option>
+                                    <option>TI</option>
+                                    <option>RRHH</option>
+                                    <option>Ventas</option>
+                                </select>
+
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label required-field">Puesto</label>
+                                <select class="form-select">
+                                    <option value="">Seleccione un puesto</option>
+                                    <option>Analista de Soporte</option>
+                                    <option>Administrador</option>
+                                    <option>Asesor de ventas</option>
+                                </select>
+
+                            </div>
+
+                            <!-- Rol -->
+                            <div class="col-md-6">
+                                <label class="form-label required-field">Rol</label>
+                                <select class="form-select">
+                                    <option value="">Seleccione un rol</option>
+                                    <option>Administrador</option>
+                                    <option>Soporte</option>
+                                    <option>Usuario</option>
+                                </select>
+
+                                <small class="text-muted">
+                                    El rol define los permisos iniciales del usuario.
+                                </small>
+                            </div>
+
+                            <!-- Estado inicial es activo por default -->
+
+                        </div>
+                    </div>
+
+                    <!-- Footer -->
+                    <div class="modal-footer-custom">
+                        <div class="d-flex justify-content-end gap-2">
+                            <button type="button"
+                                    class="btn btn-outline-secondary"
+                                    data-bs-dismiss="modal">
+                                Cancelar
+                            </button>
+                            <button type="button"
+                                    class="btn btn-success-custom text-white"
+                                    id="fakeSubmitUser">
+                                <i class="bi bi-check-lg me-2"></i>
+                                Crear Usuario
+                            </button>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
