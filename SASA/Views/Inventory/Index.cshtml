@@ -5,19 +5,20 @@
 <div class="container-fluid">
 
     <!-- Main Card -->
-    <div class="card shadow-sm">
+    <div class="card mb-3">
         <div class="card-body">
 
             <!-- Header -->
-            <div class="d-flex justify-content-between align-items-center mb-4">
+            <div class="d-flex justify-content-between align-items-center mb-3">
                 <div>
-                    <h4 class="mb-0">Gestión de Inventario</h4>
+                    <h4 class="mb-0 fw-bold">Gestión de Inventario</h4>
                     <small class="text-muted">
                         Administre y supervise los activos registrados en el sistema.
                     </small>
                 </div>
-                <a asp-action="Create" class="btn btn-primary">
-                    + Nuevo Activo
+                <a class="btn btn-custom" asp-controller="Inventory" asp-action="Create">
+                    <i class="bi bi-plus-lg"></i>
+                    Nuevo Activo
                 </a>
             </div>
 
@@ -36,13 +37,20 @@
                     </select>
                 </div>
 
-                <div class="col-md-4">
+                <div class="col-md-2">
                     <select class="form-select">
                         <option selected>Tipo de Activo</option>
                         <option>Dispositivo</option>
                         <option>Herramienta</option>
                         <option>Otro</option>
                     </select>
+                </div>
+
+                <div class="col-md-2">
+                    <button class="btn btn-outline-secondary w-100">
+                        <i class="bi bi-funnel"></i>
+                        Filtrar
+                    </button>
                 </div>
             </div>
 
@@ -51,37 +59,37 @@
                 <table class="table table-hover align-middle">
                     <thead class="table-light">
                         <tr>
+                            <th class="text-center">Acciones</th>
                             <th>#</th>
                             <th>Código</th>
                             <th>Nombre</th>
                             <th>Tipo</th>
                             <th>Estado</th>
-                            <th class="text-center">Acciones</th>
                         </tr>
                     </thead>
                     <tbody>
 
                         <!-- Sample Row -->
                         <tr>
+                            <td class="text-center">
+                                <a asp-action="Detail" asp-route-id="1" class="btn btn-link">
+                                    <i class="bi bi-eye detail-btn"></i>
+                                </a>
+
+                                <a asp-action="Edit" asp-route-id="1" class="btn btn-link">
+                                    <i class="fa-regular fa-pen-to-square edit-btn"></i>
+                                </a>
+
+                                <a class="btn btn-link text-danger">
+                                    <i class="bi bi-trash3"></i>
+                                </a>
+                            </td>
                             <td>1</td>
                             <td>INV-001</td>
                             <td>Dell Latitude Laptop</td>
                             <td>Dispositivo</td>
                             <td>
                                 <span class="badge bg-success">Activo</span>
-                            </td>
-                            <td class="text-center">
-                                <a asp-action="Detail" asp-route-id="1" class="btn btn-sm btn-outline-secondary me-1">
-                                    Ver
-                                </a>
-
-                                <a asp-action="Edit" asp-route-id="1" class="btn btn-sm btn-outline-primary me-1">
-                                    Editar
-                                </a>
-
-                                <button class="btn btn-sm btn-outline-danger">
-                                    Eliminar
-                                </button>
                             </td>
                         </tr>
 
