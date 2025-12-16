@@ -1,0 +1,125 @@
+﻿@{
+    ViewData["Title"] = "Detalles del Usuario";
+}
+
+<!-- HEADER -->
+<div class="card mb-3">
+    <div class="card-body">
+        <div class="ticket-header mb-4">
+            <a asp-controller="Usuario" asp-action="Index" class="btn btn-link px-0">
+                <i class="bi bi-arrow-left"></i> Volver al listado
+            </a>
+
+            <div class="d-flex justify-content-between align-items-center mt-2">
+                <h4 class="mb-0 fw-bold">Detalles del Usuario</h4>
+
+                <span class="badge bg-success">
+                    Usuario Activo
+                </span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+
+    <!-- MAIN -->
+    <div class="col-lg-8">
+
+        <!-- IDENTIDAD -->
+        <div class="card mb-4">
+            <div class="card-body">
+                <h6 class="section-title">Identidad del Usuario</h6>
+
+                <dl class="row mb-0">
+                    <dt class="col-4">Nombre Completo</dt>
+                    <dd class="col-8">Juan Pérez</dd>
+
+                    <dt class="col-4">No. Empleado</dt>
+                    <dd class="col-8">EMP-1023</dd>
+
+                    <dt class="col-4">Correo</dt>
+                    <dd class="col-8">juanp@gmail.com</dd>
+                </dl>
+            </div>
+        </div>
+
+        <!-- CONTEXTO ORGANIZACIONAL -->
+        <div class="card mb-4">
+            <div class="card-body">
+                <h6 class="section-title">Información Organizacional</h6>
+
+                <dl class="row mb-0">
+                    <dt class="col-4">Departamento</dt>
+                    <dd class="col-8">Tecnologías de Información</dd>
+
+                    <dt class="col-4">Puesto</dt>
+                    <dd class="col-8">Analista de Soporte</dd>
+
+                    <dt class="col-4">Jefe Directo</dt>
+                    <dd class="col-8">Carlos Ramírez</dd>
+                </dl>
+            </div>
+        </div>
+
+        <!-- ACTIVIDAD EN TIQUETES -->
+        <div class="card">
+            <div class="card-body">
+                <h6 class="section-title">Actividad en el Sistema de Tiquetes</h6>
+
+                <ul class="timeline">
+                    <li>
+                        <span class="timeline-date">12/03/2025</span>
+                        <p><strong>Último tiquete creado</strong> – Error de acceso al sistema</p>
+                    </li>
+
+                    <li>
+                        <span class="timeline-date">10/03/2025</span>
+                        <p>Tiquete cerrado – Solicitud de equipo</p>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- SIDE -->
+    <div class="col-lg-4">
+
+        <!-- MÉTRICAS -->
+        <div class="card mb-4">
+            <div class="card-body">
+                <h6 class="section-title">Resumen Operativo</h6>
+
+                <dl class="row mb-0">
+                    <dt class="col-7">Tiquetes Abiertos</dt>
+                    <dd class="col-5">3</dd>
+
+                    <dt class="col-7">Tiquetes Cerrados</dt>
+                    <dd class="col-5">12</dd>
+
+                    <dt class="col-7">Última Actividad</dt>
+                    <dd class="col-5">12/03/2025</dd>
+                </dl>
+            </div>
+        </div>
+
+@*         <!-- ACCIONES -->
+        <div class="card">
+            <div class="card-body">
+                <h6 class="section-title">Acciones</h6>
+
+                <div class="d-grid gap-2">
+                    <a class="btn btn-primary-custom text-white">
+                        Ver Tiquetes del Usuario
+                    </a>
+
+                    <a class="btn btn-outline-secondary">
+                        Editar Información Básica
+                    </a>
+                </div>
+            </div>
+        </div> *@
+
+    </div>
+</div>

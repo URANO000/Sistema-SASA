@@ -1,0 +1,64 @@
+@{
+    ViewData["Title"] = "Detalle del Activo";
+}
+
+<div class="container-fluid">
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h4 class="mb-0">Detalle del Activo</h4>
+                    <small class="text-muted">
+                        Visualice la información detallada del activo seleccionado.
+                    </small>
+                </div>
+
+                <div>
+                    <a asp-action="Edit" asp-route-id="1" class="btn btn-outline-primary me-2">
+                        Editar Activo
+                    </a>
+
+                    <a asp-action="Index" class="btn btn-outline-secondary">
+                        Volver
+                    </a>
+                </div>
+            </div>
+
+            <div class="row">
+
+                <div class="col-md-6 mb-3">
+                    <strong>Código del Activo</strong>
+                    <div>INV-001</div>
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <strong>Nombre del Activo</strong>
+                    <div>Dell Latitude Laptop</div>
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <strong>Tipo de Activo</strong>
+                    <div>Dispositivo</div>
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <strong>Estado</strong>
+                    <div>
+                        <span class="badge bg-success">Activo</span>
+                    </div>
+                </div>
+
+                <div class="col-md-12 mb-3">
+                    <strong>Descripción</strong>
+                    <div>
+                        Equipo portátil corporativo asignado para uso interno.
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+</div>

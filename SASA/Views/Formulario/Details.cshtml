@@ -1,0 +1,136 @@
+﻿@{
+    ViewData["Title"] = "Detalle del Formulario";
+}
+<div class="container-fluid">
+    <div class="card mb-3">
+        <div class="card-body">
+            <a asp-controller="Formulario" asp-action="Index" class="btn btn-link px-0">
+                <i class="bi bi-arrow-left"></i> Volver al listado
+            </a>
+
+            <div class="d-flex justify-content-between align-items-center mt-2">
+                <h4 class="mb-0">Formulario: Solicitud de Soporte</h4>
+                <span class="badge bg-success">Activo</span>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+
+            <!-- Form Preview -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h6 class="section-title">Vista previa del Formulario</h6>
+
+                    <p class="text-muted mb-4">
+                        Este es un ejemplo de cómo se presentará el formulario al usuario final.
+                    </p>
+
+                    <form class="row g-3">
+
+                        <!-- Nombre -->
+                        <div class="col-md-6">
+                            <label class="form-label required-field">Nombre completo</label>
+                            <input type="text" class="form-control" placeholder="Ej. Juan Pérez" disabled>
+                        </div>
+
+                        <!-- Correo -->
+                        <div class="col-md-6">
+                            <label class="form-label required-field">Correo electrónico</label>
+                            <input type="email" class="form-control" placeholder="usuario@empresa.com" disabled>
+                        </div>
+
+                        <!-- Categoría -->
+                        <div class="col-md-6">
+                            <label class="form-label required-field">Tipo de solicitud</label>
+                            <select class="form-select" disabled>
+                                <option>Soporte técnico</option>
+                                <option>Accesos</option>
+                                <option>Infraestructura</option>
+                            </select>
+                        </div>
+
+                        <!-- Prioridad -->
+                        <div class="col-md-6">
+                            <label class="form-label required-field">Prioridad</label>
+                            <select class="form-select" disabled>
+                                <option>Alta</option>
+                                <option>Media</option>
+                                <option>Baja</option>
+                            </select>
+                        </div>
+
+                        <!-- Descripción -->
+                        <div class="col-12">
+                            <label class="form-label required-field">Descripción del problema</label>
+                            <textarea class="form-control"
+                                      rows="4"
+                                      placeholder="Describa el problema o solicitud"
+                                      disabled></textarea>
+                        </div>
+
+                        <!-- Archivo -->
+                        <div class="col-12">
+                            <label class="form-label">Adjuntar archivo</label>
+                            <input type="file" class="form-control" disabled>
+                        </div>
+
+                    </form>
+
+                    <small class="text-muted d-block mt-3">
+                        * Esta vista es solo de referencia. El formulario real será interactivo.
+                    </small>
+                </div>
+            </div>
+
+        </div>
+
+        <!--THIS IS METADATA AS IT'S, IMPORTANT TOO-->
+        <div class="col-lg-4">
+
+            <!-- Form Info -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h6 class="section-title">Información del Formulario</h6>
+
+                    <dl class="row mb-0">
+                        <dt class="col-5">Servicio</dt>
+                        <dd class="col-7">
+                            <span class="badge bg-primary">Servicio 1</span>
+                        </dd>
+
+                        <dt class="col-5">Campos</dt>
+                        <dd class="col-7">6</dd>
+
+                        <dt class="col-5">Estado</dt>
+                        <dd class="col-7">Activo</dd>
+
+                        <dt class="col-5">Creado</dt>
+                        <dd class="col-7">10/03/2025</dd>
+
+                        <dt class="col-5">Última edición</dt>
+                        <dd class="col-7">15/03/2025</dd>
+                    </dl>
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="card">
+                <div class="card-body">
+                    <h6 class="section-title">Acciones</h6>
+                    <button class="btn btn-outline-danger">
+                        <i class="bi bi-x-circle me-2"></i>
+                        Desactivar formulario
+                    </button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+
+
+</div>
+</div>

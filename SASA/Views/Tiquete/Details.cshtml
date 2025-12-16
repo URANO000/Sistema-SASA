@@ -1,0 +1,102 @@
+﻿@{
+    ViewData["Title"] = "Detalle de Tiquete";
+}
+
+<!---------Make sure to always keep separation of important and slightly less important-------->
+<div class="card mb-3">
+    <div class="card-body">
+        <div class="ticket-header mb-4">
+            <a asp-area="" asp-controller="Tiquete" asp-action="Index" class="btn btn-link px-0">
+                <i class="bi bi-arrow-left"></i> Volver al listado
+            </a>
+            <div class="d-flex justify-content-between align-items-center mt-2">
+                <h4 class="mb-0 fw-bold">Tiquete TQ-001</h4>
+                <span class="badge bg-warning text-dark">En Progreso</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- MAIN -->
+    <div class="col-lg-8">
+        <!-- Description -->
+        <div class="card mb-4">
+            <div class="card-body">
+                <h6 class="section-title">Descripción</h6>
+                <p class="text-muted mb-0">
+                    Reporte de fallo de acceso al sistema principal. Se genera un error 500.
+                </p>
+            </div>
+        </div>
+
+        <!-- Timeline / Avances -->
+        <div class="card mb-4">
+            <div class="card-body">
+                <h6 class="section-title">Historial y Avances</h6>
+
+                <ul class="timeline">
+                    <li>
+                        <span class="timeline-date">12/03/2025 09:14</span>
+                        <p><strong>Creado</strong> por Juan Pérez</p>
+                    </li>
+                    <li>
+                        <span class="timeline-date">12/03/2025 10:02</span>
+                        <p>Asignado a Soporte TI</p>
+                    </li>
+                    <li>
+                        <span class="timeline-date">12/03/2025 14:30</span>
+                        <p>Diagnóstico inicial completado</p>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Attachments -->
+        <div class="card">
+            <div class="card-body">
+                <h6 class="section-title">Documentos Adjuntos</h6>
+
+                <ul class="list-unstyled">
+                    <li>
+                        <i class="bi bi-paperclip"></i>
+                        <a href="#">diagnostico-red.pdf</a>
+                    </li>
+                    <li>
+                        <i class="bi bi-paperclip"></i>
+                        <a href="#">foto-equipo.jpg</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- SIDE -->
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-body">
+                <h6 class="section-title">Información del Tiquete</h6>
+
+                <dl class="row mb-0">
+                    <dt class="col-5">Prioridad</dt>
+                    <dd class="col-7">Alta</dd>
+
+                    <dt class="col-5">Creado por</dt>
+                    <dd class="col-7">juanp@gmail.com</dd>
+
+                    <dt class="col-5">Responsable</dt>
+                    <dd class="col-7">Soporte TI</dd>
+
+                    <dt class="col-5">Fecha creación</dt>
+                    <dd class="col-7">12/03/2025</dd>
+
+                    <dt class="col-5">Última actualización</dt>
+                    <dd class="col-7">12/03/2025</dd>
+
+                    <dt class="col-5">Actualizado por</dt>
+                    <dd class="col-7">sarad@gmail.com</dd>
+                </dl>
+            </div>
+        </div>
+    </div>
+</div>

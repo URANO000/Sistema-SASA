@@ -1,0 +1,170 @@
+﻿@{
+    ViewData["Title"] = "Dashboard Administrativo";
+}
+<div>
+
+    <!-- Header -->
+    <div class="card mb-3">
+        <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h2 class="mb-0 fw-bold">Dashboard Administrativo</h2>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Access -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-4">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h6 class="section-title">Cola de Trabajo</h6>
+                    <p class="text-muted">Gestión de tareas y procesos</p>
+                    <a asp-controller="Cola" asp-action="Index" class="btn btn-custom">Acceder</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h6 class="section-title">Administración</h6>
+                    <p class="text-muted">Usuarios, roles y configuración</p>
+                    <a asp-controller="Usuario" asp-action="Index" class="btn btn-custom">Acceder</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h6 class="section-title">Inventario</h6>
+                    <p class="text-muted">Control de recursos y stock</p>
+                    <a asp-controller="Inventory" asp-action="Index" class="btn btn-custom">Acceder</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- KPI Summary -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h6 class="text-muted">Tiquetes Pendientes</h6>
+                    <h3 class="fw-bold text-primary">21</h3>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h6 class="text-muted">Procesos Activos</h6>
+                    <h3 class="fw-bold text-warning">9</h3>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h6 class="text-muted">Items en Inventario</h6>
+                    <h3 class="fw-bold text-success">154</h3>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h6 class="text-muted">Alertas</h6>
+                    <h3 class="fw-bold text-danger">4</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Charts -->
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h6 class="section-title">Estado de Procesos</h6>
+                    <canvas id="estadoChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-body">
+                    <h6 class="section-title">Carga Operativa</h6>
+                    <canvas id="operacionChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <h6 class="section-title">Evolución Semanal</h6>
+                    <canvas id="trendChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    new Chart(document.getElementById('estadoChart'), {
+        type: 'doughnut',
+        data: {
+            labels: ['Pendientes', 'En Proceso', 'Completados'],
+            datasets: [{
+                data: [21, 9, 34],
+                backgroundColor: ['#012473', '#0347b8', '#d4a147']
+            }]
+        },
+        options: {
+            plugins: {
+                legend: { position: 'bottom' }
+            }
+        }
+    });
+
+    new Chart(document.getElementById('operacionChart'), {
+        type: 'bar',
+        data: {
+            labels: ['Cola', 'Admin', 'Inventario'],
+            datasets: [{
+                data: [12, 8, 15],
+                backgroundColor: '#0347b8'
+            }]
+        },
+        options: {
+            plugins: { legend: { display: false } }
+        }
+    });
+
+    new Chart(document.getElementById('trendChart'), {
+        type: 'line',
+        data: {
+            labels: ['Lun', 'Mar', 'Mié', 'Jue', 'Vie'],
+            datasets: [
+                {
+                    label: 'Procesados',
+                    data: [6, 9, 7, 10, 8],
+                    borderColor: '#0d6efd'
+                },
+                {
+                    label: 'Pendientes',
+                    data: [5, 4, 6, 3, 5],
+                    borderColor: '#da0c00'
+                }
+            ]
+        }
+    });
+</script>

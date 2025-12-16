@@ -1,0 +1,127 @@
+﻿@{
+    ViewData["Title"] = "Editar Usuario";
+}
+<!--HEADER-->
+<div class="card mb-3">
+    <div class="card-body">
+        <div class="ticket-header mb-4">
+            <a asp-controller="Usuario" asp-action="Index" class="btn btn-link px-0">
+                <i class="bi bi-arrow-left"></i> Volver al listado
+            </a>
+
+            <div class="d-flex justify-content-between align-items-center mt-2">
+                <h4 class="mb-0">Editar Usuario</h4>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!--INFO-->
+<div class="card mb-4">
+    <div class="card-body">
+        <h6 class="section-title mb-3">Información del Usuario</h6>
+
+        <div class="row g-3">
+            <div class="col-md-6">
+                <label class="form-label">Nombre</label>
+                <input class="form-control" value="Juan Pérez" />
+            </div>
+
+            <div class="col-md-3">
+                <label class="form-label">No. Empleado</label>
+                <input class="form-control" value="EMP-1023" disabled />
+            </div>
+
+            <div class="col-md-3">
+                <label class="form-label">Correo</label>
+                <input class="form-control" value="juanp@gmail.com" />
+            </div>
+        </div>
+    </div>
+</div>
+
+ <!--For the ROLES user story-->
+<div class="card mb-4">
+    <div class="card-body">
+        <h6 class="section-title">Asignación de Rol</h6>
+
+        <div class="row g-3">
+            <div class="col-md-6">
+                <label class="form-label required-field">Rol del Usuario</label>
+                <select class="form-select">
+                    <option>Administrador</option>
+                    <option>Soporte</option>
+                    <option selected>Usuario</option>
+                </select>
+            </div>
+
+            <div class="col-md-6">
+                <label class="form-label">Restricciones del Rol</label>
+                <input class="form-control" value="Acceso a gestión de tiquetes" disabled />
+            </div>
+        </div>
+    </div>
+</div>
+
+ <!--ASSIGN CLIENTS-->
+
+<div class="card mb-4">
+    <div class="card-body">
+        <h6 class="section-title">Asignación de Clientes</h6>
+
+        <div class="col-md-4">
+            <label class="form-label">Buscar</label>
+            <input type="text" class="form-control" placeholder="Nombre o ID">
+        </div>
+
+        <small class="text-muted">
+            Puede asignar uno o varios clientes al usuario.
+        </small>
+    </div>
+</div>
+
+<!--In production, this should be a search bar-->
+<div class="card mb-4">
+    <div class="card-body">
+        <h6 class="section-title">Asignación de Tiquetes</h6>
+
+        <div class="col-md-4">
+            <label class="form-label">Buscar</label>
+            <input type="text" class="form-control" placeholder="Código o asunto">
+        </div>
+
+        <small class="text-muted">
+            Los tiquetes pueden pertenecer a cualquier cliente.
+        </small>
+    </div>
+</div>
+
+<!--IMPORTANTE-->
+<div class="card border-danger mb-4">
+    <div class="card-body">
+        <h6 class="text-danger-custom fw-bold">Zona de Riesgo</h6>
+
+        <p class="text-muted mb-3">
+            Deshabilitar un usuario impide su acceso al sistema.
+        </p>
+
+        <button class="btn btn-outline-danger icon-btn" id="fakeDisableUser">
+            Deshabilitar Usuario
+        </button>
+    </div>
+</div>
+
+<!--ACTIONS-->
+
+<div class="d-flex justify-content-end gap-2 mt-4">
+    <a asp-controller="Usuario" asp-action="Index" class="btn btn-outline-secondary">
+        Cancelar
+    </a>
+    <button class="btn btn-primary-custom text-white"
+            id="fakeEditUser">
+        Guardar Cambios
+    </button>
+</div>
+
+@await Html.PartialAsync("_DisableConfirm")

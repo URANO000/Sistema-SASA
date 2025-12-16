@@ -1,0 +1,107 @@
+﻿<div class="modal fade" id="addFormModal" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+
+            <!-- Header -->
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="bi bi-ui-checks-grid me-2"></i>
+                    Crear Nuevo Formulario
+                </h5>
+                <button type="button"
+                        class="btn-close icon-btn"
+                        data-bs-dismiss="modal"></button>
+            </div>
+
+            <!-- Body -->
+            <div class="modal-body">
+                <div class="form-container">
+
+                    <div class="form-content">
+                        <p class="section-subtitle">
+                            Defina la información básica del formulario y asígnelo a un servicio.
+                        </p>
+
+                        <div class="row g-3">
+
+                            <!-- Nombre del formulario -->
+                            <div class="col-md-6">
+                                <label class="form-label required-field">Nombre del formulario</label>
+                                <input type="text"
+                                       class="form-control"
+                                       placeholder="Ej. Solicitud de Soporte">
+                            </div>
+
+                            <!-- Servicio -->
+                            <div class="col-md-6">
+                                <label class="form-label required-field">Servicio asociado</label>
+                                <select class="form-select">
+                                    <option value="">Seleccione un servicio</option>
+                                    <option>Servicio 1</option>
+                                    <option>Servicio 2</option>
+                                    <option>Servicio 3</option>
+                                    <option>Servicio 4</option>
+                                </select>
+
+                                <small class="text-muted">
+                                    Cada formulario debe estar asociado a un servicio.
+                                </small>
+                            </div>
+
+                            <!-- Descripción -->
+                            <div class="col-12">
+                                <label class="form-label">Descripción</label>
+                                <textarea class="form-control"
+                                          rows="3"
+                                          placeholder="Describa el propósito del formulario (opcional)"></textarea>
+                            </div>
+
+                            <!-- Plantilla base -->
+                            <div class="col-md-6">
+                                <label class="form-label">Plantilla base</label>
+                                <select class="form-select">
+                                    <option value="">Crear desde cero</option>
+                                    <option>Plantilla estándar</option>
+                                    <option>Plantilla de Soporte</option>
+                                </select>
+
+                                <small class="text-muted">
+                                    Puede basarse en una plantilla para acelerar la creación.
+                                </small>
+                            </div>
+
+                            <!-- Estado -->
+                            <div class="col-md-6">
+                                <label class="form-label">Estado inicial</label>
+                                <select class="form-select">
+                                    <option selected>Activo</option>
+                                    <option>Inactivo</option>
+                                </select>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <!-- Footer -->
+                    <div class="modal-footer-custom">
+                        <div class="d-flex justify-content-end gap-2">
+                            <button type="button"
+                                    class="btn btn-outline-secondary"
+                                    data-bs-dismiss="modal">
+                                Cancelar
+                            </button>
+                            <a type="button" asp-controller="Formulario" asp-action="FormularioBuilder"
+                                    class="btn btn-success-custom text-white"
+                                    id="fakeCreateForm">
+                                <i class="bi bi-arrow-right-circle me-2"></i>
+                                Crear y configurar
+                            </a>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>

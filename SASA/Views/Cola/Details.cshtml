@@ -1,0 +1,154 @@
+﻿@{
+    ViewData["Title"] = "Detalle de Cola de Trabajo";
+}
+<div class="container-fluid">
+    <div class="card mb-3">
+        <div class="card-body">
+            <a asp-controller="Cola" asp-action="Index" class="btn btn-link px-0">
+                <i class="bi bi-arrow-left"></i> Volver al listado
+            </a>
+
+            <div class="d-flex justify-content-between align-items-center mt-2">
+                <h4 class="mb-0 fw-bold">Cola: Soporte Nivel 1</h4>
+                <span class="badge bg-success text-white">Activa</span>
+            </div>
+
+        </div>
+    </div>
+
+
+    <!--MAIN CIONTENT-->
+    <div class="row">
+        <!-- MAIN -->
+        <div class="col-lg-8">
+            <!-- Queue Information -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h6 class="section-title">Información de la Cola</h6>
+                    <p class="text-muted mb-0">
+                        Esta cola está destinada a gestionar todos los problemas relacionados con soporte técnico y mantenimiento de sistemas. Actualmente está activa y recibiendo tickets en progreso.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Ticket List -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h6 class="section-title">Tiquetes en esta Cola</h6>
+
+                    <div class="table-responsive">
+                        <table class="table tbale-responsive table-hover align-middle">
+                            <thead>
+                                <tr>
+                                    <th>ID Tiquete</th>
+                                    <th>Asunto</th>
+                                    <th>Prioridad</th>
+                                    <th>Estado</th>
+                                    <th>Creado</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>TQ-001</td>
+                                    <td>Error al iniciar sesión</td>
+                                    <td><span class="badge bg-danger">Alta</span></td>
+                                    <td><span class="badge bg-warning text-dark">En Progreso</span></td>
+                                    <td>12/03/2025</td>
+                                    <td>
+                                        <button class="btn btn-link icon-btn">
+                                            <i class="bi bi-eye"></i>
+                                        </button>
+                                        <button class="btn btn-link icon-btn">
+                                            <i class="fa-regular fa-pen-to-square"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>TQ-002</td>
+                                    <td>Fallo en la impresora</td>
+                                    <td><span class="badge bg-warning">Media</span></td>
+                                    <td><span class="badge bg-info text-dark">Pausada</span></td>
+                                    <td>15/02/2025</td>
+                                    <td>
+                                        <button class="btn btn-link icon-btn">
+                                            <i class="bi bi-eye"></i>
+                                        </button>
+                                        <button class="btn btn-link icon-btn">
+                                            <i class="fa-regular fa-pen-to-square"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Timeline / Queue Activity -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h6 class="section-title">Historial de la Cola</h6>
+
+                    <ul class="timeline">
+                        <li>
+                            <span class="timeline-date">12/03/2025 09:14</span>
+                            <p><strong>Creada</strong> por Juan Pérez</p>
+                        </li>
+                        <li>
+                            <span class="timeline-date">13/03/2025 11:00</span>
+                            <p>Comienza a recibir tickets de soporte técnico</p>
+                        </li>
+                        <li>
+                            <span class="timeline-date">15/03/2025 14:30</span>
+                            <p>Tickets en cola: 5</p>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- SIDE: Queue Overview -->
+        <div class="col-lg-4">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h6 class="section-title">Resumen de la Cola</h6>
+                    <dl class="row mb-0">
+                        <dt class="col-5">Estado</dt>
+                        <dd class="col-7">Activa</dd>
+
+                        <dt class="col-5">Prioridad</dt>
+                        <dd class="col-7">Alta</dd>
+
+                        <dt class="col-5">Tickets Pendientes</dt>
+                        <dd class="col-7">12</dd>
+
+                        <dt class="col-5">Creada</dt>
+                        <dd class="col-7">12/03/2025</dd>
+
+                        <dt class="col-5">Última Actualización</dt>
+                        <dd class="col-7">15/03/2025</dd>
+                    </dl>
+                </div>
+            </div>
+
+            <!-- Queue Actions -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h6 class="section-title">Acciones de la Cola</h6>
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-outline-warning">
+                            <i class="bi bi-pause-circle me-2"></i>
+                            Pausar Cola
+                        </button>
+                        <button class="btn btn-outline-danger">
+                            <i class="bi bi-x-circle me-2"></i>
+                            Cerrar Cola
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>

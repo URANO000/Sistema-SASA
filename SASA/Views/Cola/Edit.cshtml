@@ -1,0 +1,109 @@
+﻿@{
+    ViewData["Title"] = "Editar Cola de Trabajo";
+}
+
+<!-- HEADER -->
+<div class="card mb-3">
+    <div class="card-body">
+        <div class="ticket-header mb-4">
+            <a asp-controller="Cola" asp-action="Index" class="btn btn-link px-0">
+                <i class="bi bi-arrow-left"></i> Volver al listado
+            </a>
+
+            <div class="d-flex justify-content-between align-items-center mt-2">
+                <h4 class="mb-0">Editar Cola de Trabajo</h4>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- QUEUE INFO -->
+<div class="card mb-4">
+    <div class="card-body">
+        <h6 class="section-title mb-3">Información de la Cola</h6>
+
+        <div class="row g-3">
+            <div class="col-md-4">
+                <label class="form-label required-field">Cliente</label>
+                <select class="form-select">
+                    <option>Cliente A</option>
+                    <option selected>Cliente B</option>
+                    <option>Cliente C</option>
+                </select>
+            </div>
+
+            <div class="col-md-4">
+                <label class="form-label required-field">Nombre de la Cola</label>
+                <input class="form-control" value="Soporte Nivel 1" />
+            </div>
+
+            <div class="col-md-2">
+                <label class="form-label">Estado</label>
+                <select class="form-select">
+                    <option selected>Activa</option>
+                    <option>Pausada</option>
+                    <option>Cerrada</option>
+                </select>
+            </div>
+
+            <div class="col-md-2">
+                <label class="form-label">Prioridad</label>
+                <select class="form-select">
+                    <option selected>Alta</option>
+                    <option>Media</option>
+                    <option>Baja</option>
+                </select>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- TICKET ASSOCIATION -->
+<div class="card mb-4">
+    <div class="card-body">
+        <h6 class="section-title mb-3">Asociar Tiquetes a la Cola</h6>
+
+        <!-- SEARCH BAR -->
+        <div class="row g-2 align-items-end mb-3">
+            <div class="col-md-6">
+                <label class="form-label">Buscar Tiquete</label>
+                <input type="text"
+                       class="form-control"
+                       placeholder="Código, asunto o cliente" />
+            </div>
+
+        </div>
+
+        <small class="text-muted d-block mb-3">
+            Puede asociar o remover tiquetes de esta cola. Los cambios no se aplican hasta guardar.
+        </small>
+
+        
+    </div>
+</div>
+
+<!-- RISK ZONE -->
+<div class="card border-danger mb-4">
+    <div class="card-body">
+        <h6 class="text-danger-custom fw-bold">Zona de Riesgo</h6>
+
+        <p class="text-muted mb-3">
+            Cerrar una cola impide la asignación de nuevos tiquetes.
+        </p>
+
+        <button class="btn btn-outline-danger icon-btn">
+            Cerrar Cola
+        </button>
+    </div>
+</div>
+
+<!-- ACTIONS -->
+<div class="d-flex justify-content-end gap-2 mt-4">
+    <a asp-controller="Cola" asp-action="Index" class="btn btn-outline-secondary">
+        Cancelar
+    </a>
+
+    <button class="btn btn-primary-custom text-white" id="fakeEditQueue">
+        Guardar Cambios
+    </button>
+</div>

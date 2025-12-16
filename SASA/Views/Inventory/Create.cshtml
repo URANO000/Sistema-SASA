@@ -1,0 +1,71 @@
+@{
+    ViewData["Title"] = "Registrar Activo";
+}
+
+<div class="container-fluid">
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+
+            <div class="mb-4">
+                <h4 class="mb-0">Registrar Nuevo Activo</h4>
+                <small class="text-muted">
+                    Registre un nuevo activo dentro del sistema de inventario.
+                </small>
+            </div>
+
+            <form>
+
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <label class="form-label">Código del Activo</label>
+                        <input type="text" class="form-control" placeholder="INV-002">
+                    </div>
+
+                    <div class="col-md-8">
+                        <label class="form-label">Nombre del Activo</label>
+                        <input type="text" class="form-control" placeholder="Nombre del activo">
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label">Tipo de Activo</label>
+                        <select class="form-select">
+                            <option selected disabled>Seleccione un tipo</option>
+                            <option>Dispositivo</option>
+                            <option>Herramienta</option>
+                            <option>Mobiliario</option>
+                            <option>Otro</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label">Estado</label>
+                        <select class="form-select">
+                            <option selected>Activo</option>
+                            <option>En Mantenimiento</option>
+                            <option>Fuera de Servicio</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label">Descripción</label>
+                    <textarea class="form-control" rows="4" placeholder="Descripción del activo..."></textarea>
+                </div>
+
+                <div class="d-flex justify-content-end">
+                    <a asp-action="Index" class="btn btn-outline-secondary me-2">
+                        Cancelar
+                    </a>
+                    <button type="submit" class="btn btn-primary">
+                        Guardar Activo
+                    </button>
+                </div>
+
+            </form>
+
+        </div>
+    </div>
+</div>

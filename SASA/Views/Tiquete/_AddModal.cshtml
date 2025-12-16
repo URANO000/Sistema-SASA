@@ -1,0 +1,98 @@
+﻿<div class="modal fade" id="addTicketModal" tabindex="-1">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content">
+
+            <!-- Header -->
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="bi bi-ticket-perforated me-2"></i>
+                    Registrar Nuevo Tiquete
+                </h5>
+                <button type="button" class="btn-close icon-btn" data-bs-dismiss="modal"></button>
+            </div>
+
+            <!-- Body -->
+            <div class="modal-body">
+                <div class="form-container">
+
+                    <div class="form-content">
+                        <p class="section-subtitle">
+                            Complete los campos requeridos para registrar un tiquete.
+                        </p>
+
+                        <div class="row g-3">
+
+                            <!-- Asunto -->
+                            <div class="col-md-6">
+                                <label class="form-label required-field">Asunto</label>
+                                <input type="text" class="form-control is-valid"
+                                       placeholder="Ej. Error al iniciar sesión">
+                                <div class="valid-feedback">
+                                    Asunto válido.
+                                </div>
+                            </div>
+
+                            <!-- Categoría -->
+                            <div class="col-md-6">
+                                <label class="form-label required-field">Categoría</label>
+                                <select class="form-select is-valid">
+                                    <option>Soporte Técnico</option>
+                                    <option>Infraestructura</option>
+                                    <option>Acceso y Permisos</option>
+                                </select>
+                            </div>
+
+                            <!-- Prioridad -->
+                            <div class="col-md-4">
+                                <label class="form-label required-field">Prioridad</label>
+                                <select class="form-select is-valid">
+                                    <option>Alta</option>
+                                    <option>Media</option>
+                                    <option>Baja</option>
+                                </select>
+                            </div>
+
+                            <!-- Activo asociado -->
+                            <div class="col-md-4">
+                                <label class="form-label">Activo Asociado</label>
+                                <select class="form-select is-valid">
+                                    <option>— No aplica —</option>
+                                    <option>Laptop Dell #A-102</option>
+                                    <option>Impresora HP #P-332</option>
+                                </select>
+                            </div>
+
+                            <!-- Descripción -->
+                            <div class="col-12">
+                                <label class="form-label required-field">Descripción</label>
+                                <textarea class="form-control is-invalid" rows="4"
+                                          placeholder="Describa el problema o solicitud"></textarea>
+                                <div class="invalid-feedback">
+                                    La descripción es obligatoria.
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <!-- Footer -->
+                    <div class="modal-footer-custom">
+                        <div class="d-flex justify-content-end gap-2">
+                            <button type="button" class="btn btn-outline-secondary"
+                                    data-bs-dismiss="modal">
+                                Cancelar
+                            </button>
+                            <button type="button"
+                                    class="btn btn-success-custom text-white"
+                                    id="fakeSubmitTicket">
+                                Crear Tiquete
+                            </button>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
