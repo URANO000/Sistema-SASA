@@ -4,17 +4,26 @@ namespace SASA.Controllers
 {
     public class IntegrationController : Controller
     {
+        // GET: /Integration
         public IActionResult Index()
         {
             return View();
         }
 
-        public IActionResult Preview()
+        // GET: /Integration/Upload
+        public IActionResult Upload()
         {
             return View();
         }
 
-        public IActionResult Result()
+        // GET: /Integration/Validation
+        public IActionResult Validation()
+        {
+            return View();
+        }
+
+        // GET: /Integration/History
+        public IActionResult History()
         {
             return View();
         }

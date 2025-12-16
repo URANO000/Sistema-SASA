@@ -1,0 +1,53 @@
+@{
+    ViewData["Title"] = "Integración";
+}
+
+<div class="container-fluid">
+    <div class="card shadow-sm">
+        <div class="card-body">
+
+            <h4 class="mb-1">Módulo de Integración</h4>
+            <p class="text-muted mb-4">
+                Gestión de procesos de integración entre sistemas, activos y datos.
+            </p>
+
+            <div class="row g-3">
+
+                <div class="col-md-4">
+                    <a asp-action="Upload" class="card text-decoration-none h-100">
+                        <div class="card-body">
+                            <h6>Carga de Información</h6>
+                            <p class="text-muted small mb-0">
+                                Subir archivos o datos externos al sistema.
+                            </p>
+                        </div>
+                    </a>
+                </div>
+
+                <div class="col-md-4">
+                    <a asp-action="Validation" class="card text-decoration-none h-100">
+                        <div class="card-body">
+                            <h6>Validación de Datos</h6>
+                            <p class="text-muted small mb-0">
+                                Verificar integridad y consistencia de la información.
+                            </p>
+                        </div>
+                    </a>
+                </div>
+
+                <div class="col-md-4">
+                    <a asp-action="History" class="card text-decoration-none h-100">
+                        <div class="card-body">
+                            <h6>Historial de Integraciones</h6>
+                            <p class="text-muted small mb-0">
+                                Registro de integraciones realizadas.
+                            </p>
+                        </div>
+                    </a>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+</div>
