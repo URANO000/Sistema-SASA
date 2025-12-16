@@ -12,7 +12,8 @@
 
     <!-- This is for the extra things we need like fonts, icons, etc-->
     <!-- Font Montserrat -->
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
     <!-- FontAwesome -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
     <!-- Google Fonts -->
@@ -29,6 +30,7 @@
 @await Html.PartialAsync("_SuccessModal")
 @await Html.PartialAsync("_ErrorModal")
 <!---------------------------------->
+
 <body>
     <!--TOPBAR LAYOUT-->
     <header class="topbar-custom">
@@ -41,7 +43,7 @@
                 <a class="btn btn-link icon-btn" asp-area="" asp-controller="Home" asp-action="Index">
                     <img src="/img/logo-blanco-custom.png" alt="logo-sasa" />
                 </a>
-@*                 <h1>Sistema de Gestión SASA</h1> *@
+                @*                 <h1>Sistema de Gestión SASA</h1> *@
             </div>
         </div>
 
@@ -57,7 +59,8 @@
             <!--User menu-->
             <div class="dropdown">
                 <!-- Al dar click en el ícono, abre el menú -->
-                <button class="btn btn-link text-white p-0" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                <button class="btn btn-link text-white p-0" type="button" data-bs-toggle="dropdown"
+                    aria-expanded="false">
                     <i class="bi bi-person-circle fs-4"></i>
                 </button>
                 <ul class="dropdown-menu dropdown-menu-end">
@@ -70,29 +73,34 @@
                         </form>
                     </li>
 
-                <ul class="dropdown-menu dropdown-menu-end user-menu">
-                    <li class="px-3 py-2">
-                        <div class="fw-semibold text-black user-name">Admin SASA</div>
-                        <div class="small text-muted user-role">Administrador</div>
-                    </li>
+                    <ul class="dropdown-menu dropdown-menu-end user-menu">
+                        <li class="px-3 py-2">
+                            <div class="fw-semibold text-black user-name">Admin SASA</div>
+                            <div class="small text-muted user-role">Administrador</div>
+                        </li>
 
-                    <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>
 
-                    <li><a class="dropdown-item dp-item" href="#"><i class="bi bi-person me-2"></i>Perfil</a></li>
-                    <li><a class="dropdown-item dp-item" href="#"><i class="bi bi-gear me-2"></i>Ajustes</a></li>
+                        <li><a class="dropdown-item dp-item" href="#"><i class="bi bi-person me-2"></i>Perfil</a></li>
+                        <li><a class="dropdown-item dp-item" href="#"><i class="bi bi-gear me-2"></i>Ajustes</a></li>
 
-                    <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>
 
-                    <li><a class="dropdown-item text-danger dp-item" href="#"><i class="bi bi-box-arrow-right me-2"></i>Salir</a></li>
-                </ul>
+                        <li><a class="dropdown-item text-danger dp-item" href="#"><i
+                                    class="bi bi-box-arrow-right me-2"></i>Salir</a></li>
+                    </ul>
             </div>
-        
+
     </header>
 
     <!--SIDEBAR LAYOUT-->
     <aside class="sidebar-custom" id="sidebar">
         <div class="sidebar-header">
-            <img src="/img/logo-blanco.png" alt="logo-sasa" class="sidebar-logo"  />
+            <img src="/img/logo-blanco.png" alt="logo-sasa" class="sidebar-logo" />
             <button class="btn btn-link icon-btn" id="sidebarClose">
                 <i class="bi bi-x-lg custom-icon"></i>
             </button>
@@ -138,30 +146,31 @@
                 </div>
             </div>
             <div class="nav-section">
-                <!-- Dropdown trigger -->
                 <button class="nav-link dropdown-toggle-btn" type="button">
                     <i class="bi bi-archive"></i>
                     Módulo de Inventario
                     <i class="bi bi-chevron-down ms-auto"></i>
                 </button>
 
-                <!--Dropdown items-->
                 <div class="submenu">
-                    <a href="#" class="submenu-link">
-                        <i class=""></i>
+                    <a asp-controller="Inventory" asp-action="Index" class="submenu-link">
                         Gestión de Activos
                     </a>
-                    <a href="#" class="submenu-link">
-                        <i class=""></i>
+
+                    <a asp-controller="Inventory" asp-action="Equipment" class="submenu-link">
                         Equipos
                     </a>
-                    <a href="#" class="submenu-link">
-                        <i class=""></i>
+
+                    <a asp-controller="Inventory" asp-action="Maintenance" class="submenu-link">
                         Historial y Mantenimiento
                     </a>
-                    <a href="#" class="submenu-link">
-                        <i class=""></i>
-                        Gestión de Reportes
+
+                    <a asp-controller="Inventory" asp-action="TicketAssociation" class="submenu-link">
+                        Asociación Activos - Tiquetes
+                    </a>
+
+                    <a asp-controller="Inventory" asp-action="Reports" class="submenu-link">
+                        Reportes
                     </a>
                 </div>
             </div>
@@ -210,12 +219,14 @@
         </main>
     </div>
 
-@*     <footer class="border-top footer text-muted">
+    @*     <footer class="border-top footer text-muted">
         <div class="container">
             &copy; 2025 - SASA - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
         </div>
     </footer> *@
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js" integrity="sha512-fD9DI5bZwQxOi7MhYWnnNPlvXdp/2Pj3XSTRrFs5FQa4mizyGLnJcN6tuvUS6LbmgN1ut+XGSABKvjN0H6Aoow==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"
+        integrity="sha512-fD9DI5bZwQxOi7MhYWnnNPlvXdp/2Pj3XSTRrFs5FQa4mizyGLnJcN6tuvUS6LbmgN1ut+XGSABKvjN0H6Aoow=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>

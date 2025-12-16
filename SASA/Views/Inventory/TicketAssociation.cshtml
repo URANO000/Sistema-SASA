@@ -1,0 +1,38 @@
+@{
+    ViewData["Title"] = "Asociación de Activos con Tiquetes";
+}
+
+<div class="card sasa-card">
+    <div class="card-body">
+
+        <h4 class="mb-2">Asociación de Activos con Tiquetes</h4>
+        <p class="text-muted">
+            Vincule activos del inventario con tiquetes de soporte.
+        </p>
+
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label class="form-label">Activo</label>
+                <select class="form-select">
+                    <option selected>Seleccione un activo</option>
+                    <option>INV-001 - Laptop Dell</option>
+                </select>
+            </div>
+
+            <div class="col-md-6 mb-3">
+                <label class="form-label">Tiquete</label>
+                <select class="form-select">
+                    <option selected>Seleccione un tiquete</option>
+                    <option>TCK-101 - Error de sistema</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="d-flex justify-content-end">
+            <button class="btn btn-primary">
+                <i class="bi bi-link-45deg me-1"></i> Asociar
+            </button>
+        </div>
+
+    </div>
+</div>

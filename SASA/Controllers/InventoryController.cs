@@ -4,27 +4,59 @@ namespace SASA.Controllers
 {
     public class InventoryController : Controller
     {
-        // GET: /Inventory
+        // Gestión de Activos
         public IActionResult Index()
         {
+            ViewData["Title"] = "Gestión de Activos";
             return View();
         }
 
-        // GET: /Inventory/Create
+        // Crear Activo
         public IActionResult Create()
         {
+            ViewData["Title"] = "Registrar Activo";
             return View();
         }
 
-        // GET: /Inventory/Detail/1
+        // Detalle del Activo
         public IActionResult Detail(int id)
         {
+            ViewData["Title"] = "Detalle del Activo";
             return View();
         }
 
-        // GET: /Inventory/Edit/1
+        // Editar Activo
         public IActionResult Edit(int id)
         {
+            ViewData["Title"] = "Editar Activo";
+            return View();
+        }
+
+        // Equipos
+        public IActionResult Equipment()
+        {
+            ViewData["Title"] = "Equipos";
+            return View();
+        }
+
+        // Historial y Mantenimiento
+        public IActionResult Maintenance()
+        {
+            ViewData["Title"] = "Historial de Mantenimiento";
+            return View();
+        }
+
+        // Asociación Activos - Tiquetes
+        public IActionResult TicketAssociation()
+        {
+            ViewData["Title"] = "Asociación de Activos con Tiquetes";
+            return View();
+        }
+
+        // Reportes
+        public IActionResult Reports()
+        {
+            ViewData["Title"] = "Reportes de Inventario";
             return View();
         }
     }
