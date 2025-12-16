@@ -2,112 +2,115 @@
     ViewData["Title"] = "Auditoría de Notificaciones";
 }
 
-<div class="sasa-card">
-    <div class="d-flex justify-content-between align-items-center gap-3 mb-3">
-        <div>
-            <h2 class="mb-0">Auditoría de notificaciones</h2>
-            <div class="text-muted small">Historial administrativo (visual) para trazabilidad.</div>
+<div class="card">
+    <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center gap-3 mb-3">
+            <div>
+                <h2 class="mb-0">Auditoría de notificaciones</h2>
+                <div class="text-muted small">Historial administrativo (visual) para trazabilidad.</div>
+            </div>
+
+            <div class="d-flex gap-2">
+                <button class="btn btn-outline-primary btn-sm" type="button" disabled>
+                    <i class="bi bi-download me-1"></i> Exportar
+                </button>
+            </div>
         </div>
 
-        <div class="d-flex gap-2">
-            <button class="btn btn-outline-primary btn-sm" type="button" disabled>
-                <i class="bi bi-download me-1"></i> Exportar
-            </button>
+        <div class="audit-filters row g-2 mb-3">
+            <div class="col-md-3">
+                <input class="form-control" placeholder="Buscar por usuario, tiquete, tipo...">
+            </div>
+            <div class="col-md-2">
+                <select class="form-select">
+                    <option>Tipo</option>
+                    <option>Comentario</option>
+                    <option>Actualización</option>
+                    <option>Error</option>
+                    <option>Silencio</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <select class="form-select">
+                    <option>Estado</option>
+                    <option>Enviada</option>
+                    <option>Silenciada</option>
+                    <option>Fallida</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <input class="form-control" type="date">
+            </div>
+            <div class="col-md-3">
+                <button class="btn btn-primary w-100" type="button" disabled>
+                    <i class="bi bi-funnel me-1"></i> Aplicar filtros
+                </button>
+            </div>
         </div>
-    </div>
 
-    <div class="audit-filters row g-2 mb-3">
-        <div class="col-md-3">
-            <input class="form-control" placeholder="Buscar por usuario, tiquete, tipo...">
-        </div>
-        <div class="col-md-2">
-            <select class="form-select">
-                <option>Tipo</option>
-                <option>Comentario</option>
-                <option>Actualización</option>
-                <option>Error</option>
-                <option>Silencio</option>
-            </select>
-        </div>
-        <div class="col-md-2">
-            <select class="form-select">
-                <option>Estado</option>
-                <option>Enviada</option>
-                <option>Silenciada</option>
-                <option>Fallida</option>
-            </select>
-        </div>
-        <div class="col-md-2">
-            <input class="form-control" type="date">
-        </div>
-        <div class="col-md-3">
-            <button class="btn btn-primary w-100" type="button" disabled>
-                <i class="bi bi-funnel me-1"></i> Aplicar filtros
-            </button>
-        </div>
-    </div>
+        <table class="table sasa-table">
+            <thead>
+                <tr>
+                    <th>Fecha</th>
+                    <th>Tipo</th>
+                    <th>Relacionado</th>
+                    <th>Destinatario</th>
+                    <th>Canal</th>
+                    <th>Estado</th>
+                    <th>Detalle</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>14/12/2025 08:10</td>
+                    <td><span class="badge bg-primary">Comentario</span></td>
+                    <td>Tiquete #105</td>
+                    <td>Solicitante / Técnico</td>
+                    <td>In-App</td>
+                    <td><span class="badge bg-success">Enviada</span></td>
+                    <td class="sasa-actions">
+                        <a asp-controller="Notificaciones" asp-action="Detalle" asp-route-id="105"><i class="bi bi-eye"></i></a>
+                    </td>
+                </tr>
 
-    <table class="table sasa-table">
-        <thead>
-            <tr>
-                <th>Fecha</th>
-                <th>Tipo</th>
-                <th>Relacionado</th>
-                <th>Destinatario</th>
-                <th>Canal</th>
-                <th>Estado</th>
-                <th>Detalle</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td>14/12/2025 08:10</td>
-                <td><span class="badge bg-primary">Comentario</span></td>
-                <td>Tiquete #105</td>
-                <td>Solicitante / Técnico</td>
-                <td>In-App</td>
-                <td><span class="badge bg-success">Enviada</span></td>
-                <td class="sasa-actions">
-                    <a asp-controller="Notificaciones" asp-action="Detalle" asp-route-id="105"><i class="bi bi-eye"></i></a>
-                </td>
-            </tr>
+                <tr>
+                    <td>13/12/2025 18:40</td>
+                    <td><span class="badge bg-secondary">Silencio</span></td>
+                    <td>Tiquete #97</td>
+                    <td>Solicitante</td>
+                    <td>In-App</td>
+                    <td><span class="badge bg-danger">Silenciada</span></td>
+                    <td class="sasa-actions">
+                        <a asp-controller="Notificaciones" asp-action="Detalle" asp-route-id="97"><i class="bi bi-eye"></i></a>
+                    </td>
+                </tr>
 
-            <tr>
-                <td>13/12/2025 18:40</td>
-                <td><span class="badge bg-secondary">Silencio</span></td>
-                <td>Tiquete #97</td>
-                <td>Solicitante</td>
-                <td>In-App</td>
-                <td><span class="badge bg-danger">Silenciada</span></td>
-                <td class="sasa-actions">
-                    <a asp-controller="Notificaciones" asp-action="Detalle" asp-route-id="97"><i class="bi bi-eye"></i></a>
-                </td>
-            </tr>
+                <tr>
+                    <td>13/12/2025 16:12</td>
+                    <td><span class="badge bg-danger">Error</span></td>
+                    <td>Tiquete #88</td>
+                    <td>Técnico</td>
+                    <td>In-App</td>
+                    <td><span class="badge bg-danger">Fallida</span></td>
+                    <td class="sasa-actions">
+                        <a asp-controller="Notificaciones" asp-action="Detalle" asp-route-id="88"><i class="bi bi-eye"></i></a>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
 
-            <tr>
-                <td>13/12/2025 16:12</td>
-                <td><span class="badge bg-danger">Error</span></td>
-                <td>Tiquete #88</td>
-                <td>Técnico</td>
-                <td>In-App</td>
-                <td><span class="badge bg-danger">Fallida</span></td>
-                <td class="sasa-actions">
-                    <a asp-controller="Notificaciones" asp-action="Detalle" asp-route-id="88"><i class="bi bi-eye"></i></a>
-                </td>
-            </tr>
-        </tbody>
-    </table>
+        <div class="notif-pagination">
+            <span class="text-muted small">Mostrando 1–3 de 42</span>
+            <nav aria-label="Paginación">
+                <ul class="pagination pagination-sm mb-0">
+                    <li class="page-item disabled"><a class="page-link" href="#">Anterior</a></li>
+                    <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                    <li class="page-item"><a class="page-link" href="#">2</a></li>
+                    <li class="page-item"><a class="page-link" href="#">3</a></li>
+                    <li class="page-item"><a class="page-link" href="#">Siguiente</a></li>
+                </ul>
+            </nav>
+        </div>
 
-    <div class="notif-pagination">
-        <span class="text-muted small">Mostrando 1–3 de 42</span>
-        <nav aria-label="Paginación">
-            <ul class="pagination pagination-sm mb-0">
-                <li class="page-item disabled"><a class="page-link" href="#">Anterior</a></li>
-                <li class="page-item active"><a class="page-link" href="#">1</a></li>
-                <li class="page-item"><a class="page-link" href="#">2</a></li>
-                <li class="page-item"><a class="page-link" href="#">3</a></li>
-                <li class="page-item"><a class="page-link" href="#">Siguiente</a></li>
-            </ul>
-        </nav>
     </div>
 </div>
