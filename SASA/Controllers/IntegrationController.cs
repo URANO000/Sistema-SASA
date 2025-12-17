@@ -27,5 +27,11 @@ namespace SASA.Controllers
         {
             return View();
         }
+        
+        [HttpPost]
+        public IActionResult Result()
+        {
+            return View();
+        }
     }
 }
