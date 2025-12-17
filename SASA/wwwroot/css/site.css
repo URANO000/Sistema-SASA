@@ -144,6 +144,17 @@ html {
     z-index: 1050;
 }
 
+/* Sidebar scroll funcional sin barra visible */
+.sidebar-custom::-webkit-scrollbar {
+    width: 0px;
+    background: transparent;
+}
+
+.sidebar-custom {
+    scrollbar-width: none; 
+    -ms-overflow-style: none;
+}
+
 .sidebar-custom.open{
     transform: translateX(0);
 }
