@@ -1,0 +1,78 @@
+@{
+    ViewData["Title"] = "Reporte General de Inventario";
+}
+
+<div class="container-fluid">
+    <div class="card shadow-sm">
+        <div class="card-body">
+
+            <h4 class="fw-bold mb-1">Reporte General de Inventario</h4>
+            <p class="text-muted mb-4">
+                Visualización general del estado de los activos registrados en el sistema.
+            </p>
+
+            <div class="row mb-4">
+                <div class="col-md-4">
+                    <div class="card text-center">
+                        <div class="card-body">
+                            <h6 class="text-muted">Total de Activos</h6>
+                            <h3 class="fw-bold">125</h3>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="card text-center">
+                        <div class="card-body">
+                            <h6 class="text-muted">Activos Activos</h6>
+                            <h3 class="fw-bold text-success">98</h3>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="card text-center">
+                        <div class="card-body">
+                            <h6 class="text-muted">En Mantenimiento</h6>
+                            <h3 class="fw-bold text-warning">27</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Código</th>
+                            <th>Nombre</th>
+                            <th>Tipo</th>
+                            <th>Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>INV-001</td>
+                            <td>Laptop Dell</td>
+                            <td>Hardware</td>
+                            <td><span class="badge bg-success">Activo</span></td>
+                        </tr>
+                        <tr>
+                            <td>INV-002</td>
+                            <td>Servidor HP</td>
+                            <td>Hardware</td>
+                            <td><span class="badge bg-warning">Mantenimiento</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="d-flex justify-content-end mt-3">
+                <a asp-action="Reports" class="btn btn-outline-secondary">
+                    Volver
+                </a>
+            </div>
+
+        </div>
+    </div>
+</div>

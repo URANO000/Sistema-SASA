@@ -1,0 +1,49 @@
+@{
+    ViewData["Title"] = "Reporte de Mantenimiento";
+}
+
+<div class="container-fluid">
+    <div class="card shadow-sm">
+        <div class="card-body">
+
+            <h4 class="fw-bold mb-1">Reporte de Mantenimiento</h4>
+            <p class="text-muted mb-4">
+                Detalle de mantenimientos realizados a los activos.
+            </p>
+
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Activo</th>
+                            <th>Fecha</th>
+                            <th>Tipo</th>
+                            <th>Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>INV-001 - Laptop Dell</td>
+                            <td>15/03/2025</td>
+                            <td>Preventivo</td>
+                            <td><span class="badge bg-success">Finalizado</span></td>
+                        </tr>
+                        <tr>
+                            <td>INV-002 - Servidor HP</td>
+                            <td>22/03/2025</td>
+                            <td>Correctivo</td>
+                            <td><span class="badge bg-warning">En proceso</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="d-flex justify-content-end mt-3">
+                <a asp-action="Reports" class="btn btn-outline-secondary">
+                    Volver
+                </a>
+            </div>
+
+        </div>
+    </div>
+</div>
