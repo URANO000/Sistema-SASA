@@ -192,6 +192,31 @@
 
                 </div>
             </div>
+            <div class="nav-section">
+                <button class="nav-link dropdown-toggle-btn" type="button">
+                    <i class="bi bi-plug"></i>
+                    Módulo de Integración
+                    <i class="bi bi-chevron-down ms-auto"></i>
+                </button>
+
+                <div class="submenu">
+                    <a asp-controller="Integration" asp-action="Index" class="submenu-link">
+                        Vista General
+                    </a>
+
+                    <a asp-controller="Integration" asp-action="Upload" class="submenu-link">
+                        Carga de Archivos
+                    </a>
+
+                    <a asp-controller="Integration" asp-action="Validation" class="submenu-link">
+                        Validación de Datos
+                    </a>
+
+                    <a asp-controller="Integration" asp-action="History" class="submenu-link">
+                        Historial de Integraciones
+                    </a>
+                </div>
+            </div>
         </nav>
     </aside>
 
