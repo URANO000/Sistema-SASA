@@ -1,0 +1,151 @@
+﻿@{
+    ViewData["Title"] = "Notificaciones";
+}
+
+<div class="sasa-card">
+
+    <div class="notif-header">
+        <div>
+            <h2 class="mb-0">Centro de notificaciones</h2>
+            <div class="text-muted small">Revisa alertas recientes, marca leídas y navega al detalle.</div>
+        </div>
+
+        <div class="notif-actions">
+            <button class="btn btn-outline-primary btn-sm" type="button" id="btnMarkAll">
+                <i class="bi bi-check2-all me-1"></i> Marcar todas como leídas
+            </button>
+        </div>
+    </div>
+
+    <div class="notif-list" id="notifList">
+
+        <div class="notif-item notif-unread" data-id="105" data-related="Tiquete #105" data-silenced="false">
+            <div class="notif-left">
+                <span class="unread-dot" title="No leída"></span>
+
+                <div class="notif-icon warn">
+                    <i class="bi bi-chat-dots"></i>
+                </div>
+            </div>
+
+            <div class="notif-body">
+                <div class="notif-row">
+                    <div>
+                        <div class="notif-title">Nuevo comentario en Tiquete #105</div>
+                        <div class="notif-text">Se agregó un comentario. Mantén seguimiento del avance.</div>
+                        <div class="notif-meta">Hoy • 08:10 • Relacionado: <strong>Tiquete #105</strong></div>
+                    </div>
+
+                    <div class="notif-controls">
+                        <button class="btn btn-sm btn-light notif-btn toggle-read" type="button" title="Marcar como leída/no leída">
+                            <i class="bi bi-envelope-open"></i>
+                        </button>
+                        <a class="btn btn-sm btn-primary notif-btn"
+                           asp-controller="Notificaciones" asp-action="Detalle" asp-route-id="105"
+                           title="Ver detalle">
+                            <i class="bi bi-eye"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="notif-trace">
+                    <span class="trace-pill">Emitida</span>
+                    <span class="trace-arrow"><i class="bi bi-chevron-right"></i></span>
+                    <span class="trace-pill">Enviada a: Solicitante / Técnico</span>
+                    <span class="trace-arrow"><i class="bi bi-chevron-right"></i></span>
+                    <span class="trace-pill">En timeline del tiquete</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="notif-item" data-id="103" data-related="Tiquete #103" data-silenced="false">
+            <div class="notif-left">
+                <span class="unread-dot d-none" title="No leída"></span>
+
+                <div class="notif-icon success">
+                    <i class="bi bi-check2-circle"></i>
+                </div>
+            </div>
+
+            <div class="notif-body">
+                <div class="notif-row">
+                    <div>
+                        <div class="notif-title">Tiquete #103 actualizado</div>
+                        <div class="notif-text">Se registró un avance y el estado cambió correctamente.</div>
+                        <div class="notif-meta">Hoy • 07:55 • Relacionado: <strong>Tiquete #103</strong></div>
+                    </div>
+
+                    <div class="notif-controls">
+                        <button class="btn btn-sm btn-light notif-btn toggle-read" type="button" title="Marcar como no leída">
+                            <i class="bi bi-envelope"></i>
+                        </button>
+                        <a class="btn btn-sm btn-primary notif-btn"
+                           asp-controller="Notificaciones" asp-action="Detalle" asp-route-id="103"
+                           title="Ver detalle">
+                            <i class="bi bi-eye"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="notif-trace">
+                    <span class="trace-pill">Emitida</span>
+                    <span class="trace-arrow"><i class="bi bi-chevron-right"></i></span>
+                    <span class="trace-pill">Enviada</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="notif-item notif-silenced" data-id="97" data-related="Tiquete #97" data-silenced="true">
+            <div class="notif-left">
+                <span class="unread-dot d-none" title="No leída"></span>
+
+                <div class="notif-icon info">
+                    <i class="bi bi-bell-slash"></i>
+                </div>
+            </div>
+
+            <div class="notif-body">
+                <div class="notif-row">
+                    <div>
+                        <div class="notif-title">Notificaciones silenciadas</div>
+                        <div class="notif-text">Este tiquete está silenciado. No se enviarán avisos durante el período.</div>
+                        <div class="notif-meta">Ayer • 18:40 • Relacionado: <strong>Tiquete #97</strong></div>
+                    </div>
+
+                    <div class="notif-controls">
+                        <button class="btn btn-sm btn-light notif-btn toggle-read" type="button" title="Marcar como no leída">
+                            <i class="bi bi-envelope"></i>
+                        </button>
+                        <a class="btn btn-sm btn-primary notif-btn"
+                           asp-controller="Notificaciones" asp-action="Detalle" asp-route-id="97"
+                           title="Ver detalle">
+                            <i class="bi bi-eye"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="notif-trace">
+                    <span class="trace-pill">Silencio activo</span>
+                    <span class="trace-arrow"><i class="bi bi-chevron-right"></i></span>
+                    <span class="trace-pill">Sin envíos</span>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="notif-pagination">
+        <span class="text-muted small" id="notifSummary">Mostrando 1–3 de 18</span>
+
+        <nav aria-label="Paginación">
+            <ul class="pagination pagination-sm mb-0">
+                <li class="page-item disabled"><a class="page-link" href="#">Anterior</a></li>
+                <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                <li class="page-item"><a class="page-link" href="#">2</a></li>
+                <li class="page-item"><a class="page-link" href="#">3</a></li>
+                <li class="page-item"><a class="page-link" href="#">Siguiente</a></li>
+            </ul>
+        </nav>
+    </div>
+
+</div>
