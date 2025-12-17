@@ -1,23 +1,22 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 
 namespace SASA.Controllers
 {
-    public class TiquetesController : Controller
+    public class IntegrationController : Controller
     {
         public IActionResult Index()
         {
             return View();
         }
 
-        public IActionResult Crear()
+        public IActionResult Preview()
         {
-            return View();
-        }
-        public IActionResult Detalle(int id)
-        {
-            ViewBag.Id = id;
             return View();
         }
 
+        public IActionResult Result()
+        {
+            return View();
+        }
     }
 }

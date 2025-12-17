@@ -1,10 +1,13 @@
-﻿<div>
+﻿@{
+    ViewData["Title"] = "Dashboard Administrativo";
+}
+<div>
 
     <!-- Header -->
     <div class="card mb-3">
         <div class="card-body">
             <div class="d-flex justify-content-between align-items-center mb-3">
-                <h2 class="mb-0">Dashboard Administrativo</h2>
+                <h2 class="mb-0 fw-bold">Dashboard Administrativo</h2>
             </div>
         </div>
     </div>
@@ -26,7 +29,7 @@
                 <div class="card-body">
                     <h6 class="section-title">Administración</h6>
                     <p class="text-muted">Usuarios, roles y configuración</p>
-                    <a href="/Admin/Index" class="btn btn-custom">Acceder</a>
+                    <a asp-controller="Usuario" asp-action="Index" class="btn btn-custom">Acceder</a>
                 </div>
             </div>
         </div>
@@ -36,7 +39,7 @@
                 <div class="card-body">
                     <h6 class="section-title">Inventario</h6>
                     <p class="text-muted">Control de recursos y stock</p>
-                    <a asp-controller="Inventario" asp-action="Index" class="btn btn-custom">Acceder</a>
+                    <a asp-controller="Inventory" asp-action="Index" class="btn btn-custom">Acceder</a>
                 </div>
             </div>
         </div>

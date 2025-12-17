@@ -1,6 +1,7 @@
-﻿
+﻿@{
+    ViewData["Title"] = "Gestión de Colas de Trabajo";
+}
 <div class="container-fluid">
-
     <!-- Header -->
     <div class="card mb-3">
         <div class="card-body">
@@ -11,15 +12,8 @@
                     Nueva Cola
                 </a>
             </div>
-
-        </div>
-    </div>
-
-    <!-- Filters -->
-    <div class="card mb-3">
-        <div class="card-body">
-            <div class="row g-2 align-items-end">
-
+            <!-- Filters -->
+            <div class="row g-2 align-items-end mb-3">
                 <div class="col-md-4">
                     <label class="form-label">Cliente</label>
                     <select class="form-select">
@@ -29,7 +23,6 @@
                         <option>Cliente C</option>
                     </select>
                 </div>
-
                 <div class="col-md-2">
                     <label class="form-label">Estado</label>
                     <select class="form-select">
@@ -39,7 +32,6 @@
                         <option>Cerrada</option>
                     </select>
                 </div>
-
                 <div class="col-md-2">
                     <label class="form-label">Prioridad</label>
                     <select class="form-select">
@@ -49,7 +41,6 @@
                         <option>Baja</option>
                     </select>
                 </div>
-
                 <div class="col-md-2">
                     <label class="form-label">Ordenar por</label>
                     <select class="form-select">
@@ -58,79 +49,72 @@
                         <option>Estado</option>
                     </select>
                 </div>
-
                 <div class="col-md-2">
                     <button class="btn btn-outline-secondary w-100">
                         <i class="bi bi-funnel"></i>
                         Filtrar
                     </button>
                 </div>
-
+            </div>
+            <!-- Table -->
+            <div class="table-responsive">
+                <table class="table table-hover align-middle sasa-table">
+                    <thead>
+                        <tr>
+                            <th>Acciones</th>
+                            <th>Cliente</th>
+                            <th>Cola</th>
+                            <th>Estado</th>
+                            <th>Prioridad</th>
+                            <th>Tiquetes Pendientes</th>
+                            <th>Creada</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <a class="btn btn-link icon-btn" asp-controller="Cola" asp-action="Details">
+                                    <i class="bi bi-eye detail-btn"></i>
+                                </a>
+                                <a class="btn btn-link icon-btn" asp-controller="Cola" asp-action="Edit">
+                                    <i class="fa-regular fa-pen-to-square edit-btn"></i>
+                                </a>
+                            </td>
+                            <td>Cliente A</td>
+                            <td>Soporte Nivel 1</td>
+                            <td>
+                                <span class="badge bg-success">Activa</span>
+                            </td>
+                            <td>
+                                <span class="badge bg-danger">Alta</span>
+                            </td>
+                            <td>12</td>
+                            <td>01/03/2025</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <button class="btn btn-link icon-btn">
+                                    <i class="bi bi-eye detail-btn"></i>
+                                </button>
+                                <button class="btn btn-link icon-btn">
+                                    <i class="fa-regular fa-pen-to-square edit-btn"></i>
+                                </button>
+                            </td>
+                            <td>Cliente B</td>
+                            <td>Facturación</td>
+                            <td>
+                                <span class="badge bg-warning text-white">Pausada</span>
+                            </td>
+                            <td>
+                                <span class="badge bg-secondary">Media</span>
+                            </td>
+                            <td>4</td>
+                            <td>15/02/2025</td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
-
-    <!-- Table -->
-    <div class="table-responsive card">
-        <table class="table table-hover align-middle table-custom">
-            <thead>
-                <tr>
-                    <th>Acciones</th>
-                    <th>Cliente</th>
-                    <th>Cola</th>
-                    <th>Estado</th>
-                    <th>Prioridad</th>
-                    <th>Tiquetes Pendientes</th>
-                    <th>Creada</th>
-                </tr>
-            </thead>
-            <tbody>
-
-                <tr>
-                    <td>
-                        <a class="btn btn-link icon-btn" asp-controller="Cola" asp-action="Details">
-                            <i class="bi bi-eye detail-btn"></i>
-                        </a>
-                        <a class="btn btn-link icon-btn" asp-controller="Cola" asp-action="Edit">
-                            <i class="fa-regular fa-pen-to-square edit-btn"></i>
-                        </a>
-                    </td>
-                    <td>Cliente A</td>
-                    <td>Soporte Nivel 1</td>
-                    <td>
-                        <span class="badge bg-success">Activa</span>
-                    </td>
-                    <td>
-                        <span class="badge bg-danger">Alta</span>
-                    </td>
-                    <td>12</td>
-                    <td>01/03/2025</td>
-                </tr>
-
-                <tr>
-                    <td>
-                        <button class="btn btn-link icon-btn">
-                            <i class="bi bi-eye detail-btn"></i>
-                        </button>
-                        <button class="btn btn-link icon-btn">
-                            <i class="fa-regular fa-pen-to-square edit-btn"></i>
-                        </button>
-                    </td>
-                    <td>Cliente B</td>
-                    <td>Facturación</td>
-                    <td>
-                        <span class="badge bg-warning text-white">Pausada</span>
-                    </td>
-                    <td>
-                        <span class="badge bg-secondary">Media</span>
-                    </td>
-                    <td>4</td>
-                    <td>15/02/2025</td>
-                </tr>
-
-            </tbody>
-        </table>
-    </div>
-
 </div>
 @await Html.PartialAsync("_AddModal")
