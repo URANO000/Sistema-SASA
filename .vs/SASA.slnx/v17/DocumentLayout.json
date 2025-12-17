@@ -3,52 +3,8 @@
   "WorkspaceRootPath": "C:\\Users\\matia\\Desktop\\Repositorio del profe programacion avanzada\\SASA\\frontend-SASA\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{7214A6BC-FD67-FD7A-D998-DAD9FCA177F2}|SASA\\SASA.csproj|c:\\users\\matia\\desktop\\repositorio del profe programacion avanzada\\sasa\\frontend-sasa\\sasa\\views\\tiquetes\\detalle.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
-      "RelativeMoniker": "D:0:0:{7214A6BC-FD67-FD7A-D998-DAD9FCA177F2}|SASA\\SASA.csproj|solutionrelative:sasa\\views\\tiquetes\\detalle.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{7214A6BC-FD67-FD7A-D998-DAD9FCA177F2}|SASA\\SASA.csproj|c:\\users\\matia\\desktop\\repositorio del profe programacion avanzada\\sasa\\frontend-sasa\\sasa\\wwwroot\\css\\sasa-ui.css||{A5401142-F49D-43DB-90B1-F57BA349E55C}",
-      "RelativeMoniker": "D:0:0:{7214A6BC-FD67-FD7A-D998-DAD9FCA177F2}|SASA\\SASA.csproj|solutionrelative:sasa\\wwwroot\\css\\sasa-ui.css||{A5401142-F49D-43DB-90B1-F57BA349E55C}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{7214A6BC-FD67-FD7A-D998-DAD9FCA177F2}|SASA\\SASA.csproj|c:\\users\\matia\\desktop\\repositorio del profe programacion avanzada\\sasa\\frontend-sasa\\sasa\\views\\tiquetes\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
-      "RelativeMoniker": "D:0:0:{7214A6BC-FD67-FD7A-D998-DAD9FCA177F2}|SASA\\SASA.csproj|solutionrelative:sasa\\views\\tiquetes\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{7214A6BC-FD67-FD7A-D998-DAD9FCA177F2}|SASA\\SASA.csproj|c:\\users\\matia\\desktop\\repositorio del profe programacion avanzada\\sasa\\frontend-sasa\\sasa\\wwwroot\\js\\ui-sasa.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}",
-      "RelativeMoniker": "D:0:0:{7214A6BC-FD67-FD7A-D998-DAD9FCA177F2}|SASA\\SASA.csproj|solutionrelative:sasa\\wwwroot\\js\\ui-sasa.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{7214A6BC-FD67-FD7A-D998-DAD9FCA177F2}|SASA\\SASA.csproj|c:\\users\\matia\\desktop\\repositorio del profe programacion avanzada\\sasa\\frontend-sasa\\sasa\\controllers\\tiquetescontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{7214A6BC-FD67-FD7A-D998-DAD9FCA177F2}|SASA\\SASA.csproj|solutionrelative:sasa\\controllers\\tiquetescontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{7214A6BC-FD67-FD7A-D998-DAD9FCA177F2}|SASA\\SASA.csproj|c:\\users\\matia\\desktop\\repositorio del profe programacion avanzada\\sasa\\frontend-sasa\\sasa\\views\\notificaciones\\detalle.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
-      "RelativeMoniker": "D:0:0:{7214A6BC-FD67-FD7A-D998-DAD9FCA177F2}|SASA\\SASA.csproj|solutionrelative:sasa\\views\\notificaciones\\detalle.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{7214A6BC-FD67-FD7A-D998-DAD9FCA177F2}|SASA\\SASA.csproj|c:\\users\\matia\\desktop\\repositorio del profe programacion avanzada\\sasa\\frontend-sasa\\sasa\\views\\notificaciones\\auditoria.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
-      "RelativeMoniker": "D:0:0:{7214A6BC-FD67-FD7A-D998-DAD9FCA177F2}|SASA\\SASA.csproj|solutionrelative:sasa\\views\\notificaciones\\auditoria.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{7214A6BC-FD67-FD7A-D998-DAD9FCA177F2}|SASA\\SASA.csproj|c:\\users\\matia\\desktop\\repositorio del profe programacion avanzada\\sasa\\frontend-sasa\\sasa\\controllers\\notificacionescontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{7214A6BC-FD67-FD7A-D998-DAD9FCA177F2}|SASA\\SASA.csproj|solutionrelative:sasa\\controllers\\notificacionescontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{7214A6BC-FD67-FD7A-D998-DAD9FCA177F2}|SASA\\SASA.csproj|c:\\users\\matia\\desktop\\repositorio del profe programacion avanzada\\sasa\\frontend-sasa\\sasa\\views\\notificaciones\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
-      "RelativeMoniker": "D:0:0:{7214A6BC-FD67-FD7A-D998-DAD9FCA177F2}|SASA\\SASA.csproj|solutionrelative:sasa\\views\\notificaciones\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{7214A6BC-FD67-FD7A-D998-DAD9FCA177F2}|SASA\\SASA.csproj|c:\\users\\matia\\desktop\\repositorio del profe programacion avanzada\\sasa\\frontend-sasa\\sasa\\views\\shared\\_layout.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
       "RelativeMoniker": "D:0:0:{7214A6BC-FD67-FD7A-D998-DAD9FCA177F2}|SASA\\SASA.csproj|solutionrelative:sasa\\views\\shared\\_layout.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{7214A6BC-FD67-FD7A-D998-DAD9FCA177F2}|SASA\\SASA.csproj|c:\\users\\matia\\desktop\\repositorio del profe programacion avanzada\\sasa\\frontend-sasa\\sasa\\views\\home\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
-      "RelativeMoniker": "D:0:0:{7214A6BC-FD67-FD7A-D998-DAD9FCA177F2}|SASA\\SASA.csproj|solutionrelative:sasa\\views\\home\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{7214A6BC-FD67-FD7A-D998-DAD9FCA177F2}|SASA\\SASA.csproj|c:\\users\\matia\\desktop\\repositorio del profe programacion avanzada\\sasa\\frontend-sasa\\sasa\\views\\tiquetes\\crear.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
-      "RelativeMoniker": "D:0:0:{7214A6BC-FD67-FD7A-D998-DAD9FCA177F2}|SASA\\SASA.csproj|solutionrelative:sasa\\views\\tiquetes\\crear.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
     }
   ],
   "DocumentGroupContainers": [
@@ -71,157 +27,14 @@
             {
               "$type": "Document",
               "DocumentIndex": 0,
-              "Title": "Detalle.cshtml",
-              "DocumentMoniker": "C:\\Users\\matia\\Desktop\\Repositorio del profe programacion avanzada\\SASA\\frontend-SASA\\SASA\\Views\\Tiquetes\\Detalle.cshtml",
-              "RelativeDocumentMoniker": "SASA\\Views\\Tiquetes\\Detalle.cshtml",
-              "ToolTip": "C:\\Users\\matia\\Desktop\\Repositorio del profe programacion avanzada\\SASA\\frontend-SASA\\SASA\\Views\\Tiquetes\\Detalle.cshtml",
-              "RelativeToolTip": "SASA\\Views\\Tiquetes\\Detalle.cshtml",
-              "ViewState": "AgIAABsAAAAAAAAAAAAAACMAAAB5AAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2025-12-14T15:19:22.607Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 6,
-              "Title": "Auditoria.cshtml",
-              "DocumentMoniker": "C:\\Users\\matia\\Desktop\\Repositorio del profe programacion avanzada\\SASA\\frontend-SASA\\SASA\\Views\\Notificaciones\\Auditoria.cshtml",
-              "RelativeDocumentMoniker": "SASA\\Views\\Notificaciones\\Auditoria.cshtml",
-              "ToolTip": "C:\\Users\\matia\\Desktop\\Repositorio del profe programacion avanzada\\SASA\\frontend-SASA\\SASA\\Views\\Notificaciones\\Auditoria.cshtml",
-              "RelativeToolTip": "SASA\\Views\\Notificaciones\\Auditoria.cshtml",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAABIAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2025-12-14T15:17:38.317Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 3,
-              "Title": "ui-sasa.js",
-              "DocumentMoniker": "C:\\Users\\matia\\Desktop\\Repositorio del profe programacion avanzada\\SASA\\frontend-SASA\\SASA\\wwwroot\\js\\ui-sasa.js",
-              "RelativeDocumentMoniker": "SASA\\wwwroot\\js\\ui-sasa.js",
-              "ToolTip": "C:\\Users\\matia\\Desktop\\Repositorio del profe programacion avanzada\\SASA\\frontend-SASA\\SASA\\wwwroot\\js\\ui-sasa.js",
-              "RelativeToolTip": "SASA\\wwwroot\\js\\ui-sasa.js",
-              "ViewState": "AgIAAGgAAAAAAAAAAAAAAIEAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001646|",
-              "WhenOpened": "2025-12-14T15:00:11.763Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 7,
-              "Title": "NotificacionesController.cs",
-              "DocumentMoniker": "C:\\Users\\matia\\Desktop\\Repositorio del profe programacion avanzada\\SASA\\frontend-SASA\\SASA\\Controllers\\NotificacionesController.cs",
-              "RelativeDocumentMoniker": "SASA\\Controllers\\NotificacionesController.cs",
-              "ToolTip": "C:\\Users\\matia\\Desktop\\Repositorio del profe programacion avanzada\\SASA\\frontend-SASA\\SASA\\Controllers\\NotificacionesController.cs",
-              "RelativeToolTip": "SASA\\Controllers\\NotificacionesController.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAABQAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-12-14T14:43:58.84Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 4,
-              "Title": "TiquetesController.cs",
-              "DocumentMoniker": "C:\\Users\\matia\\Desktop\\Repositorio del profe programacion avanzada\\SASA\\frontend-SASA\\SASA\\Controllers\\TiquetesController.cs",
-              "RelativeDocumentMoniker": "SASA\\Controllers\\TiquetesController.cs",
-              "ToolTip": "C:\\Users\\matia\\Desktop\\Repositorio del profe programacion avanzada\\SASA\\frontend-SASA\\SASA\\Controllers\\TiquetesController.cs",
-              "RelativeToolTip": "SASA\\Controllers\\TiquetesController.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAABQAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-12-14T14:13:39.052Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 2,
-              "Title": "Index.cshtml",
-              "DocumentMoniker": "C:\\Users\\matia\\Desktop\\Repositorio del profe programacion avanzada\\SASA\\frontend-SASA\\SASA\\Views\\Tiquetes\\Index.cshtml",
-              "RelativeDocumentMoniker": "SASA\\Views\\Tiquetes\\Index.cshtml",
-              "ToolTip": "C:\\Users\\matia\\Desktop\\Repositorio del profe programacion avanzada\\SASA\\frontend-SASA\\SASA\\Views\\Tiquetes\\Index.cshtml",
-              "RelativeToolTip": "SASA\\Views\\Tiquetes\\Index.cshtml",
-              "ViewState": "AgIAACoAAAAAAAAAAAAAADAAAAB2AAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2025-12-14T13:58:37.152Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "sasa-ui.css",
-              "DocumentMoniker": "C:\\Users\\matia\\Desktop\\Repositorio del profe programacion avanzada\\SASA\\frontend-SASA\\SASA\\wwwroot\\css\\sasa-ui.css",
-              "RelativeDocumentMoniker": "SASA\\wwwroot\\css\\sasa-ui.css",
-              "ToolTip": "C:\\Users\\matia\\Desktop\\Repositorio del profe programacion avanzada\\SASA\\frontend-SASA\\SASA\\wwwroot\\css\\sasa-ui.css",
-              "RelativeToolTip": "SASA\\wwwroot\\css\\sasa-ui.css",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA4AAAAeAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003000|",
-              "WhenOpened": "2025-12-14T13:20:24.93Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 8,
-              "Title": "Index.cshtml",
-              "DocumentMoniker": "C:\\Users\\matia\\Desktop\\Repositorio del profe programacion avanzada\\SASA\\frontend-SASA\\SASA\\Views\\Notificaciones\\Index.cshtml",
-              "RelativeDocumentMoniker": "SASA\\Views\\Notificaciones\\Index.cshtml",
-              "ToolTip": "C:\\Users\\matia\\Desktop\\Repositorio del profe programacion avanzada\\SASA\\frontend-SASA\\SASA\\Views\\Notificaciones\\Index.cshtml",
-              "RelativeToolTip": "SASA\\Views\\Notificaciones\\Index.cshtml",
-              "ViewState": "AgIAAIQAAAAAAAAAAAAAAIgAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2025-12-14T14:46:24.709Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 10,
-              "Title": "Index.cshtml",
-              "DocumentMoniker": "C:\\Users\\matia\\Desktop\\Repositorio del profe programacion avanzada\\SASA\\frontend-SASA\\SASA\\Views\\Home\\Index.cshtml",
-              "RelativeDocumentMoniker": "SASA\\Views\\Home\\Index.cshtml",
-              "ToolTip": "C:\\Users\\matia\\Desktop\\Repositorio del profe programacion avanzada\\SASA\\frontend-SASA\\SASA\\Views\\Home\\Index.cshtml",
-              "RelativeToolTip": "SASA\\Views\\Home\\Index.cshtml",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAACsAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2025-12-14T13:47:06.298Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 5,
-              "Title": "Detalle.cshtml",
-              "DocumentMoniker": "C:\\Users\\matia\\Desktop\\Repositorio del profe programacion avanzada\\SASA\\frontend-SASA\\SASA\\Views\\Notificaciones\\Detalle.cshtml",
-              "RelativeDocumentMoniker": "SASA\\Views\\Notificaciones\\Detalle.cshtml",
-              "ToolTip": "C:\\Users\\matia\\Desktop\\Repositorio del profe programacion avanzada\\SASA\\frontend-SASA\\SASA\\Views\\Notificaciones\\Detalle.cshtml",
-              "RelativeToolTip": "SASA\\Views\\Notificaciones\\Detalle.cshtml",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAABUAAAAmAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2025-12-14T14:46:57.098Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 9,
               "Title": "_Layout.cshtml",
               "DocumentMoniker": "C:\\Users\\matia\\Desktop\\Repositorio del profe programacion avanzada\\SASA\\frontend-SASA\\SASA\\Views\\Shared\\_Layout.cshtml",
               "RelativeDocumentMoniker": "SASA\\Views\\Shared\\_Layout.cshtml",
               "ToolTip": "C:\\Users\\matia\\Desktop\\Repositorio del profe programacion avanzada\\SASA\\frontend-SASA\\SASA\\Views\\Shared\\_Layout.cshtml",
               "RelativeToolTip": "SASA\\Views\\Shared\\_Layout.cshtml",
-              "ViewState": "AgIAAL0AAAAAAAAAAAAAAMgAAABFAAAAAAAAAA==",
+              "ViewState": "AgIAAD4AAAAAAAAAAAAIwFYAAAAVAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2025-12-14T13:18:57.161Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 11,
-              "Title": "Crear.cshtml",
-              "DocumentMoniker": "C:\\Users\\matia\\Desktop\\Repositorio del profe programacion avanzada\\SASA\\frontend-SASA\\SASA\\Views\\Tiquetes\\Crear.cshtml",
-              "RelativeDocumentMoniker": "SASA\\Views\\Tiquetes\\Crear.cshtml",
-              "ToolTip": "C:\\Users\\matia\\Desktop\\Repositorio del profe programacion avanzada\\SASA\\frontend-SASA\\SASA\\Views\\Tiquetes\\Crear.cshtml",
-              "RelativeToolTip": "SASA\\Views\\Tiquetes\\Crear.cshtml",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAABoAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2025-12-14T14:00:04.928Z",
+              "WhenOpened": "2025-12-17T02:50:33.347Z",
               "EditorCaption": ""
             }
           ]
