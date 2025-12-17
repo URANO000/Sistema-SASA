@@ -95,6 +95,32 @@ namespace SASA.Controllers
             return (true, "");
         }
 
+        [HttpPost("/reset-password/{token}")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ResetPassword(string token, ResetPasswordViewModel vm)
+        {
+            vm.Token = token;
+
+            if (!ModelState.IsValid) return View(vm);
+
+            if (vm.NewPassword != vm.ConfirmPassword)
+            {
+                ModelState.AddModelError(string.Empty, "Las contraseñas no coinciden.");
+                return View(vm);
+            }
+
+            var result = await _auth.ResetPasswordAsync(token, vm.NewPassword!);
+            if (!result.Ok)
+            {
+                ModelState.AddModelError(string.Empty, result.Message);
+                return View(vm);
+            }
+
+            TempData["Success"] = result.Message;
+            return RedirectToAction(nameof(Login));
+        }
+
+
 
         [HttpGet("/activate-account/{token}")]
         public async Task<IActionResult> ActivateAccount(string token)
