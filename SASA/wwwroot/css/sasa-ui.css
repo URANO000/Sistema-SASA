@@ -22,27 +22,6 @@ body {
     background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
 }
 
-.sasa-content {
-    margin-left: 260px;
-    padding: 88px 26px 26px;
-    min-height: 100vh;
-}
-
-@media (max-width: 992px) {
-    .sidebar-custom {
-        transform: translateX(-110%);
-        transition: transform .2s ease;
-    }
-
-        .sidebar-custom.open {
-            transform: translateX(0);
-        }
-
-    .sasa-content {
-        margin-left: 0;
-        padding: 88px 16px 16px;
-    }
-}
 
 .sasa-breadcrumb {
     display: flex;
@@ -231,7 +210,7 @@ body {
     font-size: .95rem;
 }
 
-.form-control, .form-select {
+/*.form-control, .form-select {
     background: #fff;
     border: 1px solid var(--border);
     color: var(--text);
@@ -253,7 +232,7 @@ body {
 .valid-feedback, .invalid-feedback {
     display: block;
 }
-
+*/
 
 .sasa-table {
     color: var(--text);

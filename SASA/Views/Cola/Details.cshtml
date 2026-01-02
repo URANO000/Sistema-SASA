@@ -1,4 +1,7 @@
-﻿<div class="container-fluid">
+﻿@{
+    ViewData["Title"] = "Detalle de Cola de Trabajo";
+}
+<div class="container-fluid">
     <div class="card mb-3">
         <div class="card-body">
             <a asp-controller="Cola" asp-action="Index" class="btn btn-link px-0">
@@ -33,50 +36,52 @@
                 <div class="card-body">
                     <h6 class="section-title">Tiquetes en esta Cola</h6>
 
-                    <table class="table table-hover align-middle">
-                        <thead>
-                            <tr>
-                                <th>ID Tiquete</th>
-                                <th>Asunto</th>
-                                <th>Prioridad</th>
-                                <th>Estado</th>
-                                <th>Creado</th>
-                                <th>Acciones</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>TQ-001</td>
-                                <td>Error al iniciar sesión</td>
-                                <td><span class="badge bg-danger">Alta</span></td>
-                                <td><span class="badge bg-warning text-dark">En Progreso</span></td>
-                                <td>12/03/2025</td>
-                                <td>
-                                    <button class="btn btn-link icon-btn">
-                                        <i class="bi bi-eye"></i>
-                                    </button>
-                                    <button class="btn btn-link icon-btn">
-                                        <i class="fa-regular fa-pen-to-square"></i>
-                                    </button>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>TQ-002</td>
-                                <td>Fallo en la impresora</td>
-                                <td><span class="badge bg-warning">Media</span></td>
-                                <td><span class="badge bg-info text-dark">Pausada</span></td>
-                                <td>15/02/2025</td>
-                                <td>
-                                    <button class="btn btn-link icon-btn">
-                                        <i class="bi bi-eye"></i>
-                                    </button>
-                                    <button class="btn btn-link icon-btn">
-                                        <i class="fa-regular fa-pen-to-square"></i>
-                                    </button>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
+                    <div class="table-responsive">
+                        <table class="table tbale-responsive table-hover align-middle">
+                            <thead>
+                                <tr>
+                                    <th>ID Tiquete</th>
+                                    <th>Asunto</th>
+                                    <th>Prioridad</th>
+                                    <th>Estado</th>
+                                    <th>Creado</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>TQ-001</td>
+                                    <td>Error al iniciar sesión</td>
+                                    <td><span class="badge bg-danger">Alta</span></td>
+                                    <td><span class="badge bg-warning text-dark">En Progreso</span></td>
+                                    <td>12/03/2025</td>
+                                    <td>
+                                        <button class="btn btn-link icon-btn">
+                                            <i class="bi bi-eye"></i>
+                                        </button>
+                                        <button class="btn btn-link icon-btn">
+                                            <i class="fa-regular fa-pen-to-square"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>TQ-002</td>
+                                    <td>Fallo en la impresora</td>
+                                    <td><span class="badge bg-warning">Media</span></td>
+                                    <td><span class="badge bg-info text-dark">Pausada</span></td>
+                                    <td>15/02/2025</td>
+                                    <td>
+                                        <button class="btn btn-link icon-btn">
+                                            <i class="bi bi-eye"></i>
+                                        </button>
+                                        <button class="btn btn-link icon-btn">
+                                            <i class="fa-regular fa-pen-to-square"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
 
