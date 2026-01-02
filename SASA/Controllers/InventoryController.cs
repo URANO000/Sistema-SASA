@@ -59,5 +59,39 @@ namespace SASA.Controllers
             ViewData["Title"] = "Reportes de Inventario";
             return View();
         }
+
+        // GET: /Inventory/Equipment/Create
+        public IActionResult CreateEquipment()
+        {
+            return View();
+        }
+
+        // GET: /Inventory/Maintenance/Create
+        public IActionResult CreateMaintenance()
+        {
+            return View();
+        }
+
+        // GET: /Inventory/Reports/General
+        public IActionResult GeneralReport()
+        {
+            return View();
+        }
+
+        // POST: /Inventory/TicketAssociation
+        public IActionResult AssociateTicket()
+        {
+            return View("AssociationResult");
+        }
+
+        public IActionResult MaintenanceReport()
+        {
+            return View();
+        }
+
+        public IActionResult StatusReport()
+        {
+            return View();
+        }
     }
 }
