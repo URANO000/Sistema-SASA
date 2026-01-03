@@ -59,41 +59,32 @@
             <!--User menu-->
             <div class="dropdown">
                 <!-- Al dar click en el ícono, abre el menú -->
-                <button class="btn btn-link text-white p-0" type="button" data-bs-toggle="dropdown"
-                    aria-expanded="false">
+                <button class="btn btn-link text-white p-0" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                     <i class="bi bi-person-circle fs-4"></i>
                 </button>
-                <ul class="dropdown-menu dropdown-menu-end">
-                    <li><a class="dropdown-item text-black dp-item" href="#">Perfil</a></li>
-                    <li><a class="dropdown-item text-black dp-item" href="#">Ajustes</a></li>
+
+                <ul class="dropdown-menu dropdown-menu-end user-menu">
+                    <li class="px-3 py-2">
+                        <div class="fw-semibold text-black user-name">Admin SASA</div>
+                        <div class="small text-muted user-role">Administrador</div>
+                    </li>
+
+                    <li><hr class="dropdown-divider"></li>
+
+                    <li><a class="dropdown-item dp-item" href="#"><i class="bi bi-person me-2"></i>Perfil</a></li>
+                    <li><a class="dropdown-item dp-item" href="#"><i class="bi bi-gear me-2"></i>Ajustes</a></li>
+
+                    <li><hr class="dropdown-divider"></li>
+
                     <li>
                         <form method="post" action="/logout" class="d-inline">
                             @Html.AntiForgeryToken()
-                            <button type="submit" class="dropdown-item text-danger dp-item">Salir</button>
+                            <button type="submit" class="dropdown-item text-danger dp-item">
+                                <i class="bi bi-box-arrow-right me-2"></i>Salir
+                            </button>
                         </form>
                     </li>
-
-                    <ul class="dropdown-menu dropdown-menu-end user-menu">
-                        <li class="px-3 py-2">
-                            <div class="fw-semibold text-black user-name">Admin SASA</div>
-                            <div class="small text-muted user-role">Administrador</div>
-                        </li>
-
-                        <li>
-                            <hr class="dropdown-divider">
-                        </li>
-
-                        <li><a class="dropdown-item dp-item" href="#"><i class="bi bi-person me-2"></i>Perfil</a></li>
-                        <li><a class="dropdown-item dp-item" href="#"><i class="bi bi-gear me-2"></i>Ajustes</a></li>
-
-                        <li>
-                            <hr class="dropdown-divider">
-                        </li>
-
-                        <li><a class="dropdown-item text-danger dp-item" href="#"><i
-                                    class="bi bi-box-arrow-right me-2"></i>Salir</a></li>
-                    </ul>
-            </div>
+                </ul>
 
     </header>
 

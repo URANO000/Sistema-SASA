@@ -29,4 +29,18 @@ obj/
 .history
 .ionide
 
+# Visual Studio
+.vs/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.VC.db
+*.VC.VC.opendb
+*.vsuo
+
+# OS
+.DS_Store
+Thumbs.db
+
 # End of https://www.toptal.com/developers/gitignore/api/dotnetcore,visualstudiocode
