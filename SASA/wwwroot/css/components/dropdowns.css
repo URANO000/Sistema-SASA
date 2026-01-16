@@ -1,2 +1,57 @@
-﻿body {
+﻿/** Dropdown for nav*/
+
+.dp-item {
+    color: var(--text-dark);
+    padding: 0.75rem;
 }
+
+    .dp-item:hover {
+        background-color: rgb(0, 0, 0, 0.10);
+    }
+
+/** Dropdown for sidebar*/
+.dropdown-toggle-btn {
+    width: 100%;
+    background: none;
+    border: none;
+    text-align: left;
+    cursor: pointer;
+}
+
+    /* Chevron animationn */
+    .dropdown-toggle-btn .bi-chevron-down {
+        transition: transform 0.25s ease;
+    }
+
+/* Submenu container */
+.submenu {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+}
+
+/* Expanded state */
+.nav-section.open .submenu {
+    max-height: 500px; /* safe value */
+}
+
+.nav-section.open .bi-chevron-down {
+    transform: rotate(180deg);
+}
+
+/* Submenu links */
+.submenu-link {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.45rem 3rem;
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    text-decoration: none;
+}
+
+    .submenu-link:hover {
+        background-color: rgba(255,255,255,0.08);
+        color: var(--text-light);
+    }
+

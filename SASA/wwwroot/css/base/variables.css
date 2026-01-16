@@ -1,20 +1,16 @@
-/** BASE **/
-@import url("./base/variables.css");
-@import url("./base/reset.css");
-@import url("./base/typography.css");
-
-/** LAYOUT **/
-@import url("./layout/topbar.css");
-@import url("./layout/sidebar.css");
-@import url("./layout/content.css");
-
-/** COMPONENTS **/
-@import url("./components/buttons.css");
-@import url("./components/cards.css");
-@import url("./components/dropdowns.css");
-@import url("./components/modals.css");
-@import url("./components/notifications.css");
-@import url("./components/tables.css");
-
-/** UTILITIES **/
-@import url("./utilities/helpers.css");
+/* ROOT COLORS*/
+:root {
+    --primary-color: #012473;
+    --secondary-color: #013599;
+    --danger-color: #E00319;
+    --success-color: #198754;
+    --surface-dark: #0b1c3d;
+    --text-dark: #212121;
+    --text-light: #FFFF;
+    --text-muted: #adb5bd;
+    --accent-1: #0d6efd;
+    --accent-2: #146c43;
+    --card-bg-light: #FFFF;
+    --shadow: 0 10px 30px rgba(0,0,0,.10);
+    --shadowSoft: 0 6px 18px rgba(0,0,0,.08);
+}

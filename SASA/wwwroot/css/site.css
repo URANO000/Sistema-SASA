@@ -9,6 +9,7 @@
 @import url("./layout/content.css");
 
 /** COMPONENTS **/
+@import url("./components/breadcrumbs.css");
 @import url("./components/buttons.css");
 @import url("./components/cards.css");
 @import url("./components/dropdowns.css");
