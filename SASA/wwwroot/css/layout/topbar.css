@@ -1,0 +1,37 @@
+﻿/* This is for the custom navbar*/
+.topbar-custom {
+    height: 56px;
+    background-color: var(--primary-color);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 1rem;
+    color: var(--text-light);
+    box-shadow: 0 8px 6px -6px #999;
+}
+@media (min-width: 992px) {
+    .topbar-custom {
+        height: 60px;
+    }
+}
+
+
+.topbar-left {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem
+}
+
+.topbar-actions {
+    display: flex;
+    gap: 1.5rem;
+    align-items: center;
+    margin: 0 1rem;
+}
+
+    .topbar-actions p {
+        margin-top: 1rem;
+        color: var(--text-muted)
+    }
+
+
