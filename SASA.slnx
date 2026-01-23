@@ -1,3 +1,5 @@
 <Solution>
+  <Project Path="BusinessLogic/BusinessLogic.csproj" Id="ea708bb2-352d-4943-ac68-16a1dc11af19" />
+  <Project Path="DataAccess/DataAccess.csproj" Id="e00bc548-4011-4324-ad40-d44f6ce0d83d" />
   <Project Path="SASA/SASA.csproj" />
 </Solution>
