@@ -1,6 +1,12 @@
+using DataAccess;
+using Microsoft.EntityFrameworkCore;
 using SASA.Services.Auth;
 
 var builder = WebApplication.CreateBuilder(args);
+
+//dbContext
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // MVC
 builder.Services.AddControllersWithViews();
