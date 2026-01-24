@@ -1,0 +1,12 @@
+﻿/**LOGOS*/
+.logo-sasa {
+    display: flex;
+    gap: 0.75rem;
+}
+    .logo-sasa img {
+        height: 32px;
+    }
+
+.custom-icon {
+    color: #FFFF;
+}
