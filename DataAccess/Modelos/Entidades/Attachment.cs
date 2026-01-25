@@ -41,7 +41,7 @@ namespace DataAccess.Modelos.Entidades
         public Comentario? Comentario { get; set; }
         public Tiquete? Tiquete { get; set; }
 
-        //Usuario reference
+        public Usuario? Usuario { get; set; } //UploadedBy
 
 
     }

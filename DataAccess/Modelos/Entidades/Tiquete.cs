@@ -55,6 +55,9 @@ namespace DataAccess.Modelos.Entidades
         public Categoria Categoria { get; set; }
         public Cola? Cola { get; set; }
 
+        public Usuario? Asignee { get; set; }
+        public Usuario? ReportedBy { get; set; }
+
         //Collection -> Relaciones uno a muchos
         public ICollection<Comentario>? Comentarios { get; set; }
         public ICollection<Attachment>? Attachments { get; set; }

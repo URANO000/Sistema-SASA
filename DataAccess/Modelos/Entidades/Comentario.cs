@@ -27,8 +27,7 @@ namespace DataAccess.Modelos.Entidades
 
         //Navigation properties -> Relaciones entre entidades
         public required Tiquete Tiquete { get; set; }
-
-        //NEED TO ADD USUARIO REF
+        public required Usuario Autor { get; set; }
 
 
     }

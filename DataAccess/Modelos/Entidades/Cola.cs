@@ -16,10 +16,10 @@ namespace DataAccess.Modelos.Entidades
         public int idCategoria { get; set; }
 
         [Column("nombreCola")]
-        public string NombreCola { get; set; }
+        public required string NombreCola { get; set; }
 
         [Column("descripcionCola")]
-        public string DescripcionCola { get; set; }
+        public required string DescripcionCola { get; set; }
 
         [Column("isActive")]
         public bool IsActive { get; set; }
@@ -29,11 +29,11 @@ namespace DataAccess.Modelos.Entidades
 
         [ForeignKey("createdBy")]
         [Column("createdBy")]
-        public string CreatedBy { get; set; }
+        public required string CreatedBy { get; set; }
 
         //Navigation properties -> Relaciones entre entidades
 
-        //NOT YET: AÑADIR REFERENCIA A USUARIO
+        public Usuario? Usuario { get; set; } //CreatedBy
         public Categoria? Categoria { get; set; }
 
         //Collection -> Relaciones uno a muchos
