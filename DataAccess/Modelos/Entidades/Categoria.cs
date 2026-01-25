@@ -15,5 +15,6 @@ namespace DataAccess.Modelos.Entidades
 
         //Collection -> Relacion con tiquetes
         public ICollection<Tiquete>? Tiquete { get; set; }
+        public ICollection<Cola>? Cola { get; set; }
     }
 }
