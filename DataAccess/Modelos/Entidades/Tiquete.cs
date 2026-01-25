@@ -11,10 +11,10 @@ namespace DataAccess.Modelos.Entidades
         public int IdTiquete { get; set; }
 
         [Column("asunto")]
-        public string Asunto { get; set; }
+        public required string Asunto { get; set; }
 
         [Column("descripcion")]
-        public string Descripcion { get; set; }
+        public required string Descripcion { get; set; }
 
         [ForeignKey("idEstatus")]
         [Column("idEstatus")]
@@ -50,10 +50,15 @@ namespace DataAccess.Modelos.Entidades
         public string? Resolucion { get; set; }
 
         //Navigation properties -> Relaciones entre entidades
-        public Estatus Estatus {get;set;}
+        public required Estatus Estatus {get;set;}
         public Prioridad? Prioridad { get; set; }
         public Categoria Categoria { get; set; }
         public Cola? Cola { get; set; }
+
+        //Collection -> Relaciones uno a muchos
+        public ICollection<Comentario>? Comentarios { get; set; }
+        public ICollection<Attachment>? Attachments { get; set; }
+
 
     }
 }

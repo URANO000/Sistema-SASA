@@ -35,5 +35,8 @@ namespace DataAccess.Modelos.Entidades
 
         //NOT YET: AÑADIR REFERENCIA A USUARIO
         public Categoria? Categoria { get; set; }
+
+        //Collection -> Relaciones uno a muchos
+        public Tiquete? Tiquete { get; set; }
     }
 }

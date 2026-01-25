@@ -11,7 +11,7 @@ namespace DataAccess.Modelos.Entidades
         public int IdCategoria { get; set; }
 
         [Column("nombreCategoria")]
-        public string NombreCategoria { get; set; }
+        public required string NombreCategoria { get; set; }
 
         //Collection -> Relacion con tiquetes
         public ICollection<Tiquete>? Tiquete { get; set; }
