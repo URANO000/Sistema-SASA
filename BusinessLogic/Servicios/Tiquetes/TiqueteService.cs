@@ -1,4 +1,4 @@
-﻿namespace BusinessLogic.Servicios.Tiquete
+﻿namespace BusinessLogic.Servicios.Tiquetes
 {
     public class TiqueteService
     {
