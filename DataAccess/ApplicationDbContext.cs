@@ -10,6 +10,7 @@ namespace DataAccess
 
         //Aquí van los DbSet para las entidades
         public DbSet<Usuario> Usuarios { get; set; }
+        public DbSet<Tiquete> Tiquetes { get; set; }
         //Luego agrego lo de Identity (mafeh)
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
