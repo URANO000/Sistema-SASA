@@ -30,14 +30,14 @@ namespace DataAccess
                     new Estatus { IdEstatus = (int)TiqueteEstatus.Cerrado, NombreEstatus = "Cerrado"}
                 );
 
-            // Tablas "intermedias" de Identity (como en el script)
+            //Tablas "intermedias" de Identity (como en el script)
             modelBuilder.Entity<IdentityUserRole<string>>().ToTable("AspNetUserRoles");
             modelBuilder.Entity<IdentityUserClaim<string>>().ToTable("AspNetUserClaims");
             modelBuilder.Entity<IdentityUserLogin<string>>().ToTable("AspNetUserLogins");
             modelBuilder.Entity<IdentityRoleClaim<string>>().ToTable("AspNetRoleClaims");
             modelBuilder.Entity<IdentityUserToken<string>>().ToTable("AspNetUserTokens");
 
-            // Aplica todas las configuraciones (User/Role y luego las que agreguen para Tiquete, etc.)
+            //Aplica todas las configuraciones (User/Role y luego las que agreguen para Tiquete, etc.)
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(ApplicationDbContext).Assembly);
         } 
 
