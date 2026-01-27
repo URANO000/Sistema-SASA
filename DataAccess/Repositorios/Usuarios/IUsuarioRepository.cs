@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DataAccess.Repositorios.Tiquete
+namespace DataAccess.Repositorios.Usuarios
 {
-    public class TiqueteRepository
+    public class IUsuarioRepository
     {
     }
 }
