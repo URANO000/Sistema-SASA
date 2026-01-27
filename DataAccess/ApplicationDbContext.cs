@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using DataAccess.Modelos.Entidades;
+using Microsoft.EntityFrameworkCore;
 
 namespace DataAccess
 {
@@ -8,6 +9,7 @@ namespace DataAccess
         : base(options) { }
 
         //Aquí van los DbSet para las entidades
+        public DbSet<Usuario> Usuarios { get; set; }
         //Luego agrego lo de Identity (mafeh)
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
