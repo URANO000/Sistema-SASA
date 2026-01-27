@@ -1,26 +1,33 @@
 using DataAccess;
+using DataAccess.Identity;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using SASA.Services.Auth;
 
 var builder = WebApplication.CreateBuilder(args);
 
-//dbContext
+// DbContext
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+// Identity
+builder.Services
+    .AddIdentity<ApplicationUser, ApplicationRole>(options =>
+    {
+        // Aquí luego ajustan reglas (password, lockout, etc.)
+        // options.User.RequireUniqueEmail = false; // si lo ocupan
+    })
+    .AddEntityFrameworkStores<ApplicationDbContext>()
+    .AddDefaultTokenProviders();
+
+// Cookies (rutas)
+builder.Services.ConfigureApplicationCookie(options =>
+{
+    options.LoginPath = "/login";
+    options.AccessDeniedPath = "/Account/AccessDenied";
+});
+
 // MVC
 builder.Services.AddControllersWithViews();
-
-// Fake auth service
-builder.Services.AddScoped<IAuthService, FakeAuthService>();
-
-// Session
-builder.Services.AddSession(options =>
-{
-    options.IdleTimeout = TimeSpan.FromMinutes(30);
-    options.Cookie.HttpOnly = true;
-    options.Cookie.IsEssential = true;
-});
 
 var app = builder.Build();
 
@@ -35,13 +42,12 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
-app.UseSession();
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapGet("/", (HttpContext ctx) =>
 {
-    var email = ctx.Session.GetString("auth_email");
-    return !string.IsNullOrEmpty(email)
+    return (ctx.User.Identity?.IsAuthenticated ?? false)
         ? Results.Redirect("/Home/Index")
         : Results.Redirect("/login");
 });
