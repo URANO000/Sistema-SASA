@@ -13,8 +13,23 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 builder.Services
     .AddIdentity<ApplicationUser, ApplicationRole>(options =>
     {
-        // Aquí luego ajustan reglas (password, lockout, etc.)
-        // options.User.RequireUniqueEmail = false; // si lo ocupan
+        // Activación por correo
+        options.SignIn.RequireConfirmedEmail = true;
+
+        // Bloqueo por intentos fallidos
+        options.Lockout.AllowedForNewUsers = true;
+        options.Lockout.MaxFailedAccessAttempts = 5;
+        options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(10);
+
+        // Email único (recomendado)
+        options.User.RequireUniqueEmail = true;
+
+        // Password (ajústalo a lo que pidan ustedes)
+        options.Password.RequireDigit = true;
+        options.Password.RequiredLength = 8;
+        options.Password.RequireNonAlphanumeric = false;
+        options.Password.RequireUppercase = true;
+        options.Password.RequireLowercase = true;
     })
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddDefaultTokenProviders();
