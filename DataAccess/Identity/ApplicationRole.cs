@@ -4,6 +4,6 @@ namespace DataAccess.Identity
 {
     public class ApplicationRole : IdentityRole
     {
-        public bool Estado { get; set; }
+        public bool Estado { get; set; } = true;
     }
 }

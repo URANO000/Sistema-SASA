@@ -46,6 +46,30 @@ builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
 
+//Seeder (temporal)
+if (app.Environment.IsDevelopment())
+{
+    using var scope = app.Services.CreateScope();
+    var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+
+    var email = "test@sasa.com";
+    var user = await userManager.FindByEmailAsync(email);
+
+    if (user is null)
+    {
+        user = new ApplicationUser
+        {
+            UserName = email,
+            Email = email,
+            EmailConfirmed = true, // para que no falle por RequireConfirmedEmail
+            Estado = true,
+            LockoutEnabled = true
+        };
+
+        await userManager.CreateAsync(user, "Test123!");
+    }
+}
+
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
