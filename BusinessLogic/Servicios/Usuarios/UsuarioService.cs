@@ -1,4 +1,5 @@
-﻿namespace BusinessLogic.Servicios.Usuarios
+namespace BusinessLogic.Servicios.Usuarios
+
 {
     public class UsuarioService : IUsuarioService
     {

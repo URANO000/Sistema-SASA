@@ -16,7 +16,7 @@ namespace DataAccess.Modelos.Entidades
 
         [ForeignKey("idComentario")]
         [Column("idComentario")]
-        public int IdComentario { get; set; }
+        public int? IdComentario { get; set; }
 
         [Column("filePath")]
         public string? FilePath { get; set; }

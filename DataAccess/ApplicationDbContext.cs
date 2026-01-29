@@ -15,6 +15,12 @@ namespace DataAccess
         //Aquí van los DbSet para las entidades
         public DbSet<Usuario> Usuarios { get; set; }
         public DbSet<Tiquete> Tiquetes { get; set; }
+        public DbSet<Estatus> Estatuses { get; set; }
+        public DbSet<Prioridad> Prioridades { get; set; } 
+        public DbSet<Categoria> Categorias { get; set; }
+        public DbSet<Cola> Colas { get; set; }
+        public DbSet<Comentario> Comentarios { get; set; }
+        public DbSet<Attachment> Attachments { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
