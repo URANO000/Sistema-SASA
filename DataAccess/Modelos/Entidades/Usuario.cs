@@ -22,6 +22,9 @@ namespace DataAccess.Modelos.Entidades
         [Column("puesto")]
         public string? Puesto { get; set; }
 
+        [Column("correoEmpresa")]
+        public string? CorreoEmpresa { get; set; }
+
         [Column("jefeId")]
 
         public string? JefeId { get; set; }

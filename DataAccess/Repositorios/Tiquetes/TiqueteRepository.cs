@@ -1,4 +1,5 @@
 ﻿using DataAccess.Modelos.Entidades;
+using DataAccess.Modelos.DTOs.Tiquete;
 using DataAccess.Modelos.Enums;
 using Microsoft.EntityFrameworkCore;
 
@@ -15,11 +16,55 @@ namespace DataAccess.Repositorios.Tiquetes
         }
 
         //Implementación de los métodos del repositorio de tiquetes
-        public async Task<IEnumerable<Tiquete>> ObtenerTiquetesAsync()
-            => await _context.Tiquetes.ToListAsync();
+        public async Task<IReadOnlyList<ListaTiqueteDTO>> ObtenerTiquetesAsync()
+        {
+            return await _context.Tiquetes
+                .AsNoTracking()
+                .Select(t => new ListaTiqueteDTO
+                {
+                    IdTiquete = t.IdTiquete,
+                    Asunto = t.Asunto,
+                    Descripcion = t.Descripcion,
+                    Resolucion = t.Resolucion ?? "Sin Resolución",
 
-        public async Task<Tiquete?> ObtenerTiquetePorIdAsync(int id)
-            => await _context.Tiquetes.FindAsync(id);
+                    Estatus = t.Estatus.NombreEstatus,
+                    Prioridad = t.Prioridad != null ? t.Prioridad.NombrePrioridad : "Sin prioridad",
+                    Categoria = t.Categoria.NombreCategoria,
+                    Cola = t.Cola != null ? t.Cola.NombreCola : "Sin Cola",
+
+                    ReportedBy = t.ReportedBy.CorreoEmpresa,
+                    Asignee = t.Asignee != null ? t.Asignee.CorreoEmpresa : "Sin asignar",
+
+                    CreatedAt = t.CreatedAt,
+                    UpdatedAt = t.UpdatedAt
+
+                })
+                .ToListAsync();
+        }
+
+        public async Task<ListaTiqueteDTO?> ObtenerTiquetePorIdAsync(int id)
+        {
+            return await _context.Tiquetes
+                .AsNoTracking()
+                .Where(t => t.IdTiquete == id)
+                .Select(t => new ListaTiqueteDTO
+                {
+                    IdTiquete = t.IdTiquete,
+                    Asunto = t.Asunto,
+                    Descripcion = t.Descripcion,
+                    Resolucion = t.Resolucion,
+
+                    Estatus = t.Estatus.NombreEstatus,
+                    Prioridad = t.Prioridad != null ? t.Prioridad.NombrePrioridad : "Sin prioridad",
+                    Categoria = t.Categoria.NombreCategoria,
+                    Cola = t.Cola != null ? t.Cola.NombreCola : "Sin Cola",
+                    ReportedBy = t.ReportedBy.CorreoEmpresa,
+                    Asignee = t.Asignee != null ? t.Asignee.CorreoEmpresa : "Sin asignar",
+                    CreatedAt = t.CreatedAt,
+                    UpdatedAt = t.UpdatedAt
+                })
+                .FirstOrDefaultAsync();
+        }
 
         public async Task AgregarTiqueteAsync(Tiquete tiquete)
         {
