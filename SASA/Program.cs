@@ -1,5 +1,9 @@
+using BusinessLogic.Servicios.Tiquetes;
+using BusinessLogic.Servicios.Usuarios;
 using DataAccess;
 using DataAccess.Identity;
+using DataAccess.Repositorios.Tiquetes;
+using DataAccess.Repositorios.Usuarios;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -25,6 +29,12 @@ builder.Services.ConfigureApplicationCookie(options =>
     options.LoginPath = "/login";
     options.AccessDeniedPath = "/Account/AccessDenied";
 });
+
+//Repositories y Servicios de negocio
+builder.Services.AddScoped<ITiqueteRepository, TiqueteRepository>();
+builder.Services.AddScoped<ITiqueteService, TiqueteService>();
+builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
+builder.Services.AddScoped<IUsuarioService, UsuarioService>();
 
 // MVC
 builder.Services.AddControllersWithViews();
