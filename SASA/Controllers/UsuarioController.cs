@@ -64,7 +64,9 @@ namespace SASA.Controllers
         {
             if (!ModelState.IsValid)
             {
-                return await CargarIndexConErrores(model);
+                //Para AJAX, retornar modal parcial con errores de validación
+                model.RolesDisponibles = (IReadOnlyList<SelectListItem>?)await _rolService.ObtenerRolesAsync();
+                return PartialView("_AddModal", model);
             }
 
             //Mapeo a DTO
@@ -83,13 +85,18 @@ namespace SASA.Controllers
             try
             {
                 await _usuarioService.AgregarUsuarioAsync(dto);
-                return RedirectToAction(nameof(Index));
+                //Para AJAX
+                return Json(new
+                {
+                    success = true
+                });
             }
             catch (Exception ex)
             {
                 //Si un error ocurre, regresar al Index con el modelo y el error, o se cae todo
                 ModelState.AddModelError(string.Empty, ex.Message);
-                return await CargarIndexConErrores(model);
+                model.RolesDisponibles = (IReadOnlyList<SelectListItem>?)await _rolService.ObtenerRolesAsync();
+                return PartialView("_AddModal", model);
 
             }
         }

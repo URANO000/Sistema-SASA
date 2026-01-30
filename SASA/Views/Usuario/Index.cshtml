@@ -100,7 +100,9 @@
         </div>
     </div>
 </div>
+
 @section Scripts {
+    <script src="~/js/formSubmits.js" asp-append-version="true"></script>
     <script>
         $(document).ready(function () {
             const form = $("#createUserForm");
@@ -114,6 +116,8 @@
         });
     </script>
 }
+
+@await Html.PartialAsync("_SuccessModal")
 
 @await Html.PartialAsync(
 "_AddModal",
