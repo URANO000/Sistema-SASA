@@ -17,8 +17,23 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 builder.Services
     .AddIdentity<ApplicationUser, ApplicationRole>(options =>
     {
-        // Aquí luego ajustan reglas (password, lockout, etc.)
-        // options.User.RequireUniqueEmail = false; // si lo ocupan
+        // Activación por correo
+        options.SignIn.RequireConfirmedEmail = true;
+
+        // Bloqueo por intentos fallidos
+        options.Lockout.AllowedForNewUsers = true;
+        options.Lockout.MaxFailedAccessAttempts = 5;
+        options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(10);
+
+        // Email único (recomendado)
+        options.User.RequireUniqueEmail = true;
+
+        // Password (ajústalo a lo que pidan ustedes)
+        options.Password.RequireDigit = true;
+        options.Password.RequiredLength = 8;
+        options.Password.RequireNonAlphanumeric = false;
+        options.Password.RequireUppercase = true;
+        options.Password.RequireLowercase = true;
     })
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddDefaultTokenProviders();
@@ -40,6 +55,30 @@ builder.Services.AddScoped<IUsuarioService, UsuarioService>();
 builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
+
+//Seeder (temporal)
+if (app.Environment.IsDevelopment())
+{
+    using var scope = app.Services.CreateScope();
+    var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+
+    var email = "test@sasa.com";
+    var user = await userManager.FindByEmailAsync(email);
+
+    if (user is null)
+    {
+        user = new ApplicationUser
+        {
+            UserName = email,
+            Email = email,
+            EmailConfirmed = true, // para que no falle por RequireConfirmedEmail
+            Estado = true,
+            LockoutEnabled = true
+        };
+
+        await userManager.CreateAsync(user, "Test123!");
+    }
+}
 
 if (!app.Environment.IsDevelopment())
 {

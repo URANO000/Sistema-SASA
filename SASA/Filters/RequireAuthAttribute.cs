@@ -7,10 +7,9 @@ namespace SASA.Filters
     {
         public override void OnActionExecuting(ActionExecutingContext context)
         {
-            var session = context.HttpContext.Session;
-            var email = session.GetString("auth_email");
+            var isAuth = context.HttpContext.User?.Identity?.IsAuthenticated ?? false;
 
-            if (string.IsNullOrEmpty(email))
+            if (!isAuth)
             {
                 context.Result = new RedirectResult("/login");
                 return;
