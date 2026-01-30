@@ -1,0 +1,24 @@
+﻿@model EditUserVm
+@{
+    ViewData["Title"] = "Editar usuario";
+}
+
+<h2>Editar usuario</h2>
+
+<form asp-area="Admin" asp-controller="Users" asp-action="Edit" method="post">
+    @Html.AntiForgeryToken()
+    <input type="hidden" asp-for="Id" />
+
+    <div class="mb-3">
+        <label asp-for="Email" class="form-label"></label>
+        <input asp-for="Email" class="form-control" readonly />
+    </div>
+
+    <div class="form-check mb-3">
+        <input asp-for="Estado" class="form-check-input" />
+        <label asp-for="Estado" class="form-check-label"></label>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Guardar cambios</button>
+    <a asp-area="Admin" asp-controller="Users" asp-action="Index" class="btn btn-secondary">Volver</a>
+</form>

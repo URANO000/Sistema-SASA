@@ -50,25 +50,42 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     using var scope = app.Services.CreateScope();
+
     var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+    var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<ApplicationRole>>();
 
+    const string adminRole = "Admin";
     var email = "test@sasa.com";
-    var user = await userManager.FindByEmailAsync(email);
 
+    // Crear rol Admin si no existe
+    if (!await roleManager.RoleExistsAsync(adminRole))
+    {
+        await roleManager.CreateAsync(new ApplicationRole { Name = adminRole, Estado = true });
+    }
+
+    // Crear usuario admin si no existe
+    var user = await userManager.FindByEmailAsync(email);
     if (user is null)
     {
         user = new ApplicationUser
         {
             UserName = email,
             Email = email,
-            EmailConfirmed = true, // para que no falle por RequireConfirmedEmail
+            EmailConfirmed = true,
             Estado = true,
             LockoutEnabled = true
         };
 
         await userManager.CreateAsync(user, "Test123!");
     }
+
+    // Asignarlo al rol Admin si no está
+    if (!await userManager.IsInRoleAsync(user, adminRole))
+    {
+        await userManager.AddToRoleAsync(user, adminRole);
+    }
 }
+
 
 if (!app.Environment.IsDevelopment())
 {
@@ -90,6 +107,10 @@ app.MapGet("/", (HttpContext ctx) =>
         ? Results.Redirect("/Home/Index")
         : Results.Redirect("/login");
 });
+
+app.MapControllerRoute(
+    name: "areas",
+    pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}");
 
 app.MapControllerRoute(
     name: "default",
