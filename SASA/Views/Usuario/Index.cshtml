@@ -1,4 +1,6 @@
-﻿@{
+﻿@using SASA.ViewModels.Usuario
+@model IReadOnlyList<UsuarioListaViewModel>
+@{
     ViewData["Title"] = "Gestión de Usuarios";
 }
 <div class="container-fluid">
@@ -49,39 +51,42 @@
                     <thead>
                         <tr>
                             <th>Acciones</th>
-                            <th>Usuario</th>
-                            <th>No. Empleado</th>
+                            <th>Nombre Completo</th>
                             <th>Correo</th>
                             <th>Departamento</th>
                             <th>Puesto</th>
                             <th>Estado</th>
                             <th>Rol</th>
-                            <th>Tickets Abiertos</th>
-                            <th>Último Ticket</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <td>
-                                <a class="btn btn-link icon-btn" asp-area="" asp-controller="Usuario" asp-action="Details">
-                                    <i class="bi bi-eye detail-btn"></i>
-                                </a>
-                                <a class="btn btn-link icon-btn" asp-area="" asp-controller="Usuario" asp-action="Edit">
-                                    <i class="fa-regular fa-pen-to-square edit-btn"></i>
-                                </a>
-                            </td>
-                            <td>Juan Pérez</td>
-                            <td>EMP-1023</td>
-                            <td>juanp@gmail.com</td>
-                            <td>TI</td>
-                            <td>Analista de Soporte</td>
-                            <td>
-                                <span class="badge bg-success">Activo</span>
-                            </td>
-                            <td>Usuario</td>
-                            <td>1</td>
-                            <td>12/03/2025</td>
-                        </tr>
+                            @foreach(var u in Model)
+                            {
+                            <tr>
+                                <td>
+                                    <a class="btn btn-link icon-btn" asp-area="" asp-controller="Usuario" asp-action="Details">
+                                        <i class="bi bi-eye detail-btn"></i>
+                                    </a>
+                                    <a class="btn btn-link icon-btn" asp-area="" asp-controller="Usuario" asp-action="Edit">
+                                        <i class="fa-regular fa-pen-to-square edit-btn"></i>
+                                    </a>
+                                </td>
+
+                                <td> @u.NombreCompleto</td>
+                                <td>@u.CorreoEmpresa</td>
+                                <td>@u.Departamento</td>
+                                <td>@u.Puesto</td>
+                                @if(u.Estado == "Activo")
+                                {
+                                    <td><span class="badge bg-success">Activo</span></td>
+                                }
+                                else
+                                {
+                                    <td><span class="badge bg-secondary">Inactivo</span></td>
+                                }
+                                <td>@u.Rol</td>
+                            </tr>
+                            }
                     </tbody>
                 </table>
             </div>

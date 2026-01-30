@@ -1,4 +1,6 @@
-﻿namespace DataAccess.Modelos.DTOs.Usuarios
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace DataAccess.Modelos.DTOs.Usuarios
 {
     public class ListaUsuarioDto
     {
@@ -11,6 +13,10 @@
         public string? Puesto { get; init; }
         public string? CorreoEmpresa { get; init; }
         public bool Estado { get; init; }
+
+        [Required]
+        //Roles asignados al usuario
+        public IReadOnlyCollection<string>? Roles { get; init; }
 
     }
 }

@@ -25,10 +25,10 @@ builder.Services
         options.Lockout.MaxFailedAccessAttempts = 5;
         options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(10);
 
-        // Email único (recomendado)
+        // Email único
         options.User.RequireUniqueEmail = true;
 
-        // Password (ajústalo a lo que pidan ustedes)
+        // Password
         options.Password.RequireDigit = true;
         options.Password.RequiredLength = 8;
         options.Password.RequireNonAlphanumeric = false;

@@ -20,9 +20,41 @@ namespace BusinessLogic.Servicios.Usuarios
         //Implementación de los métodos para el servicio de Usuario
 
         //Obtener todos los usuarios
+        //public async Task<IReadOnlyList<ListaUsuarioDto>> ObtenerUsuariosAsync()
+        //{
+        //    return await _usuarioRepository.ObtenerUsuariosAsync();
+        //}
+
         public async Task<IReadOnlyList<ListaUsuarioDto>> ObtenerUsuariosAsync()
         {
-            return await _usuarioRepository.ObtenerUsuariosAsync();
+            var usuarios = await _usuarioRepository.ObtenerUsuariosAsync();
+
+            var resultado = new List<ListaUsuarioDto>(usuarios.Count);
+
+            //Lógica para sacar rol
+            foreach (var dto in usuarios)
+            {
+                var user = await _userManager.FindByIdAsync(dto.Id!);
+                var roles = user is not null
+                    ? await _userManager.GetRolesAsync(user)
+                    : Array.Empty<string>();
+
+                resultado.Add(new ListaUsuarioDto
+                {
+                    Id = dto.Id,
+                    PrimerNombre = dto.PrimerNombre,
+                    SegundoNombre = dto.SegundoNombre,
+                    PrimerApellido = dto.PrimerApellido,
+                    SegundoApellido = dto.SegundoApellido,
+                    Departamento = dto.Departamento,
+                    Puesto = dto.Puesto,
+                    CorreoEmpresa = dto.CorreoEmpresa,
+                    Estado = dto.Estado,
+                    Roles = roles is IReadOnlyCollection<string> readOnlyRoles ? readOnlyRoles : roles.ToList()
+                });
+            }
+
+            return resultado;
         }
 
         //Obtener usuario por ID
