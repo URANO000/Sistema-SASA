@@ -1,4 +1,5 @@
 ﻿
+using DataAccess.Identity;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -33,10 +34,10 @@ namespace DataAccess.Modelos.Entidades
 
         //Navigation properties -> Relaciones entre entidades
 
-        public Usuario? Usuario { get; set; } //CreatedBy
+        public ApplicationUser? Usuario { get; set; } //CreatedBy
         public Categoria? Categoria { get; set; }
 
         //Collection -> Relaciones uno a muchos
-        public Tiquete? Tiquete { get; set; }
+        public ICollection<Tiquete>? Tiquete { get; set; }
     }
 }

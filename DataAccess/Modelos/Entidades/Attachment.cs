@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using DataAccess.Identity;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace DataAccess.Modelos.Entidades
@@ -41,7 +42,7 @@ namespace DataAccess.Modelos.Entidades
         public Comentario? Comentario { get; set; }
         public Tiquete? Tiquete { get; set; }
 
-        public Usuario? Usuario { get; set; } //UploadedBy
+        public ApplicationUser? Usuario { get; set; } //UploadedBy
 
 
     }

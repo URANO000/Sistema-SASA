@@ -1,4 +1,5 @@
-﻿using DataAccess.Modelos.DTOs.Usuarios;
+﻿using DataAccess.Identity;
+using DataAccess.Modelos.DTOs.Usuarios;
 using DataAccess.Modelos.Entidades;
 
 namespace BusinessLogic.Servicios.Usuarios
@@ -7,11 +8,11 @@ namespace BusinessLogic.Servicios.Usuarios
     {
         //Métodos para el servicio de Usuario
         Task<IReadOnlyList<ListaUsuarioDto>> ObtenerUsuariosAsync();
-        Task<ListaUsuarioDto?> ObtenerUsuarioPorIdAsync(int id);
+        Task<ListaUsuarioDto?> ObtenerUsuarioPorIdAsync(string id);
 
-        Task<CrearUsuarioDto?> AgregarUsuarioAsync(CrearUsuarioDto usuario); //Posiblemente se puede usar DTO
-        Task<Usuario?> ActualizarUsuarioAsync(int id, Usuario usuario); //Se puede usar DTO
+        Task AgregarUsuarioAsync(CrearUsuarioDto usuario); 
+        Task<ApplicationUser?> ActualizarUsuarioAsync(string id, ApplicationUser usuario); //Se puede usar DTO
 
-        Task DesactivarUsuarioAsync(int id);
+        Task DesactivarUsuarioAsync(string id);
     }
 }

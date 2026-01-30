@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using DataAccess.Identity;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace DataAccess.Modelos.Entidades
@@ -34,11 +35,11 @@ namespace DataAccess.Modelos.Entidades
 
         [ForeignKey("idAsignee")]
         [Column("idAsignee")]
-        public int IdAsignee { get; set; }
+        public string? IdAsignee { get; set; }
 
         [ForeignKey("idReportedBy")]
         [Column("idReportedBy")]
-        public int IdReportedBy { get; set; }
+        public required string IdReportedBy { get; set; }
 
         [Column("createdAt")]
         public DateTime CreatedAt { get; set; }
@@ -55,8 +56,8 @@ namespace DataAccess.Modelos.Entidades
         public Categoria Categoria { get; set; }
         public Cola? Cola { get; set; }
 
-        public Usuario? Asignee { get; set; }
-        public Usuario? ReportedBy { get; set; }
+        public ApplicationUser? Asignee { get; set; }
+        public ApplicationUser? ReportedBy { get; set; }
 
         //Collection -> Relaciones uno a muchos
         public ICollection<Comentario>? Comentarios { get; set; }

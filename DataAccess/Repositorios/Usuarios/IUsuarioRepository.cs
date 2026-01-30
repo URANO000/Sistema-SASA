@@ -1,5 +1,5 @@
-﻿using DataAccess.Modelos.DTOs.Usuarios;
-using DataAccess.Modelos.Entidades;
+﻿using DataAccess.Identity;
+using DataAccess.Modelos.DTOs.Usuarios;
 
 
 namespace DataAccess.Repositorios.Usuarios
@@ -7,9 +7,8 @@ namespace DataAccess.Repositorios.Usuarios
     public interface IUsuarioRepository
     {
         Task<IReadOnlyList<ListaUsuarioDto>> ObtenerUsuariosAsync(); //Listar
-        Task<ListaUsuarioDto?> ObtenerUsuarioPorIdAsync(int id); //Detalle
-        Task AgregarUsuarioAsync(CrearUsuarioDto usuario); //Agregar
-        Task ActualizarUsuarioAsync(Usuario usuario); //Actualizar
-        Task DesactivarUsuario(int id); //Desactivar. Nunca eliminar
+        Task<ListaUsuarioDto?> ObtenerUsuarioPorIdAsync(string id); //Detalle
+        Task ActualizarUsuarioAsync(ApplicationUser usuario); //Actualizar
+        Task DesactivarUsuario(string id); //Desactivar. Nunca eliminar
     }
 }

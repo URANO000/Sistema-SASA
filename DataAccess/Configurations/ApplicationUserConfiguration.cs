@@ -24,6 +24,12 @@ namespace DataAccess.Configurations
 
             b.Property(x => x.CantidadHijos).HasColumnName("cantidadHijos");
 
+            //En el script: departamento NVARCHAR(100)
+            b.Property(x => x.Departamento).HasColumnName("departamento").HasMaxLength(100);
+
+            //En el script: puesto NVARCHAR(100)
+            b.Property(x => x.Puesto).HasColumnName("puesto").HasMaxLength(100);
+
             // En el script: correoEmpresa NVARCHAR(450) NULL + índice único filtrado
             b.Property(x => x.CorreoEmpresa).HasColumnName("correoEmpresa").HasMaxLength(450);
 
@@ -32,6 +38,7 @@ namespace DataAccess.Configurations
 
             // En el script: estado BIT NOT NULL
             b.Property(x => x.Estado).HasColumnName("estado").HasDefaultValue(true);
+
 
             b.Property(x => x.SessionId).HasColumnName("sessionId").HasMaxLength(100);
             b.Property(x => x.LastActivityUtc).HasColumnName("lastActivityUtc");

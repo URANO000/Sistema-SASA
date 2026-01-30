@@ -2,8 +2,8 @@
 {
     public enum TiqueteEstatus
     {
-        Abierto = 0,
-        EnProgreso = 1,
+        Abierto = 1,
+        EnProgreso = 2,
         Cancelado = 3,
         Resuelto = 4,
         Cerrado = 5

@@ -1,4 +1,5 @@
 ﻿
+using DataAccess.Identity;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -27,7 +28,7 @@ namespace DataAccess.Modelos.Entidades
 
         //Navigation properties -> Relaciones entre entidades
         public required Tiquete Tiquete { get; set; }
-        public required Usuario Autor { get; set; }
+        public required ApplicationUser Autor { get; set; }
 
 
     }

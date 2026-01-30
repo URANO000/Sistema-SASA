@@ -13,7 +13,6 @@ namespace DataAccess
             : base(options) { }
 
         //Aquí van los DbSet para las entidades
-        public DbSet<Usuario> Usuarios { get; set; }
         public DbSet<Tiquete> Tiquetes { get; set; }
         public DbSet<Estatus> Estatuses { get; set; }
         public DbSet<Prioridad> Prioridades { get; set; } 
@@ -21,10 +20,15 @@ namespace DataAccess
         public DbSet<Cola> Colas { get; set; }
         public DbSet<Comentario> Comentarios { get; set; }
         public DbSet<Attachment> Attachments { get; set; }
+        public DbSet<Auditoria> Auditorias { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<Estatus>()
+            .Property(e => e.IdEstatus)
+            .ValueGeneratedNever();
 
             //Seeder de enum
             modelBuilder.Entity<Estatus>()
@@ -35,6 +39,22 @@ namespace DataAccess
                     new Estatus { IdEstatus = (int)TiqueteEstatus.Resuelto, NombreEstatus = "Resuelto"},
                     new Estatus { IdEstatus = (int)TiqueteEstatus.Cerrado, NombreEstatus = "Cerrado"}
                 );
+
+            //Modelado en tiquetes
+
+            modelBuilder.Entity<Tiquete>(entity =>
+            {
+                entity.HasOne(t => t.Asignee)
+                    .WithMany(u => u.TiquetesAsignados)
+                    .HasForeignKey(t => t.IdAsignee)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasOne(t => t.ReportedBy)
+                    .WithMany(u => u.TiquetesReportados)
+                    .HasForeignKey(t => t.IdReportedBy)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+            });
 
             //Tablas "intermedias" de Identity (como en el script)
             modelBuilder.Entity<IdentityUserRole<string>>().ToTable("AspNetUserRoles");

@@ -1,4 +1,5 @@
-﻿using DataAccess.Modelos.DTOs.Usuarios;
+﻿using DataAccess.Identity;
+using DataAccess.Modelos.DTOs.Usuarios;
 using DataAccess.Modelos.Entidades;
 using Microsoft.EntityFrameworkCore;
 
@@ -17,56 +18,52 @@ namespace DataAccess.Repositorios.Usuarios
         //Implementación de los métodos del repositorio de usuarios
         public async Task<IReadOnlyList<ListaUsuarioDto>> ObtenerUsuariosAsync()
         {
-            return await _context.Usuarios
+            return await _context.Users
                 .AsNoTracking()
                 .Select(u => new ListaUsuarioDto
                 {
                     Id = u.Id,
                     PrimerNombre = u.PrimerNombre,
+                    SegundoNombre = u.SegundoNombre,
                     PrimerApellido = u.PrimerApellido,
+                    SegundoApellido = u.SegundoApellido,
                     Departamento = u.Departamento,
                     Puesto = u.Puesto,
                     CorreoEmpresa = u.CorreoEmpresa,
-                    Estado = u.Estado,
-                    LastActivityUtc = u.LastActivityUtc
+                    Estado = u.Estado
                 })
                 .ToListAsync();
         }
 
-        public async Task<ListaUsuarioDto?> ObtenerUsuarioPorIdAsync(int id)
+        public async Task<ListaUsuarioDto?> ObtenerUsuarioPorIdAsync(string id)
         {
-            return await _context.Usuarios
+            return await _context.Users
                 .AsNoTracking()
                 .Where(u => u.Id == id.ToString())
                 .Select(u => new ListaUsuarioDto
                 {
                     Id = u.Id,
                     PrimerNombre = u.PrimerNombre,
+                    SegundoNombre = u.SegundoNombre,
                     PrimerApellido = u.PrimerApellido,
+                    SegundoApellido = u.SegundoApellido,
                     Departamento = u.Departamento,
                     Puesto = u.Puesto,
                     CorreoEmpresa = u.CorreoEmpresa,
-                    Estado = u.Estado,
-                    LastActivityUtc = u.LastActivityUtc
-
+                    Estado = u.Estado
                 })
                 .FirstOrDefaultAsync();
         }
 
-        public async Task AgregarUsuarioAsync(CrearUsuarioDto usuario)
+        public async Task ActualizarUsuarioAsync(ApplicationUser usuario)
         {
-            
-        }
-
-        public async Task ActualizarUsuarioAsync(Usuario usuario)
-        {
-            _context.Usuarios.Update(usuario);
+            _context.Users.Update(usuario);
             await _context.SaveChangesAsync();
         }
 
-        public async Task DesactivarUsuario(int id)
+        public async Task DesactivarUsuario(string id)
         {
-            var usuario = await _context.Usuarios.FindAsync(id);
+            var usuario = await _context.Users.FindAsync(id);
             if (usuario != null)
             {
                 usuario.Estado = false; //bit 0
