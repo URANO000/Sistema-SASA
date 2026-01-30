@@ -1,5 +1,10 @@
+using BusinessLogic.Servicios.Rol;
+using BusinessLogic.Servicios.Tiquetes;
+using BusinessLogic.Servicios.Usuarios;
 using DataAccess;
 using DataAccess.Identity;
+using DataAccess.Repositorios.Tiquetes;
+using DataAccess.Repositorios.Usuarios;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -21,10 +26,10 @@ builder.Services
         options.Lockout.MaxFailedAccessAttempts = 5;
         options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(10);
 
-        // Email único (recomendado)
+        // Email único
         options.User.RequireUniqueEmail = true;
 
-        // Password (ajústalo a lo que pidan ustedes)
+        // Password
         options.Password.RequireDigit = true;
         options.Password.RequiredLength = 8;
         options.Password.RequireNonAlphanumeric = false;
@@ -40,6 +45,13 @@ builder.Services.ConfigureApplicationCookie(options =>
     options.LoginPath = "/login";
     options.AccessDeniedPath = "/Account/AccessDenied";
 });
+
+//Repositories y Servicios de negocio
+builder.Services.AddScoped<ITiqueteRepository, TiqueteRepository>();
+builder.Services.AddScoped<ITiqueteService, TiqueteService>();
+builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
+builder.Services.AddScoped<IUsuarioService, UsuarioService>();
+builder.Services.AddScoped<IRolService, RolService>();
 
 // MVC
 builder.Services.AddControllersWithViews();
