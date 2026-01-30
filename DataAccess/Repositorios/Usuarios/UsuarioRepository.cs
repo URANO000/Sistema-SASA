@@ -39,7 +39,7 @@ namespace DataAccess.Repositorios.Usuarios
         {
             return await _context.Users
                 .AsNoTracking()
-                .Where(u => u.Id == id.ToString())
+                .Where(u => u.Id == id)
                 .Select(u => new ListaUsuarioDto
                 {
                     Id = u.Id,

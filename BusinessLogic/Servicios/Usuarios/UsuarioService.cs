@@ -60,7 +60,36 @@ namespace BusinessLogic.Servicios.Usuarios
         //Obtener usuario por ID
         public async Task<ListaUsuarioDto?> ObtenerUsuarioPorIdAsync(string id)
         {
-            return await _usuarioRepository.ObtenerUsuarioPorIdAsync(id);
+            var dto = await _usuarioRepository.ObtenerUsuarioPorIdAsync(id);
+
+            if(dto == null)
+            {
+                return null;
+            }
+
+            var user = await _userManager.FindByIdAsync(id);
+
+            if (user == null)
+            {
+                return dto;
+            }
+
+            var roles = await _userManager.GetRolesAsync(user);
+
+            //Aprendí un término nuevo, esto se llama rehidratación
+            return new ListaUsuarioDto
+            {
+                Id = dto.Id,
+                PrimerNombre = dto.PrimerNombre,
+                SegundoNombre = dto.SegundoNombre,
+                PrimerApellido = dto.PrimerApellido,
+                SegundoApellido = dto.SegundoApellido,
+                Departamento = dto.Departamento,
+                Puesto = dto.Puesto,
+                CorreoEmpresa = dto.CorreoEmpresa,
+                Estado = dto.Estado,
+                Roles = roles is IReadOnlyCollection<string> readOnlyRoles ? readOnlyRoles : roles.ToList()
+            };
         }
 
         //Creación de usuarios

@@ -82,17 +82,20 @@
                             <!-- Rol -->
                             <div class="col-md-6">
                                 <label class="form-label required-field">Rol</label>
-                                <select class="form-select">
+                                <select class="form-select" name="Rol">
                                     <option value="">Seleccione un rol</option>
-                                    <option>Administrador</option>
-                                    <option>Soporte</option>
-                                    <option>Usuario</option>
+
+                                    @foreach (var rol in Model.RolesDisponibles)
+                                    {
+                                        <option value="@rol">@rol</option>
+                                    }
                                 </select>
 
                                 <small class="text-muted">
                                     El rol define los permisos iniciales del usuario.
                                 </small>
                             </div>
+
 
                             <!-- Estado inicial es activo por default -->
 

@@ -1,5 +1,6 @@
 ﻿@using SASA.ViewModels.Usuario
-@model IReadOnlyList<UsuarioListaViewModel>
+@model UsuarioIndexViewModel
+
 @{
     ViewData["Title"] = "Gestión de Usuarios";
 }
@@ -60,14 +61,20 @@
                         </tr>
                     </thead>
                     <tbody>
-                            @foreach(var u in Model)
+                            @foreach(var u in Model.Usuarios)
                             {
                             <tr>
                                 <td>
-                                    <a class="btn btn-link icon-btn" asp-area="" asp-controller="Usuario" asp-action="Details">
+                                    <a class="btn btn-link icon-btn" asp-area=""
+                                    asp-controller="Usuario"
+                                    asp-action="Details"
+                                    asp-route-id="@u.Id">
                                         <i class="bi bi-eye detail-btn"></i>
                                     </a>
-                                    <a class="btn btn-link icon-btn" asp-area="" asp-controller="Usuario" asp-action="Edit">
+                                    <a class="btn btn-link icon-btn" asp-area=""
+                                    asp-controller="Usuario"
+                                    asp-action="Edit"
+                                    asp-route-id="@u.Id">
                                         <i class="fa-regular fa-pen-to-square edit-btn"></i>
                                     </a>
                                 </td>

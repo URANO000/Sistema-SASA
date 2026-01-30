@@ -1,3 +1,4 @@
+using BusinessLogic.Servicios.Rol;
 using BusinessLogic.Servicios.Tiquetes;
 using BusinessLogic.Servicios.Usuarios;
 using DataAccess;
@@ -50,6 +51,7 @@ builder.Services.AddScoped<ITiqueteRepository, TiqueteRepository>();
 builder.Services.AddScoped<ITiqueteService, TiqueteService>();
 builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
 builder.Services.AddScoped<IUsuarioService, UsuarioService>();
+builder.Services.AddScoped<IRolService, RolService>();
 
 // MVC
 builder.Services.AddControllersWithViews();

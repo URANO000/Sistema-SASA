@@ -1,4 +1,5 @@
-﻿using BusinessLogic.Servicios.Usuarios;
+﻿using BusinessLogic.Servicios.Rol;
+using BusinessLogic.Servicios.Usuarios;
 using DataAccess.Modelos.DTOs.Usuarios;
 using Microsoft.AspNetCore.Mvc;
 using SASA.Filters;
@@ -11,10 +12,12 @@ namespace SASA.Controllers
     {
         //Referencia a los servicios (Inyección de dependencias)
         private readonly IUsuarioService _usuarioService;
+        private readonly IRolService _rolService;
 
-        public UsuarioController(IUsuarioService usuarioService)
+        public UsuarioController(IUsuarioService usuarioService, IRolService rolService)
         {
             _usuarioService = usuarioService;
+            _rolService = rolService;
         }
 
 
@@ -22,25 +25,33 @@ namespace SASA.Controllers
         public async Task<IActionResult> Index()
         {
             var usuariosDTO = await _usuarioService.ObtenerUsuariosAsync();
+            var roles = await _rolService.ObtenerRolesAsync();
 
-            var model = usuariosDTO.Select(u => new UsuarioListaViewModel
+            var usuarios = usuariosDTO.Select(u => new UsuarioListaViewModel
             {
                 Id = u.Id!,
-                NombreCompleto = NombreCompletoHelper(u),
+                NombreCompleto = NombreCompletoHelper(u), //utilizo el helper
                 Departamento = u.Departamento,
                 Puesto = u.Puesto,
                 CorreoEmpresa = u.CorreoEmpresa,
                 Estado = u.Estado ? "Activo" : "Inactivo",
                 Rol = u.Roles != null && u.Roles.Any()
             ? string.Join(", ", u.Roles)
-            : "SIN ROL"
+            : "SIN ROL" //Por si no tiene rol, no dejarlo en nulo
             }).ToList();
+
+            var model = new UsuarioIndexViewModel
+            {
+                Usuarios = usuarios,
+                RolesDisponibles = roles //Esto es porque el modal existe en Index
+            };
 
             return View(model);
         }
 
         private static string NombreCompletoHelper(ListaUsuarioDto dto)
         {
+            //Juntar para el nombre completo
             return string.Join(" ",
                 new[]
                 {
@@ -52,9 +63,32 @@ namespace SASA.Controllers
         }
 
         [HttpGet]
-        public IActionResult Details()
+        public async Task<IActionResult> Details(string id)
         {
-            return View();
+            //Check de que existe el id
+            if (string.IsNullOrWhiteSpace(id))
+                return BadRequest();
+
+            //Obtener del servicio
+            var usuario = await _usuarioService.ObtenerUsuarioPorIdAsync(id);
+
+            if (usuario == null)
+                return NotFound();
+
+            var model = new UsuarioDetalleViewModel
+            {
+                Id = usuario.Id!,
+                NombreCompleto = NombreCompletoHelper(usuario),
+                Departamento = usuario.Departamento,
+                Puesto = usuario.Puesto,
+                CorreoEmpresa = usuario.CorreoEmpresa,
+                Estado = usuario.Estado ? "Activo" : "Inactivo",
+                Rol = usuario.Roles != null && usuario.Roles.Any()
+                    ? string.Join(", ", usuario.Roles)
+                    : "SIN ROL"
+            };
+
+            return View(model);
         }
 
         [HttpGet]
@@ -84,9 +118,17 @@ namespace SASA.Controllers
             }
         }
 
-
+        [HttpGet]
         public IActionResult Edit()
         {
+            return View();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult Edit(CrearUsuarioDto dto)
+        {
+            // Implement edit logic here
             return View();
         }
 
