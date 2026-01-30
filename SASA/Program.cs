@@ -1,4 +1,6 @@
+using BusinessLogic.Servicios.Notificaciones;
 using DataAccess;
+using DataAccess.Repositorios.Notificaciones;
 using Microsoft.EntityFrameworkCore;
 using SASA.Services.Auth;
 
@@ -13,6 +15,8 @@ builder.Services.AddControllersWithViews();
 
 // Fake auth service
 builder.Services.AddScoped<IAuthService, FakeAuthService>();
+builder.Services.AddScoped<INotificacionRepository, NotificacionRepository>();
+builder.Services.AddScoped<INotificacionService, NotificacionService>();
 
 // Session
 builder.Services.AddSession(options =>
