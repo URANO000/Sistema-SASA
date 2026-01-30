@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using SASA.Filters;
 using SASA.ViewModels.Usuario;
+using System.Threading.Tasks;
 
 namespace SASA.Controllers
 {
@@ -102,22 +103,41 @@ namespace SASA.Controllers
         }
 
         [HttpGet]
-        public IActionResult Edit()
+        public IActionResult Edit(string id)
         {
+            if (string.IsNullOrWhiteSpace(id))
+                return NotFound();
+
+            ViewData["UserId"] = id;
             return View();
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Edit(CrearUsuarioDto dto)
+        public IActionResult Edit(string id, CrearUsuarioDto dto)
         {
             // Implement edit logic here
             return View();
         }
 
-        public IActionResult Cancel()
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Deactivate(string id)
         {
-            return View();
+            if (string.IsNullOrWhiteSpace(id))
+            {
+                return BadRequest();
+            }
+
+            try
+            {
+                await _usuarioService.DesactivarUsuarioAsync(id);
+                return RedirectToAction(nameof(Index));
+            }
+            catch(InvalidOperationException ex)
+            {
+                return NotFound(ex.Message);
+            }
         }
 
 
