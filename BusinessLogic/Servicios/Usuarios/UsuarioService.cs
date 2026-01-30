@@ -120,17 +120,17 @@ namespace BusinessLogic.Servicios.Usuarios
                 throw new Exception("Error al crear usuario: " + string.Join(", ", resultado.Errors.Select(e => e.Description)));
             };
 
-            //Manejo de roles
-            if (dto.Roles?.Any() == true)
+            //Manejo de rol único (ahora dto.Rol)
+            if (!string.IsNullOrWhiteSpace(dto.Rol))
             {
-                var resultadoRol = await _userManager.AddToRolesAsync(usuario, dto.Roles);
+                var resultadoRol = await _userManager.AddToRoleAsync(usuario, dto.Rol);
 
                 if(!resultadoRol.Succeeded)
                 {
                     await _userManager.DeleteAsync(usuario);
-                    throw new InvalidOperationException("Error asignando roles al usuario");
+                    throw new InvalidOperationException("Error asignando rol al usuario");
                 }
-            };
+            }
         }
 
         public Task<ApplicationUser?> ActualizarUsuarioAsync(string id, ApplicationUser usuario)
