@@ -2,8 +2,10 @@
 using BusinessLogic.Servicios.Usuarios;
 using DataAccess.Modelos.DTOs.Usuarios;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using SASA.Filters;
 using SASA.ViewModels.Usuario;
+using System.Threading.Tasks;
 
 namespace SASA.Controllers
 {
@@ -49,6 +51,97 @@ namespace SASA.Controllers
             return View(model);
         }
 
+
+        [HttpGet]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Add()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Add(CrearUsuarioViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                //Para AJAX, retornar modal parcial con errores de validación
+                model.RolesDisponibles = (IReadOnlyList<SelectListItem>?)await _rolService.ObtenerRolesAsync();
+                return PartialView("_AddModal", model);
+            }
+
+            //Mapeo a DTO
+            var dto = new CrearUsuarioDto
+            {
+                PrimerNombre = model.PrimerNombre,
+                SegundoNombre = model.SegundoNombre,
+                PrimerApellido = model.PrimerApellido,
+                SegundoApellido = model.SegundoApellido,
+                CorreoEmpresa = model.CorreoEmpresa,
+                Departamento = model.Departamento,
+                Puesto = model.Puesto,
+                Rol = model.Rol
+            };
+
+            try
+            {
+                await _usuarioService.AgregarUsuarioAsync(dto);
+                //Para AJAX
+                return Json(new
+                {
+                    success = true
+                });
+            }
+            catch (Exception ex)
+            {
+                //Si un error ocurre, regresar al Index con el modelo y el error, o se cae todo
+                ModelState.AddModelError(string.Empty, ex.Message);
+                model.RolesDisponibles = (IReadOnlyList<SelectListItem>?)await _rolService.ObtenerRolesAsync();
+                return PartialView("_AddModal", model);
+
+            }
+        }
+
+        [HttpGet]
+        public IActionResult Edit(string id)
+        {
+            if (string.IsNullOrWhiteSpace(id))
+                return NotFound();
+
+            ViewData["UserId"] = id;
+            return View();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult Edit(string id, CrearUsuarioDto dto)
+        {
+            // Implement edit logic here
+            return View();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Deactivate(string id)
+        {
+            if (string.IsNullOrWhiteSpace(id))
+            {
+                return BadRequest();
+            }
+
+            try
+            {
+                await _usuarioService.DesactivarUsuarioAsync(id);
+                return RedirectToAction(nameof(Index));
+            }
+            catch(InvalidOperationException ex)
+            {
+                return NotFound(ex.Message);
+            }
+        }
+
+
+        //Helpers
         private static string NombreCompletoHelper(ListaUsuarioDto dto)
         {
             //Juntar para el nombre completo
@@ -91,51 +184,34 @@ namespace SASA.Controllers
             return View(model);
         }
 
-        [HttpGet]
-        public IActionResult Add()
+        public async Task<IActionResult> CargarIndexConErrores(CrearUsuarioViewModel model)
         {
-            return View();
-        }
+            //Es similar al Index, pero cargando el modelo con errores
+            //Ya que utilizo vistas compartidas (UsuarioIndexViewModel)
+            var usuariosDTO = await _usuarioService.ObtenerUsuariosAsync();
+            var roles = await _rolService.ObtenerRolesAsync();
 
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Add(CrearUsuarioDto dto)
-        {
-            if (!ModelState.IsValid)
+            var usuarios = usuariosDTO.Select(u => new UsuarioListaViewModel
             {
-                return View(dto);
-            }
+                Id = u.Id!,
+                NombreCompleto = NombreCompletoHelper(u), //utilizo el helper
+                Departamento = u.Departamento,
+                Puesto = u.Puesto,
+                CorreoEmpresa = u.CorreoEmpresa,
+                Estado = u.Estado ? "Activo" : "Inactivo",
+                Rol = u.Roles != null && u.Roles.Any()
+            ? string.Join(", ", u.Roles)
+            : "SIN ROL" //Por si no tiene rol, no dejarlo en nulo
+            }).ToList();
 
-            try
+            var indexModel = new UsuarioIndexViewModel
             {
-                await _usuarioService.AgregarUsuarioAsync(dto);
-                return RedirectToAction(nameof(Index));
-            }
-            catch (Exception ex)
-            {
-                ModelState.AddModelError(string.Empty, ex.Message);
-                return View(dto);
-            }
-        }
+                Usuarios = usuarios,
+                RolesDisponibles = roles,
+                CrearUsuario = model
+            };
 
-        [HttpGet]
-        public IActionResult Edit()
-        {
-            return View();
+            return View("Index", indexModel);
         }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public IActionResult Edit(CrearUsuarioDto dto)
-        {
-            // Implement edit logic here
-            return View();
-        }
-
-        public IActionResult Cancel()
-        {
-            return View();
-        }
-
     }
 }

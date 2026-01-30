@@ -1,6 +1,5 @@
 using DataAccess.Identity;
 using DataAccess.Modelos.DTOs.Usuarios;
-using DataAccess.Modelos.Entidades;
 using DataAccess.Repositorios.Usuarios;
 using Microsoft.AspNetCore.Identity;
 
@@ -13,7 +12,7 @@ namespace BusinessLogic.Servicios.Usuarios
         private readonly UserManager<ApplicationUser> _userManager;
         public UsuarioService(IUsuarioRepository usuarioRepository, UserManager<ApplicationUser> userManager)
         {
-            _usuarioRepository = usuarioRepository;  
+            _usuarioRepository = usuarioRepository;
             _userManager = userManager;
         }
 
@@ -62,7 +61,7 @@ namespace BusinessLogic.Servicios.Usuarios
         {
             var dto = await _usuarioRepository.ObtenerUsuarioPorIdAsync(id);
 
-            if(dto == null)
+            if (dto == null)
             {
                 return null;
             }
@@ -118,19 +117,20 @@ namespace BusinessLogic.Servicios.Usuarios
             if (!resultado.Succeeded)
             {
                 throw new Exception("Error al crear usuario: " + string.Join(", ", resultado.Errors.Select(e => e.Description)));
-            };
+            }
+            ;
 
-            //Manejo de roles
-            if (dto.Roles?.Any() == true)
+            //Manejo de rol único (ahora dto.Rol)
+            if (!string.IsNullOrWhiteSpace(dto.Rol))
             {
-                var resultadoRol = await _userManager.AddToRolesAsync(usuario, dto.Roles);
+                var resultadoRol = await _userManager.AddToRoleAsync(usuario, dto.Rol);
 
-                if(!resultadoRol.Succeeded)
+                if (!resultadoRol.Succeeded)
                 {
                     await _userManager.DeleteAsync(usuario);
-                    throw new InvalidOperationException("Error asignando roles al usuario");
+                    throw new InvalidOperationException("Error asignando rol al usuario");
                 }
-            };
+            }
         }
 
         public Task<ApplicationUser?> ActualizarUsuarioAsync(string id, ApplicationUser usuario)
@@ -138,9 +138,20 @@ namespace BusinessLogic.Servicios.Usuarios
             throw new NotImplementedException();
         }
 
-        public Task DesactivarUsuarioAsync(string id)
+        public async Task DesactivarUsuarioAsync(string id)
         {
-            throw new NotImplementedException();
+
+            if (string.IsNullOrWhiteSpace(id))
+                throw new ArgumentException("Id inválido", nameof(id));
+
+            var usuario = await _usuarioRepository.ObtenerUsuarioPorIdAsync(id);
+            if (usuario == null)
+            {
+                throw new InvalidOperationException("Usuario no encontrado");
+
+            }
+
+            await _usuarioRepository.DesactivarUsuario(id);
         }
     }
 }

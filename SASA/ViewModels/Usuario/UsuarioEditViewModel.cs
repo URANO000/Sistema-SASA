@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace SASA.ViewModels.Usuario
 {
-    public sealed class CrearUsuarioViewModel
+    public class UsuarioEditViewModel
     {
         [Required]
         public required string PrimerNombre { get; set; }

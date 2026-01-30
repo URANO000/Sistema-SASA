@@ -1,5 +1,8 @@
-﻿@{
+﻿@using SASA.ViewModels.Usuario
+@model UsuarioEditViewModel
+@{
     ViewData["Title"] = "Editar Usuario";
+    var userId = ViewData["UserId"] as string;
 }
 <!--HEADER-->
 <div class="card mb-3">
@@ -89,7 +92,9 @@
             Desactivar un usuario impide su acceso al sistema.
         </p>
 
-        <button class="btn btn-outline-danger icon-btn" id="fakeDisableUser">
+        <button class="btn btn-outline-danger icon-btn"
+        data-bs-toggle="modal"
+        data-bs-target="#disableConfirm">
             Desactivar Usuario
         </button>
     </div>
@@ -107,4 +112,4 @@
     </button>
 </div>
 
-@await Html.PartialAsync("_DisableConfirm")
+@await Html.PartialAsync("_DisableConfirm", userId)
