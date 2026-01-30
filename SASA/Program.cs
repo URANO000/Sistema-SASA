@@ -1,28 +1,86 @@
+using BusinessLogic.Servicios.Rol;
+using BusinessLogic.Servicios.Tiquetes;
+using BusinessLogic.Servicios.Usuarios;
 using DataAccess;
+using DataAccess.Identity;
+using DataAccess.Repositorios.Tiquetes;
+using DataAccess.Repositorios.Usuarios;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using SASA.Services.Auth;
 
 var builder = WebApplication.CreateBuilder(args);
 
-//dbContext
+// DbContext
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+// Identity
+builder.Services
+    .AddIdentity<ApplicationUser, ApplicationRole>(options =>
+    {
+        // Activación por correo
+        options.SignIn.RequireConfirmedEmail = true;
+
+        // Bloqueo por intentos fallidos
+        options.Lockout.AllowedForNewUsers = true;
+        options.Lockout.MaxFailedAccessAttempts = 5;
+        options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(10);
+
+        // Email único
+        options.User.RequireUniqueEmail = true;
+
+        // Password
+        options.Password.RequireDigit = true;
+        options.Password.RequiredLength = 8;
+        options.Password.RequireNonAlphanumeric = false;
+        options.Password.RequireUppercase = true;
+        options.Password.RequireLowercase = true;
+    })
+    .AddEntityFrameworkStores<ApplicationDbContext>()
+    .AddDefaultTokenProviders();
+
+// Cookies (rutas)
+builder.Services.ConfigureApplicationCookie(options =>
+{
+    options.LoginPath = "/login";
+    options.AccessDeniedPath = "/Account/AccessDenied";
+});
+
+//Repositories y Servicios de negocio
+builder.Services.AddScoped<ITiqueteRepository, TiqueteRepository>();
+builder.Services.AddScoped<ITiqueteService, TiqueteService>();
+builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
+builder.Services.AddScoped<IUsuarioService, UsuarioService>();
+builder.Services.AddScoped<IRolService, RolService>();
 
 // MVC
 builder.Services.AddControllersWithViews();
 
-// Fake auth service
-builder.Services.AddScoped<IAuthService, FakeAuthService>();
-
-// Session
-builder.Services.AddSession(options =>
-{
-    options.IdleTimeout = TimeSpan.FromMinutes(30);
-    options.Cookie.HttpOnly = true;
-    options.Cookie.IsEssential = true;
-});
-
 var app = builder.Build();
+
+//Seeder (temporal)
+if (app.Environment.IsDevelopment())
+{
+    using var scope = app.Services.CreateScope();
+    var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+
+    var email = "test@sasa.com";
+    var user = await userManager.FindByEmailAsync(email);
+
+    if (user is null)
+    {
+        user = new ApplicationUser
+        {
+            UserName = email,
+            Email = email,
+            EmailConfirmed = true, // para que no falle por RequireConfirmedEmail
+            Estado = true,
+            LockoutEnabled = true
+        };
+
+        await userManager.CreateAsync(user, "Test123!");
+    }
+}
 
 if (!app.Environment.IsDevelopment())
 {
@@ -35,13 +93,12 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
-app.UseSession();
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapGet("/", (HttpContext ctx) =>
 {
-    var email = ctx.Session.GetString("auth_email");
-    return !string.IsNullOrEmpty(email)
+    return (ctx.User.Identity?.IsAuthenticated ?? false)
         ? Results.Redirect("/Home/Index")
         : Results.Redirect("/login");
 });

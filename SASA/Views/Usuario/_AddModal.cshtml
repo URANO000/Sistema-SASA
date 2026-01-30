@@ -26,10 +26,28 @@
 
                             <!-- Nombre completo -->
                             <div class="col-md-6">
-                                <label class="form-label required-field">Nombre completo</label>
+                                <label class="form-label required-field">Primer Nombre</label>
                                 <input type="text"
                                        class="form-control"
-                                       placeholder="Ej. María Fernanda López Gómez">
+                                       placeholder="Ej. María">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Segundo Nombre</label>
+                                <input type="text"
+                                       class="form-control"
+                                       placeholder="Ej. Fernanda">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Primer Apellido</label>
+                                <input type="text"
+                                       class="form-control"
+                                       placeholder="Ej. López">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Segundo Apellido</label>
+                                <input type="text"
+                                       class="form-control"
+                                       placeholder="Ej. Gómez">
                             </div>
 
                             <!-- Correo -->
@@ -64,17 +82,20 @@
                             <!-- Rol -->
                             <div class="col-md-6">
                                 <label class="form-label required-field">Rol</label>
-                                <select class="form-select">
+                                <select class="form-select" name="Rol">
                                     <option value="">Seleccione un rol</option>
-                                    <option>Administrador</option>
-                                    <option>Soporte</option>
-                                    <option>Usuario</option>
+
+                                    @foreach (var rol in Model.RolesDisponibles)
+                                    {
+                                        <option value="@rol">@rol</option>
+                                    }
                                 </select>
 
                                 <small class="text-muted">
                                     El rol define los permisos iniciales del usuario.
                                 </small>
                             </div>
+
 
                             <!-- Estado inicial es activo por default -->
 
