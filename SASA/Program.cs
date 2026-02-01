@@ -39,12 +39,25 @@ builder.Services
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddDefaultTokenProviders();
 
-// Cookies (rutas)
+// Cookies (rutas + expiración por inactividad)
 builder.Services.ConfigureApplicationCookie(options =>
 {
     options.LoginPath = "/login";
     options.AccessDeniedPath = "/Account/AccessDenied";
+
+    // #19: cierre automático por inactividad
+    // Se ajusta el tiempo según el sprint (ej: 10, 15, 20 min). Dejo 10 por defecto.
+    options.ExpireTimeSpan = TimeSpan.FromMinutes(10);
+
+    // Renueva el tiempo de expiración con actividad (requests)
+    options.SlidingExpiration = true;
+
+    // Recomendado
+    options.Cookie.HttpOnly = true;
+    options.Cookie.SameSite = SameSiteMode.Lax;
+    options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
 });
+
 
 //Repositories y Servicios de negocio
 builder.Services.AddScoped<ITiqueteRepository, TiqueteRepository>();
