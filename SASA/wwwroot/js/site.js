@@ -4,6 +4,34 @@
 // Write your JavaScript code.
 console.log(":)");
 
+// Contador de notificaciones 
+<script>
+    async function actualizarIndicador() {
+    try {
+        const res = await fetch('/Notificaciones/Contador');
+    const total = await res.json();
+
+    const badge = document.getElementById('notifBadge');
+
+    if (!badge) return;
+
+        if (total > 0) {
+        badge.classList.remove('d-none');
+            badge.textContent = total > 99 ? '99+' : total;
+        } else {
+        badge.classList.add('d-none');
+        }
+    } catch (e) {
+        console.error('Error cargando contador', e);
+    }
+}
+
+    // cada 15 segundos
+    setInterval(actualizarIndicador, 15000);
+    document.addEventListener('DOMContentLoaded', actualizarIndicador);
+</script>
+
+
 //This is for my sidebar toggle
 
 document.getElementById("sidebarToggle")

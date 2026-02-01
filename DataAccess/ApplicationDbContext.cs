@@ -21,6 +21,7 @@ namespace DataAccess
         public DbSet<Comentario> Comentarios { get; set; }
         public DbSet<Attachment> Attachments { get; set; }
         public DbSet<Auditoria> Auditorias { get; set; }
+        public DbSet<Notificacion> Notificaciones { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

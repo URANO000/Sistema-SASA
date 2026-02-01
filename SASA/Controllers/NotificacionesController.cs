@@ -62,5 +62,15 @@ namespace SASA.Controllers
             await _service.MarcarTodasComoLeidasAsync(userId);
             return RedirectToAction(nameof(Index));
         }
+        [HttpGet]
+        public async Task<IActionResult> Contador()
+        {
+            var userId = GetUserId();
+            if (string.IsNullOrWhiteSpace(userId))
+                return Json(0);
+
+            var total = await _service.ContarNoLeidasAsync(userId);
+            return Json(total);
+        }
     }
 }

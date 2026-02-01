@@ -100,5 +100,11 @@ namespace DataAccess.Repositorios.Notificaciones
             foreach (var n in notifs) n.Leida = true;
             await _db.SaveChangesAsync();
         }
+        public async Task<int> ContarNoLeidasAsync(string userId)
+        {
+            return await _db.Notificaciones
+                .CountAsync(n => n.UserId == userId && !n.Leida);
+        }
+
     }
 }
