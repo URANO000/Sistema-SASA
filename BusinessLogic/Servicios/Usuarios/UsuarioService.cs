@@ -204,7 +204,9 @@ namespace BusinessLogic.Servicios.Usuarios
         {
 
             if (string.IsNullOrWhiteSpace(id))
+            {
                 throw new ArgumentException("Id inválido", nameof(id));
+            }
 
             var usuario = await _usuarioRepository.ObtenerUsuarioPorIdAsync(id);
             if (usuario == null)
@@ -214,6 +216,23 @@ namespace BusinessLogic.Servicios.Usuarios
             }
 
             await _usuarioRepository.DesactivarUsuario(id);
+        }
+
+        public async Task ActivarUsuarioAsync(string id)
+        {
+            if (string.IsNullOrWhiteSpace(id))
+            {
+                throw new ArgumentException("Id inválido", nameof(id));
+            }
+
+            var usuario = await _usuarioRepository.ObtenerUsuarioPorIdAsync(id);
+            if (usuario == null)
+            {
+                throw new InvalidOperationException("Usuario no encontrado.");
+
+            }
+
+            await _usuarioRepository.ActivarUsuario(id);
         }
     }
 }

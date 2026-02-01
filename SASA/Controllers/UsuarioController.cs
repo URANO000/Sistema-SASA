@@ -157,6 +157,7 @@ namespace SASA.Controllers
                 CorreoEmpresa = usuario.CorreoEmpresa,
                 Departamento = usuario.Departamento,
                 Puesto = usuario.Puesto,
+                Estado = usuario.Estado,
                 Rol = usuario.Roles?.FirstOrDefault() ?? string.Empty,
 
                 RolesDisponibles = roles
@@ -233,19 +234,23 @@ namespace SASA.Controllers
             }
         }
 
-
-        //Helpers
-        private static string NombreCompletoHelper(ListaUsuarioDto dto)
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Activate(string id)
         {
-            //Juntar para el nombre completo
-            return string.Join(" ",
-                new[]
-                {
-                    dto.PrimerNombre,
-                    dto.SegundoNombre,
-                    dto.PrimerApellido,
-                    dto.SegundoApellido
-                }.Where(x => !string.IsNullOrWhiteSpace(x)));
+            if (string.IsNullOrWhiteSpace(id))
+            {
+                return BadRequest();
+            }
+            try
+            {
+                await _usuarioService.ActivarUsuarioAsync(id);
+                return RedirectToAction(nameof(Index));
+            }
+            catch (InvalidOperationException ex)
+            {
+                return NotFound(ex.Message);
+            }
         }
 
         [HttpGet]
@@ -277,6 +282,8 @@ namespace SASA.Controllers
             return View(model);
         }
 
+        //Helpers
+
         private async Task<IReadOnlyList<SelectListItem>> CargarRolesAsync()
         {
             var roles = await _rolService.ObtenerRolesAsync();
@@ -288,6 +295,18 @@ namespace SASA.Controllers
                     Text = r
                 })
                 .ToList();
+        }        
+        private static string NombreCompletoHelper(ListaUsuarioDto dto)
+        {
+            //Juntar para el nombre completo
+            return string.Join(" ",
+                new[]
+                {
+                    dto.PrimerNombre,
+                    dto.SegundoNombre,
+                    dto.PrimerApellido,
+                    dto.SegundoApellido
+                }.Where(x => !string.IsNullOrWhiteSpace(x)));
         }
 
 

@@ -16,5 +16,7 @@ namespace BusinessLogic.Servicios.Usuarios
         Task ActualizarUsuarioAsync(EditarUsuarioDto usuario); //Se puede usar DTO
 
         Task DesactivarUsuarioAsync(string id);
+
+        Task ActivarUsuarioAsync(string id);
     }
 }
