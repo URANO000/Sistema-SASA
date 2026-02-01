@@ -4,32 +4,33 @@
 // Write your JavaScript code.
 console.log(":)");
 
-// Contador de notificaciones 
-<script>
-    async function actualizarIndicador() {
+//Contador de notificacione
+async function actualizarIndicadorNotificaciones() {
     try {
-        const res = await fetch('/Notificaciones/Contador');
-    const total = await res.json();
+        const res = await fetch('/Notificaciones/Contador', { credentials: 'same-origin' });
 
-    const badge = document.getElementById('notifBadge');
+        if (res.redirected) return;
 
-    if (!badge) return;
+        const total = await res.json();
+        const badge = document.getElementById('notifBadge');
+        if (!badge) return;
 
         if (total > 0) {
-        badge.classList.remove('d-none');
+            badge.classList.remove('d-none');
             badge.textContent = total > 99 ? '99+' : total;
         } else {
-        badge.classList.add('d-none');
+            badge.classList.add('d-none');
         }
     } catch (e) {
         console.error('Error cargando contador', e);
     }
 }
 
-    // cada 15 segundos
-    setInterval(actualizarIndicador, 15000);
-    document.addEventListener('DOMContentLoaded', actualizarIndicador);
-</script>
+document.addEventListener('DOMContentLoaded', () => {
+    actualizarIndicadorNotificaciones();
+    setInterval(actualizarIndicadorNotificaciones, 15000);
+});
+
 
 
 //This is for my sidebar toggle

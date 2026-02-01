@@ -28,6 +28,9 @@ namespace BusinessLogic.Servicios.Notificaciones
             => _repo.MarcarTodasComoLeidasAsync(userId);
         public Task<int> ContarNoLeidasAsync(string userId)
             => _repo.ContarNoLeidasAsync(userId);
+        public Task NotificarNuevoComentarioAsync(int idTiquete, string autorUserId, string mensaje)
+            => _repo.NotificarNuevoComentarioAsync(idTiquete, autorUserId, mensaje);
+
 
     }
 }

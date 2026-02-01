@@ -66,7 +66,7 @@
 
                                 <a class="btn btn-sm btn-primary notif-btn"
                                    asp-controller="Notificaciones"
-                                   asp-action="Abrir"
+                                   asp-action="Detalle"
                                    asp-route-id="@n.IdNotificacion"
                                    title="Ver detalle">
                                     <i class="bi bi-eye"></i>
@@ -142,12 +142,14 @@
 
     private string FormatearTiempo(DateTime fecha)
     {
-        var local = fecha.ToLocalTime();
+        // NO convertir con ToLocalTime()
+        var f = fecha;
+
         var hoy = DateTime.Now.Date;
         var ayer = hoy.AddDays(-1);
 
-        if (local.Date == hoy) return $"Hoy • {local:HH:mm}";
-        if (local.Date == ayer) return $"Ayer • {local:HH:mm}";
-        return $"{local:yyyy-MM-dd} • {local:HH:mm}";
+        if (f.Date == hoy) return $"Hoy • {f:HH:mm}";
+        if (f.Date == ayer) return $"Ayer • {f:HH:mm}";
+        return $"{f:yyyy-MM-dd} • {f:HH:mm}";
     }
 }

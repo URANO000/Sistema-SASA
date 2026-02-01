@@ -1,4 +1,5 @@
 ﻿using DataAccess.Modelos.DTOs.Notificaciones;
+using DataAccess.Modelos.Entidades;
 using Microsoft.EntityFrameworkCore;
 
 namespace DataAccess.Repositorios.Notificaciones
@@ -106,5 +107,48 @@ namespace DataAccess.Repositorios.Notificaciones
                 .CountAsync(n => n.UserId == userId && !n.Leida);
         }
 
+        public async Task NotificarNuevoComentarioAsync(int idTiquete, string autorUserId, string mensaje)
+        {
+            var t = await _db.Tiquetes
+                .AsNoTracking()
+                .FirstOrDefaultAsync(x => x.IdTiquete == idTiquete);
+
+            if (t == null) return;
+
+            var involucrados = new List<string>();
+
+            if (!string.IsNullOrWhiteSpace(t.IdReportedBy)) involucrados.Add(t.IdReportedBy);
+            if (!string.IsNullOrWhiteSpace(t.IdAsignee)) involucrados.Add(t.IdAsignee);
+
+            involucrados = involucrados.Distinct().ToList();
+            involucrados.RemoveAll(u => u == autorUserId);
+
+            if (involucrados.Count == 0) return;
+
+            var silenciados = await _db.NotificacionSilencios
+                .AsNoTracking()
+                .Where(s => s.idTiquete == idTiquete &&
+                       (s.fechaFin == null || s.fechaFin > DateTime.Now))
+                .Select(s => s.UserId)
+                .ToListAsync();
+
+            involucrados = involucrados.Where(u => !silenciados.Contains(u)).ToList();
+            if (involucrados.Count == 0) return;
+
+            foreach (var userId in involucrados)
+            {
+                _db.Notificaciones.Add(new Notificacion
+                {
+                    UserId = userId,
+                    IdTiquete = idTiquete,
+                    TipoEvento = "NuevoComentario",
+                    Mensaje = mensaje,
+                    Leida = false,
+                    FechaCreacion = DateTime.Now
+                });
+            }
+
+            await _db.SaveChangesAsync();
+        }
     }
 }
