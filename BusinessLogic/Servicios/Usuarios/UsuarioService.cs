@@ -1,7 +1,8 @@
-using DataAccess.Identity;
+﻿using DataAccess.Identity;
 using DataAccess.Modelos.DTOs.Usuarios;
 using DataAccess.Repositorios.Usuarios;
 using Microsoft.AspNetCore.Identity;
+
 
 namespace BusinessLogic.Servicios.Usuarios
 
@@ -16,13 +17,7 @@ namespace BusinessLogic.Servicios.Usuarios
             _userManager = userManager;
         }
 
-        //Implementaci�n de los m�todos para el servicio de Usuario
-
-        //Obtener todos los usuarios
-        //public async Task<IReadOnlyList<ListaUsuarioDto>> ObtenerUsuariosAsync()
-        //{
-        //    return await _usuarioRepository.ObtenerUsuariosAsync();
-        //}
+        //Implementación de los métodos para el servicio de Usuario
 
         public async Task<IReadOnlyList<ListaUsuarioDto>> ObtenerUsuariosAsync()
         {
@@ -30,7 +25,7 @@ namespace BusinessLogic.Servicios.Usuarios
 
             var resultado = new List<ListaUsuarioDto>(usuarios.Count);
 
-            //L�gica para sacar rol
+            //Lógica para sacar rol
             foreach (var dto in usuarios)
             {
                 var user = await _userManager.FindByIdAsync(dto.Id!);
@@ -75,7 +70,7 @@ namespace BusinessLogic.Servicios.Usuarios
 
             var roles = await _userManager.GetRolesAsync(user);
 
-            //Aprend� un t�rmino nuevo, esto se llama rehidrataci�n
+            //Aprendí un término nuevo, esto se llama rehidratación
             return new ListaUsuarioDto
             {
                 Id = dto.Id,
@@ -91,8 +86,8 @@ namespace BusinessLogic.Servicios.Usuarios
             };
         }
 
-        //Creaci�n de usuarios
-        public async Task AgregarUsuarioAsync(CrearUsuarioDto dto)
+        //Creación de usuarios
+        public async Task<ResultadoCreacionUsuarioDto> AgregarUsuarioAsync(CrearUsuarioDto dto)
         {
             var usuario = new ApplicationUser
             {
@@ -108,10 +103,13 @@ namespace BusinessLogic.Servicios.Usuarios
                 Departamento = dto.Departamento,
                 Puesto = dto.Puesto,
 
-                Estado = true //Por defecto, el usuario se crea como activo
-
+                Estado = true,           // usuario activo por defecto
+                EmailConfirmed = false,  // importante para RequireConfirmedEmail
+                LockoutEnabled = true    // por si aplica lockout
             };
 
+            // NOTA: Esto crea el usuario SIN contraseña.
+            // Si el flujo requiere contraseña temporal, aquí se usaría CreateAsync(usuario, password).
             var resultado = await _userManager.CreateAsync(usuario);
 
             if (!resultado.Succeeded)
@@ -120,7 +118,8 @@ namespace BusinessLogic.Servicios.Usuarios
             }
             ;
 
-            //Manejo de rol �nico (ahora dto.Rol)
+
+            // Manejo de rol único (dto.Rol)
             if (!string.IsNullOrWhiteSpace(dto.Rol))
             {
                 var resultadoRol = await _userManager.AddToRoleAsync(usuario, dto.Rol);
@@ -131,27 +130,109 @@ namespace BusinessLogic.Servicios.Usuarios
                     throw new InvalidOperationException("Error asignando rol al usuario");
                 }
             }
+
+            // Token de confirmación de correo (historia #15)
+            var token = await _userManager.GenerateEmailConfirmationTokenAsync(usuario);
+
+            // Retornar datos para que el controller construya el link y envíe el correo
+            return new ResultadoCreacionUsuarioDto
+            {
+                UserId = usuario.Id,
+                Email = usuario.Email!,
+                EmailConfirmationToken = token
+            };
         }
 
-        public Task<ApplicationUser?> ActualizarUsuarioAsync(string id, ApplicationUser usuario)
+
+        public async Task ActualizarUsuarioAsync(EditarUsuarioDto dto)
         {
-            throw new NotImplementedException();
+            var usuario = await _userManager.FindByIdAsync(dto.Id);
+
+            //Validar que el usuario exista
+            if (usuario == null)
+            {
+                throw new InvalidOperationException("Usuario no encontrado.");
+            }
+
+            //Else, actualizamos los campos
+            usuario.PrimerNombre = dto.PrimerNombre;
+            usuario.SegundoNombre = dto.SegundoNombre;
+            usuario.PrimerApellido = dto.PrimerApellido;
+            usuario.SegundoApellido = dto.SegundoApellido;
+
+            usuario.Departamento = dto.Departamento;
+            usuario.Puesto = dto.Puesto;
+
+            //Manejo especial de cambio de correo de Identity
+            if (!string.Equals(usuario.Email, dto.CorreoEmpresa, StringComparison.OrdinalIgnoreCase))
+            {
+                usuario.Email = dto.CorreoEmpresa;
+                usuario.UserName = dto.CorreoEmpresa;
+                usuario.NormalizedEmail = _userManager.NormalizeEmail(dto.CorreoEmpresa);
+                usuario.NormalizedUserName = _userManager.NormalizeName(dto.CorreoEmpresa);
+            }
+
+
+            //Actualización del usuario
+            var resultado = await _userManager.UpdateAsync(usuario);
+
+            //Validar que funciona
+            if (!resultado.Succeeded)
+            {
+                throw new Exception("Error al actualizar usuario: " +
+                    string.Join(", ", resultado.Errors.Select(e => e.Description)));
+            }
+
+            //Finalmente, se maneja el rol, similar al método de agregar usuario
+            var rolesActuales = await _userManager.GetRolesAsync(usuario);
+
+            if (!rolesActuales.Contains(dto.Rol))
+            {
+                await _userManager.RemoveFromRolesAsync(usuario, rolesActuales);
+                var resultadoRol = await _userManager.AddToRoleAsync(usuario, dto.Rol);
+
+                if(!resultadoRol.Succeeded)
+                {
+                    throw new InvalidOperationException("Error actualizando el rol del usuario.");
+                }
+            }
+
+
         }
 
         public async Task DesactivarUsuarioAsync(string id)
         {
 
             if (string.IsNullOrWhiteSpace(id))
-                throw new ArgumentException("Id inv�lido", nameof(id));
+            {
+                throw new ArgumentException("Id inválido", nameof(id));
+            }
 
             var usuario = await _usuarioRepository.ObtenerUsuarioPorIdAsync(id);
             if (usuario == null)
             {
-                throw new InvalidOperationException("Usuario no encontrado");
+                throw new InvalidOperationException("Usuario no encontrado.");
 
             }
 
             await _usuarioRepository.DesactivarUsuario(id);
+        }
+
+        public async Task ActivarUsuarioAsync(string id)
+        {
+            if (string.IsNullOrWhiteSpace(id))
+            {
+                throw new ArgumentException("Id inválido", nameof(id));
+            }
+
+            var usuario = await _usuarioRepository.ObtenerUsuarioPorIdAsync(id);
+            if (usuario == null)
+            {
+                throw new InvalidOperationException("Usuario no encontrado.");
+
+            }
+
+            await _usuarioRepository.ActivarUsuario(id);
         }
     }
 }
