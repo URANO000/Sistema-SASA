@@ -1,10 +1,14 @@
-﻿using BusinessLogic.Servicios.Rol;
+﻿using BusinessLogic.Servicios.Correo;
+using BusinessLogic.Servicios.Rol;
 using BusinessLogic.Servicios.Usuarios;
 using DataAccess.Modelos.DTOs.Usuarios;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using SASA.Filters;
 using SASA.ViewModels.Usuario;
+using System.Text;
+using Microsoft.AspNetCore.WebUtilities;
+
 using System.Threading.Tasks;
 
 namespace SASA.Controllers
@@ -15,12 +19,16 @@ namespace SASA.Controllers
         //Referencia a los servicios (Inyección de dependencias)
         private readonly IUsuarioService _usuarioService;
         private readonly IRolService _rolService;
+        private readonly ActivationEmailService _activationEmailService;
 
-        public UsuarioController(IUsuarioService usuarioService, IRolService rolService)
+
+        public UsuarioController(IUsuarioService usuarioService, IRolService rolService, ActivationEmailService activationEmailService)
         {
             _usuarioService = usuarioService;
             _rolService = rolService;
+            _activationEmailService = activationEmailService;
         }
+
 
 
         [HttpGet]
@@ -53,11 +61,11 @@ namespace SASA.Controllers
 
 
         [HttpGet]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Add()
+        public IActionResult Add()
         {
             return View();
         }
+
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -85,7 +93,29 @@ namespace SASA.Controllers
 
             try
             {
-                await _usuarioService.AgregarUsuarioAsync(dto);
+                var result = await _usuarioService.AgregarUsuarioAsync(dto);
+
+                // ✅ Armar payload igual que AccountController: "userId|identityToken" en Base64Url
+                var raw = $"{result.UserId}|{result.EmailConfirmationToken}";
+                var payload = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(raw));
+
+                // ✅ Construir link (la acción espera SOLO {token})
+                var activationLink = Url.Action(
+                    "ActivateAccount",
+                    "Account",
+                    new { token = payload },
+                    protocol: Request.Scheme
+                );
+
+                if (string.IsNullOrWhiteSpace(activationLink))
+                    throw new Exception("No se pudo construir el link de activación. Verifica la ruta /activate-account/{token}.");
+
+                // Enviar correo de activación
+                await _activationEmailService.SendActivationAsync(
+                    result.Email,
+                    activationLink
+                );
+
                 //Para AJAX
                 return Json(new
                 {
@@ -101,6 +131,7 @@ namespace SASA.Controllers
 
             }
         }
+
 
         [HttpGet]
         public IActionResult Edit(string id)

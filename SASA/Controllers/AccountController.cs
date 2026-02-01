@@ -204,6 +204,12 @@ namespace SASA.Controllers
 
             return RedirectToAction(nameof(Login));
         }
+        [HttpGet("/Account/AccessDenied")]
+        public IActionResult AccessDenied()
+        {
+            return View();
+        }
+
 
         private static string EncodeTokenPayload(string userId, string identityToken)
         {
