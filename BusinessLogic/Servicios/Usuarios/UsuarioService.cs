@@ -19,12 +19,6 @@ namespace BusinessLogic.Servicios.Usuarios
 
         //Implementación de los métodos para el servicio de Usuario
 
-        //Obtener todos los usuarios
-        //public async Task<IReadOnlyList<ListaUsuarioDto>> ObtenerUsuariosAsync()
-        //{
-        //    return await _usuarioRepository.ObtenerUsuariosAsync();
-        //}
-
         public async Task<IReadOnlyList<ListaUsuarioDto>> ObtenerUsuariosAsync()
         {
             var usuarios = await _usuarioRepository.ObtenerUsuariosAsync();
@@ -121,7 +115,8 @@ namespace BusinessLogic.Servicios.Usuarios
             if (!resultado.Succeeded)
             {
                 throw new Exception("Error al crear usuario: " + string.Join(", ", resultado.Errors.Select(e => e.Description)));
-            };
+            }
+            ;
 
 
             // Manejo de rol único (dto.Rol)
@@ -149,9 +144,60 @@ namespace BusinessLogic.Servicios.Usuarios
         }
 
 
-        public Task<ApplicationUser?> ActualizarUsuarioAsync(string id, ApplicationUser usuario)
+        public async Task ActualizarUsuarioAsync(EditarUsuarioDto dto)
         {
-            throw new NotImplementedException();
+            var usuario = await _userManager.FindByIdAsync(dto.Id);
+
+            //Validar que el usuario exista
+            if (usuario == null)
+            {
+                throw new InvalidOperationException("Usuario no encontrado.");
+            }
+
+            //Else, actualizamos los campos
+            usuario.PrimerNombre = dto.PrimerNombre;
+            usuario.SegundoNombre = dto.SegundoNombre;
+            usuario.PrimerApellido = dto.PrimerApellido;
+            usuario.SegundoApellido = dto.SegundoApellido;
+
+            usuario.Departamento = dto.Departamento;
+            usuario.Puesto = dto.Puesto;
+
+            //Manejo especial de cambio de correo de Identity
+            if (!string.Equals(usuario.Email, dto.CorreoEmpresa, StringComparison.OrdinalIgnoreCase))
+            {
+                usuario.Email = dto.CorreoEmpresa;
+                usuario.UserName = dto.CorreoEmpresa;
+                usuario.NormalizedEmail = _userManager.NormalizeEmail(dto.CorreoEmpresa);
+                usuario.NormalizedUserName = _userManager.NormalizeName(dto.CorreoEmpresa);
+            }
+
+
+            //Actualización del usuario
+            var resultado = await _userManager.UpdateAsync(usuario);
+
+            //Validar que funciona
+            if (!resultado.Succeeded)
+            {
+                throw new Exception("Error al actualizar usuario: " +
+                    string.Join(", ", resultado.Errors.Select(e => e.Description)));
+            }
+
+            //Finalmente, se maneja el rol, similar al método de agregar usuario
+            var rolesActuales = await _userManager.GetRolesAsync(usuario);
+
+            if (!rolesActuales.Contains(dto.Rol))
+            {
+                await _userManager.RemoveFromRolesAsync(usuario, rolesActuales);
+                var resultadoRol = await _userManager.AddToRoleAsync(usuario, dto.Rol);
+
+                if(!resultadoRol.Succeeded)
+                {
+                    throw new InvalidOperationException("Error actualizando el rol del usuario.");
+                }
+            }
+
+
         }
 
         public async Task DesactivarUsuarioAsync(string id)
@@ -163,7 +209,7 @@ namespace BusinessLogic.Servicios.Usuarios
             var usuario = await _usuarioRepository.ObtenerUsuarioPorIdAsync(id);
             if (usuario == null)
             {
-                throw new InvalidOperationException("Usuario no encontrado");
+                throw new InvalidOperationException("Usuario no encontrado.");
 
             }
 

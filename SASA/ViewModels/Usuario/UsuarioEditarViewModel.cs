@@ -1,10 +1,13 @@
-﻿using Microsoft.AspNetCore.Mvc.Rendering;
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using System.ComponentModel.DataAnnotations;
 
 namespace SASA.ViewModels.Usuario
 {
-    public class UsuarioEditViewModel
+    public class UsuarioEditarViewModel
     {
+        [HiddenInput]
+        public string Id { get; set; } = string.Empty;
         [Required]
         public required string PrimerNombre { get; set; }
         public string? SegundoNombre { get; set; }

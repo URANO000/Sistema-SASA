@@ -67,7 +67,7 @@
                         <div class="col-md-6">
                             <label asp-for="Departamento" class="form-label required-field"></label>
                             <select asp-for="Departamento" class="form-select">
-                                <option value="">Seleccione un departamento</option>
+                                <option value="" disabled>Seleccione un departamento</option>
                                 <option>TI</option>
                                 <option>RRHH</option>
                                 <option>Ventas</option>
@@ -79,7 +79,7 @@
                         <div class="col-md-6">
                             <label asp-for="Puesto" class="form-label required-field"></label>
                             <select asp-for="Puesto" class="form-select">
-                                <option value="">Seleccione un puesto</option>
+                                <option value="" disabled>Seleccione un puesto</option>
                                 <option>Analista de Soporte</option>
                                 <option>Administrador</option>
                                 <option>Asesor de ventas</option>
@@ -93,7 +93,7 @@
                             <select asp-for="Rol"
                                     asp-items="Model.RolesDisponibles"
                                     class="form-select">
-                                <option value="">Seleccione un rol</option>
+                                <option value="" disabled>Seleccione un rol</option>
                             </select>
 
                             <span asp-validation-for="Rol" class="text-danger"></span>
