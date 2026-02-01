@@ -117,8 +117,7 @@ namespace BusinessLogic.Servicios.Usuarios
             if (!resultado.Succeeded)
             {
                 throw new Exception("Error al crear usuario: " + string.Join(", ", resultado.Errors.Select(e => e.Description)));
-            }
-            ;
+            };
 
             //Manejo de rol único (ahora dto.Rol)
             if (!string.IsNullOrWhiteSpace(dto.Rol))
