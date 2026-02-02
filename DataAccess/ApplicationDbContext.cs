@@ -4,6 +4,8 @@ using DataAccess.Modelos.Enums;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using DataAccess.Modelos.Entidades.Inventario;
+
 
 namespace DataAccess
 {
@@ -21,6 +23,10 @@ namespace DataAccess
         public DbSet<Comentario> Comentarios { get; set; }
         public DbSet<Attachment> Attachments { get; set; }
         public DbSet<Auditoria> Auditorias { get; set; }
+        public DbSet<ActivoInventario> ActivoInventario { get; set; }
+        public DbSet<TipoActivoInventario> TipoActivoInventario { get; set; }
+        public DbSet<EstadoActivoInventario> EstadoActivoInventario { get; set; }
+        public DbSet<TipoLicenciaInventario> TipoLicenciaInventario { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -65,7 +71,49 @@ namespace DataAccess
 
             //Aplica todas las configuraciones (User/Role y luego las que agreguen para Tiquete, etc.)
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(ApplicationDbContext).Assembly);
-        } 
+
+            modelBuilder.Entity<ActivoInventario>(entity =>
+            {
+                entity.ToTable("ActivoInventario");
+                entity.HasKey(x => x.IdActivo);
+
+                entity.Property(x => x.NumeroActivo).HasMaxLength(40).IsRequired();
+                entity.HasIndex(x => x.NumeroActivo).IsUnique();
+
+                entity.HasOne(x => x.TipoActivo)
+                    .WithMany()
+                    .HasForeignKey(x => x.IdTipoActivo);
+
+                entity.HasOne(x => x.EstadoActivo)
+                    .WithMany()
+                    .HasForeignKey(x => x.IdEstadoActivo);
+
+                entity.HasOne(x => x.TipoLicencia)
+                    .WithMany()
+                    .HasForeignKey(x => x.IdTipoLicencia);
+            });
+
+            modelBuilder.Entity<TipoActivoInventario>(entity =>
+            {
+                entity.ToTable("TipoActivoInventario");
+                entity.HasKey(x => x.IdTipoActivo);
+                entity.Property(x => x.Nombre).HasMaxLength(80).IsRequired();
+            });
+
+            modelBuilder.Entity<EstadoActivoInventario>(entity =>
+            {
+                entity.ToTable("EstadoActivoInventario");
+                entity.HasKey(x => x.IdEstadoActivo);
+                entity.Property(x => x.Nombre).HasMaxLength(40).IsRequired();
+            });
+
+            modelBuilder.Entity<TipoLicenciaInventario>(entity =>
+            {
+                entity.ToTable("TipoLicenciaInventario");
+                entity.HasKey(x => x.IdTipoLicencia);
+                entity.Property(x => x.Nombre).HasMaxLength(60).IsRequired();
+            });
+        }
 
     }
 }
