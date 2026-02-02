@@ -3,17 +3,20 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace DataAccess.Modelos.Entidades
 {
-    [Table("PRIORIDAD")]
+    [Table("Prioridad")]
     public class Prioridad
     {
         [Key]
         [Column("idPrioridad")]
         public int IdPrioridad { get; set; }
 
+        [Required]
         [Column("nombrePrioridad")]
-        public string NombrePrioridad { get; set; }
+        [StringLength(100)]
+        public string NombrePrioridad { get; set; } = null!;
 
-        //Collection -> Relacion entre entidades
-        public ICollection<Tiquete>? Tiquete { get; set; }
+        //Colección de tiquetes asociados a esta prioridad
+        public ICollection<Tiquete> Tiquetes { get; set; } = new List<Tiquete>();
     }
+
 }

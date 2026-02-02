@@ -16,7 +16,32 @@ namespace BusinessLogic.Servicios.Tiquetes
         //Implementación de los métodos para el servicio de Tiquete
         public async Task<IReadOnlyList<ListaTiqueteDTO>> ObtenerTiquetesAsync()
         {
-            return await _tiqueteRepository.ObtenerTiquetesAsync();
+            var tiquetes = await _tiqueteRepository.ObtenerTiquetesAsync();
+
+            var resultado = new List<ListaTiqueteDTO>(tiquetes.Count);
+
+            //Logica para mapear los tiquetes
+            foreach (var tiquete in tiquetes)
+            {
+                resultado.Add(new ListaTiqueteDTO
+                {
+                    IdTiquete = tiquete.IdTiquete,
+                    Asunto = tiquete.Asunto,
+                    Descripcion = tiquete.Descripcion,
+                    Resolucion = tiquete.Resolucion,
+                    Estatus = tiquete.Estatus,
+                    Prioridad = tiquete.Prioridad,
+                    Categoria = tiquete.Categoria,
+                    Cola = tiquete.Cola,
+                    ReportedBy = tiquete.ReportedBy,
+                    Asignee = tiquete.Asignee,
+                    CreatedAt = tiquete.CreatedAt,
+                    UpdatedAt = tiquete.UpdatedAt
+                });
+            }
+
+            return resultado;
+
         }
         public async Task<ListaTiqueteDTO?> ObtenerPorTiqueteIdAsync(int id)
         {

@@ -1,6 +1,6 @@
 using DataAccess.Modelos.Entidades;
 using DataAccess.Modelos.Enums;
-﻿using DataAccess.Identity;
+using DataAccess.Identity;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -15,7 +15,7 @@ namespace DataAccess
         //Aquí van los DbSet para las entidades
         public DbSet<Tiquete> Tiquetes { get; set; }
         public DbSet<Estatus> Estatuses { get; set; }
-        public DbSet<Prioridad> Prioridades { get; set; } 
+        public DbSet<Prioridad> Prioridades { get; set; }
         public DbSet<Categoria> Categorias { get; set; }
         public DbSet<Cola> Colas { get; set; }
         public DbSet<Comentario> Comentarios { get; set; }
@@ -65,7 +65,7 @@ namespace DataAccess
 
             //Aplica todas las configuraciones (User/Role y luego las que agreguen para Tiquete, etc.)
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(ApplicationDbContext).Assembly);
-        } 
+        }
 
     }
 }

@@ -1,43 +1,51 @@
 ﻿
 using DataAccess.Identity;
+using Microsoft.AspNetCore.Identity;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace DataAccess.Modelos.Entidades
 {
-    [Table("COLA")]
+    [Table("Cola")]
     public class Cola
     {
         [Key]
         [Column("idCola")]
         public int IdCola { get; set; }
 
-        [ForeignKey("idCategoria")]
         [Column("idCategoria")]
-        public int idCategoria { get; set; }
+        public int? IdCategoria { get; set; }
 
+        [Required]
         [Column("nombreCola")]
-        public required string NombreCola { get; set; }
+        [StringLength(100)]
+        public string NombreCola { get; set; } = null!;
 
         [Column("descripcionCola")]
-        public required string DescripcionCola { get; set; }
+        [StringLength(250)]
+        public string? DescripcionCola { get; set; }
 
+        [Required]
         [Column("isActive")]
         public bool IsActive { get; set; }
 
+        [Required]
         [Column("createdAt")]
         public DateTime CreatedAt { get; set; }
 
-        [ForeignKey("createdBy")]
+        [Required]
         [Column("createdBy")]
-        public required string CreatedBy { get; set; }
+        [StringLength(450)]
+        public string CreatedBy { get; set; } = null!;
 
-        //Navigation properties -> Relaciones entre entidades
-
-        public ApplicationUser? Usuario { get; set; } //CreatedBy
+        //Relaciones
+        [ForeignKey(nameof(IdCategoria))]
         public Categoria? Categoria { get; set; }
 
-        //Collection -> Relaciones uno a muchos
-        public ICollection<Tiquete>? Tiquete { get; set; }
+        [ForeignKey(nameof(CreatedBy))]
+        public ApplicationUser CreatedByUser { get; set; } = null!;
+
+        public ICollection<Tiquete> Tiquetes { get; set; } = new List<Tiquete>();
     }
+
 }

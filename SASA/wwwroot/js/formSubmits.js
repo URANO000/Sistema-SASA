@@ -54,7 +54,7 @@ $(function () {
 //        }
 
 //        $.ajax({
-//            url: form.attr("action"),
+//            url: form.attr("action"),//
 //            type: "POST",
 //            data: form.serialize(),
 //            success: function (response) {
@@ -83,3 +83,56 @@ $(function () {
 //        });
 //    })
 //})
+
+
+//--------------------------------------------------------------------
+//EDITAR USUARIO SUBMIT
+$(function () {
+    $(document).on("submit", "#editUserForm", function (e) {
+        e.preventDefault();
+
+        const form = $(this);
+        if (!form.valid()) {
+            return;
+        }
+
+        $.ajax({
+            url: form.attr("action"),
+            type: "POST",
+            data: form.serialize(),
+            success: function (response) {
+
+                //Caso 1, si todo sale bien
+                if (response.success) {
+                    $("#successModal").modal("show");
+
+                    //Ir a la tabla después de un tiempo
+                    setTimeout(() => {
+                        window.location.href = "/Usuario";
+                    }, 1200);
+                }
+
+                if (response.error) {
+                    //Limpiar mensajes previos
+                    form.find("[data-valmsg-for]").text("");
+
+                    //Mostrar errores
+                    $.each(response.errors, function (key, messages) {
+                        if (key === "_form") {
+                            alert(messages[0]);
+                            return;
+                        }
+
+                        const span = form.find(`[data-valmsg-for="${key}"]`);
+                        if (span.length) {
+                            span.text(messages.join(", "));
+                        }
+                    });
+                }
+            },
+            error: function () {
+                alert("Ocurrió un error inesperado.");
+            }
+        });
+    });
+});

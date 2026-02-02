@@ -1,12 +1,15 @@
-﻿namespace DataAccess.Modelos.DTOs.Tiquete
+﻿using System.Collections.Generic;
+
+namespace SASA.ViewModels.Tiquete
 {
-    public class ListaTiqueteDTO
+    public class TiqueteListaViewModel
     {
-        public int IdTiquete { get; init; }
+        public int IdTiquete { get; init; } = default!;
         public required string Asunto { get; init; }
         public required string Descripcion { get; init; }
         public string? Resolucion { get; init; }
 
+        //Nombres de cada uno (no todo el obj)
         public required string Estatus { get; init; }
         public string? Prioridad { get; init; }
         public string Categoria { get; init; }
