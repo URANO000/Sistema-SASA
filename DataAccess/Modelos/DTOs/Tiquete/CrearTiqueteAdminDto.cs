@@ -7,7 +7,7 @@
         public required int IdCategoria { get; init; }
         public int? IdPrioridad { get; init; }
         public int? IdCola { get; init; }
-        public int? IdAsignee { get; init; }
-        public int? IdReportedBy { get; init; }
+        public string? IdAsignee { get; init; }
+        public string IdReportedBy { get; init; }
     }
 }

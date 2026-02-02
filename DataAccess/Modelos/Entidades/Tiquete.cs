@@ -66,8 +66,12 @@ namespace DataAccess.Modelos.Entidades
         [ForeignKey(nameof(IdCola))]
         public Cola Cola { get; set; } = null!;
 
+        [ForeignKey(nameof(IdAsignee))]
         public ApplicationUser? Asignee { get; set; }
+
+        [ForeignKey(nameof(IdReportedBy))]
         public ApplicationUser? ReportedBy { get; set; }
+
 
         //Collection -> Relaciones uno a muchos
         public ICollection<Comentario>? Comentarios { get; set; }

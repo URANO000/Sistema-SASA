@@ -65,10 +65,11 @@ namespace DataAccess.Repositorios.Tiquetes
                 .FirstOrDefaultAsync();
         }
 
-        public async Task AgregarTiqueteAsync(Tiquete tiquete)
+        public async Task<Tiquete> AgregarTiqueteAsync(Tiquete tiquete)
         {
             _context.Tiquetes.Add(tiquete);
             await _context.SaveChangesAsync();
+            return tiquete;
         }
 
         public async Task ActualizarTiqueteAsync(Tiquete tiquete)

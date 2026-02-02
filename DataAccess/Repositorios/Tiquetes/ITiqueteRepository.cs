@@ -7,7 +7,7 @@ namespace DataAccess.Repositorios.Tiquetes
         //Métodos para el repositorio de Tiquete - ESP
         Task<IReadOnlyList<ListaTiqueteDTO>> ObtenerTiquetesAsync(); //Listar
         Task<ListaTiqueteDTO?> ObtenerTiquetePorIdAsync(int id); //Detalle
-        Task AgregarTiqueteAsync(Tiquete tiquete); //Crear
+        Task<Tiquete> AgregarTiqueteAsync(Tiquete tiquete); //Crear
         Task ActualizarTiqueteAsync(Tiquete tiquete); //Actualizar
         Task CancelarTiquete(int id); //Cancelar (no se elimina)
     }
