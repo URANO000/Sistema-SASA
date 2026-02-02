@@ -181,8 +181,16 @@ namespace SASA.Controllers
             //Validamos el modelo
             if (!ModelState.IsValid)
             {
-                model.RolesDisponibles = await CargarRolesAsync();
-                return View(model);
+                return Json(new
+                {
+                    success = false,
+                    errors = ModelState
+                               .Where(x => x.Value!.Errors.Any())
+                               .ToDictionary(
+                                   k => k.Key,
+                                   v => v.Value!.Errors.Select(e => e.ErrorMessage).ToArray()
+                               )
+                });
             }
 
             //Si todo está bien, mapear a DTO para transferencia
@@ -203,14 +211,22 @@ namespace SASA.Controllers
             try
             {
                 await _usuarioService.ActualizarUsuarioAsync(dto);
-                return RedirectToAction(nameof(Index));
+                return Json(new
+                {
+                    success = true
+                });
 
             }
             catch (InvalidOperationException ex)
             {
-                ModelState.AddModelError(string.Empty, ex.Message);
-                model.RolesDisponibles = (IReadOnlyList<SelectListItem>?)await _rolService.ObtenerRolesAsync();
-                return View(model);
+                return Json(new
+                {
+                    success = false,
+                    errors = new
+                    {
+                        _form = new[] { ex.Message }
+                    }
+                });
             }
         }
 

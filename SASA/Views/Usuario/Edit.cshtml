@@ -8,7 +8,8 @@
 <!--INFO-->
 <form asp-action="Edit"
     asp-controller="Usuario"
-    method="post">
+    method="post"
+    id="editUserForm">
 
     @Html.AntiForgeryToken()
     <input asp-for="Id" type="hidden" />
@@ -58,7 +59,7 @@
                 </div>
 
                 <div class="col-md-3">
-                    <label asp-for="CorreoEmpresa" class="form-label"></label>
+                    <label asp-for="CorreoEmpresa" class="form-label">Correo Empresarial</label>
                     <input asp-for="CorreoEmpresa" class="form-control" />
                     <span asp-validation-for="CorreoEmpresa" class="text-danger"></span>
                 </div>
@@ -173,3 +174,9 @@
 
 @await Html.PartialAsync("_DisableConfirm", userId)
 @await Html.PartialAsync("_EnableConfirm", userId)
+@await Html.PartialAsync("_SuccessModal")
+
+@section Scripts {
+    <script src="~/js/formSubmits.js" asp-append-version="true"></script>
+
+}

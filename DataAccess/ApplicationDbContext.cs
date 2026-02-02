@@ -1,6 +1,6 @@
 using DataAccess.Modelos.Entidades;
 using DataAccess.Modelos.Enums;
-﻿using DataAccess.Identity;
+using DataAccess.Identity;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -15,7 +15,7 @@ namespace DataAccess
         //Aquí van los DbSet para las entidades
         public DbSet<Tiquete> Tiquetes { get; set; }
         public DbSet<Estatus> Estatuses { get; set; }
-        public DbSet<Prioridad> Prioridades { get; set; } 
+        public DbSet<Prioridad> Prioridades { get; set; }
         public DbSet<Categoria> Categorias { get; set; }
         public DbSet<Cola> Colas { get; set; }
         public DbSet<Comentario> Comentarios { get; set; }
@@ -34,10 +34,10 @@ namespace DataAccess
             modelBuilder.Entity<Estatus>()
                 .HasData(
                     new Estatus { IdEstatus = (int)TiqueteEstatus.Abierto, NombreEstatus = "Abierto" },
-                    new Estatus { IdEstatus = (int)TiqueteEstatus.EnProgreso, NombreEstatus = "En Progreso"},
-                    new Estatus { IdEstatus = (int)TiqueteEstatus.Cancelado, NombreEstatus = "Cancelado"},
-                    new Estatus { IdEstatus = (int)TiqueteEstatus.Resuelto, NombreEstatus = "Resuelto"},
-                    new Estatus { IdEstatus = (int)TiqueteEstatus.Cerrado, NombreEstatus = "Cerrado"}
+                    new Estatus { IdEstatus = (int)TiqueteEstatus.EnProgreso, NombreEstatus = "En Progreso" },
+                    new Estatus { IdEstatus = (int)TiqueteEstatus.Cancelado, NombreEstatus = "Cancelado" },
+                    new Estatus { IdEstatus = (int)TiqueteEstatus.Resuelto, NombreEstatus = "Resuelto" },
+                    new Estatus { IdEstatus = (int)TiqueteEstatus.Cerrado, NombreEstatus = "Cerrado" }
                 );
 
             //Modelado en tiquetes
@@ -65,7 +65,7 @@ namespace DataAccess
 
             //Aplica todas las configuraciones (User/Role y luego las que agreguen para Tiquete, etc.)
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(ApplicationDbContext).Assembly);
-        } 
+        }
 
     }
 }

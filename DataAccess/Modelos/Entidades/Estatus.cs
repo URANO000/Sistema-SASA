@@ -10,10 +10,12 @@ namespace DataAccess.Modelos.Entidades
         [Column("idEstatus")]
         public int IdEstatus { get; set; }
 
+        [Required]
         [Column("nombreEstatus")]
-        public string NombreEstatus { get; set; }
+        [StringLength(100)]
+        public string NombreEstatus { get; set; } = null!;
 
-        //Collection -> Relacion con tiquetes
-        public ICollection<Tiquete>? Tiquete { get; set; }
+        //Collección -> Relacion entre entidades
+        public ICollection<Tiquete> Tiquetes { get; set; } = new List<Tiquete>();
     }
 }
