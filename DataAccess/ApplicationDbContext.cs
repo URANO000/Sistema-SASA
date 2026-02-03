@@ -1,10 +1,11 @@
-using DataAccess.Modelos.Entidades;
-using DataAccess.Modelos.Enums;
 ﻿using DataAccess.Identity;
+using DataAccess.Modelos.Entidades;
+using DataAccess.Modelos.Entidades.Integracion;
+using DataAccess.Modelos.Entidades.Inventario;
+using DataAccess.Modelos.Enums;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using DataAccess.Modelos.Entidades.Inventario;
 
 
 namespace DataAccess
@@ -27,6 +28,7 @@ namespace DataAccess
         public DbSet<TipoActivoInventario> TipoActivoInventario { get; set; }
         public DbSet<EstadoActivoInventario> EstadoActivoInventario { get; set; }
         public DbSet<TipoLicenciaInventario> TipoLicenciaInventario { get; set; }
+        public DbSet<IntegracionHistorial> IntegracionHistorial { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
