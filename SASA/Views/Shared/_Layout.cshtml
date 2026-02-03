@@ -6,9 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Sistema de gestion SASA"] Sistema de gestión SASA</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/css/common.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/SASA.styles.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/site.css" />
 
     <!-- This is for the extra things we need like fonts, icons, etc-->
     <!-- Font Montserrat -->
@@ -18,8 +16,6 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600&display=swap" rel="stylesheet">
-    <!-- UI SASA -->
-    <link rel="stylesheet" href="~/css/sasa-ui.css" />
     <!--Bootstrap icons-->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
     <!--Chart js CDN-->
@@ -43,15 +39,18 @@
                 <a class="btn btn-link icon-btn" asp-area="" asp-controller="Home" asp-action="Index">
                     <img src="/img/logo-blanco-custom.png" alt="logo-sasa" />
                 </a>
-                @*                 <h1>Sistema de Gestión SASA</h1> *@
             </div>
         </div>
 
         <div class="topbar-actions">
             <!--Notification icon-->
-            <a asp-controller="Notificaciones" asp-action="Index" class="btn btn-link text-white position-relative">
-                <i class="bi bi-bell fs-4"></i>
-                <span class="notification-badge">3</span>
+            <a href="/Notificaciones" class="position-relative" id="notifBell">
+                <i class="bi bi-bell fs-5"></i>
+
+                <span id="notifBadge"
+                      class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger d-none">
+                    0
+                </span>
             </a>
 
 
@@ -85,6 +84,8 @@
                         </form>
                     </li>
                 </ul>
+                </div>
+        </div>
 
     </header>
 
@@ -246,6 +247,8 @@
         crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+    <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     <script src="~/js/ui-sasa.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
