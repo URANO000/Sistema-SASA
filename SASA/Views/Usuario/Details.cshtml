@@ -1,6 +1,4 @@
-﻿@using SASA.ViewModels.Usuario
-@model UsuarioDetalleViewModel
-@{
+﻿@{
     ViewData["Title"] = "Detalles del Usuario";
 }
 
@@ -15,18 +13,9 @@
             <div class="d-flex justify-content-between align-items-center mt-2">
                 <h4 class="mb-0 fw-bold">Detalles del Usuario</h4>
 
-                @if(Model.Estado == "Activo")
-                {
-                    <span class="badge bg-success">
-                        Usuario Activo
-                    </span>
-                }
-                else
-                {
-                    <span class="badge bg-secondary">
-                        Usuario Inactivo
-                    </span>
-                }
+                <span class="badge bg-success">
+                    Usuario Activo
+                </span>
             </div>
         </div>
     </div>
@@ -35,7 +24,7 @@
 <div class="row">
 
     <!-- MAIN -->
-    <div class="col-lg">
+    <div class="col-lg-8">
 
         <!-- IDENTIDAD -->
         <div class="card mb-4">
@@ -44,13 +33,13 @@
 
                 <dl class="row mb-0">
                     <dt class="col-4">Nombre Completo</dt>
-                    <dd class="col-8">@Model.NombreCompleto</dd>
-@* 
+                    <dd class="col-8">Juan Pérez</dd>
+
                     <dt class="col-4">No. Empleado</dt>
-                    <dd class="col-8">EMP-1023</dd> *@
+                    <dd class="col-8">EMP-1023</dd>
 
                     <dt class="col-4">Correo</dt>
-                    <dd class="col-8">@Model.CorreoEmpresa</dd>
+                    <dd class="col-8">juanp@gmail.com</dd>
                 </dl>
             </div>
         </div>
@@ -62,33 +51,33 @@
 
                 <dl class="row mb-0">
                     <dt class="col-4">Departamento</dt>
-                    <dd class="col-8">@Model.Departamento</dd>
+                    <dd class="col-8">Tecnologías de Información</dd>
 
                     <dt class="col-4">Puesto</dt>
-                    <dd class="col-8">@Model.Puesto</dd>
+                    <dd class="col-8">Analista de Soporte</dd>
+
+                    <dt class="col-4">Jefe Directo</dt>
+                    <dd class="col-8">Carlos Ramírez</dd>
                 </dl>
             </div>
         </div>
 
-    
-@* 
         <!-- ACTIVIDAD EN TIQUETES -->
         <div class="card">
             <div class="card-body">
                 <h6 class="section-title">Actividad en el Sistema de Tiquetes</h6>
 
-               <h6 class="section-title">Resumen Operativo</h6>
+                <ul class="timeline">
+                    <li>
+                        <span class="timeline-date">12/03/2025</span>
+                        <p><strong>Último tiquete creado</strong> – Error de acceso al sistema</p>
+                    </li>
 
-                <dl class="row mb-0">
-                    <dt class="col-7">Tiquetes Abiertos</dt>
-                    <dd class="col-5">3</dd>
-
-                    <dt class="col-7">Tiquetes Cerrados</dt>
-                    <dd class="col-5">12</dd>
-
-                    <dt class="col-7">Última Actividad</dt>
-                    <dd class="col-5">12/03/2025</dd>
-                </dl>
+                    <li>
+                        <span class="timeline-date">10/03/2025</span>
+                        <p>Tiquete cerrado – Solicitud de equipo</p>
+                    </li>
+                </ul>
             </div>
         </div>
 
@@ -115,7 +104,7 @@
             </div>
         </div>
 
-         <!-- ACCIONES -->
+@*         <!-- ACCIONES -->
         <div class="card">
             <div class="card-body">
                 <h6 class="section-title">Acciones</h6>
@@ -132,5 +121,5 @@
             </div>
         </div> *@
 
-    </div> 
+    </div>
 </div>
