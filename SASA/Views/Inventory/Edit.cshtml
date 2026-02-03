@@ -1,3 +1,5 @@
+@model DataAccess.Modelos.Entidades.Inventario.ActivoInventario
+
 @{
     ViewData["Title"] = "Editar Activo";
 }
@@ -14,51 +16,66 @@
                 </small>
             </div>
 
-            <form>
+            <form asp-action="Edit" asp-route-id="@Model.IdActivo" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" asp-for="IdActivo" />
 
                 <div class="row mb-3">
                     <div class="col-md-4">
                         <label class="form-label">Código del Activo</label>
-                        <input type="text" class="form-control" value="INV-001" readonly>
+                        <input type="text" class="form-control" value="@Model.NumeroActivo" readonly>
                     </div>
 
                     <div class="col-md-8">
-                        <label class="form-label">Nombre del Activo</label>
-                        <input type="text" class="form-control" value="Dell Latitude Laptop">
+                        <label asp-for="NombreMaquina" class="form-label">Nombre del Activo</label>
+                        <input asp-for="NombreMaquina" type="text" class="form-control">
                     </div>
                 </div>
 
                 <div class="row mb-3">
                     <div class="col-md-6">
-                        <label class="form-label">Tipo de Activo</label>
-                        <select class="form-select">
-                            <option>Dispositivo</option>
-                            <option>Herramienta</option>
-                            <option>Mobiliario</option>
-                            <option>Otro</option>
-                        </select>
+                        <label asp-for="IdTipoActivo" class="form-label">Tipo de Activo</label>
+                        <select asp-for="IdTipoActivo" asp-items="ViewBag.Tipos" class="form-select"></select>
                     </div>
 
                     <div class="col-md-6">
-                        <label class="form-label">Estado</label>
-                        <select class="form-select">
-                            <option selected>Activo</option>
-                            <option>En Mantenimiento</option>
-                            <option>Fuera de Servicio</option>
-                        </select>
+                        <label asp-for="IdEstadoActivo" class="form-label">Estado</label>
+                        <select asp-for="IdEstadoActivo" asp-items="ViewBag.Estados" class="form-select"></select>
                     </div>
                 </div>
 
-                <div class="mb-4">
-                    <label class="form-label">Descripción</label>
-                    <textarea class="form-control" rows="4">
-Equipo portátil corporativo asignado para uso interno.
-                    </textarea>
+                <!-- Opcionales (puedes quitar los que no quieras editar en Sprint 1) -->
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <label asp-for="Marca" class="form-label">Marca</label>
+                        <input asp-for="Marca" class="form-control" />
+                    </div>
+                    <div class="col-md-4">
+                        <label asp-for="Modelo" class="form-label">Modelo</label>
+                        <input asp-for="Modelo" class="form-control" />
+                    </div>
+                    <div class="col-md-4">
+                        <label asp-for="SerieServicio" class="form-label">Serie / Service Tag</label>
+                        <input asp-for="SerieServicio" class="form-control" />
+                    </div>
+                </div>
+
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <label asp-for="DireccionMAC" class="form-label">Dirección MAC</label>
+                        <input asp-for="DireccionMAC" class="form-control" placeholder="AA:BB:CC:11:22:33" />
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="SistemaOperativo" class="form-label">Sistema Operativo</label>
+                        <input asp-for="SistemaOperativo" class="form-control" placeholder="Windows 11" />
+                    </div>
                 </div>
 
                 <div class="d-flex justify-content-end">
-                    <a asp-controller="Inventory" asp-action="Detail" asp-route-id="1"
-                        class="btn btn-outline-secondary me-2">
+                    <a asp-controller="Inventory"
+                       asp-action="Detail"
+                       asp-route-id="@Model.IdActivo"
+                       class="btn btn-outline-secondary me-2">
                         Cancelar
                     </a>
 
