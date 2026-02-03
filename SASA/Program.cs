@@ -1,8 +1,11 @@
+using BusinessLogic.Servicios.Correo;
+using BusinessLogic.Servicios.Notificaciones;
 using BusinessLogic.Servicios.Rol;
 using BusinessLogic.Servicios.Tiquetes;
 using BusinessLogic.Servicios.Usuarios;
 using DataAccess;
 using DataAccess.Identity;
+using DataAccess.Repositorios.Notificaciones;
 using DataAccess.Repositorios.Tiquetes;
 using DataAccess.Repositorios.Usuarios;
 using Microsoft.AspNetCore.Identity;
@@ -18,7 +21,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 builder.Services
     .AddIdentity<ApplicationUser, ApplicationRole>(options =>
     {
-        // Activación por correo
+        // ActivaciÃ³n por correo
         options.SignIn.RequireConfirmedEmail = true;
 
         // Bloqueo por intentos fallidos
@@ -26,7 +29,7 @@ builder.Services
         options.Lockout.MaxFailedAccessAttempts = 5;
         options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(10);
 
-        // Email único
+        // Email Ãºnico
         options.User.RequireUniqueEmail = true;
 
         // Password
@@ -52,6 +55,9 @@ builder.Services.AddScoped<ITiqueteService, TiqueteService>();
 builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
 builder.Services.AddScoped<IUsuarioService, UsuarioService>();
 builder.Services.AddScoped<IRolService, RolService>();
+builder.Services.AddScoped<INotificacionRepository, NotificacionRepository>();
+builder.Services.AddScoped<INotificacionService, NotificacionService>();
+
 
 // MVC
 builder.Services.AddControllersWithViews();
@@ -64,6 +70,7 @@ if (app.Environment.IsDevelopment())
     using var scope = app.Services.CreateScope();
     var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
 
+    const string adminRole = "Administrador";
     var email = "test@sasa.com";
     var user = await userManager.FindByEmailAsync(email);
 

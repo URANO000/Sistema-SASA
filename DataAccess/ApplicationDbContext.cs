@@ -27,6 +27,9 @@ namespace DataAccess
         public DbSet<TipoActivoInventario> TipoActivoInventario { get; set; }
         public DbSet<EstadoActivoInventario> EstadoActivoInventario { get; set; }
         public DbSet<TipoLicenciaInventario> TipoLicenciaInventario { get; set; }
+        public DbSet<Notificacion> Notificaciones { get; set; }
+        public DbSet<NotificacionSilencio> NotificacionSilencios { get; set; }
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
