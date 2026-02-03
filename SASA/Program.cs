@@ -1,9 +1,11 @@
 using BusinessLogic.Servicios.Correo;
+using BusinessLogic.Servicios.Notificaciones;
 using BusinessLogic.Servicios.Rol;
 using BusinessLogic.Servicios.Tiquetes;
 using BusinessLogic.Servicios.Usuarios;
 using DataAccess;
 using DataAccess.Identity;
+using DataAccess.Repositorios.Notificaciones;
 using DataAccess.Repositorios.Tiquetes;
 using DataAccess.Repositorios.Usuarios;
 using Microsoft.AspNetCore.Identity;
@@ -67,6 +69,9 @@ builder.Services.AddScoped<ITiqueteService, TiqueteService>();
 builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
 builder.Services.AddScoped<IUsuarioService, UsuarioService>();
 builder.Services.AddScoped<IRolService, RolService>();
+builder.Services.AddScoped<INotificacionRepository, NotificacionRepository>();
+builder.Services.AddScoped<INotificacionService, NotificacionService>();
+
 
 builder.Services.Configure<SmtpEmailSettings>(builder.Configuration.GetSection("Smtp"));
 builder.Services.AddTransient<IEmailSender, SmtpEmailSender>();
