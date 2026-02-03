@@ -18,5 +18,7 @@ namespace BusinessLogic.Servicios.Usuarios
         Task DesactivarUsuarioAsync(string id);
 
         Task ActivarUsuarioAsync(string id);
+
+        Task<IReadOnlyList<UsuarioTIDropdownDto?>> ObtenerUsuariosTIAsync();
     }
 }
