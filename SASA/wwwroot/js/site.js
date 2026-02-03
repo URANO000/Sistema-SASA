@@ -4,6 +4,35 @@
 // Write your JavaScript code.
 console.log(":)");
 
+//Contador de notificacione
+async function actualizarIndicadorNotificaciones() {
+    try {
+        const res = await fetch('/Notificaciones/Contador', { credentials: 'same-origin' });
+
+        if (res.redirected) return;
+
+        const total = await res.json();
+        const badge = document.getElementById('notifBadge');
+        if (!badge) return;
+
+        if (total > 0) {
+            badge.classList.remove('d-none');
+            badge.textContent = total > 99 ? '99+' : total;
+        } else {
+            badge.classList.add('d-none');
+        }
+    } catch (e) {
+        console.error('Error cargando contador', e);
+    }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    actualizarIndicadorNotificaciones();
+    setInterval(actualizarIndicadorNotificaciones, 15000);
+});
+
+
+
 //This is for my sidebar toggle
 
 document.getElementById("sidebarToggle")
