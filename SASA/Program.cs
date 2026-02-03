@@ -86,7 +86,7 @@ if (app.Environment.IsDevelopment())
     var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
     var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<ApplicationRole>>();
 
-    const string adminRole = "Admin";
+    const string adminRole = "Administrador";
     var email = "test@sasa.com";
 
     // Crear rol Admin si no existe
