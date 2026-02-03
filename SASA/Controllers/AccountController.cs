@@ -1,4 +1,4 @@
-﻿using System.Text;
+using System.Text;
 using DataAccess.Identity;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;

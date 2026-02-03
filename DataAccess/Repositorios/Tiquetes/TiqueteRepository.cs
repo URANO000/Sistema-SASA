@@ -27,16 +27,17 @@ namespace DataAccess.Repositorios.Tiquetes
                     Descripcion = t.Descripcion,
                     Resolucion = t.Resolucion ?? "Sin Resolución",
 
-                    Estatus = t.Estatus != null ? t.Estatus.NombreEstatus : "Sin estatus",
+                    Estatus = t.Estatus.NombreEstatus,
                     Prioridad = t.Prioridad != null ? t.Prioridad.NombrePrioridad : "Sin prioridad",
-                    Categoria = t.Categoria != null ? t.Categoria.NombreCategoria : "Sin categoría",
-                    Cola = t.Cola != null ? t.Cola.NombreCola : "Sin cola",
+                    Categoria = t.Categoria.NombreCategoria,
+                    Cola = t.Cola != null ? t.Cola.NombreCola : "Sin Cola",
 
-                    ReportedBy = t.ReportedBy != null ? t.ReportedBy.CorreoEmpresa : "Desconocido",
+                    ReportedBy = t.ReportedBy.CorreoEmpresa,
                     Asignee = t.Asignee != null ? t.Asignee.CorreoEmpresa : "Sin asignar",
 
                     CreatedAt = t.CreatedAt,
-                    UpdatedAt = t.UpdatedAt 
+                    UpdatedAt = t.UpdatedAt
+
                 })
                 .ToListAsync();
         }

@@ -70,15 +70,5 @@ namespace DataAccess.Repositorios.Usuarios
                 await _context.SaveChangesAsync();
             }
         }
-
-        public async Task ActivarUsuario(string id)
-        {
-            var usuario = await _context.Users.FindAsync(id);
-            if (usuario != null)
-            {
-                usuario.Estado = true; //bit 1
-                await _context.SaveChangesAsync();
-            }
-        }
     }
 }

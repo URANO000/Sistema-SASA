@@ -1,9 +1,11 @@
 using DataAccess.Modelos.Entidades;
 using DataAccess.Modelos.Enums;
-using DataAccess.Identity;
+﻿using DataAccess.Identity;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using DataAccess.Modelos.Entidades.Inventario;
+
 
 namespace DataAccess
 {
@@ -15,12 +17,16 @@ namespace DataAccess
         //Aquí van los DbSet para las entidades
         public DbSet<Tiquete> Tiquetes { get; set; }
         public DbSet<Estatus> Estatuses { get; set; }
-        public DbSet<Prioridad> Prioridades { get; set; }
+        public DbSet<Prioridad> Prioridades { get; set; } 
         public DbSet<Categoria> Categorias { get; set; }
         public DbSet<Cola> Colas { get; set; }
         public DbSet<Comentario> Comentarios { get; set; }
         public DbSet<Attachment> Attachments { get; set; }
         public DbSet<Auditoria> Auditorias { get; set; }
+        public DbSet<ActivoInventario> ActivoInventario { get; set; }
+        public DbSet<TipoActivoInventario> TipoActivoInventario { get; set; }
+        public DbSet<EstadoActivoInventario> EstadoActivoInventario { get; set; }
+        public DbSet<TipoLicenciaInventario> TipoLicenciaInventario { get; set; }
         public DbSet<Notificacion> Notificaciones { get; set; }
         public DbSet<NotificacionSilencio> NotificacionSilencios { get; set; }
 
@@ -37,10 +43,10 @@ namespace DataAccess
             modelBuilder.Entity<Estatus>()
                 .HasData(
                     new Estatus { IdEstatus = (int)TiqueteEstatus.Abierto, NombreEstatus = "Abierto" },
-                    new Estatus { IdEstatus = (int)TiqueteEstatus.EnProgreso, NombreEstatus = "En Progreso" },
-                    new Estatus { IdEstatus = (int)TiqueteEstatus.Cancelado, NombreEstatus = "Cancelado" },
-                    new Estatus { IdEstatus = (int)TiqueteEstatus.Resuelto, NombreEstatus = "Resuelto" },
-                    new Estatus { IdEstatus = (int)TiqueteEstatus.Cerrado, NombreEstatus = "Cerrado" }
+                    new Estatus { IdEstatus = (int)TiqueteEstatus.EnProgreso, NombreEstatus = "En Progreso"},
+                    new Estatus { IdEstatus = (int)TiqueteEstatus.Cancelado, NombreEstatus = "Cancelado"},
+                    new Estatus { IdEstatus = (int)TiqueteEstatus.Resuelto, NombreEstatus = "Resuelto"},
+                    new Estatus { IdEstatus = (int)TiqueteEstatus.Cerrado, NombreEstatus = "Cerrado"}
                 );
 
             //Modelado en tiquetes
@@ -68,6 +74,48 @@ namespace DataAccess
 
             //Aplica todas las configuraciones (User/Role y luego las que agreguen para Tiquete, etc.)
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(ApplicationDbContext).Assembly);
+
+            modelBuilder.Entity<ActivoInventario>(entity =>
+            {
+                entity.ToTable("ActivoInventario");
+                entity.HasKey(x => x.IdActivo);
+
+                entity.Property(x => x.NumeroActivo).HasMaxLength(40).IsRequired();
+                entity.HasIndex(x => x.NumeroActivo).IsUnique();
+
+                entity.HasOne(x => x.TipoActivo)
+                    .WithMany()
+                    .HasForeignKey(x => x.IdTipoActivo);
+
+                entity.HasOne(x => x.EstadoActivo)
+                    .WithMany()
+                    .HasForeignKey(x => x.IdEstadoActivo);
+
+                entity.HasOne(x => x.TipoLicencia)
+                    .WithMany()
+                    .HasForeignKey(x => x.IdTipoLicencia);
+            });
+
+            modelBuilder.Entity<TipoActivoInventario>(entity =>
+            {
+                entity.ToTable("TipoActivoInventario");
+                entity.HasKey(x => x.IdTipoActivo);
+                entity.Property(x => x.Nombre).HasMaxLength(80).IsRequired();
+            });
+
+            modelBuilder.Entity<EstadoActivoInventario>(entity =>
+            {
+                entity.ToTable("EstadoActivoInventario");
+                entity.HasKey(x => x.IdEstadoActivo);
+                entity.Property(x => x.Nombre).HasMaxLength(40).IsRequired();
+            });
+
+            modelBuilder.Entity<TipoLicenciaInventario>(entity =>
+            {
+                entity.ToTable("TipoLicenciaInventario");
+                entity.HasKey(x => x.IdTipoLicencia);
+                entity.Property(x => x.Nombre).HasMaxLength(60).IsRequired();
+            });
         }
 
     }

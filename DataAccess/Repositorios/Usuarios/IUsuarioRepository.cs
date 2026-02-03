@@ -10,7 +10,5 @@ namespace DataAccess.Repositorios.Usuarios
         Task<ListaUsuarioDto?> ObtenerUsuarioPorIdAsync(string id); //Detalle
         Task ActualizarUsuarioAsync(ApplicationUser usuario); //Actualizar
         Task DesactivarUsuario(string id); //Desactivar. Nunca eliminar
-        Task ActivarUsuario(string id); //Activar usuario desactivado
-
     }
 }
