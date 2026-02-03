@@ -69,6 +69,8 @@ namespace SASA.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Add(CrearUsuarioViewModel model)
         {
+            bool isAjax = Request.Headers["X-Requested-With"] == "XMLHttpRequest";
+
             if (!ModelState.IsValid)
             {
                 //Para AJAX, retornar modal parcial con errores de validación
@@ -122,11 +124,23 @@ namespace SASA.Controllers
             }
             catch (Exception ex)
             {
-                //Si un error ocurre, regresar al Index con el modelo y el error, o se cae todo
                 ModelState.AddModelError(string.Empty, ex.Message);
-                model.RolesDisponibles = (IReadOnlyList<SelectListItem>?)await _rolService.ObtenerRolesAsync();
-                return PartialView("_AddModal", model);
 
+                if (isAjax)
+                {
+                    return Json(new
+                    {
+                        success = true,
+                        warning = "El usuario fue creado, pero ocurrió un problema enviando el correo de activación."
+                    });
+                }
+
+                var roles = await _rolService.ObtenerRolesAsync();
+                model.RolesDisponibles = roles
+                    .Select(r => new SelectListItem { Value = r, Text = r })
+                    .ToList();
+
+                return PartialView("_AddModal", model);
             }
         }
 
