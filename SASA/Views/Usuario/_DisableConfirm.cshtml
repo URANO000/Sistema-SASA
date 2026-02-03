@@ -1,6 +1,4 @@
-﻿@model string
-
-<div class="modal fade" id="disableConfirm" tabindex="-1">
+﻿<div class="modal fade" id="disableConfirm" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered modal-sm">
         <div class="modal-content">
 
@@ -13,20 +11,12 @@
                 </p>
 
                 <div class="d-flex justify-content-center gap-2">
-                    <form asp-controller="Usuario"
-                    asp-action="Deactivate"
-                    asp-route-id="@Model"
-                    method="post">
-
-                    @Html.AntiForgeryToken()
-
-                        <button class="btn btn-secondary" data-bs-dismiss="modal">
-                            Volver
-                        </button>
-                        <button class="btn btn-danger" type="submit">
-                            Confirmar
-                        </button>
-                    </form>
+                    <button class="btn btn-secondary" data-bs-dismiss="modal">
+                        Volver
+                    </button>
+                    <button class="btn btn-danger" id="fakeDisableUser">
+                        Confirmar
+                    </button>
                 </div>
             </div>
 
