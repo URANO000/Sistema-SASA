@@ -18,7 +18,8 @@ namespace DataAccess.Modelos.DTOs.Usuarios
         public required string CorreoEmpresa { get; init; }
 
         [Required]
-        //Roles asignados al usuario
-        public IReadOnlyCollection<string>? Roles { get; init; }
+        //Role asignado al usuario
+        public required string Rol { get; init; }
     }
 }
+

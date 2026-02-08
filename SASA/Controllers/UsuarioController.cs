@@ -325,7 +325,7 @@ namespace SASA.Controllers
                     Text = r
                 })
                 .ToList();
-        }        
+        }
         private static string NombreCompletoHelper(ListaUsuarioDto dto)
         {
             //Juntar para el nombre completo

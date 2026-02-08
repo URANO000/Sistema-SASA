@@ -166,7 +166,7 @@ namespace BusinessLogic.Servicios.Usuarios
             //Manejo especial de cambio de correo de Identity -- de cuidado
             if (!string.Equals(usuario.Email, dto.CorreoEmpresa, StringComparison.OrdinalIgnoreCase))
             {
-                var token = await _userManager.GenerateChangeEmailTokenAsync(usuario,dto.CorreoEmpresa);
+                var token = await _userManager.GenerateChangeEmailTokenAsync(usuario, dto.CorreoEmpresa);
 
                 var result = await _userManager.ChangeEmailAsync(
                     usuario,
