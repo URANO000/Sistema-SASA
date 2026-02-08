@@ -1,4 +1,3 @@
-using BusinessLogic.Servicios.Correo;
 using BusinessLogic.Servicios.Rol;
 using BusinessLogic.Servicios.Usuarios;
 using DataAccess.Modelos.DTOs.Usuarios;
@@ -17,14 +16,13 @@ namespace SASA.Controllers
         //Referencia a los servicios (Inyección de dependencias)
         private readonly IUsuarioService _usuarioService;
         private readonly IRolService _rolService;
-        private readonly ActivationEmailService _activationEmailService;
+        
 
 
-        public UsuarioController(IUsuarioService usuarioService, IRolService rolService, ActivationEmailService activationEmailService)
+        public UsuarioController(IUsuarioService usuarioService, IRolService rolService)
         {
             _usuarioService = usuarioService;
             _rolService = rolService;
-            _activationEmailService = activationEmailService;
         }
 
 
@@ -110,16 +108,11 @@ namespace SASA.Controllers
                 if (string.IsNullOrWhiteSpace(activationLink))
                     throw new Exception("No se pudo construir el link de activación. Verifica la ruta /activate-account/{token}.");
 
-                // Enviar correo de activación
-                await _activationEmailService.SendActivationAsync(
-                    result.Email,
-                    activationLink
-                );
-
                 //Para AJAX
                 return Json(new
                 {
-                    success = true
+                    success = true,
+                    activationLink //dejaré esto por acá por el momento, aunque en producción no se debería enviar el link de activación en la respuesta JSON. Esto es solo para fines de desarrollo y pruebas.
                 });
             }
             catch (Exception ex)
@@ -130,8 +123,8 @@ namespace SASA.Controllers
                 {
                     return Json(new
                     {
-                        success = true,
-                        warning = "El usuario fue creado, pero ocurrió un problema enviando el correo de activación."
+                        success = false,
+                        error = ex.Message
                     });
                 }
 
