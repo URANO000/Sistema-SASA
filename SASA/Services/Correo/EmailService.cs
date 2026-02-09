@@ -3,6 +3,7 @@ using BusinessLogic.Servicios.Correo;
 using Microsoft.Extensions.Options;
 using Microsoft.Graph;
 using Microsoft.Graph.Models;
+using Microsoft.Kiota.Abstractions;
 
 namespace SASA.Services.Correo
 {
@@ -29,23 +30,59 @@ namespace SASA.Services.Correo
             var message = new Message
             {
                 Subject = subject,
-                Body = new ItemBody { ContentType = BodyType.Html, Content = htmlBody },
+                Body = new ItemBody
+                {
+                    ContentType = BodyType.Html,
+                    Content = htmlBody
+                },
                 ToRecipients =
                 [
                     new Recipient
-                    {
-                        EmailAddress = new EmailAddress { Address = toEmail, Name = toName }
-                    }
+        {
+            EmailAddress = new EmailAddress
+            {
+                Address = toEmail,
+                Name = toName
+            }
+        }
+                ],
+
+                // 🔴 CC TEMPORAL PARA TEST
+                CcRecipients =
+                [
+                    new Recipient
+        {
+            EmailAddress = new EmailAddress
+            {
+                Address = "marifermatah@gmail.com",
+                Name = "Copia Prueba SASA"
+            }
+        }
                 ]
             };
 
-            await _graphClient.Users[_settings.FromEmail]
-                .SendMail
-                .PostAsync(new Microsoft.Graph.Users.Item.SendMail.SendMailPostRequestBody
-                {
-                    Message = message,
-                    SaveToSentItems = true
-                });
+            try
+            {
+                await _graphClient.Users[_settings.FromEmail]
+                    .SendMail
+                    .PostAsync(new Microsoft.Graph.Users.Item.SendMail.SendMailPostRequestBody
+                    {
+                        Message = message,
+                        SaveToSentItems = true
+                    });
+            }
+            catch (ApiException ex)
+            {
+                throw new InvalidOperationException(
+                    $"Graph ApiException: Status {(int?)ex.ResponseStatusCode} - {ex.Message}", ex);
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException(
+                    $"Error enviando correo (Graph). {ex.GetType().Name} - {ex.Message}", ex);
+            }
+
+
         }
     }
 }
