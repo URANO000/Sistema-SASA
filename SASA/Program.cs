@@ -9,6 +9,8 @@ using DataAccess.Repositorios.Tiquetes;
 using DataAccess.Repositorios.Usuarios;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using BusinessLogic.Servicios.Correo;
+using SASA.Services.Correo;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -57,6 +59,10 @@ builder.Services.AddScoped<IRolService, RolService>();
 builder.Services.AddScoped<INotificacionRepository, NotificacionRepository>();
 builder.Services.AddScoped<INotificacionService, NotificacionService>();
 
+// Configuración de correo (Microsoft Graph)
+builder.Services.Configure<ConfiguracionEmail>(builder.Configuration.GetSection("GraphEmail"));
+
+builder.Services.AddScoped<IEmailService, EmailService>();
 
 // MVC
 builder.Services.AddControllersWithViews();
