@@ -8,16 +8,12 @@
 
   <ItemGroup>
     <Compile Remove="ViewModels\NewFolder1\**" />
-    <Compile Remove="ViewModels\NewFolder\**" />
     <Compile Remove="ViewModels\Tiquete - Copy\**" />
     <Content Remove="ViewModels\NewFolder1\**" />
-    <Content Remove="ViewModels\NewFolder\**" />
     <Content Remove="ViewModels\Tiquete - Copy\**" />
     <EmbeddedResource Remove="ViewModels\NewFolder1\**" />
-    <EmbeddedResource Remove="ViewModels\NewFolder\**" />
     <EmbeddedResource Remove="ViewModels\Tiquete - Copy\**" />
     <None Remove="ViewModels\NewFolder1\**" />
-    <None Remove="ViewModels\NewFolder\**" />
     <None Remove="ViewModels\Tiquete - Copy\**" />
   </ItemGroup>
 
