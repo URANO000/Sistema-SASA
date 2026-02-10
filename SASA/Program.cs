@@ -61,6 +61,8 @@ builder.Services.AddScoped<INotificacionService, NotificacionService>();
 
 // Configuración de correo (Microsoft Graph)
 builder.Services.Configure<ConfiguracionEmail>(builder.Configuration.GetSection("GraphEmail"));
+builder.Services.AddScoped<ICorreoNotificacionesService, CorreoNotificacionesService>();
+
 
 builder.Services.AddScoped<IEmailService, EmailService>();
 
