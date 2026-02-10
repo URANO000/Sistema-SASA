@@ -1,4 +1,6 @@
-﻿<div class="modal fade" id="addTicketModal" tabindex="-1">
+﻿@using SASA.ViewModels.Tiquete
+@model CrearTiqueteViewModel
+<div class="modal fade" id="addTicketModal" tabindex="-1">
     <div class="modal-dialog modal-xl modal-dialog-centered">
         <div class="modal-content">
 
@@ -8,90 +10,87 @@
                     <i class="bi bi-ticket-perforated me-2"></i>
                     Registrar Nuevo Tiquete
                 </h5>
-                <button type="button" class="btn-close icon-btn" data-bs-dismiss="modal"></button>
+                <button type="button" class="btn-close icon-btn text-white" data-bs-dismiss="modal"></button>
             </div>
 
-            <!-- Body -->
-            <div class="modal-body">
-                <div class="form-container">
+           <form asp-action="Add"
+                 asp-controller="Tiquete"
+                 method="post"
+                 id="crearTiqueteForm">
+                 @Html.AntiForgeryToken()
+                <!-- Body -->
+                <div class="modal-body">
+                    <div class="form-container">
 
-                    <div class="form-content">
-                        <p class="section-subtitle">
-                            Complete los campos requeridos para registrar un tiquete.
-                        </p>
+                        <div class="form-content">
+                            <p class="section-subtitle">
+                                Complete los campos requeridos para registrar un tiquete.
+                            </p>
 
-                        <div class="row g-3">
+                            <div class="row g-3">
 
-                            <!-- Asunto -->
-                            <div class="col-md-6">
-                                <label class="form-label required-field">Asunto</label>
-                                <input type="text" class="form-control is-valid"
-                                       placeholder="Ej. Error al iniciar sesión">
-                                <div class="valid-feedback">
-                                    Asunto válido.
+                                <!-- Asunto -->
+                                <div class="col-md-6">
+                                    <label asp-for="Asunto" class="form-label">Asunto</label>
+                                    <input asp-for="Asunto" type="text" class="form-control">
+                                    <span asp-validation-for="Asunto" class="text-danger"></span>
                                 </div>
-                            </div>
-
-                            <!-- Categoría -->
-                            <div class="col-md-6">
-                                <label class="form-label required-field">Categoría</label>
-                                <select class="form-select is-valid">
-                                    <option>Soporte Técnico</option>
-                                    <option>Infraestructura</option>
-                                    <option>Acceso y Permisos</option>
-                                </select>
-                            </div>
-
-                            <!-- Prioridad -->
-                            <div class="col-md-4">
-                                <label class="form-label required-field">Prioridad</label>
-                                <select class="form-select is-valid">
-                                    <option>Alta</option>
-                                    <option>Media</option>
-                                    <option>Baja</option>
-                                </select>
-                            </div>
-
-                            <!-- Activo asociado -->
-                            <div class="col-md-4">
-                                <label class="form-label">Activo Asociado</label>
-                                <select class="form-select is-valid">
-                                    <option>— No aplica —</option>
-                                    <option>Laptop Dell #A-102</option>
-                                    <option>Impresora HP #P-332</option>
-                                </select>
-                            </div>
-
-                            <!-- Descripción -->
-                            <div class="col-12">
-                                <label class="form-label required-field">Descripción</label>
-                                <textarea class="form-control is-invalid" rows="4"
-                                          placeholder="Describa el problema o solicitud"></textarea>
-                                <div class="invalid-feedback">
-                                    La descripción es obligatoria.
+                                <!-- Categoría -->
+                                <div class="col-md-6">
+                                    <label asp-for="Categoria" class="form-label">Categoría</label>
+                                    <select asp-for="Categoria" 
+                                    asp-items="Model.Categorias"
+                                    class="form-select">
+                                    <option value="" disabled>Seleccione una categoría</option>
+                                    </select>
                                 </div>
+
+                                <!-- Prioridad -->
+                                <div class="col-md-4">
+                                    <label asp-for="Prioridad" class="form-label">Prioridad</label>
+                                    <select asp-for="Prioridad"
+                                    asp-items="Model.Prioridades"
+                                    class="form-select">
+                                        <option value="" disabled>Seleccione una prioridad</option>
+                                    </select>
+                                </div>
+
+                                <!-- Asignee-->
+                                <div class="col-md-4">
+                                    <label asp-for="IdAsignee" class="form-label">Asignar a</label>
+                                    <select asp-for="IdAsignee"
+                                    asp-items="Model.Asignees" class="form-select">
+                                        <option value="" disabled>Seleccione al usuario a asignar</option>
+                                    </select>
+                                </div>
+                                <!-- Descripción -->
+                                <div class="col-12">
+                                    <label asp-for="Descripcion" class="form-label required-field">Descripción</label>
+                                    <textarea asp-for="Descripcion" class="form-control" rows="4"
+                                              placeholder="Describa el problema o solicitud"></textarea>
+                                </div>
+
                             </div>
-
                         </div>
-                    </div>
 
-                    <!-- Footer -->
-                    <div class="modal-footer-custom">
-                        <div class="d-flex justify-content-end gap-2">
-                            <button type="button" class="btn btn-outline-secondary"
-                                    data-bs-dismiss="modal">
-                                Cancelar
-                            </button>
-                            <button type="button"
-                                    class="btn btn-success-custom text-white"
-                                    id="fakeSubmitTicket">
-                                Crear Tiquete
-                            </button>
+                        <!-- Footer -->
+                        <div class="modal-footer-custom">
+                            <div class="d-flex justify-content-end gap-2">
+                                <button type="button" class="btn btn-outline-secondary"
+                                        data-bs-dismiss="modal">
+                                    Cancelar
+                                </button>
+                                <button type="button"
+                                        class="btn btn-success-custom text-white"
+                                        id="fakeSubmitTicket">
+                                    Crear Tiquete
+                                </button>
+                            </div>
                         </div>
-                    </div>
 
+                    </div>
                 </div>
-            </div>
+           </form>
 
         </div>
     </div>

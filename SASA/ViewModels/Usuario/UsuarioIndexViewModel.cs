@@ -2,6 +2,7 @@
 {
     public class UsuarioIndexViewModel
     {
+        //Primero el listado de usuarios
         public IReadOnlyList<UsuarioListaViewModel> Usuarios { get; init; } = [];
         public IReadOnlyList<string> RolesDisponibles { get; init; } = [];
 

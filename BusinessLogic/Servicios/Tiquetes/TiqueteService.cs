@@ -60,11 +60,11 @@ namespace BusinessLogic.Servicios.Tiquetes
             if (string.IsNullOrWhiteSpace(currentUserId))
                 throw new UnauthorizedAccessException();
 
-            if (string.IsNullOrWhiteSpace(dto.Asunto))
-                throw new ArgumentException("Asunto requerido");
+            //if (string.IsNullOrWhiteSpace(dto.Asunto))
+            //    throw new ArgumentException("Asunto requerido");
 
-            if (string.IsNullOrWhiteSpace(dto.Descripcion))
-                throw new ArgumentException("Descripción requerida");
+            //if (string.IsNullOrWhiteSpace(dto.Descripcion))
+            //    throw new ArgumentException("Descripción requerida");
 
             //Validar que la categoría exista
             var categoriaExiste = await _categoriaRepository.ExisteAsync(dto.IdCategoria);

@@ -1,5 +1,5 @@
 ﻿@using SASA.ViewModels.Tiquete;
-@model IReadOnlyList<TiqueteListaViewModel>;
+@model TiqueteIndexViewModel;
 @{
     ViewData["Title"] = "Gestión de Tiquetes";
 }
@@ -71,7 +71,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach (var t in Model)
+                        @foreach (var t in Model.Tiquetes)
                         {
                             <tr>
                                 <td>
@@ -137,4 +137,4 @@
     </div>
 </div>
 <!-- Specifically for the modal-->
-@await Html.PartialAsync("_AddModal")
+@await Html.PartialAsync("_AddModal", Model.CrearTiquete)

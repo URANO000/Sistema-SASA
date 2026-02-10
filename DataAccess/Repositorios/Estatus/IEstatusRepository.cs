@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DataAccess.Modelos.DTOs.Cola
+namespace DataAccess.Repositorios.Estatus
 {
-    public class ColaPorCategoriaDTO
+    public class IEstatusRepository
     {
     }
 }

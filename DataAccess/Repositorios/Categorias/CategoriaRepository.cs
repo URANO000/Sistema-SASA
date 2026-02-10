@@ -1,10 +1,11 @@
 ﻿
 
+using DataAccess.Modelos.DTOs.Categoria;
 using Microsoft.EntityFrameworkCore;
 
 namespace DataAccess.Repositorios.Categorias
 {
-    public class CategoriaRepository
+    public class CategoriaRepository : ICategoriaRepository
     {
         private readonly ApplicationDbContext _context;
 
@@ -18,6 +19,18 @@ namespace DataAccess.Repositorios.Categorias
             return await _context.Categorias
                 .AsNoTracking()
                 .AnyAsync(c => c.IdCategoria == idCategoria);
+        }
+
+        public async Task<IReadOnlyList<ListaCategoriaDto>> ObtenerCategoriaAsync()
+        {
+            return await _context.Categorias
+                .AsNoTracking()
+                .Select(c => new ListaCategoriaDto
+                {
+                    IdCategoria = c.IdCategoria,
+                    NombreCategoria = c.NombreCategoria
+                })
+                .ToListAsync();
         }
     }
 }

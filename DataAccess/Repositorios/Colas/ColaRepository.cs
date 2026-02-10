@@ -2,7 +2,7 @@
 
 namespace DataAccess.Repositorios.Colas
 {
-    public class ColaRepository
+    public class ColaRepository :IColaRepository
     {
         private readonly ApplicationDbContext _context;
         public ColaRepository(ApplicationDbContext context)
