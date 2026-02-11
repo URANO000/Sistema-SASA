@@ -1,6 +1,6 @@
+﻿using BusinessLogic.Servicios.Correo;
 using BusinessLogic.Servicios.Rol;
 using BusinessLogic.Servicios.Usuarios;
-using BusinessLogic.Servicios.Correo;
 using DataAccess.Modelos.DTOs.Usuarios;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -8,8 +8,6 @@ using Microsoft.AspNetCore.WebUtilities;
 using SASA.Filters;
 using SASA.ViewModels.Usuario;
 using System.Text;
-using System.Linq;
-
 
 namespace SASA.Controllers
 {
@@ -19,14 +17,14 @@ namespace SASA.Controllers
         //Referencia a los servicios (Inyección de dependencias)
         private readonly IUsuarioService _usuarioService;
         private readonly IRolService _rolService;
-        private readonly ICorreoNotificacionesService _correoNotificaciones;
+        private readonly ActivationEmailService _activationEmailService;
 
 
-        public UsuarioController(IUsuarioService usuarioService, IRolService rolService, ICorreoNotificacionesService correoNotificaciones)
+        public UsuarioController(IUsuarioService usuarioService, IRolService rolService, ActivationEmailService activationEmailService)
         {
             _usuarioService = usuarioService;
             _rolService = rolService;
-            _correoNotificaciones = correoNotificaciones;
+            _activationEmailService = activationEmailService;
         }
 
 
@@ -108,28 +106,21 @@ namespace SASA.Controllers
                     new { token = payload },
                     protocol: Request.Scheme
                 );
+
                 if (string.IsNullOrWhiteSpace(activationLink))
                     throw new Exception("No se pudo construir el link de activación. Verifica la ruta /activate-account/{token}.");
 
-                var nombreCompleto = string.Join(" ",
-                    new[] { model.PrimerNombre, model.SegundoNombre, model.PrimerApellido, model.SegundoApellido }
-                    .Where(x => !string.IsNullOrWhiteSpace(x)));
-
-                await _correoNotificaciones.EnviarActivacionCuentaAsync(
-                    model.CorreoEmpresa,
-                    nombreCompleto,
+                // Enviar correo de activación
+                await _activationEmailService.SendActivationAsync(
+                    result.Email,
                     activationLink
                 );
 
                 //Para AJAX
                 return Json(new
                 {
-                    success = true,
-                    activationLink = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development"
-                        ? activationLink
-                        : null
+                    success = true
                 });
-
             }
             catch (Exception ex)
             {
@@ -139,8 +130,8 @@ namespace SASA.Controllers
                 {
                     return Json(new
                     {
-                        success = false,
-                        error = ex.Message
+                        success = true,
+                        warning = "El usuario fue creado, pero ocurrió un problema enviando el correo de activación."
                     });
                 }
 
@@ -152,7 +143,6 @@ namespace SASA.Controllers
                 return PartialView("_AddModal", model);
             }
         }
-
 
 
         [HttpGet]
@@ -335,7 +325,7 @@ namespace SASA.Controllers
                     Text = r
                 })
                 .ToList();
-        }
+        }        
         private static string NombreCompletoHelper(ListaUsuarioDto dto)
         {
             //Juntar para el nombre completo

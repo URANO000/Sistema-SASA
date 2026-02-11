@@ -14,11 +14,11 @@
 
                 <div class="d-flex justify-content-center gap-2">
                     <form asp-controller="Usuario"
-                          asp-action="Deactivate"
-                          asp-route-id="@Model"
-                          method="post">
+                    asp-action="Deactivate"
+                    asp-route-id="@Model"
+                    method="post">
 
-                        @Html.AntiForgeryToken()
+                    @Html.AntiForgeryToken()
 
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
                             Volver

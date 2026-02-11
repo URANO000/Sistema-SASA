@@ -61,20 +61,20 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach (var u in Model.Usuarios)
-                        {
+                            @foreach(var u in Model.Usuarios)
+                            {
                             <tr>
                                 <td>
                                     <a class="btn btn-link icon-btn" asp-area=""
-                                       asp-controller="Usuario"
-                                       asp-action="Details"
-                                       asp-route-id="@u.Id">
+                                    asp-controller="Usuario"
+                                    asp-action="Details"
+                                    asp-route-id="@u.Id">
                                         <i class="bi bi-eye detail-btn"></i>
                                     </a>
                                     <a class="btn btn-link icon-btn" asp-area=""
-                                       asp-controller="Usuario"
-                                       asp-action="Edit"
-                                       asp-route-id="@u.Id">
+                                    asp-controller="Usuario"
+                                    asp-action="Edit"
+                                    asp-route-id="@u.Id">
                                         <i class="fa-regular fa-pen-to-square edit-btn"></i>
                                     </a>
                                 </td>
@@ -83,7 +83,7 @@
                                 <td>@u.CorreoEmpresa</td>
                                 <td>@u.Departamento</td>
                                 <td>@u.Puesto</td>
-                                @if (u.Estado == "Activo")
+                                @if(u.Estado == "Activo")
                                 {
                                     <td><span class="badge bg-success">Activo</span></td>
                                 }
@@ -93,7 +93,7 @@
                                 }
                                 <td>@u.Rol</td>
                             </tr>
-                        }
+                            }
                     </tbody>
                 </table>
             </div>

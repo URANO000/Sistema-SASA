@@ -7,9 +7,9 @@
 
 <!--INFO-->
 <form asp-action="Edit"
-      asp-controller="Usuario"
-      method="post"
-      id="editUserForm">
+    asp-controller="Usuario"
+    method="post"
+    id="editUserForm">
 
     @Html.AntiForgeryToken()
     <input asp-for="Id" type="hidden" />
@@ -73,7 +73,7 @@
             <h6 class="section-title">Información Organizacional</h6>
 
             <div class="row g-3">
-                <!-- Departamento -->
+                 <!-- Departamento -->
                 <div class="col-md-6">
                     <label asp-for="Departamento" class="form-label required-field"></label>
                     <select asp-for="Departamento" class="form-select">
@@ -128,7 +128,7 @@
 
     <!--DEACTIVATE OR ACTIVATE DEPENDING ON IF USER IS ALREADY ACTIVE OR INACTIVE-->
     @if (Model.Estado)
-    {
+        {
         <div class="card border-danger mb-4">
             <div class="card-body">
                 <h6 class="text-danger-custom fw-bold">Zona de Riesgo</h6>
@@ -141,9 +141,9 @@
                 </button>
             </div>
         </div>
-    }
-    else
-    {
+        }
+        else
+        {
         <div class="card border-danger mb-4">
             <div class="card-body">
                 <h6 class="text-danger fw-bold">Zona de Riesgo</h6>
@@ -156,7 +156,7 @@
                 </button>
             </div>
         </div>
-    }
+        }
 
     <!--SUBMIT-->
     <div class="d-flex justify-content-end gap-2 mt-4">
