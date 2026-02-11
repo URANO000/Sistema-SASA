@@ -6,6 +6,12 @@ $(function () {
 
         const form = $(this);
 
+        // Guard por si falta jquery.validate
+        if (!$.validator || !$.validator.unobtrusive) {
+            console.error("Faltan scripts de jquery.validate / unobtrusive");
+            return;
+        }
+
         if (!form.valid()) {
             return;
         }
@@ -18,10 +24,12 @@ $(function () {
 
                 //Caso 1, success de JSON
                 if (response.success) {
-                    $("#addUserModal").modal("hide");
+                    const addModalEl = document.getElementById("addUserModal");
+                    bootstrap.Modal.getInstance(addModalEl)?.hide();
 
                     //Abrir vista parcial/modal de éxito
-                    $("#successModal").modal("show");
+                    const successModalEl = document.getElementById("successModal");
+                    new bootstrap.Modal(successModalEl).show();
 
                     //Reload de tabla
                     setTimeout(() => location.reload(), 1200);
@@ -29,9 +37,12 @@ $(function () {
                 }
                 else {
                     //caso 2, falla
-                    $("#addUserModal .modal-content").html(response);
+                    const newForm = $("#addUserModal").find("form#createUserForm");
 
-                    $.validator.unobtrusive.parse("#createUserForm");
+                    newForm.removeData("validator");
+                    newForm.removeData("unobtrusiveValidation");
+                    $.validator.unobtrusive.parse(newForm);
+
                 }
             },
             error: function () {
