@@ -15,7 +15,7 @@
             <div class="d-flex justify-content-between align-items-center mt-2">
                 <h4 class="mb-0 fw-bold">Detalles del Usuario</h4>
 
-                @if(Model.Estado == "Activo")
+                @if (Model.Estado == "Activo")
                 {
                     <span class="badge bg-success">
                         Usuario Activo
@@ -45,7 +45,7 @@
                 <dl class="row mb-0">
                     <dt class="col-4">Nombre Completo</dt>
                     <dd class="col-8">@Model.NombreCompleto</dd>
-@* 
+                    @* 
                     <dt class="col-4">No. Empleado</dt>
                     <dd class="col-8">EMP-1023</dd> *@
 
@@ -66,12 +66,15 @@
 
                     <dt class="col-4">Puesto</dt>
                     <dd class="col-8">@Model.Puesto</dd>
+
+                    <dt class="col-4">Rol</dt>
+                    <dd class="col-8">@Model.Rol</dd>
                 </dl>
             </div>
         </div>
 
-    
-@* 
+
+        @* 
         <!-- ACTIVIDAD EN TIQUETES -->
         <div class="card">
             <div class="card-body">
@@ -132,5 +135,5 @@
             </div>
         </div> *@
 
-    </div> 
+    </div>
 </div>

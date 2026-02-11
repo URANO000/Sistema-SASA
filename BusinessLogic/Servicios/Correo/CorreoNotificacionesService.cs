@@ -11,19 +11,19 @@ namespace BusinessLogic.Servicios.Correo
             _emailService = emailService;
         }
 
-        public async Task NotificarConfirmacionPermisoAsync(string toEmail, string nombreEmpleado, string tipoPermiso)
+        public async Task EnviarActivacionCuentaAsync(string toEmail, string nombreUsuario, string activationLink)
         {
-            var subject = "Confirmación de permiso - Sistema de Gestión SASA";
-            var html = PlantillasCorreo.ConfirmacionEmpleado(nombreEmpleado, tipoPermiso);
+            var subject = "Activa tu cuenta - Sistema de Gestión SASA";
+            var html = PlantillasCorreo.ActivacionCuenta(nombreUsuario, activationLink);
 
             try
             {
-                await _emailService.SendEmailAsync(toEmail, nombreEmpleado, subject, html);
+                await _emailService.SendEmailAsync(toEmail, nombreUsuario, subject, html);
             }
             catch
             {
-                // Regla: si falla correo NO rompe el sistema.
-                // (Ideal: log en SASA; pero aquí al menos no explota.)
+                // Regla: si falla el correo NO rompe el sistema.
+                // (Luego podemos loguear con ILogger desde SASA si quieres.)
             }
         }
     }

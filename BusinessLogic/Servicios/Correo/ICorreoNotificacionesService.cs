@@ -2,6 +2,6 @@
 {
     public interface ICorreoNotificacionesService
     {
-        Task NotificarConfirmacionPermisoAsync(string toEmail, string nombreEmpleado, string tipoPermiso);
+        Task EnviarActivacionCuentaAsync(string toEmail, string nombreUsuario, string activationLink);
     }
 }

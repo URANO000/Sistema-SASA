@@ -1,110 +1,182 @@
-﻿@{
+﻿@using SASA.ViewModels.Usuario
+@model UsuarioEditarViewModel
+@{
     ViewData["Title"] = "Editar Usuario";
+    var userId = ViewData["UserId"] as string;
 }
-<!--HEADER-->
-<div class="card mb-3">
-    <div class="card-body">
-        <div class="ticket-header mb-4">
-            <a asp-controller="Usuario" asp-action="Index" class="btn btn-link px-0">
-                <i class="bi bi-arrow-left"></i> Volver al listado
-            </a>
-
-            <div class="d-flex justify-content-between align-items-center mt-2">
-                <h4 class="mb-0">Editar Usuario</h4>
-            </div>
-        </div>
-
-    </div>
-</div>
 
 <!--INFO-->
-<div class="card mb-4">
-    <div class="card-body">
-        <h6 class="section-title mb-3">Información del Usuario</h6>
+<form asp-action="Edit"
+      asp-controller="Usuario"
+      method="post"
+      id="editUserForm">
 
-        <div class="row g-3">
-            <div class="col-md-6">
-                <label class="form-label">Nombre</label>
-                <input class="form-control" value="Juan Pérez" />
-            </div>
+    @Html.AntiForgeryToken()
+    <input asp-for="Id" type="hidden" />
 
-            <div class="col-md-3">
-                <label class="form-label">No. Empleado</label>
-                <input class="form-control" value="EMP-1023" disabled />
-            </div>
+    <!-- HEADER -->
+    <div class="card mb-3">
+        <div class="card-body">
+            <div class="ticket-header mb-4">
+                <a asp-controller="Usuario" asp-action="Index" class="btn btn-link px-0">
+                    <i class="bi bi-arrow-left"></i> Volver al listado
+                </a>
 
-            <div class="col-md-3">
-                <label class="form-label">Correo</label>
-                <input class="form-control" value="juanp@gmail.com" />
-            </div>
-        </div>
-    </div>
-</div>
-
- <!--For the ROLES user story-->
-<div class="card mb-4">
-    <div class="card-body">
-        <h6 class="section-title">Asignación de Rol</h6>
-
-        <div class="row g-3">
-            <div class="col-md-6">
-                <label class="form-label required-field">Rol del Usuario</label>
-                <select class="form-select">
-                    <option>Administrador</option>
-                    <option>Soporte</option>
-                    <option selected>Usuario</option>
-                </select>
-            </div>
-
-            <div class="col-md-6">
-                <label class="form-label">Restricciones del Rol</label>
-                <input class="form-control" value="Acceso a gestión de tiquetes" disabled />
+                <div class="d-flex justify-content-between align-items-center mt-2">
+                    <h4 class="mb-0">Editar Usuario</h4>
+                </div>
             </div>
         </div>
     </div>
-</div>
 
-<!--In production, this should be a search bar-->
-<div class="card mb-4">
-    <div class="card-body">
-        <h6 class="section-title">Asignación de Tiquetes</h6>
+    <!--INFO-->
+    <div class="card mb-4">
+        <div class="card-body">
+            <h6 class="section-title mb-3">Identidad del Usuario</h6>
 
-        <div class="col-md-4">
-            <label class="form-label">Buscar</label>
-            <input type="text" class="form-control" placeholder="Código o asunto">
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label asp-for="PrimerNombre" class="form-label">Primer Nombre</label>
+                    <input asp-for="PrimerNombre" class="form-control" />
+                    <span asp-validation-for="PrimerNombre" class="text-danger"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="SegundoNombre" class="form-label">Segundo Nombre</label>
+                    <input asp-for="SegundoNombre" class="form-control" />
+                    <span asp-validation-for="SegundoNombre" class="text-danger"></span>
+                </div>
+
+                <div class="col-md-6">
+                    <label asp-for="PrimerApellido" class="form-label">Primer Apellido</label>
+                    <input asp-for="PrimerApellido" class="form-control" />
+                    <span asp-validation-for="PrimerApellido" class="text-danger"></span>
+                </div>
+
+                <div class="col-md-6">
+                    <label asp-for="SegundoApellido" class="form-label">Segundo Apellido</label>
+                    <input asp-for="SegundoApellido" class="form-control" />
+                    <span asp-validation-for="SegundoApellido" class="text-danger"></span>
+                </div>
+
+                <div class="col-md-3">
+                    <label asp-for="CorreoEmpresa" class="form-label">Correo Empresarial</label>
+                    <input asp-for="CorreoEmpresa" class="form-control" />
+                    <span asp-validation-for="CorreoEmpresa" class="text-danger"></span>
+                </div>
+            </div>
         </div>
-
-        <small class="text-muted">
-            Los tiquetes pueden pertenecer a cualquier cliente.
-        </small>
     </div>
-</div>
 
-<!--IMPORTANTE-->
-<div class="card border-danger mb-4">
-    <div class="card-body">
-        <h6 class="text-danger-custom fw-bold">Zona de Riesgo</h6>
+    <!--PUESTOS - OTRA INFO-->
+    <div class="card mb-4">
+        <div class="card-body">
+            <h6 class="section-title">Información Organizacional</h6>
 
-        <p class="text-muted mb-3">
-            Desactivar un usuario impide su acceso al sistema.
-        </p>
+            <div class="row g-3">
+                <!-- Departamento -->
+                <div class="col-md-6">
+                    <label asp-for="Departamento" class="form-label required-field"></label>
+                    <select asp-for="Departamento" class="form-select">
+                        <option value="" disabled>Seleccione un departamento</option>
+                        <option>TI</option>
+                        <option>RRHH</option>
+                        <option>Ventas</option>
+                    </select>
+                    <span asp-validation-for="Departamento" class="text-danger"></span>
+                </div>
 
-        <button class="btn btn-outline-danger icon-btn" id="fakeDisableUser">
-            Desactivar Usuario
+                <!-- Puesto -->
+                <div class="col-md-6">
+                    <label asp-for="Puesto" class="form-label required-field"></label>
+                    <select asp-for="Puesto" class="form-select">
+                        <option value="" disabled>Seleccione un puesto</option>
+                        <option>Analista de Soporte</option>
+                        <option>Administrador</option>
+                        <option>Asesor de ventas</option>
+                    </select>
+                    <span asp-validation-for="Puesto" class="text-danger"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!--ROLES-->
+    <div class="card mb-4">
+        <div class="card-body">
+            <h6 class="section-title">Asignación de Rol</h6>
+
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label asp-for="Rol" class="form-label required-field"></label>
+                    <select asp-for="Rol"
+                            asp-items="Model.RolesDisponibles"
+                            class="form-select">
+                        <option value="">Seleccione un rol</option>
+                    </select>
+                    <span asp-validation-for="Rol" class="text-danger"></span>
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label">Restricciones</label>
+                    <input class="form-control"
+                           value="Los roles controlan el acceso a diferentes secciones"
+                           disabled />
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!--DEACTIVATE OR ACTIVATE DEPENDING ON IF USER IS ALREADY ACTIVE OR INACTIVE-->
+    @if (Model.Estado)
+    {
+        <div class="card border-danger mb-4">
+            <div class="card-body">
+                <h6 class="text-danger-custom fw-bold">Zona de Riesgo</h6>
+                <p class="text-muted mb-3"> Desactivar un usuario impide su acceso al sistema. </p>
+                <button type="button"
+                        class="btn btn-outline-danger icon-btn"
+                        data-bs-toggle="modal"
+                        data-bs-target="#disableConfirm">
+                    Desactivar Usuario
+                </button>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="card border-danger mb-4">
+            <div class="card-body">
+                <h6 class="text-danger fw-bold">Zona de Riesgo</h6>
+                <p class="text-muted mb-3"> Activar un usuario permite su acceso al sistema. </p>
+                <button type="button"
+                        class="btn btn-outline-success icon-btn"
+                        data-bs-toggle="modal"
+                        data-bs-target="#enableConfirm">
+                    Activar Usuario
+                </button>
+            </div>
+        </div>
+    }
+
+    <!--SUBMIT-->
+    <div class="d-flex justify-content-end gap-2 mt-4">
+        <a asp-controller="Usuario" asp-action="Index" class="btn btn-outline-secondary">
+            Cancelar
+        </a>
+
+        <button type="submit"
+                class="btn btn-primary-custom text-white">
+            Guardar Cambios
         </button>
     </div>
-</div>
 
-<!--ACTIONS-->
+</form>
 
-<div class="d-flex justify-content-end gap-2 mt-4">
-    <a asp-controller="Usuario" asp-action="Index" class="btn btn-outline-secondary">
-        Cancelar
-    </a>
-    <button class="btn btn-primary-custom text-white"
-            id="fakeEditUser">
-        Guardar Cambios
-    </button>
-</div>
+@await Html.PartialAsync("_DisableConfirm", userId)
+@await Html.PartialAsync("_EnableConfirm", userId)
+@await Html.PartialAsync("_SuccessModal")
 
-@await Html.PartialAsync("_DisableConfirm")
+@section Scripts {
+    <script src="~/js/formSubmits.js" asp-append-version="true"></script>
+
+}

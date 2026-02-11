@@ -14,19 +14,27 @@ namespace SASA.Services.Correo
 
         public EmailService(IOptions<ConfiguracionEmail> options)
         {
-            _settings = options?.Value ?? throw new ArgumentNullException(nameof(options));
+            _settings = options?.Value ?? new ConfiguracionEmail();
 
-            if (string.IsNullOrWhiteSpace(_settings.TenantId)) throw new ArgumentException("TenantId es requerido");
-            if (string.IsNullOrWhiteSpace(_settings.ClientId)) throw new ArgumentException("ClientId es requerido");
-            if (string.IsNullOrWhiteSpace(_settings.ClientSecret)) throw new ArgumentException("ClientSecret es requerido");
-            if (string.IsNullOrWhiteSpace(_settings.FromEmail)) throw new ArgumentException("FromEmail es requerido");
+            if (!TieneConfiguracionValida(_settings))
+                return;
 
             var credential = new ClientSecretCredential(_settings.TenantId, _settings.ClientId, _settings.ClientSecret);
             _graphClient = new GraphServiceClient(credential);
         }
 
+        private static bool TieneConfiguracionValida(ConfiguracionEmail s) =>
+            !string.IsNullOrWhiteSpace(s.TenantId) &&
+            !string.IsNullOrWhiteSpace(s.ClientId) &&
+            !string.IsNullOrWhiteSpace(s.ClientSecret) &&
+            !string.IsNullOrWhiteSpace(s.FromEmail);
+
+
+
         public async Task SendEmailAsync(string toEmail, string toName, string subject, string htmlBody)
         {
+            if (_graphClient is null || string.IsNullOrWhiteSpace(_settings.FromEmail))
+                return;
             var message = new Message
             {
                 Subject = subject,
@@ -43,19 +51,6 @@ namespace SASA.Services.Correo
             {
                 Address = toEmail,
                 Name = toName
-            }
-        }
-                ],
-
-                // 🔴 CC TEMPORAL PARA TEST
-                CcRecipients =
-                [
-                    new Recipient
-        {
-            EmailAddress = new EmailAddress
-            {
-                Address = "marifermatah@gmail.com",
-                Name = "Copia Prueba SASA"
             }
         }
                 ]

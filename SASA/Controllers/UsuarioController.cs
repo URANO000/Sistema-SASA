@@ -1,5 +1,6 @@
 using BusinessLogic.Servicios.Rol;
 using BusinessLogic.Servicios.Usuarios;
+using BusinessLogic.Servicios.Correo;
 using DataAccess.Modelos.DTOs.Usuarios;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -7,6 +8,8 @@ using Microsoft.AspNetCore.WebUtilities;
 using SASA.Filters;
 using SASA.ViewModels.Usuario;
 using System.Text;
+using System.Linq;
+
 
 namespace SASA.Controllers
 {
@@ -16,13 +19,14 @@ namespace SASA.Controllers
         //Referencia a los servicios (Inyección de dependencias)
         private readonly IUsuarioService _usuarioService;
         private readonly IRolService _rolService;
-        
+        private readonly ICorreoNotificacionesService _correoNotificaciones;
 
 
-        public UsuarioController(IUsuarioService usuarioService, IRolService rolService)
+        public UsuarioController(IUsuarioService usuarioService, IRolService rolService, ICorreoNotificacionesService correoNotificaciones)
         {
             _usuarioService = usuarioService;
             _rolService = rolService;
+            _correoNotificaciones = correoNotificaciones;
         }
 
 
@@ -104,16 +108,28 @@ namespace SASA.Controllers
                     new { token = payload },
                     protocol: Request.Scheme
                 );
-
                 if (string.IsNullOrWhiteSpace(activationLink))
                     throw new Exception("No se pudo construir el link de activación. Verifica la ruta /activate-account/{token}.");
+
+                var nombreCompleto = string.Join(" ",
+                    new[] { model.PrimerNombre, model.SegundoNombre, model.PrimerApellido, model.SegundoApellido }
+                    .Where(x => !string.IsNullOrWhiteSpace(x)));
+
+                await _correoNotificaciones.EnviarActivacionCuentaAsync(
+                    model.CorreoEmpresa,
+                    nombreCompleto,
+                    activationLink
+                );
 
                 //Para AJAX
                 return Json(new
                 {
                     success = true,
-                    activationLink //dejaré esto por acá por el momento, aunque en producción no se debería enviar el link de activación en la respuesta JSON. Esto es solo para fines de desarrollo y pruebas.
+                    activationLink = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development"
+                        ? activationLink
+                        : null
                 });
+
             }
             catch (Exception ex)
             {
@@ -136,6 +152,7 @@ namespace SASA.Controllers
                 return PartialView("_AddModal", model);
             }
         }
+
 
 
         [HttpGet]
