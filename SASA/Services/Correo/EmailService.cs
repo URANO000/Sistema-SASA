@@ -10,14 +10,17 @@ namespace SASA.Services.Correo
     public sealed class EmailService : IEmailService
     {
         private readonly ConfiguracionEmail _settings;
-        private readonly GraphServiceClient _graphClient;
+        private readonly GraphServiceClient? _graphClient;
 
         public EmailService(IOptions<ConfiguracionEmail> options)
         {
             _settings = options?.Value ?? new ConfiguracionEmail();
 
             if (!TieneConfiguracionValida(_settings))
+            {
+                _graphClient = null; // No se puede configurar el cliente de Graph, no se podrán enviar correos
                 return;
+            }
 
             var credential = new ClientSecretCredential(_settings.TenantId, _settings.ClientId, _settings.ClientSecret);
             _graphClient = new GraphServiceClient(credential);
@@ -29,12 +32,15 @@ namespace SASA.Services.Correo
             !string.IsNullOrWhiteSpace(s.ClientSecret) &&
             !string.IsNullOrWhiteSpace(s.FromEmail);
 
-
-
         public async Task SendEmailAsync(string toEmail, string toName, string subject, string htmlBody)
         {
             if (_graphClient is null || string.IsNullOrWhiteSpace(_settings.FromEmail))
+            {
+                Console.WriteLine($"[GraphEmail] NO configurado. FromEmail='{_settings.FromEmail}', GraphClientNull={_graphClient is null}");
                 return;
+            }
+
+            Console.WriteLine($"[GraphEmail] Intentando enviar a {toEmail} desde {_settings.FromEmail}");
             var message = new Message
             {
                 Subject = subject,

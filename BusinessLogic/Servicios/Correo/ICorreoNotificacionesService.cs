@@ -2,6 +2,6 @@
 {
     public interface ICorreoNotificacionesService
     {
-        Task EnviarActivacionCuentaAsync(string toEmail, string nombreUsuario, string activationLink);
+        Task<bool> EnviarActivacionCuentaAsync(string toEmail, string nombreUsuario, string activationLink);
     }
 }

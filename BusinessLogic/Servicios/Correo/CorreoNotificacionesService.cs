@@ -11,7 +11,7 @@ namespace BusinessLogic.Servicios.Correo
             _emailService = emailService;
         }
 
-        public async Task EnviarActivacionCuentaAsync(string toEmail, string nombreUsuario, string activationLink)
+        public async Task<bool> EnviarActivacionCuentaAsync(string toEmail, string nombreUsuario, string activationLink)
         {
             var subject = "Activa tu cuenta - Sistema de Gestión SASA";
             var html = PlantillasCorreo.ActivacionCuenta(nombreUsuario, activationLink);
@@ -19,11 +19,12 @@ namespace BusinessLogic.Servicios.Correo
             try
             {
                 await _emailService.SendEmailAsync(toEmail, nombreUsuario, subject, html);
+                return true;
             }
             catch
             {
-                // Regla: si falla el correo NO rompe el sistema.
-                // (Luego podemos loguear con ILogger desde SASA si quieres.)
+                // Regla: si falla NO rompe el sistema
+                return false;
             }
         }
     }
