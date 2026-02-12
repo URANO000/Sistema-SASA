@@ -145,11 +145,6 @@ public static class PlantillasCorreo
                 </tr>
               </table>
 
-              <div style='font-size:12px;line-height:1.6;color:#6b7280;margin:0 0 16px 0;'>
-                Si el botón no funciona, copia y pega este enlace en tu navegador:<br/>
-                <span style='word-break:break-all;'>{activationLink}</span>
-              </div>
-
               <div style='height:1px;background:#eef2f7;margin:18px 0;'></div>
 
               <div style='font-size:14px;line-height:1.7;color:#4b5563;margin:0 0 4px 0;'>

@@ -5,9 +5,12 @@ using DataAccess.Modelos.DTOs.Usuarios;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.Extensions.Options;
+using SASA.Configuration;
 using SASA.Filters;
 using SASA.ViewModels.Usuario;
 using System.Text;
+
 
 namespace SASA.Controllers
 {
@@ -18,13 +21,14 @@ namespace SASA.Controllers
         private readonly IUsuarioService _usuarioService;
         private readonly IRolService _rolService;
         private readonly ICorreoNotificacionesService _correoNotificaciones;
+        private readonly AppSettings _appSettings;
 
-
-        public UsuarioController(IUsuarioService usuarioService, IRolService rolService, ICorreoNotificacionesService correoNotificaciones)
+        public UsuarioController(IUsuarioService usuarioService, IRolService rolService, ICorreoNotificacionesService correoNotificaciones, IOptions<AppSettings> appOptions)
         {
             _usuarioService = usuarioService;
             _rolService = rolService;
             _correoNotificaciones = correoNotificaciones;
+            _appSettings = appOptions.Value;
         }
 
 
@@ -109,7 +113,9 @@ namespace SASA.Controllers
             var raw = $"{result.UserId}|{result.EmailConfirmationToken}";
             var payload = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(raw));
 
-            var activationLink = Url.Action("ActivateAccount", "Account", new { token = payload }, Request.Scheme);
+            var baseUrl = _appSettings.BaseUrl?.TrimEnd('/');
+            var activationLink = $"{baseUrl}/activate-account/{payload}";
+
 
             if (string.IsNullOrWhiteSpace(activationLink))
             {

@@ -10,7 +10,9 @@ using DataAccess.Repositorios.Tiquetes;
 using DataAccess.Repositorios.Usuarios;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using SASA.Configuration;
 using SASA.Services.Correo;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -63,6 +65,11 @@ builder.Services.AddScoped<INotificacionService, NotificacionService>();
 builder.Services.AddScoped<ICorreoNotificacionesService, CorreoNotificacionesService>();
 builder.Services.AddScoped<IEmailService, EmailService>(); //Graph EmailService
 builder.Services.Configure<ConfiguracionEmail>(builder.Configuration.GetSection("GraphEmail"));
+
+// Configuración general de la aplicación para la dirección base, etc.
+builder.Services.Configure<AppSettings>(
+    builder.Configuration.GetSection("AppSettings"));
+
 
 // MVC
 builder.Services.AddControllersWithViews();
