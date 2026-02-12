@@ -14,10 +14,12 @@ namespace SASA.ViewModels.Notificaciones
         public string Cola { get; set; } = "—";
         public string ReportadoPor { get; set; } = "—";
         public string AsignadoA { get; set; } = "—";
-
         public DateTime? CreatedAt { get; set; }
 
         public string DescripcionPreview { get; set; } = "—";
         public string ResolucionPreview { get; set; } = "—";
+        public bool EstaSilenciado { get; set; }
+        public DateTime? SilenciadoHasta { get; set; }
+
     }
 }

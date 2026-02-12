@@ -184,9 +184,46 @@ namespace SASA.Controllers
 
                 vm.DescripcionPreview = Shorten(t.Descripcion, 220);
                 vm.ResolucionPreview = Shorten(t.Resolucion, 220);
+                var silenciadoHasta = await _service.ObtenerSilencioActivoAsync(userId, n.IdTiquete);
+                vm.EstaSilenciado = silenciadoHasta.HasValue;
+                vm.SilenciadoHasta = silenciadoHasta;
+
             }
 
             return View(vm);
         }
+        [HttpPost]
+        public async Task<IActionResult> SilenciarTiquete(int idTiquete, int horas, long? returnId = null)
+        {
+            var userId = await GetUserIdRealAsync();
+            if (string.IsNullOrWhiteSpace(userId))
+                return RedirectToAction("Login", "Account");
+
+            var permitido = new[] { 1, 8, 24 };
+            if (!permitido.Contains(horas)) horas = 1;
+
+            await _service.SilenciarTiqueteAsync(userId, idTiquete, horas);
+
+            if (returnId.HasValue)
+                return RedirectToAction(nameof(Detalle), new { id = returnId.Value });
+
+            return RedirectToAction(nameof(Index));
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ReactivarSilencio(int idTiquete, long? returnId = null)
+        {
+            var userId = await GetUserIdRealAsync();
+            if (string.IsNullOrWhiteSpace(userId))
+                return RedirectToAction("Login", "Account");
+
+            await _service.ReactivarSilencioAsync(userId, idTiquete);
+
+            if (returnId.HasValue)
+                return RedirectToAction(nameof(Detalle), new { id = returnId.Value });
+
+            return RedirectToAction(nameof(Index));
+        }
+
     }
 }

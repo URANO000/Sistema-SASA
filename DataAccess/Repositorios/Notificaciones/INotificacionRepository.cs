@@ -12,7 +12,9 @@ namespace DataAccess.Repositorios.Notificaciones
         Task MarcarTodasComoLeidasAsync(string userId);
         Task<int> ContarNoLeidasAsync(string userId);
         Task NotificarNuevoComentarioAsync(int idTiquete, string autorUserId, string mensaje);
-
+        Task<DateTime?> ObtenerSilencioActivoAsync(string userId, int idTiquete);
+        Task SilenciarTiqueteAsync(string userId, int idTiquete, int horas);
+        Task ReactivarSilencioAsync(string userId, int idTiquete);
 
     }
 }

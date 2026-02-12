@@ -11,6 +11,10 @@ namespace BusinessLogic.Servicios.Notificaciones
         Task AlternarLeidaAsync(long idNotificacion, string userId);
         Task MarcarTodasComoLeidasAsync(string userId);
         Task<int> ContarNoLeidasAsync(string userId);
+        Task<DateTime?> ObtenerSilencioActivoAsync(string userId, int idTiquete);
+        Task SilenciarTiqueteAsync(string userId, int idTiquete, int horas);
+        Task ReactivarSilencioAsync(string userId, int idTiquete);
+
 
 
     }

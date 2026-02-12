@@ -30,6 +30,15 @@ namespace BusinessLogic.Servicios.Notificaciones
             => _repo.ContarNoLeidasAsync(userId);
         public Task NotificarNuevoComentarioAsync(int idTiquete, string autorUserId, string mensaje)
             => _repo.NotificarNuevoComentarioAsync(idTiquete, autorUserId, mensaje);
+        public Task<DateTime?> ObtenerSilencioActivoAsync(string userId, int idTiquete)
+    => _repo.ObtenerSilencioActivoAsync(userId, idTiquete);
+
+        public Task SilenciarTiqueteAsync(string userId, int idTiquete, int horas)
+            => _repo.SilenciarTiqueteAsync(userId, idTiquete, horas);
+
+        public Task ReactivarSilencioAsync(string userId, int idTiquete)
+            => _repo.ReactivarSilencioAsync(userId, idTiquete);
+
 
 
     }
