@@ -44,3 +44,6 @@ obj/
 Thumbs.db
 
 # End of https://www.toptal.com/developers/gitignore/api/dotnetcore,visualstudiocode
+
+# App settings de desarrollo (NO subir a git)
+appsettings.Development.json
