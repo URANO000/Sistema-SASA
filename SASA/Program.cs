@@ -10,6 +10,9 @@ using DataAccess.Repositorios.Tiquetes;
 using DataAccess.Repositorios.Usuarios;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using SASA.Configuration;
+using SASA.Services.Correo;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -58,6 +61,15 @@ builder.Services.AddScoped<IRolService, RolService>();
 builder.Services.AddScoped<INotificacionRepository, NotificacionRepository>();
 builder.Services.AddScoped<INotificacionService, NotificacionService>();
 
+// Configuración de correo (Microsoft Graph)
+builder.Services.AddScoped<ICorreoNotificacionesService, CorreoNotificacionesService>();
+builder.Services.AddScoped<IEmailService, EmailService>(); //Graph EmailService
+builder.Services.Configure<ConfiguracionEmail>(builder.Configuration.GetSection("GraphEmail"));
+
+// Configuración general de la aplicación para la dirección base, etc.
+builder.Services.Configure<AppSettings>(
+    builder.Configuration.GetSection("AppSettings"));
+
 
 // MVC
 builder.Services.AddControllersWithViews();
@@ -69,8 +81,6 @@ if (app.Environment.IsDevelopment())
 {
     using var scope = app.Services.CreateScope();
     var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
-
-    const string adminRole = "Administrador";
     var email = "test@sasa.com";
     var user = await userManager.FindByEmailAsync(email);
 

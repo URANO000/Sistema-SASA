@@ -1,4 +1,6 @@
-﻿@{
+﻿@using SASA.ViewModels.Tiquete;
+@model IReadOnlyList<TiqueteListaViewModel>;
+@{
     ViewData["Title"] = "Gestión de Tiquetes";
 }
 <div class="container-fluid">
@@ -24,7 +26,10 @@
                         <option value="">Todos</option>
                         <option>Abierto</option>
                         <option>En Progreso</option>
+                        <option>Cancelado</option>
+                        <option>Resuelto</option>
                         <option>Cerrado</option>
+
                     </select>
                 </div>
                 <div class="col-md-2">
@@ -53,55 +58,78 @@
                     <thead class="">
                         <tr>
                             <th>Acciones</th>
-                            <th>Código</th>
-                            <th>Descripción</th>
-                            <th>Estado</th>
+                            <th>Id</th>
+                            <th>Asunto</th>
+                            <th>Estatus</th>
                             <th>Prioridad</th>
-                            <th>Creado</th>
-                            <th>Actualizado</th>
+                            <th>Categoría</th>
+                            <th>Cola</th>
+                            <th>Creado Por</th>
+                            <th>Fecha de Creación</th>
+                            <th>Asignado</th>
+                            <th>Fecha de Edición</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <td>
-                                <a class="btn btn-link icon-btn" asp-area="" asp-controller="Tiquete" asp-action="Details">
-                                    <i class="bi bi-eye detail-btn"></i>
-                                </a>
-                                <a class="btn btn-link icon-btn" asp-area="" asp-controller="Tiquete" asp-action="Edit">
-                                    <i class="fa-regular fa-pen-to-square edit-btn"></i>
-                                </a>
-                            </td>
-                            <td>TQ-001</td>
-                            <td>Error en acceso al sistema</td>
-                            <td>
-                                <span class="badge bg-warning text-white">En Progreso</span>
-                            </td>
-                            <td>
-                                <span class="badge bg-danger">Alta</span>
-                            </td>
-                            <td>10/03/2025</td>
-                            <td>12/03/2025</td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <button class="btn btn-link">
-                                    <i class="bi bi-eye detail-btn"></i>
-                                </button>
-                                <button class="btn btn-link">
-                                    <i class="fa-regular fa-pen-to-square edit-btn"></i>
-                                </button>
-                            </td>
-                            <td>TQ-002</td>
-                            <td>Solicitud de equipo nuevo</td>
-                            <td>
-                                <span class="badge bg-success">Cerrado</span>
-                            </td>
-                            <td>
-                                <span class="badge bg-secondary">Media</span>
-                            </td>
-                            <td>08/03/2025</td>
-                            <td>09/03/2025</td>
-                        </tr>
+                        @foreach (var t in Model)
+                        {
+                            <tr>
+                                <td>
+                                    <a class="btn btn-link icon-btn" asp-area=""
+                                       asp-controller="Tiquete"
+                                       asp-action="Details"
+                                       asp-route-id="@t.IdTiquete">
+                                        <i class="bi bi-eye detail-btn"></i>
+                                    </a>
+                                    <a class="btn btn-link icon-btn" asp-area=""
+                                       asp-controller="Tiquete"
+                                       asp-action="Edit"
+                                       asp-route-id="@t.IdTiquete">
+                                        <i class="fa-regular fa-pen-to-square edit-btn"></i>
+                                    </a>
+                                </td>
+
+                                <td>@t.IdTiquete</td>
+                                <td>@t.Asunto</td>
+                                @switch (t.Estatus)
+                                {
+                                    case "Abierto":
+                                        <td>
+                                            <span class="badge bg-primary">@t.Estatus</span>
+                                        </td>
+                                        break;
+                                    case "En Progreso":
+                                        <td>
+                                            <span class="badge bg-warning">@t.Estatus</span>
+                                        </td>
+                                        break;
+                                    case "Cancelado":
+                                        <td>
+                                            <span class="badge bg-danger">@t.Estatus</span>
+                                        </td>
+                                        break;
+                                    case "Resuelto":
+                                        <td>
+                                            <span class="badge bg-success"> @t.Estatus </span>
+                                        </td>
+                                        break;
+                                    default:
+                                        <td>
+                                            <span class="badge bg-secondary"> @t.Estatus </span>
+                                        </td>
+                                        break;
+                                }
+
+                                <td>@t.Prioridad</td>
+                                <td>@t.Categoria</td>
+                                <td>@t.Cola</td>
+                                <td>@t.ReportedBy</td>
+                                <td>@t.CreatedAt</td>
+                                <td>@t.Asignee</td>
+                                <td>@t.UpdatedAt</td>
+                            </tr>
+                        }
+
                     </tbody>
                 </table>
             </div>

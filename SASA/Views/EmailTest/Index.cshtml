@@ -1,0 +1,30 @@
+﻿@{
+    ViewData["Title"] = "Email Test (DEV)";
+}
+
+<h2>Email Test (DEV)</h2>
+
+@if (TempData["Success"] is string msg)
+{
+    <div class="alert alert-success">@msg</div>
+}
+@if (TempData["Error"] is string error)
+{
+    <div class="alert alert-danger">
+        <strong>Error enviando correo:</strong><br />
+        @error
+    </div>
+}
+
+
+<form method="post" asp-action="Send">
+    @Html.AntiForgeryToken()
+
+    <div class="mb-3">
+        <label class="form-label">Enviar a</label>
+        <input class="form-control" name="toEmail" placeholder="correo@dominio.com" />
+        <span class="text-danger">@Html.ValidationMessage("toEmail")</span>
+    </div>
+
+    <button class="btn btn-primary" type="submit">Enviar correo de prueba</button>
+</form>
