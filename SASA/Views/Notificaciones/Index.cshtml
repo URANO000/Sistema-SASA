@@ -3,6 +3,8 @@
 
 @{
     ViewData["Title"] = "Notificaciones";
+
+    var rolAuditoria = "Administrador";
 }
 
 <div class="sasa-card">
@@ -10,15 +12,29 @@
     <div class="notif-header">
         <div>
             <h2 class="mb-0">Centro de notificaciones</h2>
-            <div class="text-muted small">Revisa alertas recientes, marca leídas y navega al detalle.</div>
+            <div class="text-muted small">
+                Revisa alertas recientes, marca leídas y navega al detalle.
+            </div>
         </div>
 
         <div class="notif-actions">
+
             <form asp-controller="Notificaciones" asp-action="MarcarTodasComoLeidas" method="post">
                 <button class="btn btn-outline-primary btn-sm" type="submit" id="btnMarkAll">
                     <i class="bi bi-check2-all me-1"></i> Marcar todas como leídas
                 </button>
             </form>
+
+            @if (User.Identity != null && User.Identity.IsAuthenticated && User.IsInRole(rolAuditoria))
+            {
+                <a class="btn btn-outline-dark btn-sm ms-2"
+                   asp-controller="Notificaciones"
+                   asp-action="Auditoria"
+                   title="Auditoría de notificaciones">
+                    <i class="bi bi-clipboard-data me-1"></i> Auditoría
+                </a>
+            }
+
         </div>
     </div>
 
@@ -36,9 +52,13 @@
             {
                 var claseNoLeida = n.Leida ? "" : "notif-unread";
 
-                <div class="notif-item @claseNoLeida" data-id="@n.IdNotificacion" data-related="Tiquete #@n.IdTiquete">
+                <div class="notif-item @claseNoLeida"
+                     data-id="@n.IdNotificacion"
+                     data-related="Tiquete #@n.IdTiquete">
+
                     <div class="notif-left">
-                        <span class="unread-dot @(n.Leida ? "d-none" : "")" title="No leída"></span>
+                        <span class="unread-dot @(n.Leida ? "d-none" : "")"
+                              title="No leída"></span>
 
                         <div class="notif-icon info">
                             <i class="bi bi-bell"></i>
@@ -46,22 +66,44 @@
                     </div>
 
                     <div class="notif-body">
+
                         <div class="notif-row">
+
                             <div>
-                                <div class="notif-title">@TituloPorTipoEvento(n.TipoEvento, n.IdTiquete)</div>
-                                <div class="notif-text">@n.Mensaje</div>
+                                <div class="notif-title">
+                                    @TituloPorTipoEvento(n.TipoEvento, n.IdTiquete)
+                                </div>
+
+                                <div class="notif-text">
+                                    @n.Mensaje
+                                </div>
+
                                 <div class="notif-meta">
-                                    @FormatearTiempo(n.FechaCreacion) • Relacionado: <strong>Tiquete #@n.IdTiquete</strong>
+                                    @FormatearTiempo(n.FechaCreacion)
+                                    • Relacionado:
+                                    <strong>Tiquete #@n.IdTiquete</strong>
                                 </div>
                             </div>
 
                             <div class="notif-controls">
-                                <form asp-controller="Notificaciones" asp-action="AlternarLeida" method="post" class="d-inline">
-                                    <input type="hidden" name="idNotificacion" value="@n.IdNotificacion" />
-                                    <button class="btn btn-sm btn-light notif-btn" type="submit"
+
+                                <form asp-controller="Notificaciones"
+                                      asp-action="AlternarLeida"
+                                      method="post"
+                                      class="d-inline">
+
+                                    <input type="hidden"
+                                           name="idNotificacion"
+                                           value="@n.IdNotificacion" />
+
+                                    <button class="btn btn-sm btn-light notif-btn"
+                                            type="submit"
                                             title="Marcar como leída/no leída">
+
                                         <i class="bi @(n.Leida ? "bi-envelope" : "bi-envelope-open")"></i>
+
                                     </button>
+
                                 </form>
 
                                 <a class="btn btn-sm btn-primary notif-btn"
@@ -69,16 +111,27 @@
                                    asp-action="Detalle"
                                    asp-route-id="@n.IdNotificacion"
                                    title="Ver detalle">
+
                                     <i class="bi bi-eye"></i>
+
                                 </a>
+
                             </div>
+
                         </div>
 
                         <div class="notif-trace">
                             <span class="trace-pill">@n.TipoEvento</span>
-                            <span class="trace-arrow"><i class="bi bi-chevron-right"></i></span>
-                            <span class="trace-pill">En timeline del tiquete</span>
+
+                            <span class="trace-arrow">
+                                <i class="bi bi-chevron-right"></i>
+                            </span>
+
+                            <span class="trace-pill">
+                                En timeline del tiquete
+                            </span>
                         </div>
+
                     </div>
                 </div>
             }
@@ -87,44 +140,66 @@
     </div>
 
     <div class="notif-pagination">
+
         @{
             var desde = (Model.Pagina - 1) * Model.TamanoPagina + 1;
             var hasta = Math.Min(Model.Pagina * Model.TamanoPagina, Model.TotalRegistros);
         }
+
         <span class="text-muted small" id="notifSummary">
             Mostrando @desde–@hasta de @Model.TotalRegistros
         </span>
 
         <nav aria-label="Paginación">
+
             <ul class="pagination pagination-sm mb-0">
+
                 <li class="page-item @(Model.TieneAnterior ? "" : "disabled")">
+
                     <a class="page-link"
                        asp-action="Index"
                        asp-route-pagina="@(Model.Pagina - 1)"
                        asp-route-tamanoPagina="@Model.TamanoPagina">
+
                         Anterior
+
                     </a>
+
                 </li>
 
                 <li class="page-item disabled">
-                    <span class="page-link">Página @Model.Pagina de @Model.TotalPaginas</span>
+
+                    <span class="page-link">
+
+                        Página @Model.Pagina de @Model.TotalPaginas
+
+                    </span>
+
                 </li>
 
                 <li class="page-item @(Model.TieneSiguiente ? "" : "disabled")">
+
                     <a class="page-link"
                        asp-action="Index"
                        asp-route-pagina="@(Model.Pagina + 1)"
                        asp-route-tamanoPagina="@Model.TamanoPagina">
+
                         Siguiente
+
                     </a>
+
                 </li>
+
             </ul>
+
         </nav>
+
     </div>
 
 </div>
 
 @functions {
+
     private string TituloPorTipoEvento(string tipoEvento, int idTiquete)
     {
         if (string.IsNullOrWhiteSpace(tipoEvento))
@@ -142,14 +217,18 @@
 
     private string FormatearTiempo(DateTime fecha)
     {
-        // NO convertir con ToLocalTime()
         var f = fecha;
 
         var hoy = DateTime.Now.Date;
         var ayer = hoy.AddDays(-1);
 
-        if (f.Date == hoy) return $"Hoy • {f:HH:mm}";
-        if (f.Date == ayer) return $"Ayer • {f:HH:mm}";
+        if (f.Date == hoy)
+            return $"Hoy • {f:HH:mm}";
+
+        if (f.Date == ayer)
+            return $"Ayer • {f:HH:mm}";
+
         return $"{f:yyyy-MM-dd} • {f:HH:mm}";
     }
+
 }
