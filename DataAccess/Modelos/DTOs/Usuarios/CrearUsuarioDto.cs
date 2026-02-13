@@ -22,3 +22,4 @@ namespace DataAccess.Modelos.DTOs.Usuarios
         public required string Rol { get; init; }
     }
 }
+

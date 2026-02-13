@@ -15,5 +15,9 @@
     </PackageReference>
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Modelos\DTOs\Categoria\" />
+  </ItemGroup>
+
 </Project>
 

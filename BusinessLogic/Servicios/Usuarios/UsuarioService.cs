@@ -1,4 +1,4 @@
-﻿using DataAccess.Identity;
+using DataAccess.Identity;
 using DataAccess.Modelos.DTOs.Usuarios;
 using DataAccess.Repositorios.Usuarios;
 using Microsoft.AspNetCore.Identity;
@@ -171,15 +171,41 @@ namespace BusinessLogic.Servicios.Usuarios
             usuario.Departamento = dto.Departamento;
             usuario.Puesto = dto.Puesto;
 
-            //Manejo especial de cambio de correo de Identity
+            //Manejo especial de cambio de correo de Identity -- de cuidado
             if (!string.Equals(usuario.Email, dto.CorreoEmpresa, StringComparison.OrdinalIgnoreCase))
             {
-                usuario.Email = dto.CorreoEmpresa;
-                usuario.UserName = dto.CorreoEmpresa;
-                usuario.NormalizedEmail = _userManager.NormalizeEmail(dto.CorreoEmpresa);
-                usuario.NormalizedUserName = _userManager.NormalizeName(dto.CorreoEmpresa);
+                var token = await _userManager.GenerateChangeEmailTokenAsync(usuario, dto.CorreoEmpresa);
+
+                var result = await _userManager.ChangeEmailAsync(
+                    usuario,
+                    dto.CorreoEmpresa,
+                    token
+                );
+
+                if (!result.Succeeded)
+                {
+                    throw new InvalidOperationException(
+                        string.Join("; ", result.Errors.Select(e => e.Description))
+                    );
+                }
+
+                //Mantener UserName sincronizado con el correo
+                usuario.EmailConfirmed = true;
+
+                var setUserNameResult = await _userManager.SetUserNameAsync(
+                    usuario,
+                    dto.CorreoEmpresa
+                );
+
+                if (!setUserNameResult.Succeeded)
+                {
+                    throw new InvalidOperationException(
+                        string.Join("; ", setUserNameResult.Errors.Select(e => e.Description))
+                    );
+                }
             }
 
+            usuario.CorreoEmpresa = dto.CorreoEmpresa;
 
             //Actualización del usuario
             var resultado = await _userManager.UpdateAsync(usuario);
@@ -199,7 +225,7 @@ namespace BusinessLogic.Servicios.Usuarios
                 await _userManager.RemoveFromRolesAsync(usuario, rolesActuales);
                 var resultadoRol = await _userManager.AddToRoleAsync(usuario, dto.Rol);
 
-                if(!resultadoRol.Succeeded)
+                if (!resultadoRol.Succeeded)
                 {
                     throw new InvalidOperationException("Error actualizando el rol del usuario.");
                 }

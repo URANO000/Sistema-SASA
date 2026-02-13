@@ -3,21 +3,18 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace DataAccess.Modelos.Entidades
 {
-    [Table("Categoria")]
+    [Table("CATEGORIA")]
     public class Categoria
     {
         [Key]
         [Column("idCategoria")]
         public int IdCategoria { get; set; }
 
-        [Required]
         [Column("nombreCategoria")]
-        [StringLength(100)]
-        public string NombreCategoria { get; set; } = null!;
+        public required string NombreCategoria { get; set; }
 
-        //Colecciones de navegación
-        public ICollection<Cola> Colas { get; set; } = new List<Cola>();
-        public ICollection<Tiquete> Tiquetes { get; set; } = new List<Tiquete>();
+        //Collection -> Relacion con tiquetes
+        public ICollection<Tiquete>? Tiquete { get; set; }
+        public ICollection<Cola>? Cola { get; set; }
     }
-
 }

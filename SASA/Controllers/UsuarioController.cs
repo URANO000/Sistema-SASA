@@ -5,9 +5,12 @@ using DataAccess.Modelos.DTOs.Usuarios;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.Extensions.Options;
+using SASA.Configuration;
 using SASA.Filters;
 using SASA.ViewModels.Usuario;
 using System.Text;
+
 
 namespace SASA.Controllers
 {
@@ -17,14 +20,15 @@ namespace SASA.Controllers
         //Referencia a los servicios (Inyección de dependencias)
         private readonly IUsuarioService _usuarioService;
         private readonly IRolService _rolService;
-        private readonly ActivationEmailService _activationEmailService;
+        private readonly ICorreoNotificacionesService _correoNotificaciones;
+        private readonly AppSettings _appSettings;
 
-
-        public UsuarioController(IUsuarioService usuarioService, IRolService rolService, ActivationEmailService activationEmailService)
+        public UsuarioController(IUsuarioService usuarioService, IRolService rolService, ICorreoNotificacionesService correoNotificaciones, IOptions<AppSettings> appOptions)
         {
             _usuarioService = usuarioService;
             _rolService = rolService;
-            _activationEmailService = activationEmailService;
+            _correoNotificaciones = correoNotificaciones;
+            _appSettings = appOptions.Value;
         }
 
 
@@ -69,14 +73,16 @@ namespace SASA.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Add(CrearUsuarioViewModel model)
         {
+            bool isAjax = Request.Headers["X-Requested-With"] == "XMLHttpRequest";
             if (!ModelState.IsValid)
             {
-                //Para AJAX, retornar modal parcial con errores de validación
-                model.RolesDisponibles = (IReadOnlyList<SelectListItem>?)await _rolService.ObtenerRolesAsync();
+                model.RolesDisponibles = (await _rolService.ObtenerRolesAsync())
+                    .Select(r => new SelectListItem { Value = r, Text = r })
+                    .ToList();
+
                 return PartialView("_AddModal", model);
             }
 
-            //Mapeo a DTO
             var dto = new CrearUsuarioDto
             {
                 PrimerNombre = model.PrimerNombre,
@@ -89,46 +95,54 @@ namespace SASA.Controllers
                 Rol = model.Rol
             };
 
+            ResultadoCreacionUsuarioDto result;
             try
             {
-                var result = await _usuarioService.AgregarUsuarioAsync(dto);
-
-                // Armar payload igual que AccountController: "userId|identityToken" en Base64Url
-                var raw = $"{result.UserId}|{result.EmailConfirmationToken}";
-                var payload = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(raw));
-
-                // Construir link (la acción espera SOLO {token})
-                var activationLink = Url.Action(
-                    "ActivateAccount",
-                    "Account",
-                    new { token = payload },
-                    protocol: Request.Scheme
-                );
-
-                if (string.IsNullOrWhiteSpace(activationLink))
-                    throw new Exception("No se pudo construir el link de activación. Verifica la ruta /activate-account/{token}.");
-
-                // Enviar correo de activación
-                await _activationEmailService.SendActivationAsync(
-                    result.Email,
-                    activationLink
-                );
-
-                //Para AJAX
-                return Json(new
-                {
-                    success = true
-                });
+                result = await _usuarioService.AgregarUsuarioAsync(dto);
             }
             catch (Exception ex)
             {
-                //Si un error ocurre, regresar al Index con el modelo y el error, o se cae todo
-                ModelState.AddModelError(string.Empty, ex.Message);
-                model.RolesDisponibles = (IReadOnlyList<SelectListItem>?)await _rolService.ObtenerRolesAsync();
-                return PartialView("_AddModal", model);
+                if (isAjax)
+                    return Json(new { success = false, message = ex.Message });
 
+                ModelState.AddModelError(string.Empty, ex.Message);
+                model.RolesDisponibles = await CargarRolesAsync();
+                return PartialView("_AddModal", model);
             }
+
+            var raw = $"{result.UserId}|{result.EmailConfirmationToken}";
+            var payload = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(raw));
+
+            var baseUrl = _appSettings.BaseUrl?.TrimEnd('/');
+            var activationLink = $"{baseUrl}/activate-account/{payload}";
+
+
+            if (string.IsNullOrWhiteSpace(activationLink))
+            {
+                if (isAjax)
+                    return Json(new { success = true, warning = "Usuario creado, pero no se pudo construir el link de activación." });
+
+                return RedirectToAction(nameof(Index));
+            }
+
+            var toName = $"{model.PrimerNombre} {model.PrimerApellido}".Trim();
+
+            bool correoEnviado = await _correoNotificaciones.EnviarActivacionCuentaAsync(
+                model.CorreoEmpresa,
+                toName,
+                activationLink
+            );
+
+            string? warning = correoEnviado
+                ? null
+                : "El usuario fue creado, pero ocurrió un problema enviando el correo de activación.";
+
+            if (isAjax)
+                return Json(new { success = true, warning });
+
+            return RedirectToAction(nameof(Index));
         }
+
 
 
         [HttpGet]
@@ -311,7 +325,7 @@ namespace SASA.Controllers
                     Text = r
                 })
                 .ToList();
-        }        
+        }
         private static string NombreCompletoHelper(ListaUsuarioDto dto)
         {
             //Juntar para el nombre completo

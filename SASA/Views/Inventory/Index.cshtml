@@ -1,10 +1,11 @@
+@model List<DataAccess.Modelos.Entidades.Inventario.ActivoInventario>
+
 @{
     ViewData["Title"] = "Inventario";
 }
 
 <div class="container-fluid">
 
-    <!-- Main Card -->
     <div class="card mb-3">
         <div class="card-body">
 
@@ -23,36 +24,42 @@
             </div>
 
             <!-- Filters -->
-            <div class="row mb-3">
-                <div class="col-md-4">
-                    <input type="text" class="form-control" placeholder="Buscar por nombre o código..." />
-                </div>
+            <form method="get">
+                <div class="row mb-3">
 
-                <div class="col-md-4">
-                    <select class="form-select">
-                        <option selected>Estado</option>
-                        <option>Activo</option>
-                        <option>En Mantenimiento</option>
-                        <option>Fuera de Servicio</option>
-                    </select>
-                </div>
+                    <div class="col-md-4">
+                        <input type="text"
+                               name="q"
+                               value="@Context.Request.Query["q"]"
+                               class="form-control"
+                               placeholder="Buscar por nombre o código..." />
+                    </div>
 
-                <div class="col-md-2">
-                    <select class="form-select">
-                        <option selected>Tipo de Activo</option>
-                        <option>Dispositivo</option>
-                        <option>Herramienta</option>
-                        <option>Otro</option>
-                    </select>
-                </div>
+                    <div class="col-md-4">
+                        <select class="form-select"
+                                name="estadoId"
+                                asp-items="ViewBag.Estados">
+                            <option value="">Estado</option>
+                        </select>
+                    </div>
 
-                <div class="col-md-2">
-                    <button class="btn btn-outline-secondary w-100">
-                        <i class="bi bi-funnel"></i>
-                        Filtrar
-                    </button>
+                    <div class="col-md-2">
+                        <select class="form-select"
+                                name="tipoId"
+                                asp-items="ViewBag.Tipos">
+                            <option value="">Tipo de Activo</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-2">
+                        <button class="btn btn-outline-secondary w-100" type="submit">
+                            <i class="bi bi-funnel"></i>
+                            Filtrar
+                        </button>
+                    </div>
+
                 </div>
-            </div>
+            </form>
 
             <!-- Table -->
             <div class="table-responsive">
@@ -69,38 +76,46 @@
                     </thead>
                     <tbody>
 
-                        <!-- Sample Row -->
-                        <tr>
-                            <td class="text-center">
-                                <a asp-action="Detail" asp-route-id="1" class="btn btn-link">
-                                    <i class="bi bi-eye detail-btn"></i>
-                                </a>
+                        @if (Model != null && Model.Any())
+                        {
+                            var index = 1;
+                            foreach (var a in Model)
+                            {
+                                <tr>
+                                    <td class="text-center">
+                                        <a asp-action="Detail" asp-route-id="@a.IdActivo" class="btn btn-link">
+                                            <i class="bi bi-eye detail-btn"></i>
+                                        </a>
 
-                                <a asp-action="Edit" asp-route-id="1" class="btn btn-link">
-                                    <i class="fa-regular fa-pen-to-square edit-btn"></i>
-                                </a>
+                                        <a asp-action="Edit" asp-route-id="@a.IdActivo" class="btn btn-link">
+                                            <i class="fa-regular fa-pen-to-square edit-btn"></i>
+                                        </a>
 
-                                <a class="btn btn-link text-danger">
-                                    <i class="bi bi-trash3"></i>
-                                </a>
-                            </td>
-                            <td>1</td>
-                            <td>INV-001</td>
-                            <td>Dell Latitude Laptop</td>
-                            <td>Dispositivo</td>
-                            <td>
-                                <span class="badge bg-success">Activo</span>
-                            </td>
-                        </tr>
-
-                        <!-- Empty State Example -->
-                        <!--
-                        <tr>
-                            <td colspan="6" class="text-center text-muted py-4">
-                                No se encontraron activos registrados.
-                            </td>
-                        </tr>
-                        -->
+                                        <a class="btn btn-link text-danger">
+                                            <i class="bi bi-trash3"></i>
+                                        </a>
+                                    </td>
+                                    <td>@index</td>
+                                    <td>@a.NumeroActivo</td>
+                                    <td>@a.NombreMaquina</td>
+                                    <td>@a.TipoActivo?.Nombre</td>
+                                    <td>
+                                        <span class="badge bg-secondary">
+                                            @a.EstadoActivo?.Nombre
+                                        </span>
+                                    </td>
+                                </tr>
+                                index++;
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="6" class="text-center text-muted py-4">
+                                    No se encontraron activos registrados.
+                                </td>
+                            </tr>
+                        }
 
                     </tbody>
                 </table>

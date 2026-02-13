@@ -1,7 +1,5 @@
 ﻿using DataAccess.Identity;
 using DataAccess.Modelos.DTOs.Usuarios;
-using DataAccess.Modelos.Entidades;
-using DataAccess.Modelos.DTOs.Usuarios;
 
 
 namespace BusinessLogic.Servicios.Usuarios

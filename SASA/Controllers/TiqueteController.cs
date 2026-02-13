@@ -1,4 +1,3 @@
-﻿
 using BusinessLogic.Servicios.Categorias;
 using BusinessLogic.Servicios.Prioridad;
 using BusinessLogic.Servicios.Tiquetes;
@@ -129,7 +128,8 @@ namespace SASA.Controllers
                     idTiquete
                 });
 
-            }catch(Exception ex)
+            }
+            catch (Exception ex)
             {
                 return BadRequest(new
                 {

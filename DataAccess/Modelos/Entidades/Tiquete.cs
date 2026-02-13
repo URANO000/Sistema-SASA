@@ -4,67 +4,57 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace DataAccess.Modelos.Entidades
 {
-    [Table("Tiquete")]
+    [Table("TIQUETE")]
     public class Tiquete
     {
         [Key]
         [Column("idTiquete")]
         public int IdTiquete { get; set; }
 
-        [Required]
         [Column("asunto")]
-        [StringLength(150)]
-        public string Asunto { get; set; } = null!;
+        public required string Asunto { get; set; }
 
-        [Required]
         [Column("descripcion")]
-        public string Descripcion { get; set; } = null!;
+        public required string Descripcion { get; set; }
 
-        [Required]
+        [ForeignKey("idEstatus")]
         [Column("idEstatus")]
         public int IdEstatus { get; set; }
 
+        [ForeignKey("idPrioridad")]
         [Column("idPrioridad")]
-        public int? IdPrioridad { get; set; }
+        public int IdPrioridad { get; set; }
 
-        [Required]
+        [ForeignKey("idCategoria")]
         [Column("idCategoria")]
         public int IdCategoria { get; set; }
 
-        [Required]
+        [ForeignKey("idCola")]
         [Column("idCola")]
         public int IdCola { get; set; }
 
+        [ForeignKey("idAsignee")]
         [Column("idAsignee")]
-        [StringLength(450)]
         public string? IdAsignee { get; set; }
 
+        [ForeignKey("idReportedBy")]
         [Column("idReportedBy")]
-        [StringLength(450)]
-        public string? IdReportedBy { get; set; }
+        public required string IdReportedBy { get; set; }
 
-        [Required]
         [Column("createdAt")]
         public DateTime CreatedAt { get; set; }
 
         [Column("updatedAt")]
-        public DateTime? UpdatedAt { get; set; }
+        public DateTime UpdatedAt { get; set; }
 
         [Column("resolucion")]
         public string? Resolucion { get; set; }
 
-        // Navigation properties
-        [ForeignKey(nameof(IdEstatus))]
-        public Estatus Estatus { get; set; } = null!;
-
-        [ForeignKey(nameof(IdPrioridad))]
+        //Navigation properties -> Relaciones entre entidades
+        public required Estatus Estatus {get;set;}
         public Prioridad? Prioridad { get; set; }
-
-        [ForeignKey(nameof(IdCategoria))]
-        public Categoria Categoria { get; set; } = null!;
-
-        [ForeignKey(nameof(IdCola))]
-        public Cola Cola { get; set; } = null!;
+        public Categoria Categoria { get; set; }
+        public Cola? Cola { get; set; }
 
         [ForeignKey(nameof(IdAsignee))]
         public ApplicationUser? Asignee { get; set; }
@@ -77,6 +67,6 @@ namespace DataAccess.Modelos.Entidades
         public ICollection<Comentario>? Comentarios { get; set; }
         public ICollection<Attachment>? Attachments { get; set; }
 
-    }
 
+    }
 }
