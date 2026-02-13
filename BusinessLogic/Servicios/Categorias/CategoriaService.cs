@@ -17,7 +17,7 @@ namespace BusinessLogic.Servicios.Categorias
         }
 
         //Método para obtener todas las categorías
-        public async Task<IReadOnlyList<ListaCategoriaDto>> ObtenerCategoriasAsync()
+        public async Task<IEnumerable<ListaCategoriaDto>> ObtenerCategoriasAsync()
         {
             return await _repository.ObtenerCategoriaAsync();
         }

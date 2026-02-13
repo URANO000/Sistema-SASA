@@ -7,7 +7,7 @@ namespace DataAccess.Repositorios.Categorias
     public interface ICategoriaRepository
     {
         public Task<bool> ExisteAsync(int idCategoria);
-        public Task<IReadOnlyList<ListaCategoriaDto>> ObtenerCategoriaAsync();
+        public Task<IEnumerable<ListaCategoriaDto>> ObtenerCategoriaAsync();
     }
 
 }

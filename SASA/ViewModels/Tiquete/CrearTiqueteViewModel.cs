@@ -1,4 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc.Rendering;
+﻿using DataAccess.Modelos.DTOs.Categoria;
+using DataAccess.Modelos.DTOs.Prioridad;
+using DataAccess.Modelos.DTOs.Usuarios;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using System.ComponentModel.DataAnnotations;
 
 namespace SASA.ViewModels.Tiquete

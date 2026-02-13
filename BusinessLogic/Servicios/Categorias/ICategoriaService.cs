@@ -4,6 +4,6 @@ namespace BusinessLogic.Servicios.Categorias
 {
     public interface ICategoriaService
     {
-        public Task<IReadOnlyList<ListaCategoriaDto>> ObtenerCategoriasAsync();
+        public Task<IEnumerable<ListaCategoriaDto>> ObtenerCategoriasAsync();
     }
 }

@@ -87,7 +87,7 @@ namespace BusinessLogic.Servicios.Usuarios
         }
 
         //Obtener usuarios por departamento TI
-        public async Task<IReadOnlyList<UsuarioTIDropdownDto?>> ObtenerUsuariosTIAsync()
+        public async Task<IEnumerable<UsuarioTIDropdownDto?>> ObtenerUsuariosTIAsync()
         {
             return await _usuarioRepository.ObtenerUsuariosTIAsync();
         }

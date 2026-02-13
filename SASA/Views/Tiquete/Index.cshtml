@@ -1,5 +1,6 @@
 ﻿@using SASA.ViewModels.Tiquete;
-@model TiqueteIndexViewModel;
+@model IReadOnlyList<TiqueteListaViewModel>
+
 @{
     ViewData["Title"] = "Gestión de Tiquetes";
 }
@@ -9,7 +10,7 @@
         <div class="card-body">
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <h2 class="mb-0 fw-bold">Gestión de Tiquetes</h2>
-                <button class="btn btn-custom" data-bs-toggle="modal" data-bs-target="#addTicketModal">
+                <button class="btn btn-custom" id="openCreateModal">
                     <i class="bi bi-plus-lg"></i>
                     Nuevo Tiquete
                 </button>
@@ -71,7 +72,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach (var t in Model.Tiquetes)
+                        @foreach (var t in Model)
                         {
                             <tr>
                                 <td>
@@ -136,5 +137,35 @@
         </div>
     </div>
 </div>
-<!-- Specifically for the modal-->
-@await Html.PartialAsync("_AddModal", Model.CrearTiquete)
+<div id="modalContainer"></div>
+
+@await Html.PartialAsync("_SuccessModal")
+@await Html.PartialAsync("_ErrorModal")
+
+
+@section Scripts {
+    <script src="~/js/formSubmits.js" asp-append-version="true"></script>
+    <script>
+        $(document).on('click', '#openCreateModal', function () {
+
+        $.get('/Tiquete/Add', function (data) {
+
+            $('#modalContainer').html(data);
+
+            const form = $("#crearTiqueteForm");
+
+            form.removeData("validator");
+            form.removeData("unobtrusiveValidation");
+
+            $.validator.unobtrusive.parse(form);
+
+            const modalElement = document.getElementById('addTicketModal');
+            const modal = new bootstrap.Modal(modalElement);
+
+            modal.show();
+        });
+
+
+        });
+    </script>
+}

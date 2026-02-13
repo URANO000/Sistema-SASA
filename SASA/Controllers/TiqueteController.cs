@@ -4,9 +4,12 @@ using BusinessLogic.Servicios.Prioridad;
 using BusinessLogic.Servicios.Tiquetes;
 using BusinessLogic.Servicios.Usuarios;
 using DataAccess.Modelos.DTOs.Tiquete;
+using DataAccess.Modelos.Entidades;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using SASA.Filters;
 using SASA.ViewModels.Tiquete;
+using System.Security.Claims;
 
 namespace SASA.Controllers
 {
@@ -32,53 +35,81 @@ namespace SASA.Controllers
         public async Task<IActionResult> Index()
         {
             var tiqueteDTO = await _tiqueteService.ObtenerTiquetesAsync();
-            var categorias = await _categoriaService.ObtenerCategoriasAsync();
-            var prioridades = await _prioridadService.ObtenerPrioridadesAsync();
-            var usuariosTI = await _usuarioService.ObtenerUsuariosTIAsync();
 
-            var tiquetes = tiqueteDTO.Select(u => new TiqueteListaViewModel
-            {
-                IdTiquete = u.IdTiquete,
-                Asunto = u.Asunto,
-                Descripcion = u.Descripcion,
-                Resolucion = u.Resolucion,
-
-                Estatus = u.Estatus,
-                Prioridad = u.Prioridad,
-                Categoria = u.Categoria,
-                Cola = u.Cola,
-
-                ReportedBy = u.ReportedBy,
-                Asignee = u.Asignee,
-                CreatedAt = u.CreatedAt,
-                UpdatedAt = u.UpdatedAt
-            }).ToList();
-
-            //Crear un viewmodel para enviar las listas de categorias, prioridades y usuarios para los filtros
-            var model = new TiqueteIndexViewModel
-            {
-                Tiquetes = tiquetes,
-                CategoriasDisponibles = categorias,
-                PrioridadesDisponibles = prioridades,
-                UsuariosTIDisponibles = usuariosTI,
-
-            };
+            var model = tiqueteDTO
+                .Select(u => new TiqueteListaViewModel
+                {
+                    IdTiquete = u.IdTiquete,
+                    Asunto = u.Asunto,
+                    Descripcion = u.Descripcion,
+                    Resolucion = u.Resolucion,
+                    Estatus = u.Estatus,
+                    Prioridad = u.Prioridad,
+                    Categoria = u.Categoria,
+                    Cola = u.Cola,
+                    ReportedBy = u.ReportedBy,
+                    Asignee = u.Asignee,
+                    CreatedAt = u.CreatedAt,
+                    UpdatedAt = u.UpdatedAt
+                })
+                .ToList();
 
             return View(model);
         }
 
+        [HttpGet]
+        public async Task<IActionResult> Add()
+        {
+            var categorias = await _categoriaService.ObtenerCategoriasAsync();
+            var prioridades = await _prioridadService.ObtenerPrioridadesAsync();
+            var usuarios = await _usuarioService.ObtenerUsuariosTIAsync();
+
+            var model = new CrearTiqueteViewModel
+            {
+                Categorias = categorias.Select(c => new SelectListItem
+                {
+                    Value = c.IdCategoria.ToString(),
+                    Text = c.NombreCategoria
+                }),
+
+                Prioridades = prioridades.Select(p => new SelectListItem
+                {
+                    Value = p.IdPrioridad.ToString(),
+                    Text = p.NombrePrioridad
+                }),
+
+                Asignees = usuarios.Select(u => new SelectListItem
+                {
+                    Value = u.Id,
+                    Text = u.UserName
+                }),
+                Asunto = string.Empty,
+                Descripcion = string.Empty,
+                Categoria = 0,
+                Prioridad = 0,
+            };
+
+
+            return PartialView("_AddModal", model);
+        }
+
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Add(CrearTiqueteViewModel model)
         {
             if (!ModelState.IsValid)
             {
-                return BadRequest(ModelState);
-            }
+                // Reload dropdowns
+                model.Categorias = (IEnumerable<SelectListItem>?)await _categoriaService.ObtenerCategoriasAsync();
+                model.Prioridades = (IEnumerable<SelectListItem>?)await _prioridadService.ObtenerPrioridadesAsync();
+                model.Asignees = (IEnumerable<SelectListItem>?)await _usuarioService.ObtenerUsuariosTIAsync();
 
+                return BadRequest();
+            }
             try
             {
                 //Guardar el usuario actual
-                var currentUserId = User.FindFirst("Id")?.Value;
+                var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
                 //Mapear viewmodel a dto
                 var dto = new CrearTiqueteAdminDto

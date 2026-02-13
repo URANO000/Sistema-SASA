@@ -21,7 +21,7 @@ namespace DataAccess.Repositorios.Categorias
                 .AnyAsync(c => c.IdCategoria == idCategoria);
         }
 
-        public async Task<IReadOnlyList<ListaCategoriaDto>> ObtenerCategoriaAsync()
+        public async Task<IEnumerable<ListaCategoriaDto>> ObtenerCategoriaAsync()
         {
             return await _context.Categorias
                 .AsNoTracking()

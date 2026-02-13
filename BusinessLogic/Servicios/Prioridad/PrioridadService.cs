@@ -13,7 +13,7 @@ namespace BusinessLogic.Servicios.Prioridad
 
 
         //Métodos
-        public async Task<IReadOnlyList<ListaPrioridadDto>> ObtenerPrioridadesAsync()
+        public async Task<IEnumerable<ListaPrioridadDto>> ObtenerPrioridadesAsync()
         {
             return await _repository.ObtenerPrioridadesAsync();
         }

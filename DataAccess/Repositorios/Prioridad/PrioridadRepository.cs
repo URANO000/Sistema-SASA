@@ -16,7 +16,7 @@ namespace DataAccess.Repositorios.Prioridad
         {
             _context = context;
         }
-        public async Task<IReadOnlyList<ListaPrioridadDto>> ObtenerPrioridadesAsync()
+        public async Task<IEnumerable<ListaPrioridadDto>> ObtenerPrioridadesAsync()
         {
             return await _context.Prioridades
                 .AsNoTracking()

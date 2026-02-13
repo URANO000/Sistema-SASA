@@ -4,20 +4,22 @@
     <div class="modal-dialog modal-xl modal-dialog-centered">
         <div class="modal-content">
 
-            <!-- Header -->
-            <div class="modal-header">
-                <h5 class="modal-title">
-                    <i class="bi bi-ticket-perforated me-2"></i>
-                    Registrar Nuevo Tiquete
-                </h5>
-                <button type="button" class="btn-close icon-btn text-white" data-bs-dismiss="modal"></button>
-            </div>
-
            <form asp-action="Add"
                  asp-controller="Tiquete"
                  method="post"
                  id="crearTiqueteForm">
+
                  @Html.AntiForgeryToken()
+
+                <!-- Header -->
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="bi bi-ticket-perforated me-2"></i>
+                        Registrar Nuevo Tiquete
+                    </h5>
+                    <button type="button" class="btn-close icon-btn" data-bs-dismiss="modal"></button>
+                </div>
+
                 <!-- Body -->
                 <div class="modal-body">
                     <div class="form-container">
@@ -31,37 +33,41 @@
 
                                 <!-- Asunto -->
                                 <div class="col-md-6">
-                                    <label asp-for="Asunto" class="form-label">Asunto</label>
+                                    <label asp-for="Asunto" class="form-label required-field">Asunto</label>
                                     <input asp-for="Asunto" type="text" class="form-control">
                                     <span asp-validation-for="Asunto" class="text-danger"></span>
                                 </div>
                                 <!-- Categoría -->
                                 <div class="col-md-6">
-                                    <label asp-for="Categoria" class="form-label">Categoría</label>
+                                    <label asp-for="Categoria" class="form-label required-field">Categoría</label>
                                     <select asp-for="Categoria" 
-                                    asp-items="Model.Categorias"
-                                    class="form-select">
+                                            asp-items="Model.Categorias"
+                                            class="form-select">
                                     <option value="" disabled>Seleccione una categoría</option>
                                     </select>
+                                    <span asp-validation-for="Categoria" class="text-danger"></span>
                                 </div>
 
                                 <!-- Prioridad -->
                                 <div class="col-md-4">
-                                    <label asp-for="Prioridad" class="form-label">Prioridad</label>
+                                    <label asp-for="Prioridad" class="form-label required-field">Prioridad</label>
                                     <select asp-for="Prioridad"
-                                    asp-items="Model.Prioridades"
-                                    class="form-select">
+                                            asp-items="Model.Prioridades"
+                                            class="form-select">
                                         <option value="" disabled>Seleccione una prioridad</option>
                                     </select>
+                                    <span asp-validation-for="Prioridad" class="text-danger"></span>
+
                                 </div>
 
                                 <!-- Asignee-->
                                 <div class="col-md-4">
                                     <label asp-for="IdAsignee" class="form-label">Asignar a</label>
                                     <select asp-for="IdAsignee"
-                                    asp-items="Model.Asignees" class="form-select">
+                                            asp-items="Model.Asignees" class="form-select">
                                         <option value="" disabled>Seleccione al usuario a asignar</option>
                                     </select>
+                                    <span asp-validation-for="IdAsignee" class="text-danger"></span>
                                 </div>
                                 <!-- Descripción -->
                                 <div class="col-12">
@@ -69,6 +75,7 @@
                                     <textarea asp-for="Descripcion" class="form-control" rows="4"
                                               placeholder="Describa el problema o solicitud"></textarea>
                                 </div>
+                                <span asp-validation-for="Descripcion" class="text-danger"></span>
 
                             </div>
                         </div>
@@ -80,9 +87,9 @@
                                         data-bs-dismiss="modal">
                                     Cancelar
                                 </button>
-                                <button type="button"
-                                        class="btn btn-success-custom text-white"
-                                        id="fakeSubmitTicket">
+                                <button type="submit"
+                                        class="btn btn-success text-white"
+                                        >
                                     Crear Tiquete
                                 </button>
                             </div>

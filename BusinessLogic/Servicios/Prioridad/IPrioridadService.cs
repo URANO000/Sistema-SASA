@@ -4,6 +4,6 @@ namespace BusinessLogic.Servicios.Prioridad
 {
     public interface IPrioridadService
     {
-        public Task<IReadOnlyList<ListaPrioridadDto>> ObtenerPrioridadesAsync();
+        public Task<IEnumerable<ListaPrioridadDto>> ObtenerPrioridadesAsync();
     }
 }

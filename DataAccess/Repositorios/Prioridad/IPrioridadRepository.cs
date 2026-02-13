@@ -9,6 +9,6 @@ namespace DataAccess.Repositorios.Prioridad
 {
     public interface IPrioridadRepository
     {
-        public Task<IReadOnlyList<ListaPrioridadDto>> ObtenerPrioridadesAsync();
+        public Task<IEnumerable<ListaPrioridadDto>> ObtenerPrioridadesAsync();
     }
 }
