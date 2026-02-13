@@ -27,17 +27,16 @@ namespace DataAccess.Repositorios.Tiquetes
                     Descripcion = t.Descripcion,
                     Resolucion = t.Resolucion ?? "Sin Resolución",
 
-                    Estatus = t.Estatus.NombreEstatus,
+                    Estatus = t.Estatus != null ? t.Estatus.NombreEstatus : "Sin estatus",
                     Prioridad = t.Prioridad != null ? t.Prioridad.NombrePrioridad : "Sin prioridad",
-                    Categoria = t.Categoria.NombreCategoria,
-                    Cola = t.Cola != null ? t.Cola.NombreCola : "Sin Cola",
+                    Categoria = t.Categoria != null ? t.Categoria.NombreCategoria : "Sin categoría",
+                    Cola = t.Cola != null ? t.Cola.NombreCola : "Sin cola",
 
-                    ReportedBy = t.ReportedBy.CorreoEmpresa,
+                    ReportedBy = t.ReportedBy != null ? t.ReportedBy.CorreoEmpresa : "Desconocido",
                     Asignee = t.Asignee != null ? t.Asignee.CorreoEmpresa : "Sin asignar",
 
                     CreatedAt = t.CreatedAt,
                     UpdatedAt = t.UpdatedAt
-
                 })
                 .ToListAsync();
         }
@@ -82,7 +81,7 @@ namespace DataAccess.Repositorios.Tiquetes
         public async Task CancelarTiquete(int id)
         {
             var tiquete = await _context.Tiquetes.FindAsync(id);
-            if(tiquete != null)
+            if (tiquete != null)
             {
                 tiquete.IdEstatus = (int)TiqueteEstatus.Cancelado;
                 await _context.SaveChangesAsync();
