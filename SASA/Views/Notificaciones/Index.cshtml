@@ -1,5 +1,5 @@
 ﻿@using DataAccess.Modelos.DTOs.Notificaciones
-@model ResultadoPaginadoDTO<NotificacionDTO>
+@model SASA.ViewModels.Notificaciones.NotificacionIndexViewModel
 
 @{
     ViewData["Title"] = "Notificaciones";
@@ -36,6 +36,39 @@
             }
 
         </div>
+    </div>
+
+    <div class="card-body pt-3">
+        <form method="get" class="row g-2 mb-3">
+            <div class="col-md-4">
+                <input name="q" value="@Model.Q" class="form-control" placeholder="Buscar por tipo, mensaje o tiquete">
+            </div>
+
+            <div class="col-md-2">
+                <select name="tipo" class="form-select">
+                    <option value="">Tipo</option>
+                    <option value="NuevoComentario" selected="@(Model.Tipo == "NuevoComentario")">NuevoComentario</option>
+                </select>
+            </div>
+
+            <div class="col-md-2">
+                <select name="estado" class="form-select">
+                    <option value="">Estado</option>
+                    <option value="NoLeida" selected="@(Model.Estado == "NoLeida")">NoLeida</option>
+                    <option value="Leida" selected="@(Model.Estado == "Leida")">Leida</option>
+                </select>
+            </div>
+
+            <div class="col-md-2">
+                <input name="fecha" value="@(Model.Fecha?.ToString("yyyy-MM-dd"))" class="form-control" type="date">
+            </div>
+
+            <div class="col-md-2">
+                <button class="btn btn-outline-secondary w-100">
+                    <i class="bi bi-funnel"></i> Filtrar
+                </button>
+            </div>
+        </form>
     </div>
 
     <div class="notif-list" id="notifList">
@@ -158,6 +191,10 @@
 
                     <a class="page-link"
                        asp-action="Index"
+                       asp-route-q="@Model.Q"
+                       asp-route-tipo="@Model.Tipo"
+                       asp-route-estado="@Model.Estado"
+                       asp-route-fecha="@(Model.Fecha?.ToString("yyyy-MM-dd"))"
                        asp-route-pagina="@(Model.Pagina - 1)"
                        asp-route-tamanoPagina="@Model.TamanoPagina">
 
@@ -181,6 +218,10 @@
 
                     <a class="page-link"
                        asp-action="Index"
+                       asp-route-q="@Model.Q"
+                       asp-route-tipo="@Model.Tipo"
+                       asp-route-estado="@Model.Estado"
+                       asp-route-fecha="@(Model.Fecha?.ToString("yyyy-MM-dd"))"
                        asp-route-pagina="@(Model.Pagina + 1)"
                        asp-route-tamanoPagina="@Model.TamanoPagina">
 

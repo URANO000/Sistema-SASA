@@ -13,15 +13,44 @@ namespace DataAccess.Repositorios.Notificaciones
             _db = db;
         }
 
-        public async Task<ResultadoPaginadoDTO<NotificacionDTO>> ObtenerPorUsuarioAsync(string userId, int pagina, int tamanoPagina)
+        public async Task<ResultadoPaginadoDTO<NotificacionDTO>> ObtenerPorUsuarioAsync(string userId, string? q, string? tipo, string? estado, DateTime? fecha, int pagina, int tamanoPagina)
         {
             if (pagina < 1) pagina = 1;
             if (tamanoPagina < 1) tamanoPagina = 10;
 
             var query = _db.Notificaciones
                 .AsNoTracking()
-                .Where(n => n.UserId == userId)
-                .OrderByDescending(n => n.FechaCreacion);
+                .Where(n => n.UserId == userId);
+
+            if (!string.IsNullOrWhiteSpace(q))
+            {
+                q = q.Trim();
+                query = query.Where(n =>
+                    n.Mensaje.Contains(q) ||
+                    n.TipoEvento.Contains(q) ||
+                    n.IdTiquete.ToString().Contains(q)
+                );
+            }
+
+            if (!string.IsNullOrWhiteSpace(tipo) && tipo != "Tipo")
+            {
+                query = query.Where(n => n.TipoEvento == tipo);
+            }
+
+            if (!string.IsNullOrWhiteSpace(estado) && estado != "Estado")
+            {
+                if (estado == "Leida") query = query.Where(n => n.Leida);
+                if (estado == "NoLeida") query = query.Where(n => !n.Leida);
+            }
+
+            if (fecha.HasValue)
+            {
+                var d = fecha.Value.Date;
+                var d2 = d.AddDays(1);
+                query = query.Where(n => n.FechaCreacion >= d && n.FechaCreacion < d2);
+            }
+
+            query = query.OrderByDescending(n => n.FechaCreacion);
 
             var total = await query.CountAsync();
 

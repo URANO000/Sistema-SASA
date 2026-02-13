@@ -4,7 +4,7 @@ namespace BusinessLogic.Servicios.Notificaciones
 {
     public interface INotificacionService
     {
-        Task<ResultadoPaginadoDTO<NotificacionDTO>> ObtenerPorUsuarioAsync(string userId, int pagina, int tamanoPagina);
+        Task<ResultadoPaginadoDTO<NotificacionDTO>> ObtenerPorUsuarioAsync(string userId, string? q, string? tipo, string? estado, DateTime? fecha, int pagina, int tamanoPagina);
         Task<NotificacionDTO?> ObtenerPorIdAsync(long idNotificacion, string userId);
         Task NotificarNuevoComentarioAsync(int idTiquete, string autorUserId, string mensaje);
         Task MarcarComoLeidaAsync(long idNotificacion, string userId);

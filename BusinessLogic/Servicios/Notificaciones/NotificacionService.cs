@@ -12,8 +12,8 @@ namespace BusinessLogic.Servicios.Notificaciones
             _repo = repo;
         }
 
-        public Task<ResultadoPaginadoDTO<NotificacionDTO>> ObtenerPorUsuarioAsync(string userId, int pagina, int tamanoPagina)
-            => _repo.ObtenerPorUsuarioAsync(userId, pagina, tamanoPagina);
+        public Task<ResultadoPaginadoDTO<NotificacionDTO>> ObtenerPorUsuarioAsync(string userId, string? q, string? tipo, string? estado, DateTime? fecha, int pagina, int tamanoPagina)
+            => _repo.ObtenerPorUsuarioAsync(userId, q, tipo, estado, fecha, pagina, tamanoPagina);
 
         public Task<NotificacionDTO?> ObtenerPorIdAsync(long idNotificacion, string userId)
             => _repo.ObtenerPorIdAsync(idNotificacion, userId);

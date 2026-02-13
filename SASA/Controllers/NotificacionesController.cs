@@ -1,5 +1,5 @@
 ﻿using BusinessLogic.Servicios.Notificaciones;
-using DataAccess; 
+using DataAccess;
 using DataAccess.Modelos.DTOs.Notificaciones;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -41,14 +41,30 @@ namespace SASA.Controllers
             return user?.Id;
         }
 
-        public async Task<IActionResult> Index(int pagina = 1, int tamanoPagina = 10)
+        public async Task<IActionResult> Index(string? q, string? tipo, string? estado, DateTime? fecha, int pagina = 1, int tamanoPagina = 10)
         {
             var userId = await GetUserIdRealAsync();
             if (string.IsNullOrWhiteSpace(userId))
                 return RedirectToAction("Login", "Account");
 
-            var result = await _service.ObtenerPorUsuarioAsync(userId, pagina, tamanoPagina);
-            return View(result);
+            if (pagina < 1) pagina = 1;
+            if (tamanoPagina < 1) tamanoPagina = 10;
+
+            var result = await _service.ObtenerPorUsuarioAsync(userId, q, tipo, estado, fecha, pagina, tamanoPagina);
+
+            var vm = new NotificacionIndexViewModel
+            {
+                Q = q,
+                Tipo = tipo,
+                Estado = estado,
+                Fecha = fecha,
+                Pagina = result.Pagina,
+                TamanoPagina = result.TamanoPagina,
+                TotalRegistros = result.TotalRegistros,
+                Elementos = result.Elementos
+            };
+
+            return View(vm);
         }
 
         [HttpPost]

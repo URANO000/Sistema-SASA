@@ -92,29 +92,51 @@
 
         @{
             var totalPaginas = (int)Math.Ceiling(Model.TotalRegistros / (double)Model.TamanoPagina);
+            var desde = (Model.Pagina - 1) * Model.TamanoPagina + 1;
+            var hasta = Math.Min(Model.Pagina * Model.TamanoPagina, Model.TotalRegistros);
         }
 
-        @if (totalPaginas > 1)
-        {
-            <nav>
-                <ul class="pagination">
-                    @for (int p = 1; p <= totalPaginas; p++)
-                    {
-                        <li class="page-item @(p == Model.Pagina ? "active" : "")">
+        <div class="d-flex justify-content-between align-items-center">
+            <span class="text-muted small">
+                Mostrando @desde–@hasta de @Model.TotalRegistros
+            </span>
+
+            @if (totalPaginas > 1)
+            {
+                <nav aria-label="Paginación">
+                    <ul class="pagination pagination-sm mb-0">
+                        <li class="page-item @(Model.Pagina > 1 ? "" : "disabled")">
                             <a class="page-link"
                                asp-action="Auditoria"
                                asp-route-q="@Model.Q"
                                asp-route-tipo="@Model.Tipo"
                                asp-route-estado="@Model.Estado"
                                asp-route-fecha="@(Model.Fecha?.ToString("yyyy-MM-dd"))"
-                               asp-route-pagina="@p"
+                               asp-route-pagina="@(Model.Pagina - 1)"
                                asp-route-tamanoPagina="@Model.TamanoPagina">
-                                @p
+                                Anterior
                             </a>
                         </li>
-                    }
-                </ul>
-            </nav>
-        }
+
+                        <li class="page-item disabled">
+                            <span class="page-link">Página @Model.Pagina de @totalPaginas</span>
+                        </li>
+
+                        <li class="page-item @(Model.Pagina < totalPaginas ? "" : "disabled")">
+                            <a class="page-link"
+                               asp-action="Auditoria"
+                               asp-route-q="@Model.Q"
+                               asp-route-tipo="@Model.Tipo"
+                               asp-route-estado="@Model.Estado"
+                               asp-route-fecha="@(Model.Fecha?.ToString("yyyy-MM-dd"))"
+                               asp-route-pagina="@(Model.Pagina + 1)"
+                               asp-route-tamanoPagina="@Model.TamanoPagina">
+                                Siguiente
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+            }
+        </div>
     </div>
 </div>
