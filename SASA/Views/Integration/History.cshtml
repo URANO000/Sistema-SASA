@@ -1,3 +1,5 @@
+@model List<DataAccess.Modelos.Entidades.Integracion.IntegracionHistorial>
+
 @{
     ViewData["Title"] = "Historial de Integraciones";
 }
@@ -8,7 +10,7 @@
 
             <h4 class="mb-1">Historial de Integraciones</h4>
             <p class="text-muted mb-4">
-                Registro de cargas y validaciones realizadas en el sistema.
+                Registro de importaciones/exportaciones realizadas en el sistema.
             </p>
 
             <div class="table-responsive">
@@ -16,18 +18,50 @@
                     <thead class="table-light">
                         <tr>
                             <th>Fecha</th>
-                            <th>Tipo</th>
+                            <th>Proceso</th>
+                            <th>Módulo</th>
+                            <th>Archivo</th>
                             <th>Estado</th>
+                            <th class="text-end">Filas</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <td>15/12/2025</td>
-                            <td>Activos</td>
-                            <td>
-                                <span class="badge bg-success">Completado</span>
-                            </td>
-                        </tr>
+                        @if (Model == null || !Model.Any())
+                        {
+                            <tr>
+                                <td colspan="6" class="text-center text-muted py-4">
+                                    No hay integraciones registradas aún.
+                                </td>
+                            </tr>
+                        }
+                        else
+                        {
+                            foreach (var h in Model)
+                            {
+                                <tr>
+                                    <td>@h.Fecha.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</td>
+                                    <td>@h.TipoProceso</td>
+                                    <td>@h.Modulo</td>
+                                    <td>@h.NombreArchivo</td>
+                                    <td>
+                                        @{
+                                            var badge = h.Estado switch
+                                            {
+                                                "Importado" => "bg-success",
+                                                "Validado" => "bg-primary",
+                                                "Cargado" => "bg-secondary",
+                                                "Fallido" => "bg-danger",
+                                                _ => "bg-warning"
+                                            };
+                                        }
+                                        <span class="badge @badge">@h.Estado</span>
+                                    </td>
+                                    <td class="text-end">
+                                        @h.FilasValidas/@h.TotalFilas
+                                    </td>
+                                </tr>
+                            }
+                        }
                     </tbody>
                 </table>
             </div>

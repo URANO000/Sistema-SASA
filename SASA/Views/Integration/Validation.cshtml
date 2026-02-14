@@ -1,3 +1,5 @@
+@model SASA.ViewModels.Integracion.ValidacionImportacionViewModel
+
 @{
     ViewData["Title"] = "Validación de Datos";
 }
@@ -6,13 +8,112 @@
     <div class="card shadow-sm">
         <div class="card-body">
 
-            <h4 class="mb-1">Validación de Datos</h4>
-            <p class="text-muted mb-4">
-                Resultados de validación de la información integrada.
-            </p>
+            <div class="d-flex justify-content-between align-items-start mb-3">
+                <div>
+                    <h4 class="mb-1">Validación de Datos</h4>
+                    <p class="text-muted mb-0">
+                        Archivo: <strong>@Model.NombreArchivo</strong>
+                    </p>
+                </div>
 
-            <div class="alert alert-info">
-                No hay procesos de validación activos en este momento.
+                <a asp-action="History" class="btn btn-outline-secondary">
+                    Ver historial
+                </a>
+            </div>
+
+            <!-- Resumen -->
+            <div class="row g-3 mb-4">
+                <div class="col-md-4">
+                    <div class="border rounded p-3">
+                        <div class="text-muted">Total filas</div>
+                        <div class="fs-4 fw-bold">@Model.TotalFilas</div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="border rounded p-3">
+                        <div class="text-muted">Filas válidas</div>
+                        <div class="fs-4 fw-bold">@Model.FilasValidas</div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="border rounded p-3">
+                        <div class="text-muted">Filas con error</div>
+                        <div class="fs-4 fw-bold">@Model.FilasConError</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Errores -->
+            @if (Model.Errores != null && Model.Errores.Any())
+            {
+                <div class="alert alert-danger">
+                    <div class="fw-semibold mb-2">Errores detectados</div>
+                    <ul class="mb-0">
+                        @foreach (var e in Model.Errores.Take(30))
+                        {
+                            <li>Fila @e.NumeroFila: @e.Mensaje</li>
+                        }
+                    </ul>
+                    @if (Model.Errores.Count > 30)
+                    {
+                        <div class="mt-2 text-muted">Mostrando 30 de @Model.Errores.Count errores.</div>
+                    }
+                </div>
+            }
+            else
+            {
+                <div class="alert alert-success">
+                    No se detectaron errores en la validación.
+                </div>
+
+                <form asp-action="ConfirmImport" method="post" class="mb-4">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="historialId" value="@Model.HistorialId" />
+                    <button type="submit" class="btn btn-primary">
+                        Confirmar importación
+                    </button>
+                </form>
+            }
+
+            <!-- Preview -->
+            <h5 class="mb-2">Vista previa (primeras 20 filas válidas)</h5>
+            <div class="table-responsive">
+                <table class="table table-sm table-hover align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Fila</th>
+                            <th>Número Activo</th>
+                            <th>Nombre máquina</th>
+                            <th>Tipo</th>
+                            <th>Marca</th>
+                            <th>Modelo</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model.FilasValidasPreview == null || !Model.FilasValidasPreview.Any())
+                        {
+                            <tr>
+                                <td colspan="6" class="text-center text-muted py-3">
+                                    No hay filas válidas para mostrar.
+                                </td>
+                            </tr>
+                        }
+                        else
+                        {
+                            foreach (var f in Model.FilasValidasPreview)
+                            {
+                                <tr>
+                                    <td>@f.NumeroFila</td>
+                                    <td>@f.NumeroActivo</td>
+                                    <td>@f.NombreMaquina</td>
+                                    <td>@f.TipoEquipo</td>
+                                    <td>@(f.Marca ?? "-")</td>
+                                    <td>@(f.Modelo ?? "-")</td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
             </div>
 
         </div>
