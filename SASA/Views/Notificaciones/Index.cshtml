@@ -41,14 +41,7 @@
     <div class="card-body pt-3">
         <form method="get" class="row g-2 mb-3">
             <div class="col-md-4">
-                <input name="q" value="@Model.Q" class="form-control" placeholder="Buscar por tipo, mensaje o tiquete">
-            </div>
-
-            <div class="col-md-2">
-                <select name="tipo" class="form-select">
-                    <option value="">Tipo</option>
-                    <option value="NuevoComentario" selected="@(Model.Tipo == "NuevoComentario")">NuevoComentario</option>
-                </select>
+                <input name="q" value="@Model.Q" class="form-control" placeholder="Buscar por fecha o estado">
             </div>
 
             <div class="col-md-2">

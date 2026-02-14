@@ -13,14 +13,7 @@
 
         <form method="get" class="audit-filters row g-2 mb-3">
             <div class="col-md-3">
-                <input name="q" value="@Model.Q" class="form-control" placeholder="Buscar por usuario, tiquete, tipo, mensaje">
-            </div>
-
-            <div class="col-md-2">
-                <select name="tipo" class="form-select">
-                    <option value="">Tipo</option>
-                    <option value="NuevoComentario" selected="@(Model.Tipo == "NuevoComentario")">NuevoComentario</option>
-                </select>
+                <input name="q" value="@Model.Q" class="form-control" placeholder="Buscar por estado o fecha">
             </div>
 
             <div class="col-md-2">
