@@ -1,4 +1,6 @@
 ﻿using DataAccess.Modelos.DTOs.Tiquete;
+using DataAccess.Modelos.DTOs.Tiquete.Agente_Ver;
+using DataAccess.Modelos.DTOs.Tiquete.Usuario_Ver;
 using DataAccess.Modelos.Entidades;
 using DataAccess.Modelos.Enums;
 using DataAccess.Repositorios.Categorias;
@@ -49,23 +51,22 @@ namespace BusinessLogic.Servicios.Tiquetes
             return resultado;
 
         }
-        public async Task<ListaTiqueteDTO?> ObtenerPorTiqueteIdAsync(int id)
+        public async Task<ListaTiqueteDTO?> ObtenerTiquetePorIdReadAsync(int id)
+        {
+            return await _tiqueteRepository.ObtenerTiquetePorIdReadAsync(id);
+        }
+
+        public async Task<TiquetePorIdDto?> ObtenerTiquetePorIdAsync(int id)
         {
             return await _tiqueteRepository.ObtenerTiquetePorIdAsync(id);
         }
 
+        //--------------------Creación de tiquetes para el administrador-----------------------------------
         public async Task<int> AgregarTiqueteAsync(CrearTiqueteAdminDto dto, string currentUserId)
         {
             //Validaciones básicas
             if (string.IsNullOrWhiteSpace(currentUserId))
                 throw new UnauthorizedAccessException();
-
-            //if (string.IsNullOrWhiteSpace(dto.Asunto))
-            //    throw new ArgumentException("Asunto requerido");
-
-            //if (string.IsNullOrWhiteSpace(dto.Descripcion))
-            //    throw new ArgumentException("Descripción requerida");
-
             //Validar que la categoría exista
             var categoriaExiste = await _categoriaRepository.ExisteAsync(dto.IdCategoria);
             if (!categoriaExiste)
@@ -96,14 +97,142 @@ namespace BusinessLogic.Servicios.Tiquetes
             return tiqueteCreado.IdTiquete;
         }
 
-        public Task<Tiquete?> ActualizarTiqueteAsync(int id, Tiquete tiquete)
+        //--------------------Creación de tiquetes para el usuario común-----------------------------------
+        public Task<int> AgregarTiqueteUsuarioAsync(CrearTiqueteUsuarioDto tiquete, string currentUserId)
         {
             throw new NotImplementedException();
         }
 
-        public Task<bool> CancelarTiquete(int id)
+        //--------------------Actualizar tiquetes para el administrador-----------------------------------
+
+        public async Task ActualizarTiqueteAsync(EditarTiqueteDto dto)
         {
-            throw new NotImplementedException();
+            //Validacion 1: El usuario debe estar autenticado para actualizar un tiquete
+            //Puede fallar si se prueba con http y no https por los cookies
+            if (string.IsNullOrWhiteSpace(dto.UpdatedBy))
+            {
+                throw new UnauthorizedAccessException("Usuario no autenticado.");
+            }
+
+            var tiqueteActual = await _tiqueteRepository.ObtenerEntidadPorIdAsync(dto.IdTiquete);
+
+            //Validacion 2: El tiquete debe existir para ser actualizado
+            //Si el tiquete no existe, se lanza una excepción
+            if (tiqueteActual == null)
+            {
+                throw new KeyNotFoundException("Tiquete no existe.");
+            }
+
+            //Validacion 3: Si el estatus del tiquete es cerrado, entonces no se puede actualizar el tiquete
+            if (tiqueteActual.IdEstatus == (int)TiqueteEstatus.Cerrado)
+            {
+                throw new InvalidOperationException("No se puede actualizar un tiquete cerrado.");
+            }
+
+            //Validacion 4: Si el estatus del tiquete se mueve a cerrado, entonces se debe validar que el campo de resolución no esté vacío
+            if (dto.IdEstatus == (int)TiqueteEstatus.Cerrado && string.IsNullOrWhiteSpace(dto.Resolucion))
+            {
+                throw new ArgumentException("La resolución es requerida para cerrar un tiquete.");
+            }
+
+
+            //Si el tiquete existe, se actualizan los campos
+            tiqueteActual.Asunto = dto.Asunto.Trim();
+            tiqueteActual.Descripcion = dto.Descripcion.Trim();
+            tiqueteActual.IdCategoria = dto.IdCategoria;
+            tiqueteActual.IdPrioridad = dto.IdPrioridad;
+            tiqueteActual.IdAsignee = dto.IdAsignee;
+            tiqueteActual.IdEstatus = dto.IdEstatus;
+            tiqueteActual.Resolucion = dto.Resolucion?.Trim(); //Puede no tener nada
+            tiqueteActual.UpdatedAt = DateTime.Now;
+            tiqueteActual.UpdatedBy = dto.UpdatedBy; //En el controller se debe pasar el id del usuario autenticado
+
+            //Persistencia de datos -> Guardar cambios
+            await _tiqueteRepository.ActualizarTiqueteAsync(tiqueteActual);
+        }
+
+        //--------------------Creación de tiquetes para el agente-----------------------------------
+        public async Task ActualizarTiqueteAgenteAsync(EditarTiqueteAgenteDto dto)
+        {
+            //Validacion 1: El usuario debe estar autenticado para actualizar un tiquete
+            //Puede fallar si se prueba con http y no https por los cookies
+            if (string.IsNullOrWhiteSpace(dto.UpdatedBy))
+            {
+                throw new UnauthorizedAccessException("Usuario no autenticado.");
+            }
+
+            var tiqueteActual = await _tiqueteRepository.ObtenerEntidadPorIdAsync(dto.IdTiquete);
+
+            //Validacion 2: El tiquete debe existir para ser actualizado
+            //Si el tiquete no existe, se lanza una excepción
+            if (tiqueteActual == null)
+            {
+                throw new KeyNotFoundException("Tiquete no existe.");
+            }
+
+            //Validacion 3: Si el estatus del tiquete es cerrado, entonces no se puede actualizar el tiquete
+            if (tiqueteActual.Estatus.Equals((int)TiqueteEstatus.Cerrado))
+            {
+                throw new InvalidOperationException("No se puede actualizar un tiquete cerrado.");
+            }
+
+            //Validacion 4: Si el estatus del tiquete se mueve a cerrado, entonces se debe validar que el campo de resolución no esté vacío
+            if (dto.IdEstatus == (int)TiqueteEstatus.Cerrado && string.IsNullOrWhiteSpace(dto.Resolucion))
+            {
+                throw new ArgumentException("La resolución es requerida para cerrar un tiquete.");
+            }
+
+            //Validación 5: No se pueden abrir tiquetes con estatus cerrado, sólo un admin puede
+            if (tiqueteActual.IdEstatus == (int)TiqueteEstatus.Cerrado &&
+                dto.IdEstatus != (int)TiqueteEstatus.Cerrado)
+            {
+                throw new InvalidOperationException("No se puede modificar el estatus de un tiquete cerrado.");
+            }
+
+            //Si el tiquete existe, se actualizan los campos
+            tiqueteActual.IdPrioridad = dto.IdPrioridad;
+            tiqueteActual.IdEstatus = dto.IdEstatus;
+            tiqueteActual.Resolucion = dto.Resolucion?.Trim(); //Puede no tener nada
+            tiqueteActual.UpdatedAt = DateTime.Now;
+            tiqueteActual.UpdatedBy = dto.UpdatedBy; //En el controller se debe pasar el id del usuario autenticado
+
+            //Persistencia de datos -> Guardar cambios
+            await _tiqueteRepository.ActualizarTiqueteAsync(tiqueteActual);
+        }
+
+        //--------------------Creación de tiquetes para el usuario normal-----------------------------------
+        public async Task ActualizarTiqueteUsuarioAsync(EditarTiqueteUsuarioDto dto)
+        {
+            //Validacion 1: El usuario debe estar autenticado para actualizar un tiquete
+            //Puede fallar si se prueba con http y no https por los cookies
+            if (string.IsNullOrWhiteSpace(dto.UpdatedBy))
+            {
+                throw new UnauthorizedAccessException("Usuario no autenticado.");
+            }
+
+            var tiqueteActual = await _tiqueteRepository.ObtenerEntidadPorIdAsync(dto.IdTiquete);
+
+            //Validacion 2: El tiquete debe existir para ser actualizado
+            //Si el tiquete no existe, se lanza una excepción
+            if (tiqueteActual == null)
+            {
+                throw new KeyNotFoundException("Tiquete no existe.");
+            }
+
+            //Validacion 3: Si el estatus del tiquete es cerrado, entonces no se puede actualizar el tiquete
+            if (tiqueteActual.Estatus.Equals((int)TiqueteEstatus.Cerrado))
+            {
+                throw new InvalidOperationException("No se puede actualizar un tiquete cerrado.");
+            }
+
+            //Si el tiquete existe, se actualizan los campos
+            tiqueteActual.Asunto = dto.Asunto.Trim();
+            tiqueteActual.Descripcion = dto.Descripcion.Trim();
+            tiqueteActual.UpdatedAt = DateTime.Now;
+            tiqueteActual.UpdatedBy = dto.UpdatedBy; //En el controller se debe pasar el id del usuario autenticado
+
+            //Persistencia de datos -> Guardar cambios
+            await _tiqueteRepository.ActualizarTiqueteAsync(tiqueteActual);
         }
     }
 }

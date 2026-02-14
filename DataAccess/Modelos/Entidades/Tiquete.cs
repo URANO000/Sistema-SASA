@@ -25,7 +25,7 @@ namespace DataAccess.Modelos.Entidades
         public int IdEstatus { get; set; }
 
         [Column("idPrioridad")]
-        public int? IdPrioridad { get; set; }
+        public int IdPrioridad { get; set; }
 
         [Required]
         [Column("idCategoria")]
@@ -50,6 +50,9 @@ namespace DataAccess.Modelos.Entidades
         [Column("updatedAt")]
         public DateTime? UpdatedAt { get; set; }
 
+        [Column("updatedBy")]
+        public string? UpdatedBy { get; set; }
+
         [Column("resolucion")]
         public string? Resolucion { get; set; }
 
@@ -71,6 +74,9 @@ namespace DataAccess.Modelos.Entidades
 
         [ForeignKey(nameof(IdReportedBy))]
         public ApplicationUser? ReportedBy { get; set; }
+
+        [ForeignKey(nameof(UpdatedBy))]
+        public ApplicationUser? UpdatedByUser { get; set; }
 
 
         //Collection -> Relaciones uno a muchos

@@ -1,6 +1,5 @@
-﻿using DataAccess.Modelos.Entidades;
-using DataAccess.Modelos.DTOs.Tiquete;
-using DataAccess.Modelos.Enums;
+﻿using DataAccess.Modelos.DTOs.Tiquete;
+using DataAccess.Modelos.Entidades;
 using Microsoft.EntityFrameworkCore;
 
 namespace DataAccess.Repositorios.Tiquetes
@@ -41,7 +40,7 @@ namespace DataAccess.Repositorios.Tiquetes
                 .ToListAsync();
         }
 
-        public async Task<ListaTiqueteDTO?> ObtenerTiquetePorIdAsync(int id)
+        public async Task<ListaTiqueteDTO?> ObtenerTiquetePorIdReadAsync(int id)
         {
             return await _context.Tiquetes
                 .AsNoTracking()
@@ -65,6 +64,30 @@ namespace DataAccess.Repositorios.Tiquetes
                 .FirstOrDefaultAsync();
         }
 
+        public async Task<Tiquete?> ObtenerEntidadPorIdAsync(int id)
+        {
+            return await _context.Tiquetes
+                .FirstOrDefaultAsync(t => t.IdTiquete == id);
+        }
+        public async Task<TiquetePorIdDto?> ObtenerTiquetePorIdAsync(int id)
+        {
+            return await _context.Tiquetes
+        .AsNoTracking()
+        .Where(t => t.IdTiquete == id)
+        .Select(t => new TiquetePorIdDto
+        {
+            IdTiquete = t.IdTiquete,
+            Asunto = t.Asunto,
+            Descripcion = t.Descripcion,
+            IdCategoria = t.IdCategoria,
+            IdPrioridad = t.IdPrioridad,
+            IdEstatus = t.IdEstatus,
+            IdAsignee = t.IdAsignee,
+            Resolucion = t.Resolucion
+        })
+        .FirstOrDefaultAsync();
+        }
+
         public async Task<Tiquete> AgregarTiqueteAsync(Tiquete tiquete)
         {
             _context.Tiquetes.Add(tiquete);
@@ -74,18 +97,18 @@ namespace DataAccess.Repositorios.Tiquetes
 
         public async Task ActualizarTiqueteAsync(Tiquete tiquete)
         {
-            _context.Tiquetes.Update(tiquete);
+            //_context.Tiquetes.Update(tiquete);
             await _context.SaveChangesAsync();
         }
 
-        public async Task CancelarTiquete(int id)
-        {
-            var tiquete = await _context.Tiquetes.FindAsync(id);
-            if (tiquete != null)
-            {
-                tiquete.IdEstatus = (int)TiqueteEstatus.Cancelado;
-                await _context.SaveChangesAsync();
-            }
-        }
+        //public async Task CancelarTiquete(int id)
+        //{
+        //    var tiquete = await _context.Tiquetes.FindAsync(id);
+        //    if (tiquete != null)
+        //    {
+        //        tiquete.IdEstatus = (int)TiqueteEstatus.Cancelado;
+        //        await _context.SaveChangesAsync();
+        //    }
+        //}
     }
 }

@@ -11,7 +11,7 @@ namespace BusinessLogic.Servicios.Usuarios
         Task<ListaUsuarioDto?> ObtenerUsuarioPorIdAsync(string id);
 
         Task<ResultadoCreacionUsuarioDto> AgregarUsuarioAsync(CrearUsuarioDto usuario);
-        Task ActualizarUsuarioAsync(EditarUsuarioDto usuario); //Se puede usar DTO
+        Task ActualizarUsuarioAsync(EditarUsuarioDto usuario);
 
         Task DesactivarUsuarioAsync(string id);
 
