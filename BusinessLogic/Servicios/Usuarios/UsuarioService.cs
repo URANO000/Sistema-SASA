@@ -86,6 +86,14 @@ namespace BusinessLogic.Servicios.Usuarios
             };
         }
 
+        //Obtener usuarios por departamento TI
+        public async Task<IEnumerable<UsuarioTIDropdownDto?>> ObtenerUsuariosTIAsync()
+        {
+            return await _usuarioRepository.ObtenerUsuariosTIAsync();
+        }
+
+
+
         //Creación de usuarios
         public async Task<ResultadoCreacionUsuarioDto> AgregarUsuarioAsync(CrearUsuarioDto dto)
         {

@@ -62,8 +62,11 @@ namespace DataAccess
                     .WithMany(u => u.TiquetesReportados)
                     .HasForeignKey(t => t.IdReportedBy)
                     .OnDelete(DeleteBehavior.Restrict);
-
             });
+
+            //Modelando trigger en tiquete 
+            modelBuilder.Entity<Tiquete>()
+                .ToTable(tb => tb.HasTrigger("TR_Tiquete_Insert_Notificacion"));
 
             //Tablas "intermedias" de Identity (como en el script)
             modelBuilder.Entity<IdentityUserRole<string>>().ToTable("AspNetUserRoles");

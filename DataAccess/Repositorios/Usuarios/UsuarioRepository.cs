@@ -80,5 +80,21 @@ namespace DataAccess.Repositorios.Usuarios
                 await _context.SaveChangesAsync();
             }
         }
+
+        //Obtener usuarios de TI
+        public async Task<IReadOnlyList<UsuarioTIDropdownDto?>> ObtenerUsuariosTIAsync()
+        {
+            return await _context.Users
+                .AsNoTracking()
+                .Where(u => u.Departamento == "Tecnologías de Información")
+                .OrderBy(u => u.PrimerNombre)
+                .Select(u => new UsuarioTIDropdownDto
+                {
+                    Id = u.Id,
+                    UserName = u.UserName
+                })
+                .ToListAsync();
+        }
+
     }
 }

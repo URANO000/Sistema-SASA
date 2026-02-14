@@ -1,24 +1,206 @@
-﻿using Microsoft.AspNetCore.Http;
+using BusinessLogic.Servicios.Categorias;
+using BusinessLogic.Servicios.Prioridad;
+using BusinessLogic.Servicios.Tiquetes;
+using BusinessLogic.Servicios.Usuarios;
+using DataAccess.Modelos.DTOs.Tiquete;
+using DataAccess.Modelos.Enums;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using SASA.Filters;
+using SASA.ViewModels.Tiquete;
+using System.Security.Claims;
 
 namespace SASA.Controllers
 {
     [RequireAuth]
     public class TiqueteController : Controller
     {
+        private readonly ITiqueteService _tiqueteService;
+        //Para dropdowns y autocomplete
+        private readonly IUsuarioService _usuarioService;
+        private readonly ICategoriaService _categoriaService;
+        private readonly IPrioridadService _prioridadService;
+
+        public TiqueteController(ITiqueteService tiqueteService, IUsuarioService usuarioService,
+            ICategoriaService categoriaService, IPrioridadService prioridadService)
+        {
+            _tiqueteService = tiqueteService;
+            _usuarioService = usuarioService;
+            _categoriaService = categoriaService;
+            _prioridadService = prioridadService;
+        }
         //GET: TiqueteController
-        public ActionResult Index()
+        [HttpGet]
+        public async Task<IActionResult> Index()
         {
-            return View();
+            var tiqueteDTO = await _tiqueteService.ObtenerTiquetesAsync();
+
+            var model = tiqueteDTO
+                .Select(u => new TiqueteListaViewModel
+                {
+                    IdTiquete = u.IdTiquete,
+                    Asunto = u.Asunto,
+                    Descripcion = u.Descripcion,
+                    Resolucion = u.Resolucion,
+                    Estatus = u.Estatus,
+                    Prioridad = u.Prioridad,
+                    Categoria = u.Categoria,
+                    Cola = u.Cola,
+                    ReportedBy = u.ReportedBy,
+                    Asignee = u.Asignee,
+                    CreatedAt = u.CreatedAt,
+                    UpdatedAt = u.UpdatedAt
+                })
+                .ToList();
+
+            return View(model);
         }
 
+        [HttpGet]
+        public async Task<IActionResult> Add()
+        {
+            var model = new CrearTiqueteViewModel
+            {
+                Asunto = string.Empty,
+                Descripcion = string.Empty,
+                Categoria = 0
+            };
+
+            await CargarDropdownsAsync(model);
+
+
+            return PartialView("_AddModal", model);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Add(CrearTiqueteViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                // Reload dropdowns
+                await CargarDropdownsAsync(model);
+
+                return BadRequest();
+            }
+            try
+            {
+                //Guardar el usuario actual
+                var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+                //Mapear viewmodel a dto
+                var dto = new CrearTiqueteAdminDto
+                {
+                    Asunto = model.Asunto,
+                    Descripcion = model.Descripcion,
+                    IdCategoria = model.Categoria,
+                    IdPrioridad = model.Prioridad,
+                    IdAsignee = model.IdAsignee
+                };
+
+                var idTiquete = await _tiqueteService.AgregarTiqueteAsync(dto, currentUserId);
+
+                return Ok(new
+                {
+                    success = true,
+                    idTiquete
+                });
+
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new
+                {
+                    success = false,
+                    message = ex.Message
+                });
+            }
+        }
+        [HttpGet]
+        public async Task<IActionResult> Edit(int id)
+        {
+            var tiquete = await _tiqueteService.ObtenerTiquetePorIdAsync(id);
+
+            if (tiquete == null)
+            {
+                return NotFound();
+            }
+
+            //Mapear a viewmodel
+            var model = new TiqueteEditarViewModel
+            {
+                IdTiquete = tiquete.IdTiquete,
+                Asunto = tiquete.Asunto,
+                Descripcion = tiquete.Descripcion,
+                IdCategoria = tiquete.IdCategoria,
+                IdPrioridad = tiquete.IdPrioridad,
+                IdEstatus = tiquete.IdEstatus,
+                IdAsignee = tiquete.IdAsignee,
+                Resolucion = tiquete.Resolucion,
+
+            };
+
+            await CargarDropdownsAsync(model);
+
+            return View(model);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(TiqueteEditarViewModel model)
+        {
+            if(!ModelState.IsValid)
+            {
+                await CargarDropdownsAsync(model);
+                return View(model);
+            }
+
+            try
+            {
+                var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                var dto = new EditarTiqueteDto
+                {
+                    IdTiquete = model.IdTiquete,
+                    Asunto = model.Asunto,
+                    Descripcion = model.Descripcion,
+                    IdCategoria = model.IdCategoria,
+                    IdPrioridad = model.IdPrioridad,
+                    IdEstatus = model.IdEstatus,
+                    IdAsignee = model.IdAsignee,
+                    Resolucion = model.Resolucion,
+                    UpdatedBy = currentUserId
+                };
+                await _tiqueteService.ActualizarTiqueteAsync(dto);
+                return RedirectToAction(nameof(Index));
+
+            }
+            catch (UnauthorizedAccessException)
+            {
+                return Unauthorized();
+            }
+            catch(KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch(InvalidOperationException ex)
+            {
+                ModelState.AddModelError(string.Empty, ex.Message);
+            }
+            catch (ArgumentException ex)
+            {
+                ModelState.AddModelError(nameof(model.Resolucion), ex.Message);
+            }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError(string.Empty, ex.Message);
+            }
+
+            await CargarDropdownsAsync(model);
+            return View(model);
+        }
+
+        [HttpGet]
         public IActionResult Details()
-        {
-            return View();
-        }
-
-        public IActionResult Edit()
         {
             return View();
         }
@@ -26,6 +208,44 @@ namespace SASA.Controllers
         public IActionResult Dashboard()
         {
             return View();
+        }
+
+        //----------------------------Helpers---------------------------------------
+        private async Task CargarDropdownsAsync(TiqueteFormViewModel model)
+        {
+            //Obtener datos por medio de servicios
+            var categorias = await _categoriaService.ObtenerCategoriasAsync();
+            var prioridades = await _prioridadService.ObtenerPrioridadesAsync();
+            var usuarios = await _usuarioService.ObtenerUsuariosTIAsync();
+            var estatuses = Enum.GetValues(typeof(TiqueteEstatus))
+                    .Cast<TiqueteEstatus>();
+
+            //Mapear a selectlistitems
+
+            model.Categorias = categorias.Select(c => new SelectListItem
+            {
+                Value = c.IdCategoria.ToString(),
+                Text = c.NombreCategoria
+            });
+
+            model.Prioridades = prioridades.Select(p => new SelectListItem
+            {
+                Value = p.IdPrioridad.ToString(),
+                Text = p.NombrePrioridad
+            });
+
+            model.Asignees = usuarios.Select(u => new SelectListItem
+            {
+                Value = u.Id,
+                Text = u.UserName
+            });
+
+            model.Estatuses = estatuses.Select(e => new SelectListItem
+            {
+                Value = ((int)e).ToString(),
+                Text = e.ToString()
+            });
+
         }
     }
 }

@@ -1,6 +1,5 @@
-﻿using DataAccess.Modelos.Entidades;
-using DataAccess.Modelos.DTOs.Tiquete;
-using DataAccess.Modelos.Enums;
+﻿using DataAccess.Modelos.DTOs.Tiquete;
+using DataAccess.Modelos.Entidades;
 using Microsoft.EntityFrameworkCore;
 
 namespace DataAccess.Repositorios.Tiquetes
@@ -27,22 +26,21 @@ namespace DataAccess.Repositorios.Tiquetes
                     Descripcion = t.Descripcion,
                     Resolucion = t.Resolucion ?? "Sin Resolución",
 
-                    Estatus = t.Estatus.NombreEstatus,
+                    Estatus = t.Estatus != null ? t.Estatus.NombreEstatus : "Sin estatus",
                     Prioridad = t.Prioridad != null ? t.Prioridad.NombrePrioridad : "Sin prioridad",
-                    Categoria = t.Categoria.NombreCategoria,
-                    Cola = t.Cola != null ? t.Cola.NombreCola : "Sin Cola",
+                    Categoria = t.Categoria != null ? t.Categoria.NombreCategoria : "Sin categoría",
+                    Cola = t.Cola != null ? t.Cola.NombreCola : "Sin cola",
 
-                    ReportedBy = t.ReportedBy.CorreoEmpresa,
+                    ReportedBy = t.ReportedBy != null ? t.ReportedBy.CorreoEmpresa : "Desconocido",
                     Asignee = t.Asignee != null ? t.Asignee.CorreoEmpresa : "Sin asignar",
 
                     CreatedAt = t.CreatedAt,
                     UpdatedAt = t.UpdatedAt
-
                 })
                 .ToListAsync();
         }
 
-        public async Task<ListaTiqueteDTO?> ObtenerTiquetePorIdAsync(int id)
+        public async Task<ListaTiqueteDTO?> ObtenerTiquetePorIdReadAsync(int id)
         {
             return await _context.Tiquetes
                 .AsNoTracking()
@@ -66,26 +64,51 @@ namespace DataAccess.Repositorios.Tiquetes
                 .FirstOrDefaultAsync();
         }
 
-        public async Task AgregarTiqueteAsync(Tiquete tiquete)
+        public async Task<Tiquete?> ObtenerEntidadPorIdAsync(int id)
+        {
+            return await _context.Tiquetes
+                .FirstOrDefaultAsync(t => t.IdTiquete == id);
+        }
+        public async Task<TiquetePorIdDto?> ObtenerTiquetePorIdAsync(int id)
+        {
+            return await _context.Tiquetes
+        .AsNoTracking()
+        .Where(t => t.IdTiquete == id)
+        .Select(t => new TiquetePorIdDto
+        {
+            IdTiquete = t.IdTiquete,
+            Asunto = t.Asunto,
+            Descripcion = t.Descripcion,
+            IdCategoria = t.IdCategoria,
+            IdPrioridad = t.IdPrioridad,
+            IdEstatus = t.IdEstatus,
+            IdAsignee = t.IdAsignee,
+            Resolucion = t.Resolucion
+        })
+        .FirstOrDefaultAsync();
+        }
+
+        public async Task<Tiquete> AgregarTiqueteAsync(Tiquete tiquete)
         {
             _context.Tiquetes.Add(tiquete);
             await _context.SaveChangesAsync();
+            return tiquete;
         }
 
         public async Task ActualizarTiqueteAsync(Tiquete tiquete)
         {
-            _context.Tiquetes.Update(tiquete);
+            //_context.Tiquetes.Update(tiquete);
             await _context.SaveChangesAsync();
         }
 
-        public async Task CancelarTiquete(int id)
-        {
-            var tiquete = await _context.Tiquetes.FindAsync(id);
-            if(tiquete != null)
-            {
-                tiquete.IdEstatus = (int)TiqueteEstatus.Cancelado;
-                await _context.SaveChangesAsync();
-            }
-        }
+        //public async Task CancelarTiquete(int id)
+        //{
+        //    var tiquete = await _context.Tiquetes.FindAsync(id);
+        //    if (tiquete != null)
+        //    {
+        //        tiquete.IdEstatus = (int)TiqueteEstatus.Cancelado;
+        //        await _context.SaveChangesAsync();
+        //    }
+        //}
     }
 }
