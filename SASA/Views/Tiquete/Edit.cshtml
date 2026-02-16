@@ -178,3 +178,10 @@
     </div>
 </form>
 @await Html.PartialAsync("_CancelConfirm")
+@await Html.PartialAsync("_SuccessModal")
+@await Html.PartialAsync("_ErrorModal")
+
+@section Scripts {
+    <script src="~/js/formSubmits.js" asp-append-version="true"></script>
+
+}

@@ -152,7 +152,16 @@ namespace SASA.Controllers
             if(!ModelState.IsValid)
             {
                 await CargarDropdownsAsync(model);
-                return View(model);
+                return Json(new
+                {
+                    success = false,
+                    errors = ModelState
+                                 .Where(x => x.Value!.Errors.Any())
+                                 .ToDictionary(
+                                     k => k.Key,
+                                     v => v.Value!.Errors.Select(e => e.ErrorMessage).ToArray()
+                                 )
+                });
             }
 
             try
@@ -171,7 +180,10 @@ namespace SASA.Controllers
                     UpdatedBy = currentUserId
                 };
                 await _tiqueteService.ActualizarTiqueteAsync(dto);
-                return RedirectToAction(nameof(Index));
+                return Json(new
+                {
+                    success = true
+                });
 
             }
             catch (UnauthorizedAccessException)
@@ -184,19 +196,37 @@ namespace SASA.Controllers
             }
             catch(InvalidOperationException ex)
             {
-                ModelState.AddModelError(string.Empty, ex.Message);
+                return Json(new
+                {
+                    success = false,
+                    errors = new
+                    {
+                        _form = new[] { ex.Message }
+                    }
+                });
             }
             catch (ArgumentException ex)
             {
-                ModelState.AddModelError(nameof(model.Resolucion), ex.Message);
+                return Json(new
+                {
+                    success = false,
+                    errors = new
+                    {
+                        _form = new[] { ex.Message }
+                    }
+                });
             }
             catch (Exception ex)
             {
-                ModelState.AddModelError(string.Empty, ex.Message);
+                return Json(new
+                {
+                    success = false,
+                    errors = new
+                    {
+                        _form = new[] { ex.Message }
+                    }
+                });
             }
-
-            await CargarDropdownsAsync(model);
-            return View(model);
         }
 
         [HttpGet]
