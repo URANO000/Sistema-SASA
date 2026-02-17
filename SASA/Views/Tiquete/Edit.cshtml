@@ -61,7 +61,7 @@
                     <label asp-for="IdAsignee" class="form-label">Asignado</label>
                     <select asp-for="IdAsignee"
                             asp-items="Model.Asignees" class="form-select">
-                        <option value="" disabled>Seleccione al usuario a asignar</option>
+                        <option value="">Seleccione al usuario a asignar</option>
                     </select>
                     <span asp-validation-for="IdAsignee" class="text-danger"></span>
                 </div>
@@ -80,8 +80,14 @@
                     <label asp-for="Descripcion" class="form-label required-field">Descripción</label>
                     <textarea asp-for="Descripcion" class="form-control" rows="4"
                               placeholder="Describa el problema o solicitud"></textarea>
+                    <span asp-validation-for="Descripcion" class="text-danger"></span>
                 </div>
-                <span asp-validation-for="Descripcion" class="text-danger"></span>
+                <div class="col-12">
+                    <label asp-for="Resolucion" class="form-label">Resolución</label>
+                    <textarea asp-for="Resolucion" class="form-control" rows="4"
+                              placeholder="Para cerrar el tiquete, una resolución es necesaria"></textarea>
+                    <span asp-validation-for="Resolucion" class="text-danger"></span>
+                </div>
             </div>
         </div>
     </div>
