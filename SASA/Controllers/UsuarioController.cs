@@ -207,23 +207,23 @@ namespace SASA.Controllers
                 });
             }
 
-            //Si todo está bien, mapear a DTO para transferencia
-            var dto = new EditarUsuarioDto
-            {
-                Id = model.Id,
-                PrimerNombre = model.PrimerNombre,
-                SegundoNombre = model.SegundoNombre,
-                PrimerApellido = model.PrimerApellido,
-                SegundoApellido = model.SegundoApellido,
-                CorreoEmpresa = model.CorreoEmpresa,
-                Departamento = model.Departamento,
-                Puesto = model.Puesto,
-                Rol = model.Rol
-            };
-
             //Ahora, llamar al servicio con try and catch
             try
             {
+                //Si todo está bien, mapear a DTO para transferencia
+                var dto = new EditarUsuarioDto
+                {
+                    Id = model.Id,
+                    PrimerNombre = model.PrimerNombre,
+                    SegundoNombre = model.SegundoNombre,
+                    PrimerApellido = model.PrimerApellido,
+                    SegundoApellido = model.SegundoApellido,
+                    CorreoEmpresa = model.CorreoEmpresa,
+                    Departamento = model.Departamento,
+                    Puesto = model.Puesto,
+                    Rol = model.Rol
+                };
+
                 await _usuarioService.ActualizarUsuarioAsync(dto);
                 return Json(new
                 {
@@ -339,35 +339,5 @@ namespace SASA.Controllers
                 }.Where(x => !string.IsNullOrWhiteSpace(x)));
         }
 
-
-        //public async Task<IActionResult> CargarIndexConErrores(CrearUsuarioViewModel model)
-        //{
-        //    //Es similar al Index, pero cargando el modelo con errores
-        //    //Ya que utilizo vistas compartidas (UsuarioIndexViewModel)
-        //    var usuariosDTO = await _usuarioService.ObtenerUsuariosAsync();
-        //    var roles = await _rolService.ObtenerRolesAsync();
-
-        //    var usuarios = usuariosDTO.Select(u => new UsuarioListaViewModel
-        //    {
-        //        Id = u.Id!,
-        //        NombreCompleto = NombreCompletoHelper(u), //utilizo el helper
-        //        Departamento = u.Departamento,
-        //        Puesto = u.Puesto,
-        //        CorreoEmpresa = u.CorreoEmpresa,
-        //        Estado = u.Estado ? "Activo" : "Inactivo",
-        //        Rol = u.Roles != null && u.Roles.Any()
-        //    ? string.Join(", ", u.Roles)
-        //    : "SIN ROL" //Por si no tiene rol, no dejarlo en nulo
-        //    }).ToList();
-
-        //    var indexModel = new UsuarioIndexViewModel
-        //    {
-        //        Usuarios = usuarios,
-        //        RolesDisponibles = roles,
-        //        CrearUsuario = model
-        //    };
-
-        //    return View("Index", indexModel);
-        //}
     }
 }

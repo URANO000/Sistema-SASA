@@ -4,23 +4,37 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - SASA</title>
+
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/css/common.css" asp-append-version="true" />
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
-<body class="bg-light">
-    <main class="container py-5" style="max-width: 520px;">
-        @if (TempData["Success"] is string s)
-        {
-            <div class="alert alert-success">@s</div>
-        }
-        @if (TempData["Error"] is string e)
-        {
-            <div class="alert alert-danger">@e</div>
-        }
 
-        @RenderBody()
+<body>
+    <main class="auth-shell">
+        <!-- Izquierda (imagen + logo) -->
+        <section class="auth-left">
+            <div class="auth-left-overlay"></div>
+            <div class="auth-left-content">
+            @*     <img src="~/img/logo-blanco-custom.png" class="auth-logo" alt="Sistemas Analíticos" /> *@
+            </div>
+        </section>
+
+        <!-- Derecha (form) -->
+        <section class="auth-right">
+            <div class="auth-right-inner">
+                @if (TempData["Success"] is string s)
+                {
+                    <div class="alert alert-success">@s</div>
+                }
+                @if (TempData["Error"] is string e)
+                {
+                    <div class="alert alert-danger">@e</div>
+                }
+
+                @RenderBody()
+            </div>
+        </section>
     </main>
 
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>

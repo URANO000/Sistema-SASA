@@ -1,0 +1,9 @@
+﻿using DataAccess.Modelos.DTOs.Categoria;
+
+namespace BusinessLogic.Servicios.Categorias
+{
+    public interface ICategoriaService
+    {
+        public Task<IEnumerable<ListaCategoriaDto>> ObtenerCategoriasAsync();
+    }
+}

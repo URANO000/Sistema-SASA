@@ -1,10 +1,15 @@
+using BusinessLogic.Servicios.Categorias;
 using BusinessLogic.Servicios.Correo;
+using BusinessLogic.Servicios.Prioridad;
 using BusinessLogic.Servicios.Notificaciones;
 using BusinessLogic.Servicios.Rol;
 using BusinessLogic.Servicios.Tiquetes;
 using BusinessLogic.Servicios.Usuarios;
 using DataAccess;
 using DataAccess.Identity;
+using DataAccess.Repositorios.Categorias;
+using DataAccess.Repositorios.Colas;
+using DataAccess.Repositorios.Prioridad;
 using DataAccess.Repositorios.Notificaciones;
 using DataAccess.Repositorios.Tiquetes;
 using DataAccess.Repositorios.Usuarios;
@@ -58,8 +63,16 @@ builder.Services.AddScoped<ITiqueteService, TiqueteService>();
 builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
 builder.Services.AddScoped<IUsuarioService, UsuarioService>();
 builder.Services.AddScoped<IRolService, RolService>();
+
+builder.Services.AddScoped<ICategoriaRepository, CategoriaRepository>();
+builder.Services.AddScoped<ICategoriaService, CategoriaService>();
+builder.Services.AddScoped<IPrioridadRepository, PrioridadRepository>();
+builder.Services.AddScoped<IPrioridadService, PrioridadService>();
+builder.Services.AddScoped<IColaRepository, ColaRepository>();
+
 builder.Services.AddScoped<INotificacionRepository, NotificacionRepository>();
 builder.Services.AddScoped<INotificacionService, NotificacionService>();
+
 
 // Configuración de correo (Microsoft Graph)
 builder.Services.AddScoped<ICorreoNotificacionesService, CorreoNotificacionesService>();
@@ -81,6 +94,11 @@ if (app.Environment.IsDevelopment())
 {
     using var scope = app.Services.CreateScope();
     var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+
+    var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<ApplicationRole>>();
+
+    const string adminRole = "Administrador";
+
     var email = "test@sasa.com";
     var user = await userManager.FindByEmailAsync(email);
 
