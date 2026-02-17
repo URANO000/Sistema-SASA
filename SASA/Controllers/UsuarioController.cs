@@ -207,23 +207,23 @@ namespace SASA.Controllers
                 });
             }
 
-            //Si todo está bien, mapear a DTO para transferencia
-            var dto = new EditarUsuarioDto
-            {
-                Id = model.Id,
-                PrimerNombre = model.PrimerNombre,
-                SegundoNombre = model.SegundoNombre,
-                PrimerApellido = model.PrimerApellido,
-                SegundoApellido = model.SegundoApellido,
-                CorreoEmpresa = model.CorreoEmpresa,
-                Departamento = model.Departamento,
-                Puesto = model.Puesto,
-                Rol = model.Rol
-            };
-
             //Ahora, llamar al servicio con try and catch
             try
             {
+                //Si todo está bien, mapear a DTO para transferencia
+                var dto = new EditarUsuarioDto
+                {
+                    Id = model.Id,
+                    PrimerNombre = model.PrimerNombre,
+                    SegundoNombre = model.SegundoNombre,
+                    PrimerApellido = model.PrimerApellido,
+                    SegundoApellido = model.SegundoApellido,
+                    CorreoEmpresa = model.CorreoEmpresa,
+                    Departamento = model.Departamento,
+                    Puesto = model.Puesto,
+                    Rol = model.Rol
+                };
+
                 await _usuarioService.ActualizarUsuarioAsync(dto);
                 return Json(new
                 {

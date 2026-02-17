@@ -7,6 +7,7 @@
 @import url("./layout/topbar.css");
 @import url("./layout/sidebar.css");
 @import url("./layout/content.css");
+@import url("./layout/auth.css"); 
 
 /** COMPONENTS **/
 @import url("./components/breadcrumbs.css");
