@@ -14,7 +14,7 @@
 
 .auth-left {
     position: relative;
-    background-image: url("/img/auth-bg.jpg");
+    background-image: url("/img/auth-bg.jpeg");
     background-size: cover;
     background-position: center;
     display: none;
