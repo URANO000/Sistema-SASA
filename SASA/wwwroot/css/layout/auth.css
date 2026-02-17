@@ -5,19 +5,20 @@
     grid-template-columns: 1fr;
 }
 
-/* 50/50 a partir de lg */
+
 @media (min-width: 992px) {
     .auth-shell {
-        grid-template-columns: 1fr 1fr;
+        grid-template-columns: 60% 40%;
     }
 }
 
 .auth-left {
     position: relative;
     background-image: url("/img/auth-bg.jpeg");
+    background-repeat: no-repeat;
+    background-position: left center;
     background-size: cover;
-    background-position: center;
-    display: none;
+    min-height: 100vh;
 }
 
 @media (min-width: 992px) {
