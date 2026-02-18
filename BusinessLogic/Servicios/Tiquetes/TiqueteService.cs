@@ -53,7 +53,30 @@ namespace BusinessLogic.Servicios.Tiquetes
         }
         public async Task<ListaTiqueteDTO?> ObtenerTiquetePorIdReadAsync(int id)
         {
-            return await _tiqueteRepository.ObtenerTiquetePorIdReadAsync(id);
+            var dto =  await _tiqueteRepository.ObtenerTiquetePorIdReadAsync(id);
+
+            //Validar
+            if(dto == null)
+            {
+                return null;
+            }
+
+            //Retornar dto
+            return new ListaTiqueteDTO
+            {
+                IdTiquete = dto.IdTiquete,
+                Asunto = dto.Asunto,
+                Descripcion = dto.Descripcion,
+                Resolucion = dto.Resolucion,
+                Estatus = dto.Estatus,
+                Prioridad = dto.Prioridad,
+                Categoria = dto.Categoria,
+                Cola = dto.Cola,
+                Asignee = dto.Asignee,
+                ReportedBy = dto.ReportedBy,
+                CreatedAt = dto.CreatedAt,
+                UpdatedAt = dto.UpdatedAt,
+            };
         }
 
         public async Task<TiquetePorIdDto?> ObtenerTiquetePorIdAsync(int id)

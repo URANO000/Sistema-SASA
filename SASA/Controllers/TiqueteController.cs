@@ -230,9 +230,36 @@ namespace SASA.Controllers
         }
 
         [HttpGet]
-        public IActionResult Details()
+        public async Task<IActionResult> Details(int id)
         {
-            return View();
+            //Obtener el tiquete
+            var tiquete = await _tiqueteService.ObtenerTiquetePorIdReadAsync(id);
+
+            //Si el servicio no retorna nada, entonces retornar not found
+            if(tiquete == null)
+            {
+                return NotFound();
+            }
+
+            //Si el servicio retorna un tiquete, entonces mapear a viewModel
+            var model = new TiqueteDetalleViewModel
+            {
+                IdTiquete = id,
+                Asunto = tiquete.Asunto,
+                Descripcion = tiquete.Descripcion,
+                Resolucion = tiquete.Resolucion,
+                Estatus = tiquete.Estatus,
+                Prioridad = tiquete.Prioridad,
+                Categoria = tiquete.Categoria,
+                Cola = tiquete.Cola,
+                ReportedBy = tiquete.ReportedBy,
+                Asignee = tiquete.Asignee,
+
+                CreatedAt = tiquete.CreatedAt,
+                UpdatedAt = tiquete.UpdatedAt,
+                
+            };
+            return View(model);
         }
 
         public IActionResult Dashboard()

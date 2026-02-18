@@ -47,7 +47,7 @@ namespace SASA.Controllers
                 Puesto = u.Puesto,
                 CorreoEmpresa = u.CorreoEmpresa,
                 Estado = u.Estado ? "Activo" : "Inactivo",
-                Rol = u.Roles != null && u.Roles.Any()
+                Rol = u.Roles != null && u.Roles.Count > 0
             ? string.Join(", ", u.Roles)
             : "SIN ROL" //Por si no tiene rol, no dejarlo en nulo
             }).ToList();
@@ -73,7 +73,7 @@ namespace SASA.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Add(CrearUsuarioViewModel model)
         {
-            bool isAjax = Request.Headers["X-Requested-With"] == "XMLHttpRequest";
+            bool isAjax = Request.Headers["X-RequestedWith"] == "XMLHttpRequest";
             if (!ModelState.IsValid)
             {
                 model.RolesDisponibles = (await _rolService.ObtenerRolesAsync())
@@ -304,7 +304,7 @@ namespace SASA.Controllers
                 Puesto = usuario.Puesto,
                 CorreoEmpresa = usuario.CorreoEmpresa,
                 Estado = usuario.Estado ? "Activo" : "Inactivo",
-                Rol = usuario.Roles != null && usuario.Roles.Any()
+                Rol = usuario.Roles != null && usuario.Roles.Count > 0
                     ? string.Join(", ", usuario.Roles)
                     : "SIN ROL"
             };
@@ -312,7 +312,7 @@ namespace SASA.Controllers
             return View(model);
         }
 
-        //Helpers
+        //Helpers------------------------------------------------------------------------
 
         private async Task<IReadOnlyList<SelectListItem>> CargarRolesAsync()
         {
