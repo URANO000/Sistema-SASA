@@ -27,5 +27,21 @@ namespace BusinessLogic.Servicios.Correo
                 return false;
             }
         }
+
+        public async Task<bool> EnviarRecuperacionContrasenaAsync(string toEmail, string nombreUsuario, string resetLink)
+        {
+            var subject = "Restablecer contraseña - Sistema de Gestión SASA";
+            var html = PlantillasCorreo.RecuperacionContrasena(nombreUsuario, resetLink);
+
+            try
+            {
+                await _emailService.SendEmailAsync(toEmail, nombreUsuario, subject, html);
+                return true;
+            }
+            catch
+            {
+                return false; // regla: no rompe el sistema
+            }
+        }
     }
 }
