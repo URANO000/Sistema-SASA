@@ -1,12 +1,23 @@
+using BusinessLogic.Servicios.Categorias;
+using BusinessLogic.Servicios.Correo;
+using BusinessLogic.Servicios.Prioridad;
+using BusinessLogic.Servicios.Notificaciones;
 using BusinessLogic.Servicios.Rol;
 using BusinessLogic.Servicios.Tiquetes;
 using BusinessLogic.Servicios.Usuarios;
 using DataAccess;
 using DataAccess.Identity;
+using DataAccess.Repositorios.Categorias;
+using DataAccess.Repositorios.Colas;
+using DataAccess.Repositorios.Prioridad;
+using DataAccess.Repositorios.Notificaciones;
 using DataAccess.Repositorios.Tiquetes;
 using DataAccess.Repositorios.Usuarios;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using SASA.Configuration;
+using SASA.Services.Correo;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,7 +29,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 builder.Services
     .AddIdentity<ApplicationUser, ApplicationRole>(options =>
     {
-        // Activaci髇 por correo
+        // Activaci贸n por correo
         options.SignIn.RequireConfirmedEmail = true;
 
         // Bloqueo por intentos fallidos
@@ -26,7 +37,7 @@ builder.Services
         options.Lockout.MaxFailedAccessAttempts = 5;
         options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(10);
 
-        // Email 鷑ico
+        // Email 煤nico
         options.User.RequireUniqueEmail = true;
 
         // Password
@@ -53,6 +64,26 @@ builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
 builder.Services.AddScoped<IUsuarioService, UsuarioService>();
 builder.Services.AddScoped<IRolService, RolService>();
 
+builder.Services.AddScoped<ICategoriaRepository, CategoriaRepository>();
+builder.Services.AddScoped<ICategoriaService, CategoriaService>();
+builder.Services.AddScoped<IPrioridadRepository, PrioridadRepository>();
+builder.Services.AddScoped<IPrioridadService, PrioridadService>();
+builder.Services.AddScoped<IColaRepository, ColaRepository>();
+
+builder.Services.AddScoped<INotificacionRepository, NotificacionRepository>();
+builder.Services.AddScoped<INotificacionService, NotificacionService>();
+
+
+// Configuraci贸n de correo (Microsoft Graph)
+builder.Services.AddScoped<ICorreoNotificacionesService, CorreoNotificacionesService>();
+builder.Services.AddScoped<IEmailService, EmailService>(); //Graph EmailService
+builder.Services.Configure<ConfiguracionEmail>(builder.Configuration.GetSection("GraphEmail"));
+
+// Configuraci贸n general de la aplicaci贸n para la direcci贸n base, etc.
+builder.Services.Configure<AppSettings>(
+    builder.Configuration.GetSection("AppSettings"));
+
+
 // MVC
 builder.Services.AddControllersWithViews();
 
@@ -63,6 +94,10 @@ if (app.Environment.IsDevelopment())
 {
     using var scope = app.Services.CreateScope();
     var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+
+    var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<ApplicationRole>>();
+
+    const string adminRole = "Administrador";
 
     var email = "test@sasa.com";
     var user = await userManager.FindByEmailAsync(email);

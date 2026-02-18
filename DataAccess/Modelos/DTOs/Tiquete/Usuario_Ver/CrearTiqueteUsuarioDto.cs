@@ -1,4 +1,4 @@
-﻿namespace DataAccess.Modelos.DTOs.Tiquete
+﻿namespace DataAccess.Modelos.DTOs.Tiquete.Usuario_Ver
 {
     public class CrearTiqueteUsuarioDto
     {

@@ -44,11 +44,14 @@
 
         <div class="topbar-actions">
             <!--Notification icon-->
-            <a asp-controller="Notificaciones" asp-action="Index" class="btn btn-link text-white position-relative">
-                <i class="bi bi-bell fs-4"></i>
-                <span class="notification-badge">3</span>
-            </a>
+            <a href="/Notificaciones" class="position-relative" id="notifBell">
+                <i class="bi bi-bell fs-5"></i>
 
+                <span id="notifBadge"
+                      class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger d-none">
+                    0
+                </span>
+            </a>
 
 
 
@@ -242,11 +245,15 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"
         integrity="sha512-fD9DI5bZwQxOi7MhYWnnNPlvXdp/2Pj3XSTRrFs5FQa4mizyGLnJcN6tuvUS6LbmgN1ut+XGSABKvjN0H6Aoow=="
         crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="~/js/site.js" asp-append-version="true"></script>
-    <script src="~/js/ui-sasa.js" asp-append-version="true"></script>
-    @await RenderSectionAsync("Scripts", required: false)
+        <script src="~/lib/jquery/dist/jquery.min.js"></script>
+        <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+        <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
+
+        <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+        <script src="~/js/site.js" asp-append-version="true"></script>
+        <script src="~/js/ui-sasa.js" asp-append-version="true"></script>
+        @await RenderSectionAsync("Scripts", required: false)
+
 </body>
 
 </html>

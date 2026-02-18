@@ -35,7 +35,11 @@ $(function () {
                 }
             },
             error: function () {
-                alert("Ocurrió un error inesperado.");
+                $("#addUserModal").modal("hide");
+                $("#errorModal").modal("show")
+                setTimeout(() => {
+                    window.location.href = "/Usuario";
+                }, 1200);
             }
         });
     });
@@ -131,8 +135,120 @@ $(function () {
                 }
             },
             error: function () {
-                alert("Ocurrió un error inesperado.");
+                $("#errorModal").modal("show")
+                setTimeout(() => {
+                    window.location.href = "/Usuario";
+                }, 1200);
             }
         });
     });
+});
+
+//--TIQUETE SUBMIT------------
+$(function () {
+    $(document).on("submit", "#crearTiqueteForm", function (e) {
+
+        e.preventDefault();
+
+        const form = $(this);
+
+        if (!form.valid()) {
+            return;
+        }
+
+        $.ajax({
+            url: form.attr("action"),
+            type: "POST",
+            data: form.serialize(),
+
+            success: function (response) {
+
+                //Caso 1, si todo sale bien
+                if (response.success) {
+                    $("#addTicketModal").modal("hide");
+                    $("#successModal").modal("show");
+
+                    //Ir a la tabla después de un tiempo
+                    setTimeout(() => {
+                        window.location.href = "/Tiquete";
+                    }, 1200);
+                }
+                else {
+
+                    $("#addTicketModal .modal-content").html(response);
+
+                    $.validator.unobtrusive.parse("#crearTiqueteForm");
+                }
+            },
+
+            error: function () {
+                $("#addTicketModal").modal("hide");
+                $("#errorModal").modal("show")
+                setTimeout(() => {
+                    window.location.href = "/Tiquete";
+                }, 1400);
+            }
+        });
+
+    });
+
+});
+
+//--TIQUETE EDITAR SUBMIT------------               
+$(function () {
+    $(document).on("submit", "#editTicketForm", function (e) {
+
+        e.preventDefault();
+
+        const form = $(this);
+
+        if (!form.valid()) {
+            return;
+        }
+
+        $.ajax({
+            url: form.attr("action"),
+            type: "POST",
+            data: form.serialize(),
+
+            success: function (response) {
+
+                //Caso 1, si todo sale bien
+                if (response.success) {
+                    $("#successModal").modal("show");
+
+                    //Ir a la tabla después de un tiempo
+                    setTimeout(() => {
+                        window.location.href = "/Tiquete";
+                    }, 1200);
+                }
+                else { 
+                    //Limpiar mensajes previos
+                    form.find("[data-valmsg-for]").text("");
+
+                    //Mostrar errores
+                    $.each(response.errors, function (key, messages) {
+                        if (key === "_form") {
+                            alert(messages[0]);
+                            return;
+                        }
+
+                        const span = form.find(`[data-valmsg-for="${key}"]`);
+                        if (span.length) {
+                            span.text(messages.join(", "));
+                        }
+                    });
+                }
+            },
+
+            error: function () {
+                $("#errorModal").modal("show")
+                setTimeout(() => {
+                    window.location.href = "/Tiquete";
+                }, 1400);
+            }
+        });
+
+    });
+
 });

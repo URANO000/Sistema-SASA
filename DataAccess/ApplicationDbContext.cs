@@ -28,7 +28,10 @@ namespace DataAccess
         public DbSet<TipoActivoInventario> TipoActivoInventario { get; set; }
         public DbSet<EstadoActivoInventario> EstadoActivoInventario { get; set; }
         public DbSet<TipoLicenciaInventario> TipoLicenciaInventario { get; set; }
+        public DbSet<Notificacion> Notificaciones { get; set; }
+        public DbSet<NotificacionSilencio> NotificacionSilencios { get; set; }
         public DbSet<IntegracionHistorial> IntegracionHistorial { get; set; }
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -61,8 +64,11 @@ namespace DataAccess
                     .WithMany(u => u.TiquetesReportados)
                     .HasForeignKey(t => t.IdReportedBy)
                     .OnDelete(DeleteBehavior.Restrict);
-
             });
+
+            //Modelando trigger en tiquete 
+            modelBuilder.Entity<Tiquete>()
+                .ToTable(tb => tb.HasTrigger("TR_Tiquete_Insert_Notificacion"));
 
             //Tablas "intermedias" de Identity (como en el script)
             modelBuilder.Entity<IdentityUserRole<string>>().ToTable("AspNetUserRoles");

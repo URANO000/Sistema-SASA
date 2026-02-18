@@ -1,4 +1,4 @@
-﻿using System.Text;
+using System.Text;
 using DataAccess.Identity;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -199,11 +199,22 @@ namespace SASA.Controllers
 
             var result = await _userManager.ConfirmEmailAsync(user, decoded.identityToken);
 
-            TempData[result.Succeeded ? "Success" : "Error"] =
-                result.Succeeded ? "Cuenta activada. Ahora puedes iniciar sesión." : "No se pudo activar la cuenta. El enlace podría haber expirado.";
+            if (!result.Succeeded)
+            {
+                TempData["Error"] = "No se pudo activar la cuenta. El enlace podría haber expirado.";
+                return RedirectToAction(nameof(Login));
+            }
 
-            return RedirectToAction(nameof(Login));
+            TempData["Success"] = "Cuenta activada. Ahora crea tu contraseña.";
+            return RedirectToAction(nameof(SetPassword), new { token });
         }
+
+        [HttpGet("/Account/AccessDenied")]
+        public IActionResult AccessDenied()
+        {
+            return View();
+        }
+
 
         private static string EncodeTokenPayload(string userId, string identityToken)
         {
@@ -228,5 +239,101 @@ namespace SASA.Controllers
                 return (false, "", "");
             }
         }
+
+        [HttpGet("/set-password/{token}")]
+        public async Task<IActionResult> SetPassword(string token)
+        {
+            var decoded = DecodeTokenPayload(token);
+            if (!decoded.ok)
+            {
+                TempData["Error"] = "Token inválido o mal formado.";
+                return RedirectToAction(nameof(Login));
+            }
+
+            var user = await _userManager.FindByIdAsync(decoded.userId);
+            if (user is null)
+            {
+                TempData["Error"] = "No se encontró el usuario.";
+                return RedirectToAction(nameof(Login));
+            }
+
+            // Solo permite si ya se confirmó el correo
+            if (!user.EmailConfirmed)
+            {
+                TempData["Error"] = "Debes activar tu cuenta antes de crear una contraseña.";
+                return RedirectToAction(nameof(Login));
+            }
+
+            // Si ya tiene password, omite ese flujo
+            if (await _userManager.HasPasswordAsync(user))
+            {
+                TempData["Success"] = "Tu cuenta ya tiene contraseña. Puedes iniciar sesión.";
+                return RedirectToAction(nameof(Login));
+            }
+
+            return View(new SetPasswordViewModel { Token = token });
+        }
+
+        [HttpPost("/set-password/{token}")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> SetPassword(string token, SetPasswordViewModel vm)
+        {
+            vm.Token = token;
+
+            if (!ModelState.IsValid)
+                return View(vm);
+
+            var decoded = DecodeTokenPayload(token);
+            if (!decoded.ok)
+            {
+                TempData["Error"] = "Token inválido o mal formado.";
+                return RedirectToAction(nameof(Login));
+            }
+            // Buscar usuario
+            var user = await _userManager.FindByIdAsync(decoded.userId);
+            if (user is null)
+            {
+                TempData["Error"] = "No se encontró el usuario.";
+                return RedirectToAction(nameof(Login));
+            }
+
+            // Solo permite si ya se confirmó el correo
+            if (!user.EmailConfirmed)
+            {
+                TempData["Error"] = "Debes activar tu cuenta antes de crear una contraseña.";
+                return RedirectToAction(nameof(Login));
+            }
+
+            // Si ya tiene password, omite ese flujo
+            if (await _userManager.HasPasswordAsync(user))
+            {
+                TempData["Success"] = "Tu cuenta ya tiene contraseña. Puedes iniciar sesión.";
+                return RedirectToAction(nameof(Login));
+            }
+
+            // Validar que las contraseñas coincidan
+            if (vm.NewPassword != vm.ConfirmPassword)
+            {
+                ModelState.AddModelError(string.Empty, "Las contraseñas no coinciden.");
+                return View(vm);
+            }
+
+
+            // Se crea la contraseña por primera vez
+            var result = await _userManager.AddPasswordAsync(user, vm.NewPassword);
+
+            if (!result.Succeeded)
+            {
+                foreach (var e in result.Errors)
+                    ModelState.AddModelError(string.Empty, e.Description);
+
+                return View(vm);
+            }
+
+            TempData["Success"] = "Contraseña creada. Ahora puedes iniciar sesión.";
+            return RedirectToAction(nameof(Login));
+        }
+
+
     }
 }
