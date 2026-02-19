@@ -33,15 +33,21 @@ namespace DataAccess.Repositorios.Tiquetes
 
             //Si el filtro de estatus no es vacío
             if (!string.IsNullOrWhiteSpace(filtro.Estatus))
+            {
                 query = query.Where(t => t.Estatus.NombreEstatus == filtro.Estatus);
+            }
 
             //Si el filtro de prioridad no es vacío
             if (!string.IsNullOrWhiteSpace(filtro.Prioridad))
+            {
                 query = query.Where(t => t.Prioridad.NombrePrioridad == filtro.Prioridad);
+            }
 
             //Si el filtro de Fecha no es vacío
             if (filtro.Fecha.HasValue)
+            {
                 query = query.Where(t => t.CreatedAt.Date == filtro.Fecha.Value.Date);
+            }
 
             var totalRecords = await query.CountAsync();
 

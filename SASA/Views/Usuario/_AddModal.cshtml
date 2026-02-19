@@ -67,10 +67,11 @@
                         <div class="col-md-6">
                             <label asp-for="Departamento" class="form-label required-field"></label>
                             <select asp-for="Departamento" class="form-select">
+                                <option value="Tecnologías de Información">Tecnologías de Información</option>
+                                <option value="Recursos Humanos">Recursos Humanos</option>
+                                <option value="Finanzas">Finanzas</option>
+                                <option value="Ventas">Ventas</option>
                                 <option value="" disabled>Seleccione un departamento</option>
-                                <option>TI</option>
-                                <option>RRHH</option>
-                                <option>Ventas</option>
                             </select>
                             <span asp-validation-for="Departamento" class="text-danger"></span>
                         </div>
@@ -79,10 +80,12 @@
                         <div class="col-md-6">
                             <label asp-for="Puesto" class="form-label required-field"></label>
                             <select asp-for="Puesto" class="form-select">
-                                <option value="" disabled>Seleccione un puesto</option>
                                 <option>Analista de Soporte</option>
                                 <option>Administrador</option>
                                 <option>Asesor de ventas</option>
+                                <option>Ejecutivo</option>
+                                <option>Agente Senior</option>
+                                <option value="" disabled>Seleccione un puesto</option>
                             </select>
                             <span asp-validation-for="Puesto" class="text-danger"></span>
                         </div>
