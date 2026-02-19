@@ -17,6 +17,8 @@ namespace SASA.ViewModels.Notificaciones
 
         public List<NotificacionDTO> Elementos { get; set; } = new();
 
+        public bool EsAdministrador { get; set; }
+
         public int TotalPaginas => (int)Math.Ceiling((double)TotalRegistros / TamanoPagina);
         public bool TieneAnterior => Pagina > 1;
         public bool TieneSiguiente => Pagina < TotalPaginas;

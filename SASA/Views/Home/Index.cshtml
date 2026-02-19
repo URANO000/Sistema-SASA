@@ -1,4 +1,6 @@
-﻿@{
+﻿@model SASA.ViewModels.Home.DashboardViewModel
+
+@{
     ViewData["Title"] = "Inicio";
 }
 
@@ -16,7 +18,7 @@
             <div class="card text-center">
                 <div class="card-body">
                     <h6 class="text-muted">Abiertos</h6>
-                    <h3 class="fw-bold text-primary">18</h3>
+                    <h3 id="cardAbiertos" class="fw-bold text-primary">@Model.Abiertos</h3>
                 </div>
             </div>
         </div>
@@ -25,7 +27,7 @@
             <div class="card text-center">
                 <div class="card-body">
                     <h6 class="text-muted">En Proceso</h6>
-                    <h3 class="fw-bold text-warning">7</h3>
+                    <h3 id="cardEnProgreso" class="fw-bold text-warning">@Model.EnProgreso</h3>
                 </div>
             </div>
         </div>
@@ -33,8 +35,8 @@
         <div class="col-md-3">
             <div class="card text-center">
                 <div class="card-body">
-                    <h6 class="text-muted">Cerrados</h6>
-                    <h3 class="fw-bold text-success">42</h3>
+                    <h6 class="text-muted">Resueltos</h6>
+                    <h3 id="cardResueltos" class="fw-bold text-success">@Model.Resueltos</h3>
                 </div>
             </div>
         </div>
@@ -43,7 +45,7 @@
             <div class="card text-center">
                 <div class="card-body">
                     <h6 class="text-muted">Cancelados</h6>
-                    <h3 class="fw-bold text-danger">3</h3>
+                    <h3 id="cardCancelados" class="fw-bold text-danger">@Model.Cancelados</h3>
                 </div>
             </div>
         </div>
@@ -82,14 +84,13 @@
 
 
 <script>
-    //Now, this is only here for demo purposes, not real implementation. In any case, the js would be found in its own file
-        new Chart(document.getElementById('estadoChart'), {
+    var estadoChart = new Chart(document.getElementById('estadoChart'), {
         type: 'doughnut',
         data: {
-            labels: ['Abiertos', 'En Progreso', 'Cerrados'],
+            labels: ['Abiertos', 'En Progreso', 'Resueltos', 'Cancelados', 'Cerrados'],
             datasets: [{
-                data: [18, 7, 42],
-                backgroundColor: ['#012473', '#0347b8', '#d4a147']
+                data: [@Model.Abiertos, @Model.EnProgreso, @Model.Resueltos, @Model.Cancelados, @Model.Cerrados],
+                backgroundColor: ['#012473', '#0347b8', '#28a745', '#d4a147', '#6c757d']
             }]
         },
         options: {
@@ -98,43 +99,71 @@
             }
         }
     });
+    var prioridadCtx = document.getElementById('prioridadChart').getContext('2d');
+    var prioridadChart = new Chart(prioridadCtx, {
+        type: 'bar',
+        data: {
+            labels: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.PriorityLabels)),
+            datasets: [{
+                data: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.PriorityCounts)),
+                backgroundColor: '#0347b8'
+            }]
+        },
+        options: { plugins: { legend: { display: false } } }
+    });
 
-            new Chart(document.getElementById('prioridadChart'), {
-            type: 'bar',
-            data: {
-                labels: ['Alta', 'Media', 'Baja'],
-                datasets: [{
-                    data: [12, 30, 25],
-                    backgroundColor: '#0347b8'
-                }]
-            },
-            options: {
-                plugins: { legend: { display: false } }
-            }
-        });
-
-            new Chart(document.getElementById('trendChart'), {
+    var trendCtx = document.getElementById('trendChart').getContext('2d');
+    var trendChart = new Chart(trendCtx, {
         type: 'line',
         data: {
-            labels: ['Lun', 'Mar', 'Mié', 'Jue', 'Vie'],
+            labels: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.TrendLabels)),
             datasets: [
-                {
-                    label: 'Creados',
-                    data: [5, 8, 6, 9, 4],
-                    borderColor: '#0d6efd'
-                },
-                {
-                    label: 'Cerrados',
-                    data: [3, 6, 7, 5, 8],
-                    borderColor: '#d4a147'
-                },
-                {
-                    label: 'Cancelados',
-                    data: [2, 3, 1, 2, 2],
-                    borderColor: '#da0c00'
-                }
+                { label: 'Creados', data: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.TrendCreados)), borderColor: '#0d6efd', fill: false },
+                { label: 'Cerrados', data: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.TrendCerrados)), borderColor: '#d4a147', fill: false },
+                { label: 'Cancelados', data: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.TrendCancelados)), borderColor: '#da0c00', fill: false }
             ]
         }
     });
+
+    async function refreshDashboard() {
+        try {
+            const res = await fetch('/Home/GetDashboardJson');
+            if (!res.ok) return;
+            const data = await res.json();
+            const abiertos = data.abiertos ?? data.Abiertos ?? 0;
+            const enProgreso = data.enProgreso ?? data.EnProgreso ?? 0;
+            const resueltos = data.resueltos ?? data.Resueltos ?? 0;
+            const cancelados = data.cancelados ?? data.Cancelados ?? 0;
+            const cerrados = data.cerrados ?? data.Cerrados ?? 0;
+
+            const primaryEl = document.getElementById('cardAbiertos'); if (primaryEl) primaryEl.innerText = abiertos;
+            const warnEl = document.getElementById('cardEnProgreso'); if (warnEl) warnEl.innerText = enProgreso;
+            const successEl = document.getElementById('cardResueltos'); if (successEl) successEl.innerText = resueltos;
+            const dangerEl = document.getElementById('cardCancelados'); if (dangerEl) dangerEl.innerText = cancelados;
+
+            estadoChart.data.datasets[0].data = [abiertos, enProgreso, resueltos, cancelados, cerrados];
+            estadoChart.update();
+
+            const priorityLabels = data.priorityLabels ?? data.PriorityLabels ?? [];
+            const priorityCounts = data.priorityCounts ?? data.PriorityCounts ?? [];
+            prioridadChart.data.labels = priorityLabels;
+            prioridadChart.data.datasets[0].data = priorityCounts;
+            prioridadChart.update();
+
+            const trendLabels = data.trendLabels ?? data.TrendLabels ?? [];
+            const trendCreados = data.trendCreados ?? data.TrendCreados ?? [];
+            const trendCerrados = data.trendCerrados ?? data.TrendCerrados ?? [];
+            const trendCancelados = data.trendCancelados ?? data.TrendCancelados ?? [];
+            trendChart.data.labels = trendLabels;
+            trendChart.data.datasets[0].data = trendCreados;
+            trendChart.data.datasets[1].data = trendCerrados;
+            trendChart.data.datasets[2].data = trendCancelados;
+            trendChart.update();
+        } catch (e) {
+            console.error('Error refreshing dashboard', e);
+        }
+    }
+
+    setInterval(refreshDashboard, 10000);
 
 </script>

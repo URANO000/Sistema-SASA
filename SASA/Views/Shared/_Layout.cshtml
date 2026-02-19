@@ -22,6 +22,9 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 
+@using System.Linq
+@using System.Security.Claims
+
 <!--Global modal, for now at least-->
 @await Html.PartialAsync("_SuccessModal")
 @await Html.PartialAsync("_ErrorModal")
@@ -48,11 +51,10 @@
                 <i class="bi bi-bell fs-5"></i>
 
                 <span id="notifBadge"
-                      class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger d-none">
-                    0
+                      class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger d-none"
+                      style="z-index:1000;"> 
                 </span>
             </a>
-
 
 
             <!--User menu-->
@@ -62,10 +64,9 @@
                     <i class="bi bi-person-circle fs-4"></i>
                 </button>
 
-                <ul class="dropdown-menu dropdown-menu-end user-menu">
+                <ul class="dropdown-menu dropdown-menu-end user-menu" style="z-index:2000;">
                     <li class="px-3 py-2">
-                        <div class="fw-semibold text-black user-name">Admin SASA</div>
-                        <div class="small text-muted user-role">Administrador</div>
+                        @await Component.InvokeAsync("MenuUsuario")
                     </li>
 
                     <li><hr class="dropdown-divider"></li>
@@ -253,6 +254,18 @@
         <script src="~/js/site.js" asp-append-version="true"></script>
         <script src="~/js/ui-sasa.js" asp-append-version="true"></script>
         @await RenderSectionAsync("Scripts", required: false)
+
+        <script>
+            // Evita mostrar duplicados en el menú de usuario (si hay más de un elemento con mismas clases)
+            document.addEventListener('DOMContentLoaded', function () {
+                document.querySelectorAll('.user-menu').forEach(function (menu) {
+                    var names = menu.querySelectorAll('.user-name');
+                    names.forEach(function (el, i) { if (i > 0) el.remove(); });
+                    var roles = menu.querySelectorAll('.user-role');
+                    roles.forEach(function (el, i) { if (i > 0) el.remove(); });
+                });
+            });
+        </script>
 
 </body>
 

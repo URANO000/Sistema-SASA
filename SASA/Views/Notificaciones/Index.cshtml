@@ -25,7 +25,7 @@
                 </button>
             </form>
 
-            @if (User.Identity != null && User.Identity.IsAuthenticated && User.IsInRole(rolAuditoria))
+            @if (Model.EsAdministrador)
             {
                 <a class="btn btn-outline-dark btn-sm ms-2"
                    asp-controller="Notificaciones"

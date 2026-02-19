@@ -2,6 +2,7 @@
 using DataAccess;
 using DataAccess.Modelos.DTOs.Notificaciones;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -63,6 +64,20 @@ namespace SASA.Controllers
                 TotalRegistros = result.TotalRegistros,
                 Elementos = result.Elementos
             };
+
+            try
+            {
+                var isAdmin = await _db.Set<IdentityUserRole<string>>()
+                    .Where(ur => ur.UserId == userId)
+                    .Join(_db.Roles, ur => ur.RoleId, r => r.Id, (ur, r) => r)
+                    .AnyAsync(r => r.Id == "ROLE_ADMIN" || r.Name == "Administrador");
+
+                vm.EsAdministrador = isAdmin;
+            }
+            catch
+            {
+                vm.EsAdministrador = false;
+            }
 
             return View(vm);
         }
