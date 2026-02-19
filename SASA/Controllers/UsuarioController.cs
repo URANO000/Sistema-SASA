@@ -2,6 +2,7 @@
 using BusinessLogic.Servicios.Rol;
 using BusinessLogic.Servicios.Usuarios;
 using DataAccess.Modelos.DTOs.Usuarios;
+using DataAccess.Modelos.DTOs.Usuarios.Filtros;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.WebUtilities;
@@ -9,6 +10,8 @@ using Microsoft.Extensions.Options;
 using SASA.Configuration;
 using SASA.Filters;
 using SASA.ViewModels.Usuario;
+using SASA.ViewModels.Usuario.Extras;
+using System.Security.Claims;
 using System.Text;
 
 
@@ -34,31 +37,51 @@ namespace SASA.Controllers
 
 
         [HttpGet]
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(UsuarioFiltroViewModel filtro)
         {
-            var usuariosDTO = await _usuarioService.ObtenerUsuariosAsync();
-            var roles = await _rolService.ObtenerRolesAsync();
-
-            var usuarios = usuariosDTO.Select(u => new UsuarioListaViewModel
+            //Primero, mapear los filtros
+            var filtroDto = new UsuarioFiltroDto
             {
-                Id = u.Id!,
-                NombreCompleto = NombreCompletoHelper(u), //utilizo el helper
-                Departamento = u.Departamento,
-                Puesto = u.Puesto,
-                CorreoEmpresa = u.CorreoEmpresa,
-                Estado = u.Estado ? "Activo" : "Inactivo",
-                Rol = u.Roles != null && u.Roles.Any()
-            ? string.Join(", ", u.Roles)
-            : "SIN ROL" //Por si no tiene rol, no dejarlo en nulo
-            }).ToList();
-
-            var model = new UsuarioIndexViewModel
-            {
-                Usuarios = usuarios,
-                RolesDisponibles = roles //Esto es porque el modal existe en Index
+                Search = filtro.Search,
+                Departamento = filtro.Departamento,
+                Estado = filtro.Estado,
+                PageNumber = filtro.PageNumber <= 0 ? 1 : filtro.PageNumber,
+                PageSize = filtro.PageSize <= 0 ? 10 : filtro.PageSize
             };
 
-            return View(model);
+            var result = await _usuarioService.ObtenerUsuariosAsync(filtroDto);
+            var roles = await _rolService.ObtenerRolesAsync();
+
+            var viewModel = new UsuarioIndexViewModel
+            {
+                Usuarios = result.Items.Select(u => new UsuarioListaViewModel
+                {
+                    Id = u.Id!,
+                    NombreCompleto = NombreCompletoHelper(u), //utilizo el helper
+                    Departamento = u.Departamento,
+                    Puesto = u.Puesto,
+                    CorreoEmpresa = u.CorreoEmpresa,
+                    Estado = u.Estado ? "Activo" : "Inactivo",
+                    Rol = u.Roles != null && u.Roles.Count > 0
+            ? string.Join(", ", u.Roles)
+            : "SIN ROL" //Por si no tiene rol, no dejarlo en nulo
+
+                }).ToList(),
+
+                Filtro = new UsuarioFiltroViewModel
+                {
+                    Search = filtro.Search,
+                    Departamento = filtro.Departamento,
+                    Estado =  filtro.Estado,
+                    PageNumber = filtroDto.PageNumber,
+                    PageSize = filtroDto.PageSize,
+                    TotalPages = result.TotalPages
+                },
+                RolesDisponibles = roles
+
+            };
+
+            return View(viewModel);
         }
 
 
@@ -73,7 +96,7 @@ namespace SASA.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Add(CrearUsuarioViewModel model)
         {
-            bool isAjax = Request.Headers["X-Requested-With"] == "XMLHttpRequest";
+            bool isAjax = Request.Headers["X-RequestedWith"] == "XMLHttpRequest";
             if (!ModelState.IsValid)
             {
                 model.RolesDisponibles = (await _rolService.ObtenerRolesAsync())
@@ -96,9 +119,11 @@ namespace SASA.Controllers
             };
 
             ResultadoCreacionUsuarioDto result;
+
+            var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             try
             {
-                result = await _usuarioService.AgregarUsuarioAsync(dto);
+                result = await _usuarioService.AgregarUsuarioAsync(dto, currentUserId);
             }
             catch (Exception ex)
             {
@@ -304,7 +329,7 @@ namespace SASA.Controllers
                 Puesto = usuario.Puesto,
                 CorreoEmpresa = usuario.CorreoEmpresa,
                 Estado = usuario.Estado ? "Activo" : "Inactivo",
-                Rol = usuario.Roles != null && usuario.Roles.Any()
+                Rol = usuario.Roles != null && usuario.Roles.Count > 0
                     ? string.Join(", ", usuario.Roles)
                     : "SIN ROL"
             };
@@ -312,7 +337,7 @@ namespace SASA.Controllers
             return View(model);
         }
 
-        //Helpers
+        //Helpers------------------------------------------------------------------------
 
         private async Task<IReadOnlyList<SelectListItem>> CargarRolesAsync()
         {

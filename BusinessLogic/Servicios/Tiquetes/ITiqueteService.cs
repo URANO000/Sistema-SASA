@@ -1,6 +1,8 @@
 ﻿using DataAccess.Modelos.DTOs.Tiquete;
 using DataAccess.Modelos.DTOs.Tiquete.Agente_Ver;
+using DataAccess.Modelos.DTOs.Tiquete.Filtros;
 using DataAccess.Modelos.DTOs.Tiquete.Usuario_Ver;
+using DataAccess.Modelos.DTOs.Wrappers;
 using DataAccess.Modelos.Entidades;
 
 namespace BusinessLogic.Servicios.Tiquetes
@@ -8,7 +10,9 @@ namespace BusinessLogic.Servicios.Tiquetes
     public interface ITiqueteService
     {
         //Métodos para el servicio de Tiquete
-        Task<IReadOnlyList<ListaTiqueteDTO>> ObtenerTiquetesAsync();
+
+        Task<PagedResult<ListaTiqueteDTO>> ObtenerTiquetesAsync(TiqueteFiltroDto filtro);
+        Task<IReadOnlyList<ListaTiqueteDTO>> ObtenerTiquetesReporteAsync();
 
         //READ: Nada más para detalle
         Task<ListaTiqueteDTO?> ObtenerTiquetePorIdReadAsync(int id);

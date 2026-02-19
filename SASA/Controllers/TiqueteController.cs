@@ -3,11 +3,14 @@ using BusinessLogic.Servicios.Prioridad;
 using BusinessLogic.Servicios.Tiquetes;
 using BusinessLogic.Servicios.Usuarios;
 using DataAccess.Modelos.DTOs.Tiquete;
+using DataAccess.Modelos.DTOs.Tiquete.Filtros;
 using DataAccess.Modelos.Enums;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using SASA.Filters;
 using SASA.ViewModels.Tiquete;
+using SASA.ViewModels.Tiquete.Extras;
+using SASA.ViewModels.Tiquete.Filtro;
 using System.Security.Claims;
 
 namespace SASA.Controllers
@@ -31,12 +34,26 @@ namespace SASA.Controllers
         }
         //GET: TiqueteController
         [HttpGet]
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(TiqueteFiltroViewModel filtro)
         {
-            var tiqueteDTO = await _tiqueteService.ObtenerTiquetesAsync();
+            //Primero, mapear viewmodel a dto para BLL
+            var filtroDto = new TiqueteFiltroDto
+            {
+                Search = filtro.Search,
+                Estatus = filtro.Estatus,
+                Prioridad = filtro.Prioridad,
+                Fecha = filtro.Fecha,
+                PageNumber = filtro.PageNumber <= 0 ? 1 : filtro.PageNumber,
+                PageSize = filtro.PageSize <= 0 ? 10 : filtro.PageSize
+            };
 
-            var model = tiqueteDTO
-                .Select(u => new TiqueteListaViewModel
+            //Llamar a BLL con el DTO
+            var result = await _tiqueteService.ObtenerTiquetesAsync(filtroDto);
+
+            //Mapeo de resultado a ViewModel para tabla (con filtros)
+            var viewModel = new TiqueteIndexViewModel
+            {
+                Tiquetes = result.Items.Select(u => new TiqueteListaViewModel
                 {
                     IdTiquete = u.IdTiquete,
                     Asunto = u.Asunto,
@@ -50,10 +67,26 @@ namespace SASA.Controllers
                     Asignee = u.Asignee,
                     CreatedAt = u.CreatedAt,
                     UpdatedAt = u.UpdatedAt
-                })
-                .ToList();
+                }).ToList(),
 
-            return View(model);
+                Filtro = new TiqueteFiltroViewModel
+                {
+                    Search = filtro.Search,
+                    Estatus = filtro.Estatus,
+                    Prioridad = filtro.Prioridad,
+                    Fecha = filtro.Fecha,
+                    PageNumber = filtro.PageNumber,
+                    PageSize = filtro.PageSize,
+                    TotalPages = result.TotalPages
+                }
+            };
+
+            //Cargo los valores para los dropdowns
+            await CargarFiltrosAsync(viewModel.Filtro);
+
+            //Una vez que todo está listo, retornamos vm
+            return View(viewModel);
+            
         }
 
         [HttpGet]
@@ -230,9 +263,36 @@ namespace SASA.Controllers
         }
 
         [HttpGet]
-        public IActionResult Details()
+        public async Task<IActionResult> Details(int id)
         {
-            return View();
+            //Obtener el tiquete
+            var tiquete = await _tiqueteService.ObtenerTiquetePorIdReadAsync(id);
+
+            //Si el servicio no retorna nada, entonces retornar not found
+            if(tiquete == null)
+            {
+                return NotFound();
+            }
+
+            //Si el servicio retorna un tiquete, entonces mapear a viewModel
+            var model = new TiqueteDetalleViewModel
+            {
+                IdTiquete = id,
+                Asunto = tiquete.Asunto,
+                Descripcion = tiquete.Descripcion,
+                Resolucion = tiquete.Resolucion,
+                Estatus = tiquete.Estatus,
+                Prioridad = tiquete.Prioridad,
+                Categoria = tiquete.Categoria,
+                Cola = tiquete.Cola,
+                ReportedBy = tiquete.ReportedBy,
+                Asignee = tiquete.Asignee,
+
+                CreatedAt = tiquete.CreatedAt,
+                UpdatedAt = tiquete.UpdatedAt,
+                
+            };
+            return View(model);
         }
 
         public IActionResult Dashboard()
@@ -277,5 +337,27 @@ namespace SASA.Controllers
             });
 
         }
+
+        private async Task CargarFiltrosAsync(TiqueteFiltroViewModel model)
+        {
+            var prioridades = await _prioridadService.ObtenerPrioridadesAsync();
+            var estatuses = Enum.GetValues(typeof(TiqueteEstatus))
+                                .Cast<TiqueteEstatus>();
+
+            model.Prioridades = prioridades.Select(p => new SelectListItem
+            {
+                Value = p.NombrePrioridad,
+                Text = p.NombrePrioridad,
+                Selected = p.NombrePrioridad == model.Prioridad
+            });
+
+            model.Estatuses = estatuses.Select(e => new SelectListItem
+            {
+                Value = e.ToString(),
+                Text = e.ToString(),
+                Selected = e.ToString() == model.Estatus
+            });
+        }
+
     }
 }

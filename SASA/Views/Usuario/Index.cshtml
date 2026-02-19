@@ -17,35 +17,42 @@
                 </button>
             </div>
             <!-- Filters -->
-            <div class="row g-2 align-items-end mb-3">
-                <div class="col-md-4">
-                    <label class="form-label">Buscar</label>
-                    <input type="text" class="form-control" placeholder="Nombre o No. Empleado">
+           <form method="get">
+                <div class="row g-2 align-items-end mb-3">
+                    <div class="col-md-4">
+                        <label class="form-label">Buscar por nombre o correo empresarial</label>
+                        <input type="text" class="form-control"
+                        name="Filtro.Search"
+                        asp-form="Filtro.Search"
+                        value="@Model.Filtro.Search"
+                        placeholder="Nombre o Correo">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Departamento</label>
+                        <select class="form-select" asp-for="Filtro.Departamento">
+                            <option value="">Todos</option>
+                            <option value="Tecnologías de Información">Tecnologías de Información</option>
+                            <option value="Recursos Humanos">Recursos Humanos</option>
+                            <option value="Finanzas">Finanzas</option>
+                            <option value="Ventas">Ventas</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Estado</label>
+                        <select class="form-select" asp-for="Filtro.Estado">
+                            <option value="">Todos</option>
+                            <option value=true >Activo</option>
+                            <option value=false >Inactivo</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <button class="btn btn-outline-secondary w-100" type="submit">
+                            <i class="bi bi-funnel"></i>
+                            Filtrar
+                        </button>
+                    </div>
                 </div>
-                <div class="col-md-3">
-                    <label class="form-label">Departamento</label>
-                    <select class="form-select">
-                        <option value="">Todos</option>
-                        <option>TI</option>
-                        <option>RRHH</option>
-                        <option>Finanzas</option>
-                    </select>
-                </div>
-                <div class="col-md-3">
-                    <label class="form-label">Estado</label>
-                    <select class="form-select">
-                        <option value="">Todos</option>
-                        <option>Activo</option>
-                        <option>Inactivo</option>
-                    </select>
-                </div>
-                <div class="col-md-2">
-                    <button class="btn btn-outline-secondary w-100">
-                        <i class="bi bi-funnel"></i>
-                        Filtrar
-                    </button>
-                </div>
-            </div>
+           </form>
             <!--Table comes here-->
             <div class="table-responsive card">
                 <table class="table table-hover align-middle sasa-table">
@@ -96,6 +103,44 @@
                             }
                     </tbody>
                 </table>
+                <nav aria-label="Paginación" class="align-content-center justify-content-center">
+                    <ul class="pagination pagination-sm mb-0 justify-content-center">
+
+                        <!-- Previous -->
+                        <li class="page-item @(Model.Filtro.TieneAnterior ? "" : "disabled")">
+                            <a class="page-link"
+                               asp-action="Index"
+                               asp-route-PageNumber="@(Model.Filtro.PageNumber - 1)"
+                               asp-route-PageSize="@Model.Filtro.PageSize"
+                               asp-route-Search="@Model.Filtro.Search"
+                               asp-route-Departamento="@Model.Filtro.Departamento"
+                               asp-route-Estado="@Model.Filtro.Estado">
+                                Anterior
+                            </a>
+                        </li>
+
+                        <!-- Info -->
+                        <li class="page-item disabled">
+                            <span class="page-link">
+                                Página @Model.Filtro.PageNumber de @Model.Filtro.TotalPages
+                            </span>
+                        </li>
+
+                        <!-- Next -->
+                        <li class="page-item @(Model.Filtro.TieneSiguiente ? "" : "disabled")">
+                            <a class="page-link"
+                               asp-action="Index"
+                               asp-route-PageNumber="@(Model.Filtro.PageNumber + 1)"
+                               asp-route-PageSize="@Model.Filtro.PageSize"
+                               asp-route-Search="@Model.Filtro.Search"
+                               asp-route-Departamento="@Model.Filtro.Departamento"
+                               asp-route-Estado="@Model.Filtro.Estado">
+                                Siguiente
+                            </a>
+                        </li>
+
+                    </ul>
+                </nav>
             </div>
         </div>
     </div>

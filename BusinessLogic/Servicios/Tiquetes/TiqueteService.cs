@@ -1,6 +1,8 @@
 ﻿using DataAccess.Modelos.DTOs.Tiquete;
 using DataAccess.Modelos.DTOs.Tiquete.Agente_Ver;
+using DataAccess.Modelos.DTOs.Tiquete.Filtros;
 using DataAccess.Modelos.DTOs.Tiquete.Usuario_Ver;
+using DataAccess.Modelos.DTOs.Wrappers;
 using DataAccess.Modelos.Entidades;
 using DataAccess.Modelos.Enums;
 using DataAccess.Repositorios.Categorias;
@@ -22,9 +24,15 @@ namespace BusinessLogic.Servicios.Tiquetes
             _colaRepository = colaRepository;
         }
         //Implementación de los métodos para el servicio de Tiquete
-        public async Task<IReadOnlyList<ListaTiqueteDTO>> ObtenerTiquetesAsync()
+
+        public async Task<PagedResult<ListaTiqueteDTO>> ObtenerTiquetesAsync(TiqueteFiltroDto filtro)
         {
-            var tiquetes = await _tiqueteRepository.ObtenerTiquetesAsync();
+            return await _tiqueteRepository.ObtenerTiquetesAsync(filtro);
+        }
+
+        public async Task<IReadOnlyList<ListaTiqueteDTO>> ObtenerTiquetesReporteAsync()
+        {
+            var tiquetes = await _tiqueteRepository.ObtenerTiquetesReporteAsync();
 
             var resultado = new List<ListaTiqueteDTO>(tiquetes.Count);
 
@@ -53,7 +61,30 @@ namespace BusinessLogic.Servicios.Tiquetes
         }
         public async Task<ListaTiqueteDTO?> ObtenerTiquetePorIdReadAsync(int id)
         {
-            return await _tiqueteRepository.ObtenerTiquetePorIdReadAsync(id);
+            var dto =  await _tiqueteRepository.ObtenerTiquetePorIdReadAsync(id);
+
+            //Validar
+            if(dto == null)
+            {
+                return null;
+            }
+
+            //Retornar dto
+            return new ListaTiqueteDTO
+            {
+                IdTiquete = dto.IdTiquete,
+                Asunto = dto.Asunto,
+                Descripcion = dto.Descripcion,
+                Resolucion = dto.Resolucion,
+                Estatus = dto.Estatus,
+                Prioridad = dto.Prioridad,
+                Categoria = dto.Categoria,
+                Cola = dto.Cola,
+                Asignee = dto.Asignee,
+                ReportedBy = dto.ReportedBy,
+                CreatedAt = dto.CreatedAt,
+                UpdatedAt = dto.UpdatedAt,
+            };
         }
 
         public async Task<TiquetePorIdDto?> ObtenerTiquetePorIdAsync(int id)

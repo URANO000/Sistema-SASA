@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using SASA.ViewModels.Tiquete.Extras;
+using System.ComponentModel.DataAnnotations;
 
 namespace SASA.ViewModels.Tiquete
 {

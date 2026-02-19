@@ -13,10 +13,12 @@ namespace DataAccess.Modelos.DTOs.Usuarios
         public string? Puesto { get; init; }
         public string? CorreoEmpresa { get; init; }
         public bool Estado { get; init; }
+        public DateTime? CreatedAt { get; init; }
+        public string? CreatedById { get; init; }
 
         [Required]
         //Roles asignados al usuario
-        public IReadOnlyCollection<string>? Roles { get; init; }
+        public IReadOnlyCollection<string>? Roles { get; set; }
 
     }
 }
