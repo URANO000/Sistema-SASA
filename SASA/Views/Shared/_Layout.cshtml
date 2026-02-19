@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Sistema de gestion SASA"] Sistema de gestión SASA</title>
+    <title>@ViewData["Title"] - Sistema de gestión SASA</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" />
 
@@ -22,12 +22,15 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 
+<body>
+
 <!--Global modal, for now at least-->
 @await Html.PartialAsync("_SuccessModal")
 @await Html.PartialAsync("_ErrorModal")
 <!---------------------------------->
 
-<body>
+    @if (User?.Identity?.IsAuthenticated == true)
+    {
     <!--TOPBAR LAYOUT-->
     <header class="topbar-custom">
         <div class="topbar-left">
@@ -236,6 +239,13 @@
             @RenderBody()
         </main>
     </div>
+    }
+    else
+    {
+        <main role="main">
+            @RenderBody()
+        </main>
+    }
 
     @*     <footer class="border-top footer text-muted">
         <div class="container">
@@ -252,6 +262,9 @@
         <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
         <script src="~/js/site.js" asp-append-version="true"></script>
         <script src="~/js/ui-sasa.js" asp-append-version="true"></script>
+
+        
+
         @await RenderSectionAsync("Scripts", required: false)
 
 </body>
