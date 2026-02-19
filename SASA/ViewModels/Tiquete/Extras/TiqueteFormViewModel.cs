@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc.Rendering;
 
-namespace SASA.ViewModels.Tiquete
+namespace SASA.ViewModels.Tiquete.Extras
 {
     public abstract class TiqueteFormViewModel
     {

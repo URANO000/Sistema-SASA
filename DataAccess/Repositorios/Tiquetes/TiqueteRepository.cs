@@ -1,4 +1,6 @@
 ﻿using DataAccess.Modelos.DTOs.Tiquete;
+using DataAccess.Modelos.DTOs.Tiquete.Filtros;
+using DataAccess.Modelos.DTOs.Wrappers;
 using DataAccess.Modelos.Entidades;
 using Microsoft.EntityFrameworkCore;
 
@@ -15,7 +17,68 @@ namespace DataAccess.Repositorios.Tiquetes
         }
 
         //Implementación de los métodos del repositorio de tiquetes
-        public async Task<IReadOnlyList<ListaTiqueteDTO>> ObtenerTiquetesAsync()
+        public async Task<PagedResult<ListaTiqueteDTO>> ObtenerTiquetesAsync(TiqueteFiltroDto filtro)
+        {
+            var query = _context.Tiquetes
+                .AsNoTracking()
+                .AsQueryable();
+
+            //Filtrar si el searchbar no está vacío
+            if (!string.IsNullOrWhiteSpace(filtro.Search))
+            {
+                query = query.Where(t =>
+                    t.Asunto.Contains(filtro.Search) ||
+                    t.IdTiquete.ToString().Contains(filtro.Search));
+            }
+
+            //Si el filtro de estatus no es vacío
+            if (!string.IsNullOrWhiteSpace(filtro.Estatus))
+                query = query.Where(t => t.Estatus.NombreEstatus == filtro.Estatus);
+
+            //Si el filtro de prioridad no es vacío
+            if (!string.IsNullOrWhiteSpace(filtro.Prioridad))
+                query = query.Where(t => t.Prioridad.NombrePrioridad == filtro.Prioridad);
+
+            //Si el filtro de Fecha no es vacío
+            if (filtro.Fecha.HasValue)
+                query = query.Where(t => t.CreatedAt.Date == filtro.Fecha.Value.Date);
+
+            var totalRecords = await query.CountAsync();
+
+            var items = await query
+                .OrderByDescending(t => t.CreatedAt) //Primero los tiquetes recien creados
+
+
+                .Skip((filtro.PageNumber - 1) * filtro.PageSize)
+                .Take(filtro.PageSize)
+                .Select(t => new ListaTiqueteDTO
+                {
+                    IdTiquete = t.IdTiquete,
+                    Asunto = t.Asunto,
+                    Descripcion = t.Descripcion,
+                    Resolucion = t.Resolucion ?? "Sin Resolución",
+                    Estatus = t.Estatus != null ? t.Estatus.NombreEstatus : "Sin estatus",
+                    Prioridad = t.Prioridad != null ? t.Prioridad.NombrePrioridad : "Sin prioridad",
+                    Categoria = t.Categoria != null ? t.Categoria.NombreCategoria : "Sin categoría",
+                    Cola = t.Cola != null ? t.Cola.NombreCola : "Sin cola",
+                    ReportedBy = t.ReportedBy != null ? t.ReportedBy.CorreoEmpresa : "Desconocido",
+                    Asignee = t.Asignee != null ? t.Asignee.CorreoEmpresa : "Sin asignar",
+                    CreatedAt = t.CreatedAt,
+                    UpdatedAt = t.UpdatedAt
+                })
+                .ToListAsync();
+
+            return new PagedResult<ListaTiqueteDTO>
+            {
+                Items = items,
+                TotalRecords = totalRecords,
+                TotalPages = (int)Math.Ceiling(totalRecords / (double)filtro.PageSize)
+            };
+        }
+
+
+        //Para reportes ----- Lista de todos los tiquetes -----------------------------
+        public async Task<IReadOnlyList<ListaTiqueteDTO>> ObtenerTiquetesReporteAsync()
         {
             return await _context.Tiquetes
                 .AsNoTracking()
@@ -39,6 +102,8 @@ namespace DataAccess.Repositorios.Tiquetes
                 })
                 .ToListAsync();
         }
+
+        //Para detalles----------------------------------------------------------
 
         public async Task<ListaTiqueteDTO?> ObtenerTiquetePorIdReadAsync(int id)
         {
@@ -64,11 +129,14 @@ namespace DataAccess.Repositorios.Tiquetes
                 .FirstOrDefaultAsync();
         }
 
+        //Obtener toda la entidad por ID, para editar --------------
         public async Task<Tiquete?> ObtenerEntidadPorIdAsync(int id)
         {
             return await _context.Tiquetes
                 .FirstOrDefaultAsync(t => t.IdTiquete == id);
         }
+
+        //Obtener tiquete por ID, editar también ----------------------------
         public async Task<TiquetePorIdDto?> ObtenerTiquetePorIdAsync(int id)
         {
             return await _context.Tiquetes
