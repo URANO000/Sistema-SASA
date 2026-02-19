@@ -1,5 +1,7 @@
 using DataAccess.Identity;
 using DataAccess.Modelos.DTOs.Usuarios;
+using DataAccess.Modelos.DTOs.Usuarios.Filtros;
+using DataAccess.Modelos.DTOs.Wrappers;
 using DataAccess.Repositorios.Usuarios;
 using Microsoft.AspNetCore.Identity;
 
@@ -18,10 +20,14 @@ namespace BusinessLogic.Servicios.Usuarios
         }
 
         //Implementación de los métodos para el servicio de Usuario
-
-        public async Task<IReadOnlyList<ListaUsuarioDto>> ObtenerUsuariosAsync()
+        public async Task<PagedResult<ListaUsuarioDto>> ObtenerUsuariosAsync(UsuarioFiltroDto filtro)
         {
-            var usuarios = await _usuarioRepository.ObtenerUsuariosAsync();
+            return await _usuarioRepository.ObtenerUsuariosAsync(filtro);
+        }
+
+        public async Task<IReadOnlyList<ListaUsuarioDto>> ObtenerUsuariosReporteAsync()
+        {
+            var usuarios = await _usuarioRepository.ObtenerUsuariosReporteAsync();
 
             var resultado = new List<ListaUsuarioDto>(usuarios.Count);
 
@@ -44,6 +50,8 @@ namespace BusinessLogic.Servicios.Usuarios
                     Puesto = dto.Puesto,
                     CorreoEmpresa = dto.CorreoEmpresa,
                     Estado = dto.Estado,
+                    CreatedAt = dto.CreatedAt,
+                    CreatedById = dto.CreatedById,
                     Roles = roles is IReadOnlyCollection<string> readOnlyRoles ? readOnlyRoles : roles.ToList()
                 });
             }
@@ -95,7 +103,7 @@ namespace BusinessLogic.Servicios.Usuarios
 
 
         //Creación de usuarios
-        public async Task<ResultadoCreacionUsuarioDto> AgregarUsuarioAsync(CrearUsuarioDto dto)
+        public async Task<ResultadoCreacionUsuarioDto> AgregarUsuarioAsync(CrearUsuarioDto dto, string currentUserId)
         {
             var usuario = new ApplicationUser
             {
@@ -110,6 +118,8 @@ namespace BusinessLogic.Servicios.Usuarios
 
                 Departamento = dto.Departamento,
                 Puesto = dto.Puesto,
+                CreatedAt = DateTime.Now,
+                CreatedById = currentUserId,
 
                 Estado = true,           // usuario activo por defecto
                 EmailConfirmed = false,  // importante para RequireConfirmedEmail

@@ -1,12 +1,15 @@
 ﻿using DataAccess.Identity;
 using DataAccess.Modelos.DTOs.Usuarios;
+using DataAccess.Modelos.DTOs.Usuarios.Filtros;
+using DataAccess.Modelos.DTOs.Wrappers;
 
 
 namespace DataAccess.Repositorios.Usuarios
 {
     public interface IUsuarioRepository
     {
-        Task<IReadOnlyList<ListaUsuarioDto>> ObtenerUsuariosAsync(); //Listar
+        Task<PagedResult<ListaUsuarioDto>> ObtenerUsuariosAsync(UsuarioFiltroDto filtro); //Listar
+        Task<IReadOnlyList<ListaUsuarioDto>> ObtenerUsuariosReporteAsync(); //Lista de todos los usuarios in pg
         Task<ListaUsuarioDto?> ObtenerUsuarioPorIdAsync(string id); //Detalle
         Task ActualizarUsuarioAsync(ApplicationUser usuario); //Actualizar
         Task DesactivarUsuario(string id); //Desactivar. Nunca eliminar

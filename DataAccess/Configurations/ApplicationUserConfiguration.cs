@@ -43,6 +43,9 @@ namespace DataAccess.Configurations
             b.Property(x => x.SessionId).HasColumnName("sessionId").HasMaxLength(100);
             b.Property(x => x.LastActivityUtc).HasColumnName("lastActivityUtc");
 
+            b.Property(x => x.CreatedAt).HasColumnName("CreatedAt");
+            b.Property(x => x.CreatedById).HasColumnName("CreatedBy").HasMaxLength(450);
+
             // Índices únicos filtrados (como el script)
             b.HasIndex(x => x.Cedula).IsUnique().HasFilter("[cedula] IS NOT NULL");
             b.HasIndex(x => x.CorreoEmpresa).IsUnique().HasFilter("[correoEmpresa] IS NOT NULL");

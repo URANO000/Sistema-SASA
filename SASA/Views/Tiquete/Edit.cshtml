@@ -61,7 +61,7 @@
                     <label asp-for="IdAsignee" class="form-label">Asignado</label>
                     <select asp-for="IdAsignee"
                             asp-items="Model.Asignees" class="form-select">
-                        <option value="" disabled>Seleccione al usuario a asignar</option>
+                        <option value="">Seleccione al usuario a asignar</option>
                     </select>
                     <span asp-validation-for="IdAsignee" class="text-danger"></span>
                 </div>
@@ -80,8 +80,14 @@
                     <label asp-for="Descripcion" class="form-label required-field">Descripción</label>
                     <textarea asp-for="Descripcion" class="form-control" rows="4"
                               placeholder="Describa el problema o solicitud"></textarea>
+                    <span asp-validation-for="Descripcion" class="text-danger"></span>
                 </div>
-                <span asp-validation-for="Descripcion" class="text-danger"></span>
+                <div class="col-12">
+                    <label asp-for="Resolucion" class="form-label">Resolución</label>
+                    <textarea asp-for="Resolucion" class="form-control" rows="4"
+                              placeholder="Para cerrar el tiquete, una resolución es necesaria"></textarea>
+                    <span asp-validation-for="Resolucion" class="text-danger"></span>
+                </div>
             </div>
         </div>
     </div>
@@ -99,29 +105,6 @@
             <button class="btn btn-primary-custom text-white" type="button">
                 <i class="bi bi-plus-circle"></i> Agregar avance
             </button>
-        </div>
-    </div>
-
-    <!--History, should probably come from a bitacora table/audit table-->
-
-    <div class="card mb-4">
-        <div class="card-body">
-            <h6 class="section-title">Historial y Avances</h6>
-
-            <ul class="timeline">
-                <li>
-                    <span class="timeline-date">12/03/2025 09:14</span>
-                    <p><strong>Creado</strong> por Juan Pérez</p>
-                </li>
-                <li>
-                    <span class="timeline-date">12/03/2025 10:02</span>
-                    <p>Asignado a Soporte TI</p>
-                </li>
-                <li>
-                    <span class="timeline-date">12/03/2025 14:30</span>
-                    <p>Diagnóstico inicial completado</p>
-                </li>
-            </ul>
         </div>
     </div>
 

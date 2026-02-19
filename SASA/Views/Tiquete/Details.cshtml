@@ -1,4 +1,6 @@
-﻿@{
+﻿@using SASA.ViewModels.Tiquete
+@model TiqueteDetalleViewModel
+@{
     ViewData["Title"] = "Detalle de Tiquete";
 }
 
@@ -10,8 +12,25 @@
                 <i class="bi bi-arrow-left"></i> Volver al listado
             </a>
             <div class="d-flex justify-content-between align-items-center mt-2">
-                <h4 class="mb-0 fw-bold">Tiquete TQ-001</h4>
-                <span class="badge bg-warning text-dark">En Progreso</span>
+                <h4 class="mb-0 fw-bold">Tiquete @Model.IdTiquete</h4>
+                @switch (Model.Estatus)
+                {
+                    case "Abierto":
+                            <span class="badge bg-primary">@Model.Estatus</span>
+                        break;
+                    case "En Progreso":
+                            <span class="badge bg-warning">@Model.Estatus</span>
+                        break;
+                    case "Cancelado":
+                            <span class="badge bg-danger">@Model.Estatus</span>
+                        break;
+                    case "Resuelto":
+                            <span class="badge bg-success"> @Model.Estatus </span>
+                        break;
+                    default:
+                            <span class="badge bg-secondary"> @Model.Estatus </span>
+                        break;
+                }
             </div>
         </div>
     </div>
@@ -23,32 +42,41 @@
         <!-- Description -->
         <div class="card mb-4">
             <div class="card-body">
+                <h6 class="section-title">Asunto</h6>
+                <p class="text-muted mb-0">
+                    @Model.Asunto
+                </p>
                 <h6 class="section-title">Descripción</h6>
                 <p class="text-muted mb-0">
-                    Reporte de fallo de acceso al sistema principal. Se genera un error 500.
+                    @Model.Descripcion
                 </p>
             </div>
         </div>
 
-        <!-- Timeline / Avances -->
+        <!-- Info general -->
         <div class="card mb-4">
             <div class="card-body">
-                <h6 class="section-title">Historial y Avances</h6>
+                <h6 class="section-title">Información del Tiquete</h6>
 
-                <ul class="timeline">
-                    <li>
-                        <span class="timeline-date">12/03/2025 09:14</span>
-                        <p><strong>Creado</strong> por Juan Pérez</p>
-                    </li>
-                    <li>
-                        <span class="timeline-date">12/03/2025 10:02</span>
-                        <p>Asignado a Soporte TI</p>
-                    </li>
-                    <li>
-                        <span class="timeline-date">12/03/2025 14:30</span>
-                        <p>Diagnóstico inicial completado</p>
-                    </li>
-                </ul>
+                <dl class="row mb-0">
+                    <dt class="col-5">Prioridad</dt>
+                    <dd class="col-7">@Model.Prioridad</dd>
+
+                    <dt class="col-5">Creado por</dt>
+                    <dd class="col-7">@Model.ReportedBy</dd>
+
+                    <dt class="col-5">Agente Asignado</dt>
+                    <dd class="col-7">@Model.Asignee</dd>
+
+                    <dt class="col-5">Fecha creación</dt>
+                    <dd class="col-7">@Model.CreatedAt</dd>
+
+                    <dt class="col-5">Última actualización</dt>
+                    <dd class="col-7">@Model.UpdatedAt</dd>
+
+                    @*                     <dt class="col-5">Actualizado por</dt>
+                    <dd class="col-7">sarad@gmail.com</dd> *@
+                    </dl>
             </div>
         </div>
 
@@ -71,31 +99,27 @@
         </div>
     </div>
 
-    <!-- SIDE -->
+    <!-- SIDE - Timeline-->
     <div class="col-lg-4">
         <div class="card">
             <div class="card-body">
-                <h6 class="section-title">Información del Tiquete</h6>
+               
+                <h6 class="section-title">Historial y Avances</h6>
 
-                <dl class="row mb-0">
-                    <dt class="col-5">Prioridad</dt>
-                    <dd class="col-7">Alta</dd>
-
-                    <dt class="col-5">Creado por</dt>
-                    <dd class="col-7">juanp@gmail.com</dd>
-
-                    <dt class="col-5">Responsable</dt>
-                    <dd class="col-7">Soporte TI</dd>
-
-                    <dt class="col-5">Fecha creación</dt>
-                    <dd class="col-7">12/03/2025</dd>
-
-                    <dt class="col-5">Última actualización</dt>
-                    <dd class="col-7">12/03/2025</dd>
-
-                    <dt class="col-5">Actualizado por</dt>
-                    <dd class="col-7">sarad@gmail.com</dd>
-                </dl>
+                <ul class="timeline">
+                    <li>
+                        <span class="timeline-date">12/03/2025 09:14</span>
+                        <p><strong>Creado</strong> por Juan Pérez</p>
+                    </li>
+                    <li>
+                        <span class="timeline-date">12/03/2025 10:02</span>
+                        <p>Asignado a Soporte TI</p>
+                    </li>
+                    <li>
+                        <span class="timeline-date">12/03/2025 14:30</span>
+                        <p>Diagnóstico inicial completado</p>
+                    </li>
+                </ul>
             </div>
         </div>
     </div>

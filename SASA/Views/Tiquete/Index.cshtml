@@ -1,5 +1,5 @@
 ﻿@using SASA.ViewModels.Tiquete;
-@model IReadOnlyList<TiqueteListaViewModel>
+@model TiqueteIndexViewModel
 
 @{
     ViewData["Title"] = "Gestión de Tiquetes";
@@ -16,43 +16,43 @@
                 </button>
             </div>
             <!-- Filters -->
-            <div class="row g-2 align-items-end mb-3">
-                <div class="col-md-4">
-                    <label class="form-label">Buscar</label>
-                    <input type="text" class="form-control" placeholder="Código o asunto">
+            <form method="get">
+                <div class="row g-2 align-items-end mb-3">
+                    <div class="col-md-4">
+                        <label class="form-label">Buscar por ID o Asunto</label>
+                        <input type="text" name="Filtro.Search" asp-form="Filtro.Search"
+                               value="@Model.Filtro.Search"
+                               class="form-control"
+                               placeholder="Id o Asunto"/>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label">Estado</label>
+                        <select asp-for="Filtro.Estatus"
+                                asp-items="Model.Filtro.Estatuses"
+                                class="form-select">
+                            <option value="">Todos</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label">Prioridad</label>
+                        <select asp-for="Filtro.Prioridad"
+                                asp-items="Model.Filtro.Prioridades"
+                                class="form-select">
+                            <option value="">Todas</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label">Fecha</label>
+                        <input type="date" class="form-control">
+                    </div>
+                    <div class="col-md-2">
+                        <button type="submit" class="btn btn-outline-secondary w-100">
+                            <i class="bi bi-funnel"></i>
+                            Filtrar
+                        </button>
+                    </div>
                 </div>
-                <div class="col-md-2">
-                    <label class="form-label">Estado</label>
-                    <select class="form-select">
-                        <option value="">Todos</option>
-                        <option>Abierto</option>
-                        <option>En Progreso</option>
-                        <option>Cancelado</option>
-                        <option>Resuelto</option>
-                        <option>Cerrado</option>
-
-                    </select>
-                </div>
-                <div class="col-md-2">
-                    <label class="form-label">Prioridad</label>
-                    <select class="form-select">
-                        <option value="">Todas</option>
-                        <option>Alta</option>
-                        <option>Media</option>
-                        <option>Baja</option>
-                    </select>
-                </div>
-                <div class="col-md-2">
-                    <label class="form-label">Fecha</label>
-                    <input type="date" class="form-control">
-                </div>
-                <div class="col-md-2">
-                    <button class="btn btn-outline-secondary w-100">
-                        <i class="bi bi-funnel"></i>
-                        Filtrar
-                    </button>
-                </div>
-            </div>
+            </form>
             <!-- Table -->
             <div class="table-responsive">
                 <table class="table table-hover align-middle sasa-table">
@@ -72,7 +72,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach (var t in Model)
+                        @foreach (var t in Model.Tiquetes)
                         {
                             <tr>
                                 <td>
@@ -133,6 +133,46 @@
 
                     </tbody>
                 </table>
+                <nav aria-label="Paginación" class="align-content-center justify-content-center">
+                    <ul class="pagination pagination-sm mb-0 justify-content-center">
+
+                        <!-- Previous -->
+                        <li class="page-item @(Model.Filtro.TieneAnterior ? "" : "disabled")">
+                            <a class="page-link"
+                               asp-action="Index"
+                               asp-route-PageNumber="@(Model.Filtro.PageNumber - 1)"
+                               asp-route-PageSize="@Model.Filtro.PageSize"
+                               asp-route-Search="@Model.Filtro.Search"
+                               asp-route-Estatus="@Model.Filtro.Estatus"
+                               asp-route-Prioridad="@Model.Filtro.Prioridad"
+                               asp-route-Fecha="@Model.Filtro.Fecha">
+                                Anterior
+                            </a>
+                        </li>
+
+                        <!-- Info -->
+                        <li class="page-item disabled">
+                            <span class="page-link">
+                                Página @Model.Filtro.PageNumber de @Model.Filtro.TotalPages
+                            </span>
+                        </li>
+
+                        <!-- Next -->
+                        <li class="page-item @(Model.Filtro.TieneSiguiente ? "" : "disabled")">
+                            <a class="page-link"
+                               asp-action="Index"
+                               asp-route-PageNumber="@(Model.Filtro.PageNumber + 1)"
+                               asp-route-PageSize="@Model.Filtro.PageSize"
+                               asp-route-Search="@Model.Filtro.Search"
+                               asp-route-Estatus="@Model.Filtro.Estatus"
+                               asp-route-Prioridad="@Model.Filtro.Prioridad"
+                               asp-route-Fecha="@Model.Filtro.Fecha">
+                                Siguiente
+                            </a>
+                        </li>
+
+                    </ul>
+                </nav>
             </div>
         </div>
     </div>

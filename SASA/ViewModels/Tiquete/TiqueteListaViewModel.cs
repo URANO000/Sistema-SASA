@@ -1,8 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using SASA.ViewModels.Tiquete.Extras;
+using System.Collections.Generic;
 
 namespace SASA.ViewModels.Tiquete
 {
-    public class TiqueteListaViewModel
+    public class TiqueteListaViewModel : TiqueteFormViewModel
     {
         public int IdTiquete { get; init; } = default!;
         public required string Asunto { get; init; }

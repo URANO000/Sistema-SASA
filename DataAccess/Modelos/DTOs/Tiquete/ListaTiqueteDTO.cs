@@ -3,7 +3,7 @@
     public class ListaTiqueteDTO
     {
         public int IdTiquete { get; init; }
-        public required string Asunto { get; set; }
+        public required string Asunto { get; init; }
         public required string Descripcion { get; set; }
         public string? Resolucion { get; set; }
 
