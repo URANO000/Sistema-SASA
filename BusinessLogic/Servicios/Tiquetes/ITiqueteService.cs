@@ -1,9 +1,7 @@
 ﻿using DataAccess.Modelos.DTOs.Tiquete;
-using DataAccess.Modelos.DTOs.Tiquete.Agente_Ver;
 using DataAccess.Modelos.DTOs.Tiquete.Filtros;
 using DataAccess.Modelos.DTOs.Tiquete.Usuario_Ver;
 using DataAccess.Modelos.DTOs.Wrappers;
-using DataAccess.Modelos.Entidades;
 
 namespace BusinessLogic.Servicios.Tiquetes
 {
@@ -26,9 +24,6 @@ namespace BusinessLogic.Servicios.Tiquetes
         Task<int> AgregarTiqueteUsuarioAsync(CrearTiqueteUsuarioDto tiquete, string currentUserId);
         //Actualización de tiquetes para el administrador
         Task ActualizarTiqueteAsync(EditarTiqueteDto tiquete);
-        //Actualización de tiquetes para agentes
-        Task ActualizarTiqueteAgenteAsync(EditarTiqueteAgenteDto tiquete);
-        //Actualización de tiquetes para clientes
-        Task ActualizarTiqueteUsuarioAsync(EditarTiqueteUsuarioDto tiquete);
+
     }
 }

@@ -13,7 +13,10 @@ namespace DataAccess.Modelos.Entidades
         [Column("nombrePrioridad")]
         public string NombrePrioridad { get; set; }
 
+        [Column("duracionMinutos")]
+        public int DuracionMinutos { get; set; }
+
         //Collection -> Relacion entre entidades
-        public ICollection<Tiquete>? Tiquete { get; set; }
+        public ICollection<SubCategoria>? SubCategorias { get; set; }
     }
 }

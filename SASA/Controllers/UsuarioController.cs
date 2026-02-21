@@ -96,7 +96,7 @@ namespace SASA.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Add(CrearUsuarioViewModel model)
         {
-            bool isAjax = Request.Headers["X-RequestedWith"] == "XMLHttpRequest";
+            bool isAjax = Request.Headers["X-Requested-With"] == "XMLHttpRequest";
             if (!ModelState.IsValid)
             {
                 model.RolesDisponibles = (await _rolService.ObtenerRolesAsync())

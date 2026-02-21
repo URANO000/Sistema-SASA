@@ -37,11 +37,11 @@ namespace DataAccess.Repositorios.Tiquetes
                 query = query.Where(t => t.Estatus.NombreEstatus == filtro.Estatus);
             }
 
-            //Si el filtro de prioridad no es vacío
-            if (!string.IsNullOrWhiteSpace(filtro.Prioridad))
-            {
-                query = query.Where(t => t.Prioridad.NombrePrioridad == filtro.Prioridad);
-            }
+            ////Si el filtro de prioridad no es vacío
+            //if (!string.IsNullOrWhiteSpace(filtro.Prioridad))
+            //{
+            //    query = query.Where(t => t.Prioridad.NombrePrioridad == filtro.Prioridad);
+            //}
 
             //Si el filtro de Fecha no es vacío
             if (filtro.Fecha.HasValue)
@@ -64,9 +64,7 @@ namespace DataAccess.Repositorios.Tiquetes
                     Descripcion = t.Descripcion,
                     Resolucion = t.Resolucion ?? "Sin Resolución",
                     Estatus = t.Estatus != null ? t.Estatus.NombreEstatus : "Sin estatus",
-                    Prioridad = t.Prioridad != null ? t.Prioridad.NombrePrioridad : "Sin prioridad",
                     Categoria = t.Categoria != null ? t.Categoria.NombreCategoria : "Sin categoría",
-                    Cola = t.Cola != null ? t.Cola.NombreCola : "Sin cola",
                     ReportedBy = t.ReportedBy != null ? t.ReportedBy.CorreoEmpresa : "Desconocido",
                     Asignee = t.Asignee != null ? t.Asignee.CorreoEmpresa : "Sin asignar",
                     CreatedAt = t.CreatedAt,
@@ -96,9 +94,7 @@ namespace DataAccess.Repositorios.Tiquetes
                     Resolucion = t.Resolucion ?? "Sin Resolución",
 
                     Estatus = t.Estatus != null ? t.Estatus.NombreEstatus : "Sin estatus",
-                    Prioridad = t.Prioridad != null ? t.Prioridad.NombrePrioridad : "Sin prioridad",
                     Categoria = t.Categoria != null ? t.Categoria.NombreCategoria : "Sin categoría",
-                    Cola = t.Cola != null ? t.Cola.NombreCola : "Sin cola",
 
                     ReportedBy = t.ReportedBy != null ? t.ReportedBy.CorreoEmpresa : "Desconocido",
                     Asignee = t.Asignee != null ? t.Asignee.CorreoEmpresa : "Sin asignar",
@@ -124,9 +120,7 @@ namespace DataAccess.Repositorios.Tiquetes
                     Resolucion = t.Resolucion,
 
                     Estatus = t.Estatus.NombreEstatus,
-                    Prioridad = t.Prioridad != null ? t.Prioridad.NombrePrioridad : "Sin prioridad",
                     Categoria = t.Categoria.NombreCategoria,
-                    Cola = t.Cola != null ? t.Cola.NombreCola : "Sin Cola",
                     ReportedBy = t.ReportedBy.CorreoEmpresa,
                     Asignee = t.Asignee != null ? t.Asignee.CorreoEmpresa : "Sin asignar",
                     CreatedAt = t.CreatedAt,
@@ -154,7 +148,6 @@ namespace DataAccess.Repositorios.Tiquetes
             Asunto = t.Asunto,
             Descripcion = t.Descripcion,
             IdCategoria = t.IdCategoria,
-            IdPrioridad = t.IdPrioridad,
             IdEstatus = t.IdEstatus,
             IdAsignee = t.IdAsignee,
             Resolucion = t.Resolucion

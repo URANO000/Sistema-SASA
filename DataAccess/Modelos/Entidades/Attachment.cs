@@ -1,10 +1,11 @@
 ﻿using DataAccess.Identity;
+using Microsoft.AspNetCore.Http;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace DataAccess.Modelos.Entidades
 {
-    [Table("ATTACHMENT")]
+    [Table("Attachment")]
     public class Attachment
     {
         [Key]
@@ -19,8 +20,12 @@ namespace DataAccess.Modelos.Entidades
         [Column("idComentario")]
         public int? IdComentario { get; set; }
 
-        [Column("filePath")]
-        public string? FilePath { get; set; }
+        [Column("file",TypeName = "varbinary(max)")]
+        public byte[]? File { get; set; }
+
+        //No está mapeado -----------------------------
+        [NotMapped]
+        public IFormFile? AttachmentFile { get; set; }
 
         [Column("fileName")]
         public string? FileName { get; set; }
@@ -35,11 +40,7 @@ namespace DataAccess.Modelos.Entidades
         [Column("fileSize")]
         public required double FileSize { get; set; }
 
-        [Column("mimeType")]
-        public required string MimeType { get; set; }
-
         //Navigation properties -> Relaciones entre entidades
-        public Comentario? Comentario { get; set; }
         public Tiquete? Tiquete { get; set; }
 
         public ApplicationUser? Usuario { get; set; } //UploadedBy

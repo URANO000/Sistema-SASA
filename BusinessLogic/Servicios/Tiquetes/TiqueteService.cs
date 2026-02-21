@@ -1,12 +1,10 @@
 ﻿using DataAccess.Modelos.DTOs.Tiquete;
-using DataAccess.Modelos.DTOs.Tiquete.Agente_Ver;
 using DataAccess.Modelos.DTOs.Tiquete.Filtros;
 using DataAccess.Modelos.DTOs.Tiquete.Usuario_Ver;
 using DataAccess.Modelos.DTOs.Wrappers;
 using DataAccess.Modelos.Entidades;
 using DataAccess.Modelos.Enums;
 using DataAccess.Repositorios.Categorias;
-using DataAccess.Repositorios.Colas;
 using DataAccess.Repositorios.Tiquetes;
 
 namespace BusinessLogic.Servicios.Tiquetes
@@ -16,12 +14,10 @@ namespace BusinessLogic.Servicios.Tiquetes
         //Repositorio de Tiquete
         private readonly ITiqueteRepository _tiqueteRepository;
         private readonly ICategoriaRepository _categoriaRepository;
-        private readonly IColaRepository _colaRepository;
-        public TiqueteService(ITiqueteRepository tiqueteRepository, ICategoriaRepository categoriaRepository, IColaRepository colaRepository)
+        public TiqueteService(ITiqueteRepository tiqueteRepository, ICategoriaRepository categoriaRepository)
         {
             _tiqueteRepository = tiqueteRepository;
             _categoriaRepository = categoriaRepository;
-            _colaRepository = colaRepository;
         }
         //Implementación de los métodos para el servicio de Tiquete
 
@@ -46,9 +42,7 @@ namespace BusinessLogic.Servicios.Tiquetes
                     Descripcion = tiquete.Descripcion,
                     Resolucion = tiquete.Resolucion,
                     Estatus = tiquete.Estatus,
-                    Prioridad = tiquete.Prioridad,
                     Categoria = tiquete.Categoria,
-                    Cola = tiquete.Cola,
                     ReportedBy = tiquete.ReportedBy,
                     Asignee = tiquete.Asignee,
                     CreatedAt = tiquete.CreatedAt,
@@ -61,10 +55,10 @@ namespace BusinessLogic.Servicios.Tiquetes
         }
         public async Task<ListaTiqueteDTO?> ObtenerTiquetePorIdReadAsync(int id)
         {
-            var dto =  await _tiqueteRepository.ObtenerTiquetePorIdReadAsync(id);
+            var dto = await _tiqueteRepository.ObtenerTiquetePorIdReadAsync(id);
 
             //Validar
-            if(dto == null)
+            if (dto == null)
             {
                 return null;
             }
@@ -77,9 +71,7 @@ namespace BusinessLogic.Servicios.Tiquetes
                 Descripcion = dto.Descripcion,
                 Resolucion = dto.Resolucion,
                 Estatus = dto.Estatus,
-                Prioridad = dto.Prioridad,
                 Categoria = dto.Categoria,
-                Cola = dto.Cola,
                 Asignee = dto.Asignee,
                 ReportedBy = dto.ReportedBy,
                 CreatedAt = dto.CreatedAt,
@@ -105,9 +97,6 @@ namespace BusinessLogic.Servicios.Tiquetes
                 throw new ArgumentException("Categoria no existe.");
             }
 
-            //Validar que la cola existe por dicha categoría
-            int colaId = dto.IdCola
-                ?? await _colaRepository.ObtenerColaPorCategoriaAsync(dto.IdCategoria);
 
             //Si todo esto es correcto, entonces se puede mapear el dto a la entidad
             var tiquete = new Tiquete
@@ -115,11 +104,9 @@ namespace BusinessLogic.Servicios.Tiquetes
                 Asunto = dto.Asunto.Trim(),
                 Descripcion = dto.Descripcion.Trim(),
                 IdCategoria = dto.IdCategoria,
-                IdPrioridad = dto.IdPrioridad,
-                IdCola = colaId,
                 IdAsignee = dto.IdAsignee,
                 IdReportedBy = currentUserId,
-                IdEstatus = (int)TiqueteEstatus.Abierto,
+                IdEstatus = (int)TiqueteEstatus.Creado,
                 CreatedAt = DateTime.Now
             };
 
@@ -155,13 +142,13 @@ namespace BusinessLogic.Servicios.Tiquetes
             }
 
             //Validacion 3: Si el estatus del tiquete es cerrado, entonces no se puede actualizar el tiquete
-            if (tiqueteActual.IdEstatus == (int)TiqueteEstatus.Cerrado)
+            if (tiqueteActual.IdEstatus == (int)TiqueteEstatus.Cancelado)
             {
                 throw new InvalidOperationException("No se puede actualizar un tiquete cerrado.");
             }
 
             //Validacion 4: Si el estatus del tiquete se mueve a cerrado, entonces se debe validar que el campo de resolución no esté vacío
-            if (dto.IdEstatus == (int)TiqueteEstatus.Cerrado && string.IsNullOrWhiteSpace(dto.Resolucion))
+            if (dto.IdEstatus == (int)TiqueteEstatus.Cancelado && string.IsNullOrWhiteSpace(dto.Resolucion))
             {
                 throw new ArgumentException("La resolución es requerida para cerrar un tiquete.");
             }
@@ -171,7 +158,6 @@ namespace BusinessLogic.Servicios.Tiquetes
             tiqueteActual.Asunto = dto.Asunto.Trim();
             tiqueteActual.Descripcion = dto.Descripcion.Trim();
             tiqueteActual.IdCategoria = dto.IdCategoria;
-            tiqueteActual.IdPrioridad = dto.IdPrioridad;
             tiqueteActual.IdAsignee = dto.IdAsignee;
             tiqueteActual.IdEstatus = dto.IdEstatus;
             tiqueteActual.Resolucion = dto.Resolucion?.Trim(); //Puede no tener nada
@@ -182,88 +168,5 @@ namespace BusinessLogic.Servicios.Tiquetes
             await _tiqueteRepository.ActualizarTiqueteAsync(tiqueteActual);
         }
 
-        //--------------------Creación de tiquetes para el agente-----------------------------------
-        public async Task ActualizarTiqueteAgenteAsync(EditarTiqueteAgenteDto dto)
-        {
-            //Validacion 1: El usuario debe estar autenticado para actualizar un tiquete
-            //Puede fallar si se prueba con http y no https por los cookies
-            if (string.IsNullOrWhiteSpace(dto.UpdatedBy))
-            {
-                throw new UnauthorizedAccessException("Usuario no autenticado.");
-            }
-
-            var tiqueteActual = await _tiqueteRepository.ObtenerEntidadPorIdAsync(dto.IdTiquete);
-
-            //Validacion 2: El tiquete debe existir para ser actualizado
-            //Si el tiquete no existe, se lanza una excepción
-            if (tiqueteActual == null)
-            {
-                throw new KeyNotFoundException("Tiquete no existe.");
-            }
-
-            //Validacion 3: Si el estatus del tiquete es cerrado, entonces no se puede actualizar el tiquete
-            if (tiqueteActual.Estatus.Equals((int)TiqueteEstatus.Cerrado))
-            {
-                throw new InvalidOperationException("No se puede actualizar un tiquete cerrado.");
-            }
-
-            //Validacion 4: Si el estatus del tiquete se mueve a cerrado, entonces se debe validar que el campo de resolución no esté vacío
-            if (dto.IdEstatus == (int)TiqueteEstatus.Cerrado && string.IsNullOrWhiteSpace(dto.Resolucion))
-            {
-                throw new ArgumentException("La resolución es requerida para cerrar un tiquete.");
-            }
-
-            //Validación 5: No se pueden abrir tiquetes con estatus cerrado, sólo un admin puede
-            if (tiqueteActual.IdEstatus == (int)TiqueteEstatus.Cerrado &&
-                dto.IdEstatus != (int)TiqueteEstatus.Cerrado)
-            {
-                throw new InvalidOperationException("No se puede modificar el estatus de un tiquete cerrado.");
-            }
-
-            //Si el tiquete existe, se actualizan los campos
-            tiqueteActual.IdPrioridad = dto.IdPrioridad;
-            tiqueteActual.IdEstatus = dto.IdEstatus;
-            tiqueteActual.Resolucion = dto.Resolucion?.Trim(); //Puede no tener nada
-            tiqueteActual.UpdatedAt = DateTime.Now;
-            tiqueteActual.UpdatedBy = dto.UpdatedBy; //En el controller se debe pasar el id del usuario autenticado
-
-            //Persistencia de datos -> Guardar cambios
-            await _tiqueteRepository.ActualizarTiqueteAsync(tiqueteActual);
-        }
-
-        //--------------------Creación de tiquetes para el usuario normal-----------------------------------
-        public async Task ActualizarTiqueteUsuarioAsync(EditarTiqueteUsuarioDto dto)
-        {
-            //Validacion 1: El usuario debe estar autenticado para actualizar un tiquete
-            //Puede fallar si se prueba con http y no https por los cookies
-            if (string.IsNullOrWhiteSpace(dto.UpdatedBy))
-            {
-                throw new UnauthorizedAccessException("Usuario no autenticado.");
-            }
-
-            var tiqueteActual = await _tiqueteRepository.ObtenerEntidadPorIdAsync(dto.IdTiquete);
-
-            //Validacion 2: El tiquete debe existir para ser actualizado
-            //Si el tiquete no existe, se lanza una excepción
-            if (tiqueteActual == null)
-            {
-                throw new KeyNotFoundException("Tiquete no existe.");
-            }
-
-            //Validacion 3: Si el estatus del tiquete es cerrado, entonces no se puede actualizar el tiquete
-            if (tiqueteActual.Estatus.Equals((int)TiqueteEstatus.Cerrado))
-            {
-                throw new InvalidOperationException("No se puede actualizar un tiquete cerrado.");
-            }
-
-            //Si el tiquete existe, se actualizan los campos
-            tiqueteActual.Asunto = dto.Asunto.Trim();
-            tiqueteActual.Descripcion = dto.Descripcion.Trim();
-            tiqueteActual.UpdatedAt = DateTime.Now;
-            tiqueteActual.UpdatedBy = dto.UpdatedBy; //En el controller se debe pasar el id del usuario autenticado
-
-            //Persistencia de datos -> Guardar cambios
-            await _tiqueteRepository.ActualizarTiqueteAsync(tiqueteActual);
-        }
     }
 }

@@ -62,7 +62,6 @@
                             <th>Nombre Completo</th>
                             <th>Correo</th>
                             <th>Departamento</th>
-                            <th>Puesto</th>
                             <th>Estado</th>
                             <th>Rol</th>
                         </tr>
@@ -89,7 +88,6 @@
                                 <td> @u.NombreCompleto</td>
                                 <td>@u.CorreoEmpresa</td>
                                 <td>@u.Departamento</td>
-                                <td>@u.Puesto</td>
                                 @if(u.Estado == "Activo")
                                 {
                                     <td><span class="badge bg-success">Activo</span></td>
@@ -163,6 +161,7 @@
 }
 
 @await Html.PartialAsync("_SuccessModal")
+@await Html.PartialAsync("_ErrorModal")
 
 @await Html.PartialAsync(
 "_AddModal",

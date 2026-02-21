@@ -16,11 +16,12 @@ namespace DataAccess
 
         //Aquí van los DbSet para las entidades
         public DbSet<Tiquete> Tiquetes { get; set; }
+        public DbSet<TiqueteHistorial> TiqueteHistoriales { get; set; }
         public DbSet<Estatus> Estatuses { get; set; }
         public DbSet<Prioridad> Prioridades { get; set; }
         public DbSet<Categoria> Categorias { get; set; }
-        public DbSet<Cola> Colas { get; set; }
-        public DbSet<Comentario> Comentarios { get; set; }
+        public DbSet<SubCategoria> SubCategorias { get; set; }
+        public DbSet<Avance> Avances { get; set; }
         public DbSet<Attachment> Attachments { get; set; }
         public DbSet<Auditoria> Auditorias { get; set; }
         public DbSet<ActivoInventario> ActivoInventario { get; set; }
@@ -42,11 +43,12 @@ namespace DataAccess
             //Seeder de enum
             modelBuilder.Entity<Estatus>()
                 .HasData(
-                    new Estatus { IdEstatus = (int)TiqueteEstatus.Abierto, NombreEstatus = "Abierto" },
-                    new Estatus { IdEstatus = (int)TiqueteEstatus.EnProgreso, NombreEstatus = "En Progreso" },
+                    new Estatus { IdEstatus = (int)TiqueteEstatus.Creado, NombreEstatus = "Creado" },
+                    new Estatus { IdEstatus = (int)TiqueteEstatus.EnProceso, NombreEstatus = "En Proceso" },
+                    new Estatus { IdEstatus = (int)TiqueteEstatus.EnEsperaDelUsuario, NombreEstatus = "En Espera Del Usuario" },
                     new Estatus { IdEstatus = (int)TiqueteEstatus.Cancelado, NombreEstatus = "Cancelado" },
-                    new Estatus { IdEstatus = (int)TiqueteEstatus.Resuelto, NombreEstatus = "Resuelto" },
-                    new Estatus { IdEstatus = (int)TiqueteEstatus.Cerrado, NombreEstatus = "Cerrado" }
+                    new Estatus { IdEstatus = (int)TiqueteEstatus.Resuelto, NombreEstatus = "Resuelto" }
+
                 );
 
             //Modelado en tiquetes
@@ -74,6 +76,14 @@ namespace DataAccess
             //Modelando trigger en tiquete 
             modelBuilder.Entity<Tiquete>()
                 .ToTable(tb => tb.HasTrigger("TR_Tiquete_Insert_Notificacion"));
+
+            //Para el ENUM de tiquete historial
+            modelBuilder.Entity<TiqueteHistorial>(entity =>
+            {
+                entity.Property(x => x.TipoEvento).HasConversion<int>();
+
+            });
+
 
             //Tablas "intermedias" de Identity (como en el script)
             modelBuilder.Entity<IdentityUserRole<string>>().ToTable("AspNetUserRoles");

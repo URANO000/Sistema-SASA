@@ -18,8 +18,6 @@ namespace SASA.ViewModels.Tiquete
         [Required(ErrorMessage = "La categoría es obligatoria.")]
         public required int IdCategoria { get; set; }
 
-        [Required(ErrorMessage = "La prioridad es obligatoria.")]
-        public required int IdPrioridad { get; set; }
 
         [Required(ErrorMessage = "El estatus es obligatorio.")]
         public required int IdEstatus { get; set; }

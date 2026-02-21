@@ -73,8 +73,8 @@ namespace DataAccess.Identity
         public ICollection<Tiquete>? TiquetesAsignados { get; set; }
         public ICollection<Tiquete>? TiquetesReportados { get; set; }
         public ICollection<Tiquete>? TiquetesEditados { get; set; }
-        public ICollection<Comentario>? Comentarios { get; set; }
+        public ICollection<Avance>? Avances { get; set; }
         public ICollection<Attachment>? Attachments { get; set; }
-        public ICollection<Cola>? Colas { get; set; }
+        public ICollection<TiqueteHistorial>? TiqueteHistoriales { get; set; }
     }
 }

@@ -12,9 +12,7 @@ namespace SASA.ViewModels.Tiquete
 
         //Nombres de cada uno (no todo el obj)
         public required string Estatus { get; init; }
-        public string? Prioridad { get; init; }
         public string Categoria { get; init; }
-        public string? Cola { get; init; }
 
         public string? ReportedBy { get; init; }
         public string? Asignee { get; init; }

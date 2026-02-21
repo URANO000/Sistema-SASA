@@ -7,7 +7,6 @@
         public required string Descripcion { get; init; }
         public int IdCategoria { get; init; }
         public int IdEstatus { get; init; }
-        public int IdPrioridad { get; init; }
         public string? IdAsignee { get; init; }
         public string? Resolucion { get; init; }
         public DateTime? UpdatedAt { get; set; }

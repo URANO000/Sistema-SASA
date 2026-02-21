@@ -46,7 +46,7 @@
                 </div>
 
                 <!-- Prioridad -->
-                <div class="col-md-3">
+@*                 <div class="col-md-3">
                     <label asp-for="IdPrioridad" class="form-label required-field">Prioridad</label>
                     <select asp-for="IdPrioridad"
                             asp-items="Model.Prioridades"
@@ -55,7 +55,7 @@
                     </select>
                     <span asp-validation-for="IdPrioridad" class="text-danger"></span>
                 </div>
-
+ *@
                 <!-- Asignee-->
                 <div class="col-md-6">
                     <label asp-for="IdAsignee" class="form-label">Asignado</label>
@@ -126,25 +126,6 @@
                     foto-equipo.jpg
                 </li>
             </ul>
-        </div>
-    </div>
-
-    <!--Satisfies the cancel user story-->
-
-
-    <div class="card border-danger">
-        <div class="card-body">
-            <h6 class="text-danger fw-bold">Zona de Riesgo</h6>
-
-            <p class="text-muted mb-3">
-                Cancelar un tiquete es una acción irreversible.
-            </p>
-
-            <button class="btn btn-outline-danger"
-                    data-bs-toggle="modal"
-                    data-bs-target="#cancelConfirm">
-                Cancelar Tiquete
-            </button>
         </div>
     </div>
 

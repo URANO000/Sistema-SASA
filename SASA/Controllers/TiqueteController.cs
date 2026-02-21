@@ -41,7 +41,6 @@ namespace SASA.Controllers
             {
                 Search = filtro.Search,
                 Estatus = filtro.Estatus,
-                Prioridad = filtro.Prioridad,
                 Fecha = filtro.Fecha,
                 PageNumber = filtro.PageNumber <= 0 ? 1 : filtro.PageNumber,
                 PageSize = filtro.PageSize <= 0 ? 10 : filtro.PageSize
@@ -60,9 +59,7 @@ namespace SASA.Controllers
                     Descripcion = u.Descripcion,
                     Resolucion = u.Resolucion,
                     Estatus = u.Estatus,
-                    Prioridad = u.Prioridad,
                     Categoria = u.Categoria,
-                    Cola = u.Cola,
                     ReportedBy = u.ReportedBy,
                     Asignee = u.Asignee,
                     CreatedAt = u.CreatedAt,
@@ -73,7 +70,6 @@ namespace SASA.Controllers
                 {
                     Search = filtro.Search,
                     Estatus = filtro.Estatus,
-                    Prioridad = filtro.Prioridad,
                     Fecha = filtro.Fecha,
                     PageNumber = filtro.PageNumber,
                     PageSize = filtro.PageSize,
@@ -127,7 +123,6 @@ namespace SASA.Controllers
                     Asunto = model.Asunto,
                     Descripcion = model.Descripcion,
                     IdCategoria = model.Categoria,
-                    IdPrioridad = model.Prioridad,
                     IdAsignee = model.IdAsignee
                 };
 
@@ -166,7 +161,6 @@ namespace SASA.Controllers
                 Asunto = tiquete.Asunto,
                 Descripcion = tiquete.Descripcion,
                 IdCategoria = tiquete.IdCategoria,
-                IdPrioridad = tiquete.IdPrioridad,
                 IdEstatus = tiquete.IdEstatus,
                 IdAsignee = tiquete.IdAsignee,
                 Resolucion = tiquete.Resolucion,
@@ -206,7 +200,6 @@ namespace SASA.Controllers
                     Asunto = model.Asunto,
                     Descripcion = model.Descripcion,
                     IdCategoria = model.IdCategoria,
-                    IdPrioridad = model.IdPrioridad,
                     IdEstatus = model.IdEstatus,
                     IdAsignee = model.IdAsignee,
                     Resolucion = model.Resolucion,
@@ -282,9 +275,7 @@ namespace SASA.Controllers
                 Descripcion = tiquete.Descripcion,
                 Resolucion = tiquete.Resolucion,
                 Estatus = tiquete.Estatus,
-                Prioridad = tiquete.Prioridad,
                 Categoria = tiquete.Categoria,
-                Cola = tiquete.Cola,
                 ReportedBy = tiquete.ReportedBy,
                 Asignee = tiquete.Asignee,
 
@@ -305,7 +296,6 @@ namespace SASA.Controllers
         {
             //Obtener datos por medio de servicios
             var categorias = await _categoriaService.ObtenerCategoriasAsync();
-            var prioridades = await _prioridadService.ObtenerPrioridadesAsync();
             var usuarios = await _usuarioService.ObtenerUsuariosTIAsync();
             var estatuses = Enum.GetValues(typeof(TiqueteEstatus))
                     .Cast<TiqueteEstatus>();
@@ -318,11 +308,6 @@ namespace SASA.Controllers
                 Text = c.NombreCategoria
             });
 
-            model.Prioridades = prioridades.Select(p => new SelectListItem
-            {
-                Value = p.IdPrioridad.ToString(),
-                Text = p.NombrePrioridad
-            });
 
             model.Asignees = usuarios.Select(u => new SelectListItem
             {
@@ -340,16 +325,8 @@ namespace SASA.Controllers
 
         private async Task CargarFiltrosAsync(TiqueteFiltroViewModel model)
         {
-            var prioridades = await _prioridadService.ObtenerPrioridadesAsync();
             var estatuses = Enum.GetValues(typeof(TiqueteEstatus))
                                 .Cast<TiqueteEstatus>();
-
-            model.Prioridades = prioridades.Select(p => new SelectListItem
-            {
-                Value = p.NombrePrioridad,
-                Text = p.NombrePrioridad,
-                Selected = p.NombrePrioridad == model.Prioridad
-            });
 
             model.Estatuses = estatuses.Select(e => new SelectListItem
             {

@@ -78,9 +78,10 @@
                     <label asp-for="Departamento" class="form-label required-field"></label>
                     <select asp-for="Departamento" class="form-select">
                         <option value="" disabled>Seleccione un departamento</option>
-                        <option>TI</option>
-                        <option>RRHH</option>
-                        <option>Ventas</option>
+                        <option value="Tecnologías de Información">Tecnologías de Información</option>
+                        <option value="Recursos Humanos">Recursos Humanos</option>
+                        <option value="Finanzas">Finanzas</option>
+                        <option value="Ventas">Ventas</option>
                     </select>
                     <span asp-validation-for="Departamento" class="text-danger"></span>
                 </div>

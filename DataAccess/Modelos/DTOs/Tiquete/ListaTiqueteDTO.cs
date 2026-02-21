@@ -8,9 +8,7 @@
         public string? Resolucion { get; set; }
 
         public required string Estatus { get; set; }
-        public string? Prioridad { get; set; }
         public string Categoria { get; set; }
-        public string? Cola { get; set; }
 
         public string? ReportedBy { get; set; }
         public string? Asignee { get; set; }

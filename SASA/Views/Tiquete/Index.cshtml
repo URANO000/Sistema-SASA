@@ -33,14 +33,14 @@
                             <option value="">Todos</option>
                         </select>
                     </div>
-                    <div class="col-md-2">
+@*                     <div class="col-md-2">
                         <label class="form-label">Prioridad</label>
                         <select asp-for="Filtro.Prioridad"
                                 asp-items="Model.Filtro.Prioridades"
                                 class="form-select">
                             <option value="">Todas</option>
                         </select>
-                    </div>
+                    </div> *@
                     <div class="col-md-2">
                         <label class="form-label">Fecha</label>
                         <input type="date" class="form-control">
@@ -59,12 +59,9 @@
                     <thead class="">
                         <tr>
                             <th>Acciones</th>
-                            <th>Id</th>
                             <th>Asunto</th>
                             <th>Estatus</th>
-                            <th>Prioridad</th>
                             <th>Categoría</th>
-                            <th>Cola</th>
                             <th>Creado Por</th>
                             <th>Fecha de Creación</th>
                             <th>Asignado</th>
@@ -89,17 +86,15 @@
                                         <i class="fa-regular fa-pen-to-square edit-btn"></i>
                                     </a>
                                 </td>
-
-                                <td>@t.IdTiquete</td>
                                 <td>@t.Asunto</td>
                                 @switch (t.Estatus)
                                 {
-                                    case "Abierto":
+                                    case "Creado":
                                         <td>
                                             <span class="badge bg-primary">@t.Estatus</span>
                                         </td>
                                         break;
-                                    case "En Progreso":
+                                    case "En Proceso":
                                         <td>
                                             <span class="badge bg-warning">@t.Estatus</span>
                                         </td>
@@ -121,9 +116,7 @@
                                         break;
                                 }
 
-                                <td>@t.Prioridad</td>
                                 <td>@t.Categoria</td>
-                                <td>@t.Cola</td>
                                 <td>@t.ReportedBy</td>
                                 <td>@t.CreatedAt</td>
                                 <td>@t.Asignee</td>
@@ -144,7 +137,6 @@
                                asp-route-PageSize="@Model.Filtro.PageSize"
                                asp-route-Search="@Model.Filtro.Search"
                                asp-route-Estatus="@Model.Filtro.Estatus"
-                               asp-route-Prioridad="@Model.Filtro.Prioridad"
                                asp-route-Fecha="@Model.Filtro.Fecha">
                                 Anterior
                             </a>
@@ -165,7 +157,6 @@
                                asp-route-PageSize="@Model.Filtro.PageSize"
                                asp-route-Search="@Model.Filtro.Search"
                                asp-route-Estatus="@Model.Filtro.Estatus"
-                               asp-route-Prioridad="@Model.Filtro.Prioridad"
                                asp-route-Fecha="@Model.Filtro.Fecha">
                                 Siguiente
                             </a>

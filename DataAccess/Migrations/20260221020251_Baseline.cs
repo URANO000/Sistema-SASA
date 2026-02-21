@@ -13,13 +13,25 @@ namespace DataAccess.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            
+
+            migrationBuilder.InsertData(
+                table: "Estatus",
+                columns: new[] { "idEstatus", "nombreEstatus" },
+                values: new object[,]
+                {
+                    { 1, "Creado" },
+                    { 2, "En Proceso" },
+                    { 3, "En Espera Del Usuario" },
+                    { 4, "Cancelado" },
+                    { 5, "Resuelto" }
+                });
+
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            
+
         }
     }
 }

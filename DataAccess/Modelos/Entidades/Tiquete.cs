@@ -11,39 +11,33 @@ namespace DataAccess.Modelos.Entidades
         [Column("idTiquete")]
         public int IdTiquete { get; set; }
 
-        [Required]
         [Column("asunto")]
-        [StringLength(150)]
-        public string Asunto { get; set; } = null!;
+        public required string Asunto { get; set; } = null!;
 
-        [Required]
         [Column("descripcion")]
         public string Descripcion { get; set; } = null!;
 
-        [Required]
+        [Column("resolucion")]
+        public string? Resolucion { get; set; }
+
         [Column("idEstatus")]
-        public int IdEstatus { get; set; }
+        public required int IdEstatus { get; set; }
 
-        [Column("idPrioridad")]
-        public int IdPrioridad { get; set; }
-
-        [Required]
         [Column("idCategoria")]
-        public int IdCategoria { get; set; }
+        public required int IdCategoria { get; set; }
 
-        [Required]
-        [Column("idCola")]
-        public int IdCola { get; set; }
+        [Column("ordenCola")]
+        public int OrdenCola { get; set; }
 
         [Column("idAsignee")]
-        [StringLength(450)]
         public string? IdAsignee { get; set; }
 
         [Column("idReportedBy")]
-        [StringLength(450)]
         public string? IdReportedBy { get; set; }
 
-        [Required]
+        [Column("departamento")]
+        public string? Departamento { get; set; }
+
         [Column("createdAt")]
         public DateTime CreatedAt { get; set; }
 
@@ -53,21 +47,12 @@ namespace DataAccess.Modelos.Entidades
         [Column("updatedBy")]
         public string? UpdatedBy { get; set; }
 
-        [Column("resolucion")]
-        public string? Resolucion { get; set; }
-
-        // Navigation properties
+        //Navigation properties
         [ForeignKey(nameof(IdEstatus))]
         public Estatus Estatus { get; set; } = null!;
 
-        [ForeignKey(nameof(IdPrioridad))]
-        public Prioridad? Prioridad { get; set; }
-
         [ForeignKey(nameof(IdCategoria))]
         public Categoria Categoria { get; set; } = null!;
-
-        [ForeignKey(nameof(IdCola))]
-        public Cola Cola { get; set; } = null!;
 
         [ForeignKey(nameof(IdAsignee))]
         public ApplicationUser? Asignee { get; set; }
@@ -80,8 +65,9 @@ namespace DataAccess.Modelos.Entidades
 
 
         //Collection -> Relaciones uno a muchos
-        public ICollection<Comentario>? Comentarios { get; set; }
         public ICollection<Attachment>? Attachments { get; set; }
+        public ICollection<TiqueteHistorial>? TiqueteHistoriales { get; set; }
+        public ICollection<Avance>? Avances { get; set; }
 
     }
 
