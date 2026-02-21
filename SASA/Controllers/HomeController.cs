@@ -38,21 +38,21 @@ namespace SASA.Controllers
 
             var vm = new SASA.ViewModels.Home.DashboardViewModel
             {
-                Abiertos = counts.FirstOrDefault(x => x.Status == (int)DataAccess.Modelos.Enums.TiqueteEstatus.Abierto)?.Count ?? 0,
-                EnProgreso = counts.FirstOrDefault(x => x.Status == (int)DataAccess.Modelos.Enums.TiqueteEstatus.EnProgreso)?.Count ?? 0,
+                Abiertos = counts.FirstOrDefault(x => x.Status == (int)DataAccess.Modelos.Enums.TiqueteEstatus.Creado)?.Count ?? 0,
+                EnProgreso = counts.FirstOrDefault(x => x.Status == (int)DataAccess.Modelos.Enums.TiqueteEstatus.EnProceso)?.Count ?? 0,
                 Resueltos = counts.FirstOrDefault(x => x.Status == (int)DataAccess.Modelos.Enums.TiqueteEstatus.Resuelto)?.Count ?? 0,
                 Cancelados = counts.FirstOrDefault(x => x.Status == (int)DataAccess.Modelos.Enums.TiqueteEstatus.Cancelado)?.Count ?? 0,
-                Cerrados = counts.FirstOrDefault(x => x.Status == (int)DataAccess.Modelos.Enums.TiqueteEstatus.Cerrado)?.Count ?? 0,
+                EnEsperaDelUsuario = counts.FirstOrDefault(x => x.Status == (int)DataAccess.Modelos.Enums.TiqueteEstatus.EnEsperaDelUsuario)?.Count ?? 0,
                 Rol = role
             };
             var prioridades = _db.Prioridades.AsNoTracking().OrderBy(p => p.IdPrioridad).ToList();
-            var prioridadCounts = _db.Tiquetes.AsNoTracking()
-                .GroupBy(t => t.IdPrioridad)
-                .Select(g => new { Id = g.Key, Count = g.Count() })
-                .ToList();
+            //var prioridadCounts = _db.Tiquetes.AsNoTracking()
+            //    .GroupBy(t => t.IdPrioridad)
+            //    .Select(g => new { Id = g.Key, Count = g.Count() })
+            //    .ToList();
 
-            vm.PriorityLabels = prioridades.Select(p => p.NombrePrioridad).ToArray();
-            vm.PriorityCounts = prioridades.Select(p => prioridadCounts.FirstOrDefault(pc => pc.Id == p.IdPrioridad)?.Count ?? 0).ToArray();
+            //vm.PriorityLabels = prioridades.Select(p => p.NombrePrioridad).ToArray();
+            //vm.PriorityCounts = prioridades.Select(p => prioridadCounts.FirstOrDefault(pc => pc.Id == p.IdPrioridad)?.Count ?? 0).ToArray();
 
             var days = 7;
             var today = DateTime.Today;
@@ -64,8 +64,8 @@ namespace SASA.Controllers
                 .Select(g => new { Date = g.Key, Count = g.Count() })
                 .ToList();
 
-            var closed = _db.Tiquetes.AsNoTracking()
-                .Where(t => t.UpdatedAt.HasValue && t.UpdatedAt.Value.Date >= from && t.IdEstatus == (int)DataAccess.Modelos.Enums.TiqueteEstatus.Cerrado)
+            var waiting = _db.Tiquetes.AsNoTracking()
+                .Where(t => t.UpdatedAt.HasValue && t.UpdatedAt.Value.Date >= from && t.IdEstatus == (int)DataAccess.Modelos.Enums.TiqueteEstatus.EnEsperaDelUsuario)
                 .GroupBy(t => t.UpdatedAt!.Value.Date)
                 .Select(g => new { Date = g.Key, Count = g.Count() })
                 .ToList();
@@ -78,7 +78,7 @@ namespace SASA.Controllers
 
             var labels = new List<string>();
             var creadosList = new List<int>();
-            var cerradosList = new List<int>();
+            var esperaList = new List<int>();
             var canceladosList = new List<int>();
 
             for (int i = 0; i < days; i++)
@@ -86,13 +86,13 @@ namespace SASA.Controllers
                 var d = from.AddDays(i);
                 labels.Add(d.ToString("MMM d"));
                 creadosList.Add(created.FirstOrDefault(x => x.Date == d)?.Count ?? 0);
-                cerradosList.Add(closed.FirstOrDefault(x => x.Date == d)?.Count ?? 0);
+                esperaList.Add(waiting.FirstOrDefault(x => x.Date == d)?.Count ?? 0);
                 canceladosList.Add(cancelled.FirstOrDefault(x => x.Date == d)?.Count ?? 0);
             }
 
             vm.TrendLabels = labels.ToArray();
             vm.TrendCreados = creadosList.ToArray();
-            vm.TrendCerrados = cerradosList.ToArray();
+            vm.TrendEspera = esperaList.ToArray();
             vm.TrendCancelados = canceladosList.ToArray();
 
             return Json(vm);
@@ -111,21 +111,21 @@ namespace SASA.Controllers
 
             var vm = new SASA.ViewModels.Home.DashboardViewModel
             {
-                Abiertos = counts.FirstOrDefault(x => x.Status == (int)DataAccess.Modelos.Enums.TiqueteEstatus.Abierto)?.Count ?? 0,
-                EnProgreso = counts.FirstOrDefault(x => x.Status == (int)DataAccess.Modelos.Enums.TiqueteEstatus.EnProgreso)?.Count ?? 0,
+                Abiertos = counts.FirstOrDefault(x => x.Status == (int)DataAccess.Modelos.Enums.TiqueteEstatus.Creado)?.Count ?? 0,
+                EnProgreso = counts.FirstOrDefault(x => x.Status == (int)DataAccess.Modelos.Enums.TiqueteEstatus.EnProceso)?.Count ?? 0,
                 Resueltos = counts.FirstOrDefault(x => x.Status == (int)DataAccess.Modelos.Enums.TiqueteEstatus.Resuelto)?.Count ?? 0,
                 Cancelados = counts.FirstOrDefault(x => x.Status == (int)DataAccess.Modelos.Enums.TiqueteEstatus.Cancelado)?.Count ?? 0,
-                Cerrados = counts.FirstOrDefault(x => x.Status == (int)DataAccess.Modelos.Enums.TiqueteEstatus.Cerrado)?.Count ?? 0,
+                EnEsperaDelUsuario = counts.FirstOrDefault(x => x.Status == (int)DataAccess.Modelos.Enums.TiqueteEstatus.EnEsperaDelUsuario)?.Count ?? 0,
                 Rol = role
             };
-            var prioridades = _db.Prioridades.AsNoTracking().OrderBy(p => p.IdPrioridad).ToList();
-            var prioridadCounts = _db.Tiquetes.AsNoTracking()
-                .GroupBy(t => t.IdPrioridad)
-                .Select(g => new { Id = g.Key, Count = g.Count() })
-                .ToList();
+            //var prioridades = _db.Prioridades.AsNoTracking().OrderBy(p => p.IdPrioridad).ToList();
+            //var prioridadCounts = _db.Tiquetes.AsNoTracking()
+            //    .GroupBy(t => t.IdPrioridad)
+            //    .Select(g => new { Id = g.Key, Count = g.Count() })
+            //    .ToList();
 
-            vm.PriorityLabels = prioridades.Select(p => p.NombrePrioridad).ToArray();
-            vm.PriorityCounts = prioridades.Select(p => prioridadCounts.FirstOrDefault(pc => pc.Id == p.IdPrioridad)?.Count ?? 0).ToArray();
+            //vm.PriorityLabels = prioridades.Select(p => p.NombrePrioridad).ToArray();
+            //vm.PriorityCounts = prioridades.Select(p => prioridadCounts.FirstOrDefault(pc => pc.Id == p.IdPrioridad)?.Count ?? 0).ToArray();
             var days = 7;
             var today = DateTime.Today;
             var from = today.AddDays(-(days - 1));
@@ -136,8 +136,8 @@ namespace SASA.Controllers
                 .Select(g => new { Date = g.Key, Count = g.Count() })
                 .ToList();
 
-            var closed = _db.Tiquetes.AsNoTracking()
-                .Where(t => t.UpdatedAt.HasValue && t.UpdatedAt.Value.Date >= from && t.IdEstatus == (int)DataAccess.Modelos.Enums.TiqueteEstatus.Cerrado)
+            var waiting = _db.Tiquetes.AsNoTracking()
+                .Where(t => t.UpdatedAt.HasValue && t.UpdatedAt.Value.Date >= from && t.IdEstatus == (int)DataAccess.Modelos.Enums.TiqueteEstatus.EnEsperaDelUsuario)
                 .GroupBy(t => t.UpdatedAt!.Value.Date)
                 .Select(g => new { Date = g.Key, Count = g.Count() })
                 .ToList();
@@ -150,7 +150,7 @@ namespace SASA.Controllers
 
             var labels = new List<string>();
             var creadosList = new List<int>();
-            var cerradosList = new List<int>();
+            var esperaList = new List<int>();
             var canceladosList = new List<int>();
 
             for (int i = 0; i < days; i++)
@@ -158,13 +158,13 @@ namespace SASA.Controllers
                 var d = from.AddDays(i);
                 labels.Add(d.ToString("MMM d"));
                 creadosList.Add(created.FirstOrDefault(x => x.Date == d)?.Count ?? 0);
-                cerradosList.Add(closed.FirstOrDefault(x => x.Date == d)?.Count ?? 0);
+                esperaList.Add(waiting.FirstOrDefault(x => x.Date == d)?.Count ?? 0);
                 canceladosList.Add(cancelled.FirstOrDefault(x => x.Date == d)?.Count ?? 0);
             }
 
             vm.TrendLabels = labels.ToArray();
             vm.TrendCreados = creadosList.ToArray();
-            vm.TrendCerrados = cerradosList.ToArray();
+            vm.TrendEspera = esperaList.ToArray();
             vm.TrendCancelados = canceladosList.ToArray();
 
             return View(vm);

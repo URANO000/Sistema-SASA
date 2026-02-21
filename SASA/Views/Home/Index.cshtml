@@ -89,7 +89,7 @@
         data: {
             labels: ['Abiertos', 'En Progreso', 'Resueltos', 'Cancelados', 'Cerrados'],
             datasets: [{
-                data: [@Model.Abiertos, @Model.EnProgreso, @Model.Resueltos, @Model.Cancelados, @Model.Cerrados],
+                data: [@Model.Abiertos, @Model.EnProgreso, @Model.Resueltos, @Model.Cancelados, @Model.EnEsperaDelUsuario],
                 backgroundColor: ['#012473', '#0347b8', '#28a745', '#d4a147', '#6c757d']
             }]
         },
@@ -119,7 +119,7 @@
             labels: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.TrendLabels)),
             datasets: [
                 { label: 'Creados', data: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.TrendCreados)), borderColor: '#0d6efd', fill: false },
-                { label: 'Cerrados', data: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.TrendCerrados)), borderColor: '#d4a147', fill: false },
+                { label: 'Cerrados', data: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.TrendEspera)), borderColor: '#d4a147', fill: false },
                 { label: 'Cancelados', data: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.TrendCancelados)), borderColor: '#da0c00', fill: false }
             ]
         }
