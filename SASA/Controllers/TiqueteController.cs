@@ -42,6 +42,8 @@ namespace SASA.Controllers
                 Search = filtro.Search,
                 Estatus = filtro.Estatus,
                 Fecha = filtro.Fecha,
+                FechaInicio = filtro.FechaInicio,
+                FechaFinal = filtro.FechaFinal,
                 PageNumber = filtro.PageNumber <= 0 ? 1 : filtro.PageNumber,
                 PageSize = filtro.PageSize <= 0 ? 10 : filtro.PageSize
             };
@@ -71,6 +73,8 @@ namespace SASA.Controllers
                     Search = filtro.Search,
                     Estatus = filtro.Estatus,
                     Fecha = filtro.Fecha,
+                    FechaInicio = filtro.FechaInicio,
+                    FechaFinal = filtro.FechaFinal,
                     PageNumber = filtro.PageNumber,
                     PageSize = filtro.PageSize,
                     TotalPages = result.TotalPages

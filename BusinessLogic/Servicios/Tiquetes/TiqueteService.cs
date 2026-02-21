@@ -2,7 +2,7 @@
 using DataAccess.Modelos.DTOs.Tiquete.Filtros;
 using DataAccess.Modelos.DTOs.Tiquete.Usuario_Ver;
 using DataAccess.Modelos.DTOs.Wrappers;
-using DataAccess.Modelos.Entidades;
+using DataAccess.Modelos.Entidades.ModTiquete;
 using DataAccess.Modelos.Enums;
 using DataAccess.Repositorios.Categorias;
 using DataAccess.Repositorios.Tiquetes;

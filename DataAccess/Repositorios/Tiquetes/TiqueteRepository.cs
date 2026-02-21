@@ -1,7 +1,7 @@
 ﻿using DataAccess.Modelos.DTOs.Tiquete;
 using DataAccess.Modelos.DTOs.Tiquete.Filtros;
 using DataAccess.Modelos.DTOs.Wrappers;
-using DataAccess.Modelos.Entidades;
+using DataAccess.Modelos.Entidades.ModTiquete;
 using Microsoft.EntityFrameworkCore;
 
 namespace DataAccess.Repositorios.Tiquetes
@@ -28,7 +28,7 @@ namespace DataAccess.Repositorios.Tiquetes
             {
                 query = query.Where(t =>
                     t.Asunto.Contains(filtro.Search) ||
-                    t.IdTiquete.ToString().Contains(filtro.Search));
+                    t.Descripcion.Contains(filtro.Search));
             }
 
             //Si el filtro de estatus no es vacío
@@ -37,16 +37,20 @@ namespace DataAccess.Repositorios.Tiquetes
                 query = query.Where(t => t.Estatus.NombreEstatus == filtro.Estatus);
             }
 
-            ////Si el filtro de prioridad no es vacío
-            //if (!string.IsNullOrWhiteSpace(filtro.Prioridad))
-            //{
-            //    query = query.Where(t => t.Prioridad.NombrePrioridad == filtro.Prioridad);
-            //}
 
             //Si el filtro de Fecha no es vacío
             if (filtro.Fecha.HasValue)
             {
                 query = query.Where(t => t.CreatedAt.Date == filtro.Fecha.Value.Date);
+            }
+            else if (filtro.FechaInicio.HasValue && filtro.FechaFinal.HasValue)
+            {
+                var inicio = filtro.FechaInicio.Value.Date; //Sólo el date, no la hora
+                //Ésta lógica es para atrapar todo ese día de la fecha final
+                var fin = filtro.FechaFinal.Value.Date.AddDays(1);
+
+                query = query.Where(t => t.CreatedAt.Date >= inicio && t.CreatedAt.Date < fin);
+
             }
 
             var totalRecords = await query.CountAsync();

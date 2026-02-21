@@ -1,4 +1,4 @@
-﻿using DataAccess.Modelos.Entidades;
+﻿using DataAccess.Modelos.Entidades.ModTiquete;
 using Microsoft.AspNetCore.Identity;
 using System.ComponentModel.DataAnnotations.Schema;
 

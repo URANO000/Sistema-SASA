@@ -32,6 +32,13 @@ $(function () {
                     $("#addUserModal .modal-content").html(response);
 
                     $.validator.unobtrusive.parse("#createUserForm");
+
+                    $("#addUserModal").modal("hide");
+
+                    $("#errorModal").modal("show")
+                    setTimeout(() => {
+                        window.location.href = "/Usuario";
+                    }, 1200);
                 }
             },
             error: function () {

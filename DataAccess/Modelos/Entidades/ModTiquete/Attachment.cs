@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Http;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace DataAccess.Modelos.Entidades
+namespace DataAccess.Modelos.Entidades.ModTiquete
 {
     [Table("Attachment")]
     public class Attachment

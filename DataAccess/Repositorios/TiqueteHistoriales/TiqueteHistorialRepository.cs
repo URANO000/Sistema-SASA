@@ -1,5 +1,5 @@
 ﻿using DataAccess.Modelos.DTOs.TiqueteHistorial;
-using DataAccess.Modelos.Entidades;
+using DataAccess.Modelos.Entidades.ModTiquete;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;

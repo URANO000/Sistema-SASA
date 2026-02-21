@@ -1,7 +1,7 @@
 ﻿using DataAccess.Modelos.DTOs.Tiquete;
 using DataAccess.Modelos.DTOs.Tiquete.Filtros;
 using DataAccess.Modelos.DTOs.Wrappers;
-using DataAccess.Modelos.Entidades;
+using DataAccess.Modelos.Entidades.ModTiquete;
 namespace DataAccess.Repositorios.Tiquetes
 {
     public interface ITiqueteRepository

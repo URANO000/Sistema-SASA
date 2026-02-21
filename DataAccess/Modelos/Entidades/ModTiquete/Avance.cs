@@ -2,7 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace DataAccess.Modelos.Entidades
+namespace DataAccess.Modelos.Entidades.ModTiquete
 {
     [Table("Avance")]
     public class Avance
