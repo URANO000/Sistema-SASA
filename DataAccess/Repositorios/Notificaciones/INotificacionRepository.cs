@@ -14,6 +14,8 @@ namespace DataAccess.Repositorios.Notificaciones
         Task<DateTime?> ObtenerSilencioActivoAsync(string userId, int idTiquete);
         Task SilenciarTiqueteAsync(string userId, int idTiquete, int horas);
         Task ReactivarSilencioAsync(string userId, int idTiquete);
+        Task<ResultadoPaginadoDTO<DataAccess.Modelos.DTOs.Notificaciones.NotificacionAuditoriaItemDTO>> ObtenerAuditoriaAsync(string? q, string? tipo, string? estado, DateTime? fecha, int pagina, int tamanoPagina);
+        Task<DataAccess.Modelos.DTOs.Notificaciones.NotificacionDTO?> ObtenerPorIdParaAuditoriaAsync(long idNotificacion);
 
     }
 }

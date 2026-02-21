@@ -39,6 +39,12 @@ namespace BusinessLogic.Servicios.Notificaciones
         public Task ReactivarSilencioAsync(string userId, int idTiquete)
             => _repo.ReactivarSilencioAsync(userId, idTiquete);
 
+        public Task<ResultadoPaginadoDTO<DataAccess.Modelos.DTOs.Notificaciones.NotificacionAuditoriaItemDTO>> ObtenerAuditoriaAsync(string? q, string? tipo, string? estado, DateTime? fecha, int pagina, int tamanoPagina)
+            => _repo.ObtenerAuditoriaAsync(q, tipo, estado, fecha, pagina, tamanoPagina);
+
+        public Task<DataAccess.Modelos.DTOs.Notificaciones.NotificacionDTO?> ObtenerPorIdParaAuditoriaAsync(long idNotificacion)
+            => _repo.ObtenerPorIdParaAuditoriaAsync(idNotificacion);
+
 
 
     }
