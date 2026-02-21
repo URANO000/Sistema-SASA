@@ -4,8 +4,6 @@ using BusinessLogic.Servicios.Tiquetes;
 using BusinessLogic.Servicios.Usuarios;
 using DataAccess.Modelos.DTOs.Tiquete;
 using DataAccess.Modelos.DTOs.Tiquete.Filtros;
-using DataAccess.Modelos.DTOs.Tiquete.Usuario_Ver;
-using DataAccess.Modelos.DTOs.Wrappers;
 using DataAccess.Modelos.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -14,7 +12,6 @@ using SASA.Filters;
 using SASA.ViewModels.Tiquete;
 using SASA.ViewModels.Tiquete.Extras;
 using SASA.ViewModels.Tiquete.Filtro;
-using SASA.ViewModels.Tiquete.UsuarioNormal;
 using System.Security.Claims;
 
 namespace SASA.Controllers
@@ -110,8 +107,8 @@ namespace SASA.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [Authorize(Roles = "Administrador")]
-        public async Task<IActionResult> AdminAdd(CrearTiqueteViewModel model)
+        [Authorize(Roles = "Administrador, Empleado Normal")]
+        public async Task<IActionResult> Add(CrearTiqueteViewModel model)
         {
             if (!ModelState.IsValid)
             {
@@ -126,7 +123,7 @@ namespace SASA.Controllers
                 var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
                 //Mapear viewmodel a dto
-                var dto = new CrearTiqueteAdminDto
+                var dto = new CrearTiqueteDto
                 {
                     Asunto = model.Asunto,
                     Descripcion = model.Descripcion,
@@ -134,7 +131,10 @@ namespace SASA.Controllers
                     IdAsignee = model.IdAsignee
                 };
 
-                var idTiquete = await _tiqueteService.AgregarTiqueteAsync(dto, currentUserId);
+                //Una vez que está mapeado entonces verificar si el usuario es administrador
+                var esAdmin = User.IsInRole("Administrador"); //Retorna true o false
+
+                var idTiquete = await _tiqueteService.AgregarTiqueteAsync(dto, currentUserId, esAdmin);
 
                 return Ok(new
                 {
@@ -157,7 +157,7 @@ namespace SASA.Controllers
 
         //[HttpPost]
         //[ValidateAntiForgeryToken]
-        //public async Task<IActionResult> Add(CrearTiqueteUsuarioViewModel model)
+        //public async Task<IActionResult> Add(CrearTiqueteViewModel model)
         //{
         //    if (!ModelState.IsValid)
         //    {
@@ -179,9 +179,15 @@ namespace SASA.Controllers
         //            IdCategoria = model.Categoria
         //        };
 
+        //        var idTiquete = await _tiqueteService.AgregarTiqueteAsync(dto, currentUserId);
 
+        //        return Ok(new
+        //        {
+        //            success = true,
+        //            idTiquete
+        //        });
         //    }
-        //    catch(Exception ex)
+        //    catch (Exception ex)
         //    {
         //        return BadRequest(new
         //        {

@@ -2,11 +2,13 @@ using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using SASA.Models;
 using SASA.Filters;
+using Microsoft.AspNetCore.Authorization;
 
 
 namespace SASA.Controllers
 {
     [RequireAuth]
+    [Authorize]
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;

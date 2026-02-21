@@ -153,56 +153,7 @@ $(function () {
 
 //--TIQUETE SUBMIT------------
 $(function () {
-    $(document).on("submit", "#crearAdminTiqueteForm", function (e) {
-
-        e.preventDefault();
-
-        const form = $(this);
-
-        if (!form.valid()) {
-            return;
-        }
-
-        $.ajax({
-            url: form.attr("action"),
-            type: "POST",
-            data: form.serialize(),
-
-            success: function (response) {
-
-                //Caso 1, si todo sale bien
-                if (response.success) {
-                    $("#addAdminTicket").modal("hide");
-                    $("#successModal").modal("show");
-
-                    //Ir a la tabla después de un tiempo
-                    setTimeout(() => {
-                        window.location.href = "/Tiquete";
-                    }, 1200);
-                }
-                else {
-
-                    $("#addTicketModal .modal-content").html(response);
-
-                    $.validator.unobtrusive.parse("#crearAdminTiqueteForm");
-                }
-            },
-
-            error: function () {
-                $("#addAdminTicket").modal("hide");
-                $("#errorModal").modal("show")
-                setTimeout(() => {
-                    window.location.href = "/Tiquete";
-                }, 1400);
-            }
-        });
-
-    });
-
-});
-
-$(function () {
-    $(document).on("submit", "#crearTiqueteUserForm", function (e) {
+    $(document).on("submit", "#crearTiqueteForm", function (e) {
 
         e.preventDefault();
 
@@ -233,7 +184,7 @@ $(function () {
 
                     $("#addTicketModal .modal-content").html(response);
 
-                    $.validator.unobtrusive.parse("#crearTiqueteUserForm");
+                    $.validator.unobtrusive.parse("#crearTiqueteForm");
                 }
             },
 
@@ -249,6 +200,7 @@ $(function () {
     });
 
 });
+
 
 //--TIQUETE EDITAR SUBMIT------------               
 $(function () {

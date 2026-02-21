@@ -1,6 +1,5 @@
 ﻿using DataAccess.Modelos.DTOs.Tiquete;
 using DataAccess.Modelos.DTOs.Tiquete.Filtros;
-using DataAccess.Modelos.DTOs.Tiquete.Usuario_Ver;
 using DataAccess.Modelos.DTOs.Wrappers;
 using DataAccess.Modelos.Entidades.ModTiquete;
 using DataAccess.Modelos.Enums;
@@ -21,7 +20,7 @@ namespace BusinessLogic.Servicios.Tiquetes
         }
         //Implementación de los métodos para el servicio de Tiquete
 
-        public async Task<PagedResult<ListaTiqueteDTO>> ObtenerTiquetesAsync(TiqueteFiltroDto filtro,string? currentUserId)
+        public async Task<PagedResult<ListaTiqueteDTO>> ObtenerTiquetesAsync(TiqueteFiltroDto filtro, string? currentUserId)
         {
             return await _tiqueteRepository.ObtenerTiquetesAsync(filtro, currentUserId);
         }
@@ -84,41 +83,25 @@ namespace BusinessLogic.Servicios.Tiquetes
             return await _tiqueteRepository.ObtenerTiquetePorIdAsync(id);
         }
 
-        //--------------------Creación de tiquetes para el administrador-----------------------------------
-        public async Task<int> AgregarTiqueteAsync(CrearTiqueteAdminDto dto, string currentUserId)
+        //--------------------Creación de tiquetes-----------------------------------
+        public async Task<int> AgregarTiqueteAsync(CrearTiqueteDto dto, string currentUserId, bool esAdministrador)
         {
-            //Validaciones básicas
-            if (string.IsNullOrWhiteSpace(currentUserId))
-                throw new UnauthorizedAccessException();
-            //Validar que la categoría exista
-            var categoriaExiste = await _categoriaRepository.ExisteAsync(dto.IdCategoria);
-            if (!categoriaExiste)
-            {
-                throw new ArgumentException("Categoria no existe.");
-            }
+            ValidarUsuarioActual(currentUserId);
+            await ValidarCategoriaAsync(dto.IdCategoria);
 
+            //Regla de autorización. Si es administrador entonces puede asignar tiquetes, si es empleado normal, no. 
+            if (!esAdministrador && dto.IdAsignee != null)
+                throw new UnauthorizedAccessException(
+                    "Un usuario normal no puede asignar tiquetes."
+                );
 
-            //Si todo esto es correcto, entonces se puede mapear el dto a la entidad
-            var tiquete = new Tiquete
-            {
-                Asunto = dto.Asunto.Trim(),
-                Descripcion = dto.Descripcion.Trim(),
-                IdCategoria = dto.IdCategoria,
-                IdAsignee = dto.IdAsignee,
-                IdReportedBy = currentUserId,
-                IdEstatus = (int)TiqueteEstatus.Creado,
-                CreatedAt = DateTime.Now
-            };
-
-
-            var tiqueteCreado = await _tiqueteRepository.AgregarTiqueteAsync(tiquete);
-            return tiqueteCreado.IdTiquete;
-        }
-
-        //--------------------Creación de tiquetes para el usuario común-----------------------------------
-        public Task<int> AgregarTiqueteUsuarioAsync(CrearTiqueteUsuarioDto tiquete, string currentUserId)
-        {
-            throw new NotImplementedException();
+            return await CrearTiqueteAsync(
+                dto.Asunto,
+                dto.Descripcion,
+                dto.IdCategoria,
+                currentUserId,
+                null //Usuario normal no puede asignar
+            );
         }
 
         //--------------------Actualizar tiquetes para el administrador-----------------------------------
@@ -127,10 +110,7 @@ namespace BusinessLogic.Servicios.Tiquetes
         {
             //Validacion 1: El usuario debe estar autenticado para actualizar un tiquete
             //Puede fallar si se prueba con http y no https por los cookies
-            if (string.IsNullOrWhiteSpace(currentUserId))
-            {
-                throw new UnauthorizedAccessException("Usuario no autenticado.");
-            }
+            ValidarUsuarioActual(currentUserId);
 
             var tiqueteActual = await _tiqueteRepository.ObtenerEntidadPorIdAsync(dto.IdTiquete);
 
@@ -156,7 +136,6 @@ namespace BusinessLogic.Servicios.Tiquetes
 
             //Si el tiquete existe, se actualizan los campos
             tiqueteActual.IdCategoria = dto.IdCategoria;
-            //tiqueteActual.IdAsignee = dto.IdAsignee;
             tiqueteActual.IdEstatus = dto.IdEstatus;
             tiqueteActual.Resolucion = dto.Resolucion?.Trim(); //Puede no tener nada
             tiqueteActual.UpdatedAt = DateTime.Now;
@@ -166,5 +145,42 @@ namespace BusinessLogic.Servicios.Tiquetes
             await _tiqueteRepository.ActualizarTiqueteAsync(tiqueteActual);
         }
 
+
+    //----------------------------HELPERS (DRY)--------------------------------
+    private void ValidarUsuarioActual(string currentUserId)
+        {
+            if (string.IsNullOrWhiteSpace(currentUserId))
+                throw new UnauthorizedAccessException("Usuario no autenticado");
+        }
+
+        private async Task ValidarCategoriaAsync(int idCategoria)
+        {
+            var categoriaExiste = await _categoriaRepository.ExisteAsync(idCategoria);
+            if (!categoriaExiste)
+                throw new ArgumentException("Categoria no existe.");
+        }
+
+        private async Task<int> CrearTiqueteAsync(
+            string asunto,
+            string descripcion,
+            int idCategoria,
+            string reportedBy,
+            string? idAsignee
+        )
+        {
+            var tiquete = new Tiquete
+            {
+                Asunto = asunto.Trim(),
+                Descripcion = descripcion.Trim(),
+                IdCategoria = idCategoria,
+                IdReportedBy = reportedBy,
+                IdAsignee = idAsignee,
+                IdEstatus = (int)TiqueteEstatus.Creado,
+                CreatedAt = DateTime.UtcNow
+            };
+
+            var creado = await _tiqueteRepository.AgregarTiqueteAsync(tiquete);
+            return creado.IdTiquete;
+        }
     }
 }
