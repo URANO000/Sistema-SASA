@@ -107,83 +107,87 @@
                 </a>
 
             </div>
-            <div class="nav-section">
-                <span class="section-title">Administración</span>
+           @if(User.IsInRole("Administrador")){
+                <div class="nav-section">
+                    <span class="section-title">Administración</span>
 
-                <!-- Dropdown trigger -->
-                <button class="nav-link dropdown-toggle-btn" type="button">
-                    <i class="bi bi-shield-lock"></i>
-                    Módulo Administrativo
-                    <i class="bi bi-chevron-down ms-auto"></i>
-                </button>
+                   @*  <!-- Dropdown trigger --> *@
+                    <button class="nav-link dropdown-toggle-btn" type="button">
+                        <i class="bi bi-shield-lock"></i>
+                        Módulo Administrativo
+                        <i class="bi bi-chevron-down ms-auto"></i>
+                    </button>
 
-                <!-- Dropdown items -->
-                <div class="submenu">
-                    <a asp-area="" asp-controller="Usuario" asp-action="Index" class="submenu-link">
-                        <i class=""></i>
-                        Gestión de Usuarios
-                    </a>
-                    <a asp-area="" asp-controller="Categoria" asp-action="Index" class="submenu-link">
-                        <i class=""></i>
-                        Gestión de Categorías
-                    </a>
-                    <a asp-area="" asp-controller="Tiquete" asp-action="Index" class="submenu-link">
-                        <i class=""></i>
-                        Gestión de Tiquetes
-                    </a>
-                    <a asp-area="" asp-controller="Cola" asp-action="Index" class="submenu-link">
-                        <i class=""></i>
-                        Gestión de Colas
-                    </a>
+                    @* <!-- Dropdown items --> *@
+                    <div class="submenu">
+                        <a asp-area="" asp-controller="Usuario" asp-action="Index" class="submenu-link">
+                            <i class=""></i>
+                            Gestión de Usuarios
+                        </a>
+                        <a asp-area="" asp-controller="Categoria" asp-action="Index" class="submenu-link">
+                            <i class=""></i>
+                            Gestión de Categorías
+                        </a>
+                        <a asp-area="" asp-controller="Tiquete" asp-action="Index" class="submenu-link">
+                            <i class=""></i>
+                            Gestión de Tiquetes
+                        </a>
+                        <a asp-area="" asp-controller="Cola" asp-action="Index" class="submenu-link">
+                            <i class=""></i>
+                            Gestión de Colas
+                        </a>
+                    </div>
                 </div>
-            </div>
-            <div class="nav-section">
-                <button class="nav-link dropdown-toggle-btn" type="button">
-                    <i class="bi bi-archive"></i>
-                    Módulo de Inventario
-                    <i class="bi bi-chevron-down ms-auto"></i>
-                </button>
+                <div class="nav-section">
+                    <button class="nav-link dropdown-toggle-btn" type="button">
+                        <i class="bi bi-archive"></i>
+                        Módulo de Inventario
+                        <i class="bi bi-chevron-down ms-auto"></i>
+                    </button>
 
-                <div class="submenu">
-                    <a asp-controller="Inventory" asp-action="Index" class="submenu-link">
-                        Gestión de Activos
-                    </a>
+                    <div class="submenu">
+                        <a asp-controller="Inventory" asp-action="Index" class="submenu-link">
+                            Gestión de Activos
+                        </a>
 
-                    <a asp-controller="Inventory" asp-action="Equipment" class="submenu-link">
-                        Equipos
-                    </a>
+                        <a asp-controller="Inventory" asp-action="Equipment" class="submenu-link">
+                            Equipos
+                        </a>
 
-                    <a asp-controller="Inventory" asp-action="Maintenance" class="submenu-link">
-                        Historial y Mantenimiento
-                    </a>
+                        <a asp-controller="Inventory" asp-action="Maintenance" class="submenu-link">
+                            Historial y Mantenimiento
+                        </a>
 
-                    <a asp-controller="Inventory" asp-action="TicketAssociation" class="submenu-link">
-                        Asociación Activos - Tiquetes
-                    </a>
+                        <a asp-controller="Inventory" asp-action="TicketAssociation" class="submenu-link">
+                            Asociación Activos - Tiquetes
+                        </a>
 
-                    <a asp-controller="Inventory" asp-action="Reports" class="submenu-link">
-                        Reportes
-                    </a>
+                        <a asp-controller="Inventory" asp-action="Reports" class="submenu-link">
+                            Reportes
+                        </a>
+                    </div>
                 </div>
-            </div>
-            <div class="nav-section">
-                <span class="section-title">Usuarios</span>
-                <!-- Dropdown trigger -->
-                <button class="nav-link dropdown-toggle-btn" type="button">
-                    <i class="bi bi-ticket-perforated"></i>
-                    Módulo de Tiquetes
-                    <i class="bi bi-chevron-down ms-auto"></i>
-                </button>
+           }
+            @if(User.IsInRole("Empleado Normal")){
+                <div class="nav-section">
+                    <span class="section-title">Usuarios</span>
+                    @* <!-- Dropdown trigger --> *@
+                    <button class="nav-link dropdown-toggle-btn" type="button">
+                        <i class="bi bi-ticket-perforated"></i>
+                        Módulo de Tiquetes
+                        <i class="bi bi-chevron-down ms-auto"></i>
+                    </button>
 
-                <!--Dropdown items-->
-                <div class="submenu">
-                    <a asp-area="" asp-controller="Tiquete" asp-action="Index" class="submenu-link">
-                        <i class=""></i>
-                        Gestión de Tiquetes
-                    </a>
+                    @* <!--Dropdown items--> *@
+                    <div class="submenu">
+                        <a asp-area="" asp-controller="Tiquete" asp-action="Index" class="submenu-link">
+                            <i class=""></i>
+                            Gestión de Tiquetes
+                        </a>
 
+                    </div>
                 </div>
-            </div>
+            }
             <div class="nav-section">
                 <span class="section-title">Integración</span>
                 <button class="nav-link dropdown-toggle-btn" type="button">

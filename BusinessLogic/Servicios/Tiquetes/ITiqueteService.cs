@@ -9,7 +9,7 @@ namespace BusinessLogic.Servicios.Tiquetes
     {
         //Métodos para el servicio de Tiquete
 
-        Task<PagedResult<ListaTiqueteDTO>> ObtenerTiquetesAsync(TiqueteFiltroDto filtro);
+        Task<PagedResult<ListaTiqueteDTO>> ObtenerTiquetesAsync(TiqueteFiltroDto filtro, string? currentUserId);
         Task<IReadOnlyList<ListaTiqueteDTO>> ObtenerTiquetesReporteAsync();
 
         //READ: Nada más para detalle
@@ -18,6 +18,8 @@ namespace BusinessLogic.Servicios.Tiquetes
         //Para obtener tiquetes por usuario pero para editar (con IDs)
         Task<TiquetePorIdDto?> ObtenerTiquetePorIdAsync(int id);
 
+        ////Lista de tiquetes creados por usuario actual (sólo si es un empleado normal)
+        //Task<PagedResult<ListaTiqueteDTO>> ObtenerTiquetesPorCreadorAsync(TiqueteFiltroDto filtro, string idCreador);
         //Creación de tiquetes para el administrador
         Task<int> AgregarTiqueteAsync(CrearTiqueteAdminDto tiquete, string currentUserId);
         //Creación de tiquetes para el cliente

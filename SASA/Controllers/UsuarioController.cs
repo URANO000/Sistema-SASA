@@ -3,6 +3,7 @@ using BusinessLogic.Servicios.Rol;
 using BusinessLogic.Servicios.Usuarios;
 using DataAccess.Modelos.DTOs.Usuarios;
 using DataAccess.Modelos.DTOs.Usuarios.Filtros;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.WebUtilities;
@@ -18,6 +19,7 @@ using System.Text;
 namespace SASA.Controllers
 {
     [RequireAuth]
+    [Authorize(Roles = "Administrador")]
     public class UsuarioController : Controller
     {
         //Referencia a los servicios (Inyección de dependencias)

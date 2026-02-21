@@ -4,7 +4,9 @@ using BusinessLogic.Servicios.Tiquetes;
 using BusinessLogic.Servicios.Usuarios;
 using DataAccess.Modelos.DTOs.Tiquete;
 using DataAccess.Modelos.DTOs.Tiquete.Filtros;
+using DataAccess.Modelos.DTOs.Wrappers;
 using DataAccess.Modelos.Enums;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using SASA.Filters;
@@ -33,6 +35,7 @@ namespace SASA.Controllers
             _prioridadService = prioridadService;
         }
         //GET: TiqueteController
+        [Authorize(Roles ="Administrador, Empleado Normal")]
         [HttpGet]
         public async Task<IActionResult> Index(TiqueteFiltroViewModel filtro)
         {
@@ -48,8 +51,12 @@ namespace SASA.Controllers
                 PageSize = filtro.PageSize <= 0 ? 10 : filtro.PageSize
             };
 
-            //Llamar a BLL con el DTO
-            var result = await _tiqueteService.ObtenerTiquetesAsync(filtroDto);
+            //Condicional, depende de qué rol, van a ver una lista diferente de tiquetes
+            var userId = User.IsInRole("Administrador")
+                ? null
+                : User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            var result = await _tiqueteService.ObtenerTiquetesAsync(filtroDto, userId);
 
             //Mapeo de resultado a ViewModel para tabla (con filtros)
             var viewModel = new TiqueteIndexViewModel

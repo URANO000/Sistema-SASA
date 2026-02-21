@@ -17,11 +17,18 @@ namespace DataAccess.Repositorios.Tiquetes
         }
 
         //Implementación de los métodos del repositorio de tiquetes
-        public async Task<PagedResult<ListaTiqueteDTO>> ObtenerTiquetesAsync(TiqueteFiltroDto filtro)
+        public async Task<PagedResult<ListaTiqueteDTO>> ObtenerTiquetesAsync(TiqueteFiltroDto filtro, string? currentUserId = null)
         {
             var query = _context.Tiquetes
                 .AsNoTracking()
                 .AsQueryable();
+
+            /*Si el id no es nulp, es que en el controlador se define que es un empleado normal
+            Por lo tanto, se hace un where por id*/
+            if (!string.IsNullOrEmpty(currentUserId))
+            {
+                query = query.Where(t => t.IdReportedBy == currentUserId);
+            }
 
             //Filtrar si el searchbar no está vacío
             if (!string.IsNullOrWhiteSpace(filtro.Search))
@@ -41,7 +48,10 @@ namespace DataAccess.Repositorios.Tiquetes
             //Si el filtro de Fecha no es vacío
             if (filtro.Fecha.HasValue)
             {
-                query = query.Where(t => t.CreatedAt.Date == filtro.Fecha.Value.Date);
+                var fecha = filtro.Fecha.Value.Date;
+                var nextDay = fecha.AddDays(1);
+
+                query = query.Where(t => t.CreatedAt >= fecha && t.CreatedAt < nextDay);
             }
             else if (filtro.FechaInicio.HasValue && filtro.FechaFinal.HasValue)
             {
@@ -49,7 +59,7 @@ namespace DataAccess.Repositorios.Tiquetes
                 //Ésta lógica es para atrapar todo ese día de la fecha final
                 var fin = filtro.FechaFinal.Value.Date.AddDays(1);
 
-                query = query.Where(t => t.CreatedAt.Date >= inicio && t.CreatedAt.Date < fin);
+                query = query.Where(t => t.CreatedAt >= inicio && t.CreatedAt < fin);
 
             }
 
@@ -171,6 +181,76 @@ namespace DataAccess.Repositorios.Tiquetes
             //_context.Tiquetes.Update(tiquete);
             await _context.SaveChangesAsync();
         }
+
+        //---------------PARA USUARIO NORMAL---------------------------
+        //public async Task<PagedResult<ListaTiqueteDTO>> ObtenerTiquetesPorCreadorAsync(TiqueteFiltroDto filtro, string idCreador)
+        //{
+        //    var query = _context.Tiquetes
+        //       .AsNoTracking()
+        //       .AsQueryable();
+
+        //    //Filtrar si el searchbar no está vacío
+        //    if (!string.IsNullOrWhiteSpace(filtro.Search))
+        //    {
+        //        query = query.Where(t =>
+        //            t.Asunto.Contains(filtro.Search) ||
+        //            t.Descripcion.Contains(filtro.Search));
+        //    }
+
+        //    //Si el filtro de estatus no es vacío
+        //    if (!string.IsNullOrWhiteSpace(filtro.Estatus))
+        //    {
+        //        query = query.Where(t => t.Estatus.NombreEstatus == filtro.Estatus);
+        //    }
+
+
+        //    //Si el filtro de Fecha no es vacío
+        //    if (filtro.Fecha.HasValue)
+        //    {
+        //        query = query.Where(t => t.CreatedAt.Date == filtro.Fecha.Value.Date);
+        //    }
+        //    else if (filtro.FechaInicio.HasValue && filtro.FechaFinal.HasValue)
+        //    {
+        //        var inicio = filtro.FechaInicio.Value.Date; //Sólo el date, no la hora
+        //        //Ésta lógica es para atrapar todo ese día de la fecha final
+        //        var fin = filtro.FechaFinal.Value.Date.AddDays(1);
+
+        //        query = query.Where(t => t.CreatedAt.Date >= inicio && t.CreatedAt.Date < fin);
+
+        //    }
+
+        //    var totalRecords = await query.CountAsync();
+
+        //    var items = await query
+        //        .OrderByDescending(t => t.CreatedAt) //Primero los tiquetes recien creados
+
+
+        //        .Skip((filtro.PageNumber - 1) * filtro.PageSize)
+        //        .Take(filtro.PageSize)
+        //        .Where(t => t.IdAsignee == idCreador)
+        //        .Select(t => new ListaTiqueteDTO
+        //        {
+        //            IdTiquete = t.IdTiquete,
+        //            Asunto = t.Asunto,
+        //            Descripcion = t.Descripcion,
+        //            Resolucion = t.Resolucion ?? "Sin Resolución",
+        //            Estatus = t.Estatus != null ? t.Estatus.NombreEstatus : "Sin estatus",
+        //            Categoria = t.Categoria != null ? t.Categoria.NombreCategoria : "Sin categoría",
+        //            ReportedBy = t.ReportedBy != null ? t.ReportedBy.CorreoEmpresa : "Desconocido",
+        //            Asignee = t.Asignee != null ? t.Asignee.CorreoEmpresa : "Sin asignar",
+        //            CreatedAt = t.CreatedAt,
+        //            UpdatedAt = t.UpdatedAt
+        //        })
+        //        .ToListAsync();
+
+        //    return new PagedResult<ListaTiqueteDTO>
+        //    {
+        //        Items = items,
+        //        TotalRecords = totalRecords,
+        //        TotalPages = (int)Math.Ceiling(totalRecords / (double)filtro.PageSize)
+        //    };
+
+        //}
 
         //public async Task CancelarTiquete(int id)
         //{

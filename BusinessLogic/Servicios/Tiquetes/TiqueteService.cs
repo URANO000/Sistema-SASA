@@ -21,9 +21,9 @@ namespace BusinessLogic.Servicios.Tiquetes
         }
         //Implementación de los métodos para el servicio de Tiquete
 
-        public async Task<PagedResult<ListaTiqueteDTO>> ObtenerTiquetesAsync(TiqueteFiltroDto filtro)
+        public async Task<PagedResult<ListaTiqueteDTO>> ObtenerTiquetesAsync(TiqueteFiltroDto filtro,string? currentUserId)
         {
-            return await _tiqueteRepository.ObtenerTiquetesAsync(filtro);
+            return await _tiqueteRepository.ObtenerTiquetesAsync(filtro, currentUserId);
         }
 
         public async Task<IReadOnlyList<ListaTiqueteDTO>> ObtenerTiquetesReporteAsync()
@@ -167,6 +167,13 @@ namespace BusinessLogic.Servicios.Tiquetes
             //Persistencia de datos -> Guardar cambios
             await _tiqueteRepository.ActualizarTiqueteAsync(tiqueteActual);
         }
+
+        //---------Listado de tiquetes para empleado normal--------------------
+        //public async Task<PagedResult<ListaTiqueteDTO>> ObtenerTiquetesPorCreadorAsync(TiqueteFiltroDto filtro, string idCreador)
+        //{
+        //    return await _tiqueteRepository.ObtenerTiquetesPorCreadorAsync(filtro, idCreador);
+
+        //}
 
     }
 }
