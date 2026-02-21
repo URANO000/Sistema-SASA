@@ -1,8 +1,9 @@
-﻿@using DataAccess.Modelos.DTOs.Notificaciones
-@model NotificacionDTO
+﻿@using SASA.ViewModels.Notificaciones
+@model NotificacionDetalleViewModel
 
 @{
     ViewData["Title"] = "Detalle de notificación";
+    var n = Model.Notificacion;
 }
 
 <div class="sasa-card">
@@ -11,7 +12,7 @@
         <div>
             <h2 class="mb-1">Detalle de notificación</h2>
             <div class="text-muted small">
-                Notificación relacionada (ID: @Model.IdNotificacion)
+                Notificación relacionada (ID: @n.IdNotificacion)
             </div>
         </div>
 
@@ -22,27 +23,133 @@
 
     <hr />
 
-    <div class="notif-detail">
+    <div class="notif-detail mb-4">
         <div class="notif-detail-row">
             <span class="label">Tipo</span>
-            <span class="value">@Model.TipoEvento</span>
+            <span class="value">@n.TipoEvento</span>
         </div>
 
         <div class="notif-detail-row">
             <span class="label">Fecha y hora</span>
-            <span class="value">@Model.FechaCreacion.ToString("dd/MM/yyyy HH:mm")
+            <span class="value">@n.FechaCreacion.ToString("dd/MM/yyyy HH:mm")</span>
         </div>
 
         <div class="notif-detail-row">
             <span class="label">Mensaje</span>
-            <span class="value">@Model.Mensaje</span>
+            <span class="value">@n.Mensaje</span>
         </div>
 
         <div class="notif-detail-row">
             <span class="label">Relacionado con</span>
             <span class="value">
-                <span class="badge bg-primary">Tiquete</span> #@Model.IdTiquete
+                <span class="badge bg-primary">Tiquete</span> #@n.IdTiquete
             </span>
+        </div>
+    </div>
+
+    <div class="card shadow-sm mb-3">
+        <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center gap-3 flex-wrap">
+                <div>
+                    <h5 class="mb-1 fw-bold">Silenciar notificaciones de este tiquete</h5>
+                    <div class="text-muted small">
+                        @if (Model.EstaSilenciado && Model.SilenciadoHasta.HasValue)
+                        {
+                            <span>Estado: <span class="badge bg-danger">Silenciado</span> hasta <strong>@Model.SilenciadoHasta.Value.ToString("dd/MM/yyyy HH:mm")</strong></span>
+                        }
+                        else
+                        {
+                            <span>Estado: <span class="badge bg-success">Activo</span></span>
+                        }
+                    </div>
+                </div>
+
+                <div class="d-flex gap-2 flex-wrap">
+                    @if (Model.EstaSilenciado)
+                    {
+                        <form asp-controller="Notificaciones" asp-action="ReactivarSilencio" method="post" class="d-inline">
+                            <input type="hidden" name="idTiquete" value="@Model.IdTiquete" />
+                            <input type="hidden" name="returnId" value="@n.IdNotificacion" />
+                            <button type="submit" class="btn btn-outline-success btn-sm">
+                                <i class="bi bi-bell me-1"></i> Reactivar
+                            </button>
+                        </form>
+                    }
+                    else
+                    {
+                        <form asp-controller="Notificaciones" asp-action="SilenciarTiquete" method="post" class="d-inline">
+                            <input type="hidden" name="idTiquete" value="@Model.IdTiquete" />
+                            <input type="hidden" name="horas" value="1" />
+                            <input type="hidden" name="returnId" value="@n.IdNotificacion" />
+                            <button type="submit" class="btn btn-outline-danger btn-sm">
+                                <i class="bi bi-bell-slash me-1"></i> 1h
+                            </button>
+                        </form>
+
+                        <form asp-controller="Notificaciones" asp-action="SilenciarTiquete" method="post" class="d-inline">
+                            <input type="hidden" name="idTiquete" value="@Model.IdTiquete" />
+                            <input type="hidden" name="horas" value="8" />
+                            <input type="hidden" name="returnId" value="@n.IdNotificacion" />
+                            <button type="submit" class="btn btn-outline-danger btn-sm">
+                                <i class="bi bi-bell-slash me-1"></i> 8h
+                            </button>
+                        </form>
+
+                        <form asp-controller="Notificaciones" asp-action="SilenciarTiquete" method="post" class="d-inline">
+                            <input type="hidden" name="idTiquete" value="@Model.IdTiquete" />
+                            <input type="hidden" name="horas" value="24" />
+                            <input type="hidden" name="returnId" value="@n.IdNotificacion" />
+                            <button type="submit" class="btn btn-outline-danger btn-sm">
+                                <i class="bi bi-bell-slash me-1"></i> 24h
+                            </button>
+                        </form>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <div class="d-flex justify-content-between align-items-start gap-3">
+                <div>
+                    <h5 class="mb-1 fw-bold">Información del tiquete</h5>
+                    <div class="text-muted small">Detalles completos tiquete</div>
+                </div>
+                <span class="badge bg-secondary">@Model.Estatus</span>
+            </div>
+
+            <hr class="my-3" />
+
+            <dl class="row mb-0">
+                <dt class="col-4 col-md-3">Asunto</dt>
+                <dd class="col-8 col-md-9">@Model.Asunto</dd>
+
+                <dt class="col-4 col-md-3">Categoría</dt>
+                <dd class="col-8 col-md-9">@Model.Categoria</dd>
+
+                <dt class="col-4 col-md-3">Cola</dt>
+                <dd class="col-8 col-md-9">@Model.Cola</dd>
+
+                <dt class="col-4 col-md-3">Prioridad</dt>
+                <dd class="col-8 col-md-9">@Model.Prioridad</dd>
+
+                <dt class="col-4 col-md-3">Reportado por</dt>
+                <dd class="col-8 col-md-9">@Model.ReportadoPor</dd>
+
+                <dt class="col-4 col-md-3">Asignado a</dt>
+                <dd class="col-8 col-md-9">@Model.AsignadoA</dd>
+
+                <dt class="col-4 col-md-3">Creado</dt>
+                <dd class="col-8 col-md-9">@(Model.CreatedAt.HasValue? Model.CreatedAt.Value.ToString("dd/MM/yyyy HH:mm") : "—")</dd>
+
+                <dt class="col-4 col-md-3">Descripción</dt>
+                <dd class="col-8 col-md-9">@Model.DescripcionPreview</dd>
+
+                <dt class="col-4 col-md-3">Resolución</dt>
+                <dd class="col-8 col-md-9">@Model.ResolucionPreview</dd>
+            </dl>
         </div>
     </div>
 
