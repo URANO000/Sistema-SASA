@@ -153,7 +153,7 @@ $(function () {
 
 //--TIQUETE SUBMIT------------
 $(function () {
-    $(document).on("submit", "#crearTiqueteForm", function (e) {
+    $(document).on("submit", "#crearAdminTiqueteForm", function (e) {
 
         e.preventDefault();
 
@@ -172,7 +172,7 @@ $(function () {
 
                 //Caso 1, si todo sale bien
                 if (response.success) {
-                    $("#addTicketModal").modal("hide");
+                    $("#addAdminTicket").modal("hide");
                     $("#successModal").modal("show");
 
                     //Ir a la tabla después de un tiempo
@@ -184,12 +184,61 @@ $(function () {
 
                     $("#addTicketModal .modal-content").html(response);
 
-                    $.validator.unobtrusive.parse("#crearTiqueteForm");
+                    $.validator.unobtrusive.parse("#crearAdminTiqueteForm");
                 }
             },
 
             error: function () {
-                $("#addTicketModal").modal("hide");
+                $("#addAdminTicket").modal("hide");
+                $("#errorModal").modal("show")
+                setTimeout(() => {
+                    window.location.href = "/Tiquete";
+                }, 1400);
+            }
+        });
+
+    });
+
+});
+
+$(function () {
+    $(document).on("submit", "#crearTiqueteUserForm", function (e) {
+
+        e.preventDefault();
+
+        const form = $(this);
+
+        if (!form.valid()) {
+            return;
+        }
+
+        $.ajax({
+            url: form.attr("action"),
+            type: "POST",
+            data: form.serialize(),
+
+            success: function (response) {
+
+                //Caso 1, si todo sale bien
+                if (response.success) {
+                    $("#addTicket").modal("hide");
+                    $("#successModal").modal("show");
+
+                    //Ir a la tabla después de un tiempo
+                    setTimeout(() => {
+                        window.location.href = "/Tiquete";
+                    }, 1200);
+                }
+                else {
+
+                    $("#addTicketModal .modal-content").html(response);
+
+                    $.validator.unobtrusive.parse("#crearTiqueteUserForm");
+                }
+            },
+
+            error: function () {
+                $("#addTicket").modal("hide");
                 $("#errorModal").modal("show")
                 setTimeout(() => {
                     window.location.href = "/Tiquete";

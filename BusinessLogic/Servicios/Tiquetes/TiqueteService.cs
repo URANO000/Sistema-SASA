@@ -123,11 +123,11 @@ namespace BusinessLogic.Servicios.Tiquetes
 
         //--------------------Actualizar tiquetes para el administrador-----------------------------------
 
-        public async Task ActualizarTiqueteAsync(EditarTiqueteDto dto)
+        public async Task ActualizarTiqueteAsync(EditarTiqueteDto dto, string currentUserId)
         {
             //Validacion 1: El usuario debe estar autenticado para actualizar un tiquete
             //Puede fallar si se prueba con http y no https por los cookies
-            if (string.IsNullOrWhiteSpace(dto.UpdatedBy))
+            if (string.IsNullOrWhiteSpace(currentUserId))
             {
                 throw new UnauthorizedAccessException("Usuario no autenticado.");
             }
@@ -144,7 +144,7 @@ namespace BusinessLogic.Servicios.Tiquetes
             //Validacion 3: Si el estatus del tiquete es cerrado, entonces no se puede actualizar el tiquete
             if (tiqueteActual.IdEstatus == (int)TiqueteEstatus.Cancelado)
             {
-                throw new InvalidOperationException("No se puede actualizar un tiquete cerrado.");
+                throw new InvalidOperationException("No se puede actualizar un tiquete cancelado.");
             }
 
             //Validacion 4: Si el estatus del tiquete se mueve a cerrado, entonces se debe validar que el campo de resolución no esté vacío
@@ -155,25 +155,16 @@ namespace BusinessLogic.Servicios.Tiquetes
 
 
             //Si el tiquete existe, se actualizan los campos
-            tiqueteActual.Asunto = dto.Asunto.Trim();
-            tiqueteActual.Descripcion = dto.Descripcion.Trim();
             tiqueteActual.IdCategoria = dto.IdCategoria;
-            tiqueteActual.IdAsignee = dto.IdAsignee;
+            //tiqueteActual.IdAsignee = dto.IdAsignee;
             tiqueteActual.IdEstatus = dto.IdEstatus;
             tiqueteActual.Resolucion = dto.Resolucion?.Trim(); //Puede no tener nada
             tiqueteActual.UpdatedAt = DateTime.Now;
-            tiqueteActual.UpdatedBy = dto.UpdatedBy; //En el controller se debe pasar el id del usuario autenticado
+            tiqueteActual.UpdatedBy = currentUserId; //En el controller se debe pasar el id del usuario autenticado
 
             //Persistencia de datos -> Guardar cambios
             await _tiqueteRepository.ActualizarTiqueteAsync(tiqueteActual);
         }
-
-        //---------Listado de tiquetes para empleado normal--------------------
-        //public async Task<PagedResult<ListaTiqueteDTO>> ObtenerTiquetesPorCreadorAsync(TiqueteFiltroDto filtro, string idCreador)
-        //{
-        //    return await _tiqueteRepository.ObtenerTiquetesPorCreadorAsync(filtro, idCreador);
-
-        //}
 
     }
 }

@@ -1,15 +1,15 @@
-﻿@using SASA.ViewModels.Tiquete
-@model CrearTiqueteViewModel
-<div class="modal fade" id="addAdminTicket" tabindex="-1">
+﻿@using SASA.ViewModels.Tiquete.UsuarioNormal
+@model CrearTiqueteUsuarioViewModel
+<div class="modal fade" id="addTicket" tabindex="-1">
     <div class="modal-dialog modal-xl modal-dialog-centered">
         <div class="modal-content">
 
-           <form asp-action="AdminAdd"
-                 asp-controller="Tiquete"
-                 method="post"
-                  id="crearAdminTiqueteForm">
+            <form asp-action="Add"
+                  asp-controller="Tiquete"
+                  method="post"
+                  id="crearTiqueteUserForm">
 
-                 @Html.AntiForgeryToken()
+                @Html.AntiForgeryToken()
 
                 <!-- Header -->
                 <div class="modal-header">
@@ -33,41 +33,19 @@
 
                                 <!-- Asunto -->
                                 <div class="col-md-6">
-                                    <label asp-for="Asunto" class="form-label required-field">Asunto</label>
+                                    <label asp-for="Asunto" class="form-label required-field">Problema</label>
                                     <input asp-for="Asunto" type="text" class="form-control">
                                     <span asp-validation-for="Asunto" class="text-danger"></span>
                                 </div>
                                 <!-- Categoría -->
                                 <div class="col-md-6">
                                     <label asp-for="Categoria" class="form-label required-field">Categoría</label>
-                                    <select asp-for="Categoria" 
+                                    <select asp-for="Categoria"
                                             asp-items="Model.Categorias"
                                             class="form-select">
-                                    <option value="" disabled>Seleccione una categoría</option>
+                                        <option value="" disabled>Seleccione una categoría</option>
                                     </select>
                                     <span asp-validation-for="Categoria" class="text-danger"></span>
-                                </div>
-
-                                <!-- Prioridad -->
-@*                                 <div class="col-md-4">
-                                    <label asp-for="Prioridad" class="form-label required-field">Prioridad</label>
-                                    <select asp-for="Prioridad"
-                                            asp-items="Model.Prioridades"
-                                            class="form-select">
-                                        <option value="" disabled>Seleccione una prioridad</option>
-                                    </select>
-                                    <span asp-validation-for="Prioridad" class="text-danger"></span>
-
-                                </div> *@
-
-                                <!-- Asignee-->
-                                <div class="col-md-4">
-                                    <label asp-for="IdAsignee" class="form-label">Asignar a</label>
-                                    <select asp-for="IdAsignee"
-                                            asp-items="Model.Asignees" class="form-select">
-                                        <option value="" disabled>Seleccione al usuario a asignar</option>
-                                    </select>
-                                    <span asp-validation-for="IdAsignee" class="text-danger"></span>
                                 </div>
                                 <!-- Descripción -->
                                 <div class="col-12">
@@ -88,8 +66,7 @@
                                     Cancelar
                                 </button>
                                 <button type="submit"
-                                        class="btn btn-success text-white"
-                                        >
+                                        class="btn btn-success text-white">
                                     Crear Tiquete
                                 </button>
                             </div>
@@ -97,7 +74,7 @@
 
                     </div>
                 </div>
-           </form>
+            </form>
 
         </div>
     </div>

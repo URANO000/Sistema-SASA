@@ -4,6 +4,7 @@ using BusinessLogic.Servicios.Tiquetes;
 using BusinessLogic.Servicios.Usuarios;
 using DataAccess.Modelos.DTOs.Tiquete;
 using DataAccess.Modelos.DTOs.Tiquete.Filtros;
+using DataAccess.Modelos.DTOs.Tiquete.Usuario_Ver;
 using DataAccess.Modelos.DTOs.Wrappers;
 using DataAccess.Modelos.Enums;
 using Microsoft.AspNetCore.Authorization;
@@ -13,6 +14,7 @@ using SASA.Filters;
 using SASA.ViewModels.Tiquete;
 using SASA.ViewModels.Tiquete.Extras;
 using SASA.ViewModels.Tiquete.Filtro;
+using SASA.ViewModels.Tiquete.UsuarioNormal;
 using System.Security.Claims;
 
 namespace SASA.Controllers
@@ -85,36 +87,31 @@ namespace SASA.Controllers
                     PageNumber = filtro.PageNumber,
                     PageSize = filtro.PageSize,
                     TotalPages = result.TotalPages
-                }
+                },
             };
 
             //Cargo los valores para los dropdowns
             await CargarFiltrosAsync(viewModel.Filtro);
 
-            //Una vez que todo está listo, retornamos vm
-            return View(viewModel);
-            
-        }
-
-        [HttpGet]
-        public async Task<IActionResult> Add()
-        {
-            var model = new CrearTiqueteViewModel
+            //Cargo los dropdowns de el add modal
+            viewModel.CrearTiquete = new CrearTiqueteViewModel
             {
                 Asunto = string.Empty,
                 Descripcion = string.Empty,
                 Categoria = 0
             };
 
-            await CargarDropdownsAsync(model);
+            await CargarDropdownsAsync(viewModel.CrearTiquete);
 
-
-            return PartialView("_AddModal", model);
+            //Una vez que todo está listo, retornamos vm
+            return View(viewModel);
+            
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Add(CrearTiqueteViewModel model)
+        [Authorize(Roles = "Administrador")]
+        public async Task<IActionResult> AdminAdd(CrearTiqueteViewModel model)
         {
             if (!ModelState.IsValid)
             {
@@ -155,6 +152,46 @@ namespace SASA.Controllers
                 });
             }
         }
+
+        //-----------------Creación de tiquetes por parte del usuario normal----------------
+
+        //[HttpPost]
+        //[ValidateAntiForgeryToken]
+        //public async Task<IActionResult> Add(CrearTiqueteUsuarioViewModel model)
+        //{
+        //    if (!ModelState.IsValid)
+        //    {
+        //        // Reload dropdowns
+        //        await CargarDropdownsAsync(model);
+
+        //        return BadRequest();
+        //    }
+        //    try
+        //    {
+        //        //Guardar el usuario actual
+        //        var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+        //        //Mapear ViewModel a DTO
+        //        var dto = new CrearTiqueteUsuarioDto
+        //        {
+        //            Asunto = model.Asunto, //en UI se describe como problema
+        //            Descripcion = model.Descripcion,
+        //            IdCategoria = model.Categoria
+        //        };
+
+
+        //    }
+        //    catch(Exception ex)
+        //    {
+        //        return BadRequest(new
+        //        {
+        //            success = false,
+        //            message = ex.Message
+        //        });
+        //    }
+        //}
+
+        [Authorize(Roles ="Administrador")]
         [HttpGet]
         public async Task<IActionResult> Edit(int id)
         {
@@ -169,11 +206,8 @@ namespace SASA.Controllers
             var model = new TiqueteEditarViewModel
             {
                 IdTiquete = tiquete.IdTiquete,
-                Asunto = tiquete.Asunto,
-                Descripcion = tiquete.Descripcion,
                 IdCategoria = tiquete.IdCategoria,
                 IdEstatus = tiquete.IdEstatus,
-                IdAsignee = tiquete.IdAsignee,
                 Resolucion = tiquete.Resolucion,
 
             };
@@ -183,6 +217,7 @@ namespace SASA.Controllers
             return View(model);
         }
 
+        [Authorize(Roles = "Administrador")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(TiqueteEditarViewModel model)
@@ -208,15 +243,11 @@ namespace SASA.Controllers
                 var dto = new EditarTiqueteDto
                 {
                     IdTiquete = model.IdTiquete,
-                    Asunto = model.Asunto,
-                    Descripcion = model.Descripcion,
                     IdCategoria = model.IdCategoria,
                     IdEstatus = model.IdEstatus,
-                    IdAsignee = model.IdAsignee,
-                    Resolucion = model.Resolucion,
-                    UpdatedBy = currentUserId
+                    Resolucion = model.Resolucion
                 };
-                await _tiqueteService.ActualizarTiqueteAsync(dto);
+                await _tiqueteService.ActualizarTiqueteAsync(dto, currentUserId);
                 return Json(new
                 {
                     success = true

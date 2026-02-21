@@ -11,7 +11,6 @@ namespace DataAccess.Repositorios.Tiquetes
         Task<IReadOnlyList<ListaTiqueteDTO>> ObtenerTiquetesReporteAsync(); //Lista sin filtros para reportes
         Task<ListaTiqueteDTO?> ObtenerTiquetePorIdReadAsync(int id); //Detalle -- READONLY
         Task<Tiquete?> ObtenerEntidadPorIdAsync(int id); //Obtener la entidad completa por ID (para edición)
-        //Task<PagedResult<ListaTiqueteDTO>> ObtenerTiquetesPorCreadorAsync(TiqueteFiltroDto filtro, string idCreador);
         Task<Tiquete> AgregarTiqueteAsync(Tiquete tiquete); //Crear
         Task ActualizarTiqueteAsync(Tiquete tiquete); //Actualizar
         Task<TiquetePorIdDto?> ObtenerTiquetePorIdAsync(int id);
