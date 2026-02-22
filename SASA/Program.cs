@@ -8,7 +8,6 @@ using BusinessLogic.Servicios.Usuarios;
 using DataAccess;
 using DataAccess.Identity;
 using DataAccess.Repositorios.Categorias;
-using DataAccess.Repositorios.Colas;
 using DataAccess.Repositorios.Prioridad;
 using DataAccess.Repositorios.Notificaciones;
 using DataAccess.Repositorios.Tiquetes;
@@ -68,11 +67,9 @@ builder.Services.AddScoped<ICategoriaRepository, CategoriaRepository>();
 builder.Services.AddScoped<ICategoriaService, CategoriaService>();
 builder.Services.AddScoped<IPrioridadRepository, PrioridadRepository>();
 builder.Services.AddScoped<IPrioridadService, PrioridadService>();
-builder.Services.AddScoped<IColaRepository, ColaRepository>();
 
 builder.Services.AddScoped<INotificacionRepository, NotificacionRepository>();
 builder.Services.AddScoped<INotificacionService, NotificacionService>();
-
 
 // Configuración de correo (Microsoft Graph)
 builder.Services.AddScoped<ICorreoNotificacionesService, CorreoNotificacionesService>();

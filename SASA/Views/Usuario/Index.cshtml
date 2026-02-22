@@ -33,7 +33,13 @@
                             <option value="">Todos</option>
                             <option value="Tecnologías de Información">Tecnologías de Información</option>
                             <option value="Recursos Humanos">Recursos Humanos</option>
-                            <option value="Finanzas">Finanzas</option>
+                            <option value="Bodega">Bodega</option>
+                            <option value="Gerencia">Gerencia</option>
+                            <option value="Ingeniería">Ingeniería</option>
+                            <option value="Jefatura">Jefatura</option>
+                            <option value="Legal">Legal</option>
+                            <option value="Operaciones">Operaciones</option>
+                            <option value="Servicios Generales">Servicios Generales</option>
                             <option value="Ventas">Ventas</option>
                         </select>
                     </div>
@@ -62,7 +68,6 @@
                             <th>Nombre Completo</th>
                             <th>Correo</th>
                             <th>Departamento</th>
-                            <th>Puesto</th>
                             <th>Estado</th>
                             <th>Rol</th>
                         </tr>
@@ -89,7 +94,6 @@
                                 <td> @u.NombreCompleto</td>
                                 <td>@u.CorreoEmpresa</td>
                                 <td>@u.Departamento</td>
-                                <td>@u.Puesto</td>
                                 @if(u.Estado == "Activo")
                                 {
                                     <td><span class="badge bg-success">Activo</span></td>
@@ -163,6 +167,7 @@
 }
 
 @await Html.PartialAsync("_SuccessModal")
+@await Html.PartialAsync("_ErrorModal")
 
 @await Html.PartialAsync(
 "_AddModal",

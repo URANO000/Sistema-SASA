@@ -5,6 +5,7 @@ using BusinessLogic.Servicios.Usuarios;
 using DataAccess.Modelos.DTOs.Tiquete;
 using DataAccess.Modelos.DTOs.Tiquete.Filtros;
 using DataAccess.Modelos.Enums;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using SASA.Filters;
@@ -33,6 +34,7 @@ namespace SASA.Controllers
             _prioridadService = prioridadService;
         }
         //GET: TiqueteController
+        [Authorize(Roles ="Administrador, Empleado Normal")]
         [HttpGet]
         public async Task<IActionResult> Index(TiqueteFiltroViewModel filtro)
         {
@@ -41,14 +43,19 @@ namespace SASA.Controllers
             {
                 Search = filtro.Search,
                 Estatus = filtro.Estatus,
-                Prioridad = filtro.Prioridad,
                 Fecha = filtro.Fecha,
+                FechaInicio = filtro.FechaInicio,
+                FechaFinal = filtro.FechaFinal,
                 PageNumber = filtro.PageNumber <= 0 ? 1 : filtro.PageNumber,
                 PageSize = filtro.PageSize <= 0 ? 10 : filtro.PageSize
             };
 
-            //Llamar a BLL con el DTO
-            var result = await _tiqueteService.ObtenerTiquetesAsync(filtroDto);
+            //Condicional, depende de qué rol, van a ver una lista diferente de tiquetes
+            var userId = User.IsInRole("Administrador")
+                ? null
+                : User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            var result = await _tiqueteService.ObtenerTiquetesAsync(filtroDto, userId);
 
             //Mapeo de resultado a ViewModel para tabla (con filtros)
             var viewModel = new TiqueteIndexViewModel
@@ -60,10 +67,9 @@ namespace SASA.Controllers
                     Descripcion = u.Descripcion,
                     Resolucion = u.Resolucion,
                     Estatus = u.Estatus,
-                    Prioridad = u.Prioridad,
                     Categoria = u.Categoria,
-                    Cola = u.Cola,
                     ReportedBy = u.ReportedBy,
+                    Departamento = u.Departamento,
                     Asignee = u.Asignee,
                     CreatedAt = u.CreatedAt,
                     UpdatedAt = u.UpdatedAt
@@ -73,40 +79,36 @@ namespace SASA.Controllers
                 {
                     Search = filtro.Search,
                     Estatus = filtro.Estatus,
-                    Prioridad = filtro.Prioridad,
                     Fecha = filtro.Fecha,
+                    FechaInicio = filtro.FechaInicio,
+                    FechaFinal = filtro.FechaFinal,
                     PageNumber = filtro.PageNumber,
                     PageSize = filtro.PageSize,
                     TotalPages = result.TotalPages
-                }
+                },
             };
 
             //Cargo los valores para los dropdowns
             await CargarFiltrosAsync(viewModel.Filtro);
 
-            //Una vez que todo está listo, retornamos vm
-            return View(viewModel);
-            
-        }
-
-        [HttpGet]
-        public async Task<IActionResult> Add()
-        {
-            var model = new CrearTiqueteViewModel
+            //Cargo los dropdowns de el add modal
+            viewModel.CrearTiquete = new CrearTiqueteViewModel
             {
                 Asunto = string.Empty,
                 Descripcion = string.Empty,
                 Categoria = 0
             };
 
-            await CargarDropdownsAsync(model);
+            await CargarDropdownsAsync(viewModel.CrearTiquete);
 
-
-            return PartialView("_AddModal", model);
+            //Una vez que todo está listo, retornamos vm
+            return View(viewModel);
+            
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Administrador, Empleado Normal")]
         public async Task<IActionResult> Add(CrearTiqueteViewModel model)
         {
             if (!ModelState.IsValid)
@@ -122,16 +124,18 @@ namespace SASA.Controllers
                 var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
                 //Mapear viewmodel a dto
-                var dto = new CrearTiqueteAdminDto
+                var dto = new CrearTiqueteDto
                 {
                     Asunto = model.Asunto,
                     Descripcion = model.Descripcion,
                     IdCategoria = model.Categoria,
-                    IdPrioridad = model.Prioridad,
                     IdAsignee = model.IdAsignee
                 };
 
-                var idTiquete = await _tiqueteService.AgregarTiqueteAsync(dto, currentUserId);
+                //Una vez que está mapeado entonces verificar si el usuario es administrador
+                var esAdmin = User.IsInRole("Administrador"); //Retorna true o false
+
+                var idTiquete = await _tiqueteService.AgregarTiqueteAsync(dto, currentUserId, esAdmin);
 
                 return Ok(new
                 {
@@ -149,6 +153,52 @@ namespace SASA.Controllers
                 });
             }
         }
+
+        //-----------------Creación de tiquetes por parte del usuario normal----------------
+
+        //[HttpPost]
+        //[ValidateAntiForgeryToken]
+        //public async Task<IActionResult> Add(CrearTiqueteViewModel model)
+        //{
+        //    if (!ModelState.IsValid)
+        //    {
+        //        // Reload dropdowns
+        //        await CargarDropdownsAsync(model);
+
+        //        return BadRequest();
+        //    }
+        //    try
+        //    {
+        //        //Guardar el usuario actual
+        //        var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+        //        //Mapear ViewModel a DTO
+        //        var dto = new CrearTiqueteUsuarioDto
+        //        {
+        //            Asunto = model.Asunto, //en UI se describe como problema
+        //            Descripcion = model.Descripcion,
+        //            IdCategoria = model.Categoria
+        //        };
+
+        //        var idTiquete = await _tiqueteService.AgregarTiqueteAsync(dto, currentUserId);
+
+        //        return Ok(new
+        //        {
+        //            success = true,
+        //            idTiquete
+        //        });
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return BadRequest(new
+        //        {
+        //            success = false,
+        //            message = ex.Message
+        //        });
+        //    }
+        //}
+
+        [Authorize(Roles ="Administrador")]
         [HttpGet]
         public async Task<IActionResult> Edit(int id)
         {
@@ -163,12 +213,8 @@ namespace SASA.Controllers
             var model = new TiqueteEditarViewModel
             {
                 IdTiquete = tiquete.IdTiquete,
-                Asunto = tiquete.Asunto,
-                Descripcion = tiquete.Descripcion,
                 IdCategoria = tiquete.IdCategoria,
-                IdPrioridad = tiquete.IdPrioridad,
                 IdEstatus = tiquete.IdEstatus,
-                IdAsignee = tiquete.IdAsignee,
                 Resolucion = tiquete.Resolucion,
 
             };
@@ -178,6 +224,7 @@ namespace SASA.Controllers
             return View(model);
         }
 
+        [Authorize(Roles = "Administrador")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(TiqueteEditarViewModel model)
@@ -203,16 +250,11 @@ namespace SASA.Controllers
                 var dto = new EditarTiqueteDto
                 {
                     IdTiquete = model.IdTiquete,
-                    Asunto = model.Asunto,
-                    Descripcion = model.Descripcion,
                     IdCategoria = model.IdCategoria,
-                    IdPrioridad = model.IdPrioridad,
                     IdEstatus = model.IdEstatus,
-                    IdAsignee = model.IdAsignee,
-                    Resolucion = model.Resolucion,
-                    UpdatedBy = currentUserId
+                    Resolucion = model.Resolucion
                 };
-                await _tiqueteService.ActualizarTiqueteAsync(dto);
+                await _tiqueteService.ActualizarTiqueteAsync(dto, currentUserId);
                 return Json(new
                 {
                     success = true
@@ -282,10 +324,9 @@ namespace SASA.Controllers
                 Descripcion = tiquete.Descripcion,
                 Resolucion = tiquete.Resolucion,
                 Estatus = tiquete.Estatus,
-                Prioridad = tiquete.Prioridad,
                 Categoria = tiquete.Categoria,
-                Cola = tiquete.Cola,
                 ReportedBy = tiquete.ReportedBy,
+                Departamento = tiquete.Departamento,
                 Asignee = tiquete.Asignee,
 
                 CreatedAt = tiquete.CreatedAt,
@@ -305,7 +346,6 @@ namespace SASA.Controllers
         {
             //Obtener datos por medio de servicios
             var categorias = await _categoriaService.ObtenerCategoriasAsync();
-            var prioridades = await _prioridadService.ObtenerPrioridadesAsync();
             var usuarios = await _usuarioService.ObtenerUsuariosTIAsync();
             var estatuses = Enum.GetValues(typeof(TiqueteEstatus))
                     .Cast<TiqueteEstatus>();
@@ -318,11 +358,6 @@ namespace SASA.Controllers
                 Text = c.NombreCategoria
             });
 
-            model.Prioridades = prioridades.Select(p => new SelectListItem
-            {
-                Value = p.IdPrioridad.ToString(),
-                Text = p.NombrePrioridad
-            });
 
             model.Asignees = usuarios.Select(u => new SelectListItem
             {
@@ -340,16 +375,8 @@ namespace SASA.Controllers
 
         private async Task CargarFiltrosAsync(TiqueteFiltroViewModel model)
         {
-            var prioridades = await _prioridadService.ObtenerPrioridadesAsync();
             var estatuses = Enum.GetValues(typeof(TiqueteEstatus))
                                 .Cast<TiqueteEstatus>();
-
-            model.Prioridades = prioridades.Select(p => new SelectListItem
-            {
-                Value = p.NombrePrioridad,
-                Text = p.NombrePrioridad,
-                Selected = p.NombrePrioridad == model.Prioridad
-            });
 
             model.Estatuses = estatuses.Select(e => new SelectListItem
             {

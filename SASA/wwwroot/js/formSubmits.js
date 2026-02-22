@@ -32,6 +32,13 @@ $(function () {
                     $("#addUserModal .modal-content").html(response);
 
                     $.validator.unobtrusive.parse("#createUserForm");
+
+                    $("#addUserModal").modal("hide");
+
+                    $("#errorModal").modal("show")
+                    setTimeout(() => {
+                        window.location.href = "/Usuario";
+                    }, 1200);
                 }
             },
             error: function () {
@@ -165,7 +172,7 @@ $(function () {
 
                 //Caso 1, si todo sale bien
                 if (response.success) {
-                    $("#addTicketModal").modal("hide");
+                    $("#addTicket").modal("hide");
                     $("#successModal").modal("show");
 
                     //Ir a la tabla después de un tiempo
@@ -182,7 +189,7 @@ $(function () {
             },
 
             error: function () {
-                $("#addTicketModal").modal("hide");
+                $("#addTicket").modal("hide");
                 $("#errorModal").modal("show")
                 setTimeout(() => {
                     window.location.href = "/Tiquete";
@@ -193,6 +200,7 @@ $(function () {
     });
 
 });
+
 
 //--TIQUETE EDITAR SUBMIT------------               
 $(function () {

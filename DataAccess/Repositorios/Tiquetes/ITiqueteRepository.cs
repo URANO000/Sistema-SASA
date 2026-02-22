@@ -1,13 +1,13 @@
 ﻿using DataAccess.Modelos.DTOs.Tiquete;
 using DataAccess.Modelos.DTOs.Tiquete.Filtros;
 using DataAccess.Modelos.DTOs.Wrappers;
-using DataAccess.Modelos.Entidades;
+using DataAccess.Modelos.Entidades.ModTiquete;
 namespace DataAccess.Repositorios.Tiquetes
 {
     public interface ITiqueteRepository
     {
         //Métodos para el repositorio de Tiquete - ESP
-        Task<PagedResult<ListaTiqueteDTO>> ObtenerTiquetesAsync(TiqueteFiltroDto filtro); //Listar con filtros
+        Task<PagedResult<ListaTiqueteDTO>> ObtenerTiquetesAsync(TiqueteFiltroDto filtro, string? currentUserId); //Listar con filtros
         Task<IReadOnlyList<ListaTiqueteDTO>> ObtenerTiquetesReporteAsync(); //Lista sin filtros para reportes
         Task<ListaTiqueteDTO?> ObtenerTiquetePorIdReadAsync(int id); //Detalle -- READONLY
         Task<Tiquete?> ObtenerEntidadPorIdAsync(int id); //Obtener la entidad completa por ID (para edición)

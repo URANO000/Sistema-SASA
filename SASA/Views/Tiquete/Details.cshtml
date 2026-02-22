@@ -59,11 +59,14 @@
                 <h6 class="section-title">Información del Tiquete</h6>
 
                 <dl class="row mb-0">
-                    <dt class="col-5">Prioridad</dt>
-                    <dd class="col-7">@Model.Prioridad</dd>
+@*                     <dt class="col-5">Prioridad</dt>
+                    <dd class="col-7">@Model.Prioridad</dd> *@
 
                     <dt class="col-5">Creado por</dt>
                     <dd class="col-7">@Model.ReportedBy</dd>
+
+                    <dt class="col-5">Departamento</dt>
+                    <dd class="col-7">@Model.Departamento</dd>
 
                     <dt class="col-5">Agente Asignado</dt>
                     <dd class="col-7">@Model.Asignee</dd>
@@ -72,10 +75,14 @@
                     <dd class="col-7">@Model.CreatedAt</dd>
 
                     <dt class="col-5">Última actualización</dt>
-                    <dd class="col-7">@Model.UpdatedAt</dd>
-
-                    @*                     <dt class="col-5">Actualizado por</dt>
-                    <dd class="col-7">sarad@gmail.com</dd> *@
+                    @if(Model.UpdatedAt != null)
+                    {
+                        <dd class="col-7">@Model.UpdatedAt</dd>
+                    }
+                    else
+                    {
+                        <dd class="col-7">Sin Actualizar</dd>
+                    }
                     </dl>
             </div>
         </div>
