@@ -71,7 +71,6 @@ builder.Services.AddScoped<IPrioridadService, PrioridadService>();
 builder.Services.AddScoped<INotificacionRepository, NotificacionRepository>();
 builder.Services.AddScoped<INotificacionService, NotificacionService>();
 
-
 // Configuración de correo (Microsoft Graph)
 builder.Services.AddScoped<ICorreoNotificacionesService, CorreoNotificacionesService>();
 builder.Services.AddScoped<IEmailService, EmailService>(); //Graph EmailService

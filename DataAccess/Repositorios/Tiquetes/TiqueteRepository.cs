@@ -79,7 +79,8 @@ namespace DataAccess.Repositorios.Tiquetes
                     Resolucion = t.Resolucion ?? "Sin Resolución",
                     Estatus = t.Estatus != null ? t.Estatus.NombreEstatus : "Sin estatus",
                     Categoria = t.Categoria != null ? t.Categoria.NombreCategoria : "Sin categoría",
-                    ReportedBy = t.ReportedBy != null ? t.ReportedBy.CorreoEmpresa : "Desconocido",
+                    ReportedBy = t.ReportedBy.CorreoEmpresa,
+                    Departamento = t.ReportedBy.Departamento,
                     Asignee = t.Asignee != null ? t.Asignee.CorreoEmpresa : "Sin asignar",
                     CreatedAt = t.CreatedAt,
                     UpdatedAt = t.UpdatedAt
@@ -136,6 +137,7 @@ namespace DataAccess.Repositorios.Tiquetes
                     Estatus = t.Estatus.NombreEstatus,
                     Categoria = t.Categoria.NombreCategoria,
                     ReportedBy = t.ReportedBy.CorreoEmpresa,
+                    Departamento = t.ReportedBy.Departamento,
                     Asignee = t.Asignee != null ? t.Asignee.CorreoEmpresa : "Sin asignar",
                     CreatedAt = t.CreatedAt,
                     UpdatedAt = t.UpdatedAt

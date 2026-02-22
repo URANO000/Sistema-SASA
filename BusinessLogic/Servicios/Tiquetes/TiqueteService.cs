@@ -73,6 +73,7 @@ namespace BusinessLogic.Servicios.Tiquetes
                 Categoria = dto.Categoria,
                 Asignee = dto.Asignee,
                 ReportedBy = dto.ReportedBy,
+                Departamento = dto.Departamento,
                 CreatedAt = dto.CreatedAt,
                 UpdatedAt = dto.UpdatedAt,
             };
@@ -138,7 +139,7 @@ namespace BusinessLogic.Servicios.Tiquetes
             tiqueteActual.IdCategoria = dto.IdCategoria;
             tiqueteActual.IdEstatus = dto.IdEstatus;
             tiqueteActual.Resolucion = dto.Resolucion?.Trim(); //Puede no tener nada
-            tiqueteActual.UpdatedAt = DateTime.Now;
+            tiqueteActual.UpdatedAt = DateTime.UtcNow;
             tiqueteActual.UpdatedBy = currentUserId; //En el controller se debe pasar el id del usuario autenticado
 
             //Persistencia de datos -> Guardar cambios
@@ -147,7 +148,7 @@ namespace BusinessLogic.Servicios.Tiquetes
 
 
     //----------------------------HELPERS (DRY)--------------------------------
-    private void ValidarUsuarioActual(string currentUserId)
+        private void ValidarUsuarioActual(string currentUserId)
         {
             if (string.IsNullOrWhiteSpace(currentUserId))
                 throw new UnauthorizedAccessException("Usuario no autenticado");

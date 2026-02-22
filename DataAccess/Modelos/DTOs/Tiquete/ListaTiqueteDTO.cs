@@ -10,7 +10,8 @@
         public required string Estatus { get; set; }
         public string Categoria { get; set; }
 
-        public string? ReportedBy { get; set; }
+        public required string ReportedBy { get; set; }
+        public string? Departamento { get; set; }
         public string? Asignee { get; set; }
 
         public DateTime CreatedAt { get; set; }

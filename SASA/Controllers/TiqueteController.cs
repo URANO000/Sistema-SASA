@@ -69,6 +69,7 @@ namespace SASA.Controllers
                     Estatus = u.Estatus,
                     Categoria = u.Categoria,
                     ReportedBy = u.ReportedBy,
+                    Departamento = u.Departamento,
                     Asignee = u.Asignee,
                     CreatedAt = u.CreatedAt,
                     UpdatedAt = u.UpdatedAt
@@ -325,6 +326,7 @@ namespace SASA.Controllers
                 Estatus = tiquete.Estatus,
                 Categoria = tiquete.Categoria,
                 ReportedBy = tiquete.ReportedBy,
+                Departamento = tiquete.Departamento,
                 Asignee = tiquete.Asignee,
 
                 CreatedAt = tiquete.CreatedAt,
