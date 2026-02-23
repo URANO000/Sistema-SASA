@@ -1,7 +1,9 @@
+using BusinessLogic.Servicios.Avances;
 using BusinessLogic.Servicios.Categorias;
 using BusinessLogic.Servicios.Prioridad;
 using BusinessLogic.Servicios.Tiquetes;
 using BusinessLogic.Servicios.Usuarios;
+using DataAccess.Modelos.DTOs.Avances;
 using DataAccess.Modelos.DTOs.Tiquete;
 using DataAccess.Modelos.DTOs.Tiquete.Filtros;
 using DataAccess.Modelos.Enums;
@@ -9,6 +11,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using SASA.Filters;
+using SASA.ViewModels.Avances;
 using SASA.ViewModels.Tiquete;
 using SASA.ViewModels.Tiquete.Extras;
 using SASA.ViewModels.Tiquete.Filtro;
@@ -24,17 +27,19 @@ namespace SASA.Controllers
         private readonly IUsuarioService _usuarioService;
         private readonly ICategoriaService _categoriaService;
         private readonly IPrioridadService _prioridadService;
+        private readonly IAvanceService _avanceService;
 
         public TiqueteController(ITiqueteService tiqueteService, IUsuarioService usuarioService,
-            ICategoriaService categoriaService, IPrioridadService prioridadService)
+            ICategoriaService categoriaService, IPrioridadService prioridadService, IAvanceService avanceService)
         {
             _tiqueteService = tiqueteService;
             _usuarioService = usuarioService;
             _categoriaService = categoriaService;
             _prioridadService = prioridadService;
+            _avanceService = avanceService;
         }
         //GET: TiqueteController
-        [Authorize(Roles ="Administrador, Empleado Normal")]
+        [Authorize(Roles = "Administrador, Empleado Normal")]
         [HttpGet]
         public async Task<IActionResult> Index(TiqueteFiltroViewModel filtro)
         {
@@ -103,7 +108,7 @@ namespace SASA.Controllers
 
             //Una vez que todo está listo, retornamos vm
             return View(viewModel);
-            
+
         }
 
         [HttpPost]
@@ -154,51 +159,7 @@ namespace SASA.Controllers
             }
         }
 
-        //-----------------Creación de tiquetes por parte del usuario normal----------------
-
-        //[HttpPost]
-        //[ValidateAntiForgeryToken]
-        //public async Task<IActionResult> Add(CrearTiqueteViewModel model)
-        //{
-        //    if (!ModelState.IsValid)
-        //    {
-        //        // Reload dropdowns
-        //        await CargarDropdownsAsync(model);
-
-        //        return BadRequest();
-        //    }
-        //    try
-        //    {
-        //        //Guardar el usuario actual
-        //        var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-
-        //        //Mapear ViewModel a DTO
-        //        var dto = new CrearTiqueteUsuarioDto
-        //        {
-        //            Asunto = model.Asunto, //en UI se describe como problema
-        //            Descripcion = model.Descripcion,
-        //            IdCategoria = model.Categoria
-        //        };
-
-        //        var idTiquete = await _tiqueteService.AgregarTiqueteAsync(dto, currentUserId);
-
-        //        return Ok(new
-        //        {
-        //            success = true,
-        //            idTiquete
-        //        });
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return BadRequest(new
-        //        {
-        //            success = false,
-        //            message = ex.Message
-        //        });
-        //    }
-        //}
-
-        [Authorize(Roles ="Administrador")]
+        [Authorize(Roles = "Administrador")]
         [HttpGet]
         public async Task<IActionResult> Edit(int id)
         {
@@ -229,7 +190,7 @@ namespace SASA.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(TiqueteEditarViewModel model)
         {
-            if(!ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
                 await CargarDropdownsAsync(model);
                 return Json(new
@@ -265,11 +226,11 @@ namespace SASA.Controllers
             {
                 return Unauthorized();
             }
-            catch(KeyNotFoundException ex)
+            catch (KeyNotFoundException ex)
             {
                 return NotFound(ex.Message);
             }
-            catch(InvalidOperationException ex)
+            catch (InvalidOperationException ex)
             {
                 return Json(new
                 {
@@ -311,7 +272,7 @@ namespace SASA.Controllers
             var tiquete = await _tiqueteService.ObtenerTiquetePorIdReadAsync(id);
 
             //Si el servicio no retorna nada, entonces retornar not found
-            if(tiquete == null)
+            if (tiquete == null)
             {
                 return NotFound();
             }
@@ -331,9 +292,64 @@ namespace SASA.Controllers
 
                 CreatedAt = tiquete.CreatedAt,
                 UpdatedAt = tiquete.UpdatedAt,
-                
+
+                Avances = tiquete.Avances
+                    .Select(a => new AvanceDetalleViewModel
+                    {
+                        AutorCorreo = a.Autor,
+                        TextoAvance = a.TextoAvance,
+                        CreatedAt = a.CreatedAt
+                    })
+                    .ToList()
+
             };
             return View(model);
+        }
+
+        [Authorize(Roles = "Administrador")]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AgregarAvance(int id,
+                [Bind(Prefix = "NuevoAvance")] AvanceCrearViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return Json(new
+                {
+                    success = false,
+                    errors = ModelState
+                                .Where(x => x.Value!.Errors.Any())
+                                .ToDictionary(
+                                    k => k.Key,
+                                    v => v.Value!.Errors.Select(e => e.ErrorMessage).ToArray()
+                                )
+                });
+            }
+
+            try
+            {
+                var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+                var dto = new CrearAvanceDto
+                {
+                    TextoAvance = model.TextoAvance
+                };
+
+                await _avanceService.AgregarAvanceAsync(dto, currentUserId, id);
+
+                return Json(new { success = true });
+            }
+            catch (Exception ex)
+            {
+                return Json(new
+                {
+                    success = false,
+                    errors = new
+                    {
+                        _form = new[] { ex.Message }
+                    }
+                });
+            }
         }
 
         public IActionResult Dashboard()

@@ -5,32 +5,45 @@
 }
 
 <!---------Make sure to always keep separation of important and slightly less important-------->
+<a asp-area="" asp-controller="Tiquete" asp-action="Index" class="btn btn-link px-0">
+    <i class="bi bi-arrow-left"></i> Volver al listado
+</a>
 <div class="card mb-3">
     <div class="card-body">
         <div class="ticket-header mb-4">
-            <a asp-area="" asp-controller="Tiquete" asp-action="Index" class="btn btn-link px-0">
-                <i class="bi bi-arrow-left"></i> Volver al listado
-            </a>
             <div class="d-flex justify-content-between align-items-center mt-2">
-                <h4 class="mb-0 fw-bold">Tiquete @Model.IdTiquete</h4>
-                @switch (Model.Estatus)
-                {
-                    case "Abierto":
-                            <span class="badge bg-primary">@Model.Estatus</span>
-                        break;
-                    case "En Progreso":
-                            <span class="badge bg-warning">@Model.Estatus</span>
-                        break;
-                    case "Cancelado":
-                            <span class="badge bg-danger">@Model.Estatus</span>
-                        break;
-                    case "Resuelto":
-                            <span class="badge bg-success"> @Model.Estatus </span>
-                        break;
-                    default:
-                            <span class="badge bg-secondary"> @Model.Estatus </span>
-                        break;
-                }
+                <div>
+                    <h4 class="mb-2 fw-bold">Tiquete #@Model.IdTiquete</h4>
+                    <div class="gap-2">
+                        @switch (Model.Estatus)
+                        {
+                            case "Creado":
+                                <span class="badge bg-primary">@Model.Estatus</span>
+                                break;
+                            case "En Proceso":
+                                <span class="badge bg-warning">@Model.Estatus</span>
+                                break;
+                            case "Cancelado":
+                                <span class="badge bg-danger">@Model.Estatus</span>
+                                break;
+                            case "Resuelto":
+                                <span class="badge bg-success"> @Model.Estatus </span>
+                                break;
+                            default:
+                                <span class="badge bg-secondary"> @Model.Estatus </span>
+                                break;
+                        }
+                        <span class="badge bg-danger">Prioridad va acá</span>
+                        <span class="badge bg-dark">SLA: 2h restantes</span>
+                    </div>
+                </div>
+              
+
+                <div class="text-end small text-muted">
+                    <div>Creado: @Model.CreatedAt</div>
+                    <div>Reportado por: @Model.ReportedBy</div>
+                    <div>Asignado a: @Model.Asignee</div>
+                </div>
             </div>
         </div>
     </div>
@@ -39,69 +52,81 @@
 <div class="row">
     <!-- MAIN -->
     <div class="col-lg-8">
-        <!-- Description -->
-        <div class="card mb-4">
+        <!-- Info general -->
+        <div class="card mb-4 shadow-sm">
             <div class="card-body">
-                <h6 class="section-title">Asunto</h6>
-                <p class="text-muted mb-0">
-                    @Model.Asunto
-                </p>
-                <h6 class="section-title">Descripción</h6>
-                <p class="text-muted mb-0">
-                    @Model.Descripcion
-                </p>
+
+                <h6 class="section-title border-bottom pb-2 mb-3">
+                    Información General
+                </h6>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <small class="text-muted">Asunto</small>
+                        <div class="fw-semibold">@Model.Asunto</div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <small class="text-muted">Departamento</small>
+                        <div>@Model.Departamento</div>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <small class="text">Descripción</small>
+                    <div class="border rounded p-3">
+                        @Model.Descripcion
+                    </div>
+                </div>
+
+                @if (!string.IsNullOrEmpty(Model.Resolucion))
+                {
+                    <small class="text">
+                        Resolución
+                    </small>
+
+                    <div class="border rounded p-3">
+                        @Model.Resolucion
+                    </div>
+                }
+
             </div>
         </div>
 
-        <!-- Info general -->
-        <div class="card mb-4">
+        <!-- Avances-->
+        <div class="card">
             <div class="card-body">
-                <h6 class="section-title">Información del Tiquete</h6>
-
-                <dl class="row mb-0">
-@*                     <dt class="col-5">Prioridad</dt>
-                    <dd class="col-7">@Model.Prioridad</dd> *@
-
-                    <dt class="col-5">Creado por</dt>
-                    <dd class="col-7">@Model.ReportedBy</dd>
-
-                    <dt class="col-5">Departamento</dt>
-                    <dd class="col-7">@Model.Departamento</dd>
-
-                    <dt class="col-5">Agente Asignado</dt>
-                    <dd class="col-7">@Model.Asignee</dd>
-
-                    <dt class="col-5">Fecha creación</dt>
-                    <dd class="col-7">@Model.CreatedAt</dd>
-
-                    <dt class="col-5">Última actualización</dt>
-                    @if(Model.UpdatedAt != null)
+                <h6 class="section-title border-bottom pb-2 mb-3">Avances</h6>
+                <div class="p-3" style="max-height: 200px; overflow-y: auto;">
+                    @if (!Model.Avances.Any())
                     {
-                        <dd class="col-7">@Model.UpdatedAt</dd>
+                        <p class="text-muted mb-0">No hay avances registrados.</p>
                     }
                     else
                     {
-                        <dd class="col-7">Sin Actualizar</dd>
+                        @foreach (var avance in Model.Avances)
+                        {
+                            <div class="border-start border-3 ps-3">
+
+                                <!-- Header Row -->
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <span class="text-muted">
+                                        Autor:
+                                        @avance.AutorCorreo
+                                    </span>
+                                    <small class="text-muted">
+                                        @avance.CreatedAt.ToString("dd MMM yyyy HH:mm")
+                                    </small>
+                                </div>
+
+                                <!-- Body -->
+                                <p class="mb-0 ">
+                                    @avance.TextoAvance
+                                </p>
+                            </div>
+                        }
                     }
-                    </dl>
-            </div>
-        </div>
-
-        <!-- Attachments -->
-        <div class="card">
-            <div class="card-body">
-                <h6 class="section-title">Documentos Adjuntos</h6>
-
-                <ul class="list-unstyled">
-                    <li>
-                        <i class="bi bi-paperclip"></i>
-                        <a href="#">diagnostico-red.pdf</a>
-                    </li>
-                    <li>
-                        <i class="bi bi-paperclip"></i>
-                        <a href="#">foto-equipo.jpg</a>
-                    </li>
-                </ul>
+                </div>
             </div>
         </div>
     </div>
@@ -111,9 +136,9 @@
         <div class="card">
             <div class="card-body">
                
-                <h6 class="section-title">Historial y Avances</h6>
+                <h6 class="section-title border-bottom pb-2 mb-3">Historial</h6>
 
-                <ul class="timeline">
+                <ul class="timeline" style="max-height: 200px; overflow-y: auto;">
                     <li>
                         <span class="timeline-date">12/03/2025 09:14</span>
                         <p><strong>Creado</strong> por Juan Pérez</p>
@@ -129,5 +154,45 @@
                 </ul>
             </div>
         </div>
+
+        <!--Add advances to the ticket-->
+        @if (User.IsInRole("Administrador"))
+        {
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h6 class="section-title border-bottom pb-2 mb-3">Agregar Avance</h6>
+
+                    <form asp-action="AgregarAvance"
+                          asp-controller="Tiquete"
+                          asp-route-id="@Model.IdTiquete"
+                          method="post"
+                          id="addAdvanceForm">
+
+                        @Html.AntiForgeryToken()
+
+                        <div class="mb-3">
+                            <textarea asp-for="NuevoAvance.TextoAvance"
+                                      class="form-control"
+                                      rows="3"
+                                      placeholder="Describa el avance realizado..."></textarea>
+                            <span asp-validation-for="NuevoAvance.TextoAvance"
+                                  class="text-danger"></span>
+                        </div>
+
+                        <button class="btn btn-primary-custom text-white"
+                                type="submit">
+                            <i class="bi bi-plus-circle"></i> Agregar avance
+                        </button>
+                    </form>
+                </div>
+            </div>
+        }
     </div>
 </div>
+
+@await Html.PartialAsync("_SuccessModal")
+@await Html.PartialAsync("_ErrorModal")
+
+@section Scripts {
+    <script src="~/js/formSubmits.js" asp-append-version="true"></script>
+}

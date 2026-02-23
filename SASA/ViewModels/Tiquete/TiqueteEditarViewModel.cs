@@ -1,4 +1,5 @@
-﻿using SASA.ViewModels.Tiquete.Extras;
+﻿using SASA.ViewModels.Avances;
+using SASA.ViewModels.Tiquete.Extras;
 using System.ComponentModel.DataAnnotations;
 
 namespace SASA.ViewModels.Tiquete
@@ -16,7 +17,6 @@ namespace SASA.ViewModels.Tiquete
         [Required(ErrorMessage = "El estatus es obligatorio.")]
         public required int IdEstatus { get; set; }
         public string? Resolucion { get; set; }
-        //public string? IdAsignee { get; set; }
 
     }
 }
