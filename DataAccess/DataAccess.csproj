@@ -18,6 +18,7 @@
 
   <ItemGroup>
     <Folder Include="Migrations\" />
+    <Folder Include="Modelos\DTOs\Attachments\" />
     <Folder Include="Modelos\DTOs\Categoria\" />
   </ItemGroup>
 

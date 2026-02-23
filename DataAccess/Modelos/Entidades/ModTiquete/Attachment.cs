@@ -12,13 +12,8 @@ namespace DataAccess.Modelos.Entidades.ModTiquete
         [Column("idAttachment")]
         public int IdAttachment { get; set; }
 
-        [ForeignKey("idTiquete")]
         [Column("idTiquete")]
         public int IdTiquete { get; set; }
-
-        [ForeignKey("idComentario")]
-        [Column("idComentario")]
-        public int? IdComentario { get; set; }
 
         [Column("file",TypeName = "varbinary(max)")]
         public byte[]? File { get; set; }
@@ -30,9 +25,8 @@ namespace DataAccess.Modelos.Entidades.ModTiquete
         [Column("fileName")]
         public string? FileName { get; set; }
 
-        [ForeignKey("uploadedBy")]
         [Column("uploadedBy")]
-        public required int UploadedBy { get; set; }
+        public required string UploadedBy { get; set; }
 
         [Column("uploadedAt")]
         public required DateTime UploadedAt { get; set; }
@@ -41,8 +35,10 @@ namespace DataAccess.Modelos.Entidades.ModTiquete
         public required double FileSize { get; set; }
 
         //Navigation properties -> Relaciones entre entidades
+        //[ForeignKey(nameof(IdTiquete))]
         public Tiquete? Tiquete { get; set; }
 
+        //[ForeignKey(nameof(UploadedBy))]
         public ApplicationUser? Usuario { get; set; } //UploadedBy
 
 

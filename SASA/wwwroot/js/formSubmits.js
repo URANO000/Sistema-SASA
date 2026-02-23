@@ -153,52 +153,62 @@ $(function () {
 
 //--TIQUETE SUBMIT------------
 $(function () {
+
     $(document).on("submit", "#crearTiqueteForm", function (e) {
 
         e.preventDefault();
 
-        const form = $(this);
+        const form = document.getElementById("crearTiqueteForm");
+        const files = form.querySelector('input[type="file"]').files;
 
-        if (!form.valid()) {
+        // Client-side size validation
+        for (let i = 0; i < files.length; i++) {
+            if (files[i].size > 5 * 1024 * 1024) {
+                alert("Un archivo supera el límite de 5MB.");
+                return;
+            }
+        }
+
+        // jQuery validation
+        if (!$(form).valid()) {
             return;
         }
 
+        const formData = new FormData(form);
+
         $.ajax({
-            url: form.attr("action"),
+            url: form.action,
             type: "POST",
-            data: form.serialize(),
+            data: formData,
+            processData: false,  // 🔴 REQUIRED
+            contentType: false,  // 🔴 REQUIRED
 
             success: function (response) {
 
-                //Caso 1, si todo sale bien
                 if (response.success) {
                     $("#addTicket").modal("hide");
                     $("#successModal").modal("show");
 
-                    //Ir a la tabla después de un tiempo
                     setTimeout(() => {
                         window.location.href = "/Tiquete";
                     }, 1200);
                 }
                 else {
-
-                    $("#addTicketModal .modal-content").html(response);
-
+                    $("#addTicket .modal-content").html(response);
                     $.validator.unobtrusive.parse("#crearTiqueteForm");
                 }
             },
 
             error: function () {
                 $("#addTicket").modal("hide");
-                $("#errorModal").modal("show")
+                $("#errorModal").modal("show");
+
                 setTimeout(() => {
                     window.location.href = "/Tiquete";
                 }, 1400);
             }
         });
-
     });
-
 });
 
 

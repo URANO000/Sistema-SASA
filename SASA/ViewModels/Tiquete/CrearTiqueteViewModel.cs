@@ -17,5 +17,8 @@ namespace SASA.ViewModels.Tiquete
         //Relevante sólo para admin
         public string? IdAsignee { get; set; }
 
+        //Opcional: Guardar archivos
+        public List<IFormFile>? ArchivosAdjuntos { get; set; }
+
     }
 }

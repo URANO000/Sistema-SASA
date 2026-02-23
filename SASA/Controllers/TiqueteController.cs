@@ -134,7 +134,9 @@ namespace SASA.Controllers
                     Asunto = model.Asunto,
                     Descripcion = model.Descripcion,
                     IdCategoria = model.Categoria,
-                    IdAsignee = model.IdAsignee
+                    IdAsignee = model.IdAsignee,
+
+                    ArchivoAdjunto = model.ArchivosAdjuntos
                 };
 
                 //Una vez que está mapeado entonces verificar si el usuario es administrador
