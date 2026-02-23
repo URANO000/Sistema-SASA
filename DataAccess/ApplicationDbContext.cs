@@ -3,7 +3,6 @@ using DataAccess.Modelos.Entidades;
 using DataAccess.Modelos.Entidades.Inventario;
 using DataAccess.Modelos.Entidades.ModTiquete;
 using DataAccess.Modelos.Entidades.Integracion;
-using DataAccess.Modelos.Entidades.Inventario;
 using DataAccess.Modelos.Enums;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
