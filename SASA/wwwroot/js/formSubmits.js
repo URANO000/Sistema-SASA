@@ -260,3 +260,62 @@ $(function () {
     });
 
 });
+
+//------------PARA AVANCE SUBMIT---------------------------
+$(function () {
+    $(document).on("submit", "#addAdvanceForm", function (e) {
+
+        e.preventDefault();
+
+        const form = $(this);
+
+        if (!form.valid()) {
+            return;
+        }
+
+        $.ajax({
+            url: form.attr("action"),
+            type: "POST",
+            data: form.serialize(),
+
+            success: function (response) {
+
+                //Caso 1, si todo sale bien
+                if (response.success) {
+                    $("#successModal").modal("show");
+
+                    //No se vá a ningún lugar, sólo se queda en detalle
+                    setTimeout(() => {
+                        $("#successModal").modal("hide");
+                    }, 1200);
+                }
+                else {
+                    //Limpiar mensajes previos
+                    form.find("[data-valmsg-for]").text("");
+
+                    //Mostrar errores
+                    $.each(response.errors, function (key, messages) {
+                        if (key === "_form") {
+                            alert(messages[0]);
+                            return;
+                        }
+
+                        const span = form.find(`[data-valmsg-for="${key}"]`);
+                        if (span.length) {
+                            span.text(messages.join(", "));
+                        }
+                    });
+                }
+            },
+
+            error: function () {
+                $("#errorModal").modal("show")
+                setTimeout(() => {
+                    $("#errorModal").modal("hide")
+                }, 1400);
+            }
+        });
+
+    });
+
+});

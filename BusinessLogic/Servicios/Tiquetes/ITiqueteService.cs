@@ -12,7 +12,7 @@ namespace BusinessLogic.Servicios.Tiquetes
         Task<IReadOnlyList<ListaTiqueteDTO>> ObtenerTiquetesReporteAsync();
 
         //READ: Nada más para detalle
-        Task<ListaTiqueteDTO?> ObtenerTiquetePorIdReadAsync(int id);
+        Task<DetalleTiqueteDto?> ObtenerTiquetePorIdReadAsync(int id);
 
         //Para obtener tiquetes por usuario pero para editar (con IDs)
         Task<TiquetePorIdDto?> ObtenerTiquetePorIdAsync(int id);

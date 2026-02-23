@@ -1,8 +1,10 @@
-﻿using DataAccess.Modelos.DTOs.Avances;
+﻿
+
+using DataAccess.Modelos.DTOs.Avances;
 
 namespace DataAccess.Modelos.DTOs.Tiquete
 {
-    public class ListaTiqueteDTO
+    public class DetalleTiqueteDto
     {
         public int IdTiquete { get; init; }
         public required string Asunto { get; init; }
@@ -19,5 +21,7 @@ namespace DataAccess.Modelos.DTOs.Tiquete
         public DateTime CreatedAt { get; set; }
         public DateTime? UpdatedAt { get; set; }
 
+        //Para detalle, ver los avances
+        public List<ListaAvancesDto> Avances { get; init; } = new();
     }
 }

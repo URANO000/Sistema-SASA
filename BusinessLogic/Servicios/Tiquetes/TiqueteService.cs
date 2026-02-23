@@ -1,4 +1,5 @@
-﻿using DataAccess.Modelos.DTOs.Tiquete;
+﻿using BusinessLogic.Servicios.Avances;
+using DataAccess.Modelos.DTOs.Tiquete;
 using DataAccess.Modelos.DTOs.Tiquete.Filtros;
 using DataAccess.Modelos.DTOs.Wrappers;
 using DataAccess.Modelos.Entidades.ModTiquete;
@@ -13,10 +14,12 @@ namespace BusinessLogic.Servicios.Tiquetes
         //Repositorio de Tiquete
         private readonly ITiqueteRepository _tiqueteRepository;
         private readonly ICategoriaRepository _categoriaRepository;
-        public TiqueteService(ITiqueteRepository tiqueteRepository, ICategoriaRepository categoriaRepository)
+        private readonly IAvanceService _avanceService;
+        public TiqueteService(ITiqueteRepository tiqueteRepository, ICategoriaRepository categoriaRepository, IAvanceService avanceService)
         {
             _tiqueteRepository = tiqueteRepository;
             _categoriaRepository = categoriaRepository;
+            _avanceService = avanceService;
         }
         //Implementación de los métodos para el servicio de Tiquete
 
@@ -52,7 +55,7 @@ namespace BusinessLogic.Servicios.Tiquetes
             return resultado;
 
         }
-        public async Task<ListaTiqueteDTO?> ObtenerTiquetePorIdReadAsync(int id)
+        public async Task<DetalleTiqueteDto?> ObtenerTiquetePorIdReadAsync(int id)
         {
             var dto = await _tiqueteRepository.ObtenerTiquetePorIdReadAsync(id);
 
@@ -62,8 +65,11 @@ namespace BusinessLogic.Servicios.Tiquetes
                 return null;
             }
 
+            //Guardar todos los avances por tiquete
+            var avances = await _avanceService.ListaAvancesPorTiqueteAsync(id);
+
             //Retornar dto
-            return new ListaTiqueteDTO
+            return new DetalleTiqueteDto
             {
                 IdTiquete = dto.IdTiquete,
                 Asunto = dto.Asunto,
@@ -76,6 +82,8 @@ namespace BusinessLogic.Servicios.Tiquetes
                 Departamento = dto.Departamento,
                 CreatedAt = dto.CreatedAt,
                 UpdatedAt = dto.UpdatedAt,
+
+                Avances = avances
             };
         }
 
@@ -139,7 +147,7 @@ namespace BusinessLogic.Servicios.Tiquetes
             tiqueteActual.IdCategoria = dto.IdCategoria;
             tiqueteActual.IdEstatus = dto.IdEstatus;
             tiqueteActual.Resolucion = dto.Resolucion?.Trim(); //Puede no tener nada
-            tiqueteActual.UpdatedAt = DateTime.UtcNow;
+            tiqueteActual.UpdatedAt = DateTime.Now;
             tiqueteActual.UpdatedBy = currentUserId; //En el controller se debe pasar el id del usuario autenticado
 
             //Persistencia de datos -> Guardar cambios
@@ -177,7 +185,7 @@ namespace BusinessLogic.Servicios.Tiquetes
                 IdReportedBy = reportedBy,
                 IdAsignee = idAsignee,
                 IdEstatus = (int)TiqueteEstatus.Creado,
-                CreatedAt = DateTime.UtcNow
+                CreatedAt = DateTime.Now
             };
 
             var creado = await _tiqueteRepository.AgregarTiqueteAsync(tiquete);

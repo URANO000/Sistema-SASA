@@ -18,7 +18,7 @@
             </div>
             <!-- Filters -->
             <form method="get">
-                <div class="row g-2 align-items-end mb-3">
+                <div class="row g-3 align-items-end mb-3">
                     <div class="col-md-4">
                         <label class="form-label">Buscar</label>
                         <input type="text" name="Filtro.Search" asp-for="Filtro.Search"
@@ -33,57 +33,40 @@
                                 class="form-select">
                             <option value="">Todos</option>
                         </select>
+
                     </div>
-                    <!-- FILTRO POR FECHA -->
-                    <div class="mb-3 pb-1 border-bottom">
+                    <div class="col-md-4">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <label class="form-label mb-1">Fecha</label>
 
-                        <button class="btn w-100 d-flex justify-content-between align-items-center p-0 text-dark fw-semibold"
-                                type="button"
-                                data-bs-toggle="collapse"
-                                data-bs-target="#dateFilter">
-                            Fecha
-                            <i class="bi bi-chevron-down"></i>
-                        </button>
-
-                        <div class="collapse mt-3" id="dateFilter">
-
-                            <!-- SWITCH -->
-                            <div class="form-check form-switch mb-3">
+                            <div class="form-check form-switch m-0">
                                 <input class="form-check-input" type="checkbox" id="dateRangeSwitch">
-                                <label class="form-check-label">Buscar por rango</label>
+                                <label class="form-check-label small ms-1">Rango</label>
                             </div>
+                        </div>
 
-                            <!-- SINGLE DATE -->
-                            <div id="singleDateContainer">
-                                <label class="form-label">Fecha</label>
-                                <input type="date"
-                                       class="form-control"
-                                       name="Filtro.Fecha"
-                                       id="filter-date-single">
-                            </div>
+                        <div class="d-flex gap-2">
+                            <!-- Single -->
+                            <input type="date"
+                                   class="form-control"
+                                   name="Filtro.Fecha"
+                                   id="filter-date-single">
 
-                            <!-- RANGE -->
-                            <div id="rangeDateContainer" class="d-none">
+                            <!-- Range -->
+                            <input type="date"
+                                   class="form-control d-none"
+                                   name="Filtro.FechaInicio"
+                                   id="filter-date-from"
+                                   disabled>
 
-                                <label class="form-label">Desde</label>
-                                <input type="date"
-                                       class="form-control mb-2"
-                                       name="Filtro.FechaInicio"
-                                       id="filter-date-from"
-                                       disabled>
-
-                                <label class="form-label">Hasta</label>
-                                <input type="date"
-                                       class="form-control"
-                                       name="Filtro.FechaFinal"
-                                       id="filter-date-to"
-                                       disabled>
-
-                            </div>
-
+                            <input type="date"
+                                   class="form-control d-none"
+                                   name="Filtro.FechaFinal"
+                                   id="filter-date-to"
+                                   disabled>
                         </div>
                     </div>
-
+  
                     <div class="col-md-2">
                         <button type="submit" class="btn btn-outline-secondary w-100">
                             <i class="bi bi-funnel"></i>
