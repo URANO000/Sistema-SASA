@@ -5,6 +5,7 @@ using BusinessLogic.Servicios.Notificaciones;
 using BusinessLogic.Servicios.Rol;
 using BusinessLogic.Servicios.Tiquetes;
 using BusinessLogic.Servicios.Usuarios;
+using BusinessLogic.Servicios.Integracion;
 using DataAccess;
 using DataAccess.Identity;
 using DataAccess.Repositorios.Categorias;
@@ -13,6 +14,8 @@ using DataAccess.Repositorios.Prioridad;
 using DataAccess.Repositorios.Notificaciones;
 using DataAccess.Repositorios.Tiquetes;
 using DataAccess.Repositorios.Usuarios;
+using DataAccess.Repositorios.Integracion;
+using DataAccess.Repositorios.Inventario;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using SASA.Configuration;
@@ -73,6 +76,11 @@ builder.Services.AddScoped<IColaRepository, ColaRepository>();
 builder.Services.AddScoped<INotificacionRepository, NotificacionRepository>();
 builder.Services.AddScoped<INotificacionService, NotificacionService>();
 
+builder.Services.AddScoped<IIntegracionHistorialRepository, IntegracionHistorialRepository>();
+builder.Services.AddScoped<IActivoInventarioRepository, ActivoInventarioRepository>();
+builder.Services.AddScoped<ICatalogosInventarioRepository, CatalogosInventarioRepository>();
+
+builder.Services.AddScoped<IIntegracionService, IntegracionService>();
 
 // Configuración de correo (Microsoft Graph)
 builder.Services.AddScoped<ICorreoNotificacionesService, CorreoNotificacionesService>();
@@ -94,26 +102,46 @@ if (app.Environment.IsDevelopment())
 {
     using var scope = app.Services.CreateScope();
     var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
-
     var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<ApplicationRole>>();
 
     const string adminRole = "Administrador";
 
+    // 1) Crear rol si no existe
+    if (!await roleManager.RoleExistsAsync(adminRole))
+    {
+        await roleManager.CreateAsync(new ApplicationRole { Name = adminRole });
+    }
+
     var email = "test@sasa.com";
+
+    // 2) Buscar usuario
     var user = await userManager.FindByEmailAsync(email);
 
+    // 3) Crear usuario si no existe
     if (user is null)
     {
         user = new ApplicationUser
         {
             UserName = email,
             Email = email,
-            EmailConfirmed = true, // para que no falle por RequireConfirmedEmail
+            EmailConfirmed = true,
             Estado = true,
             LockoutEnabled = true
         };
 
-        await userManager.CreateAsync(user, "Test123!");
+        var result = await userManager.CreateAsync(user, "Test123!");
+
+        if (!result.Succeeded)
+        {
+            throw new Exception("No se pudo crear usuario admin: " +
+                string.Join(" | ", result.Errors.Select(e => e.Description)));
+        }
+    }
+
+    // 4) Asignar rol al usuario (ya existe seguro)
+    if (!await userManager.IsInRoleAsync(user, adminRole))
+    {
+        await userManager.AddToRoleAsync(user, adminRole);
     }
 }
 

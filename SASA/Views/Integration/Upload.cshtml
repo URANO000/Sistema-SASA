@@ -36,16 +36,21 @@
                     <select class="form-select" disabled>
                         <option selected>Inventario (Activos)</option>
                     </select>
-                    <small class="text-muted">Sprint 1: importación de inventario.</small>
-                </div>
+                </div> 
 
-                <div class="d-flex justify-content-end">
-                    <a asp-action="Index" class="btn btn-outline-secondary me-2">
-                        Cancelar
+                <div class="d-flex justify-content-between mt-4">
+                    <a asp-action="Index" class="btn btn-outline-secondary">
+                        Volver al módulo
                     </a>
-                    <button type="submit" class="btn btn-primary">
-                        Subir archivo
-                    </button>
+
+                    <div>
+                        <a asp-action="Index" class="btn btn-outline-secondary me-2">
+                            Cancelar
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            Subir archivo
+                        </button>
+                    </div>
                 </div>
             </form>
 
