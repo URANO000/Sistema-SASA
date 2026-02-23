@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using SASA.ViewModels.Tiquete.Extras;
+using System.ComponentModel.DataAnnotations;
 
 namespace SASA.ViewModels.Tiquete
 {
@@ -13,8 +14,7 @@ namespace SASA.ViewModels.Tiquete
         [Required(ErrorMessage = "La categoría es obligatoria.")]
         public required int Categoria { get; set; }
 
-        [Required(ErrorMessage = "La prioridad es obligatoria.")]
-        public int Prioridad { get; set; }
+        //Relevante sólo para admin
         public string? IdAsignee { get; set; }
 
     }

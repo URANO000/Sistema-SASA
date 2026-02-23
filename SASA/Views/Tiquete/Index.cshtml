@@ -1,5 +1,5 @@
 ﻿@using SASA.ViewModels.Tiquete;
-@model IReadOnlyList<TiqueteListaViewModel>
+@model TiqueteIndexViewModel
 
 @{
     ViewData["Title"] = "Gestión de Tiquetes";
@@ -10,69 +10,106 @@
         <div class="card-body">
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <h2 class="mb-0 fw-bold">Gestión de Tiquetes</h2>
-                <button class="btn btn-custom" id="openCreateModal">
-                    <i class="bi bi-plus-lg"></i>
-                    Nuevo Tiquete
-                </button>
+                    <button class="btn btn-custom" data-bs-toggle="modal" data-bs-target="#addTicket">
+                        <i class="bi bi-plus-lg"></i>
+                        Nuevo Tiquete
+                    </button>
+
             </div>
             <!-- Filters -->
-            <div class="row g-2 align-items-end mb-3">
-                <div class="col-md-4">
-                    <label class="form-label">Buscar</label>
-                    <input type="text" class="form-control" placeholder="Código o asunto">
-                </div>
-                <div class="col-md-2">
-                    <label class="form-label">Estado</label>
-                    <select class="form-select">
-                        <option value="">Todos</option>
-                        <option>Abierto</option>
-                        <option>En Progreso</option>
-                        <option>Cancelado</option>
-                        <option>Resuelto</option>
-                        <option>Cerrado</option>
+            <form method="get">
+                <div class="row g-2 align-items-end mb-3">
+                    <div class="col-md-4">
+                        <label class="form-label">Buscar</label>
+                        <input type="text" name="Filtro.Search" asp-for="Filtro.Search"
+                               value="@Model.Filtro.Search"
+                               class="form-control"
+                               placeholder="Asunto/Descripción"/>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label">Estado</label>
+                        <select asp-for="Filtro.Estatus"
+                                asp-items="Model.Filtro.Estatuses"
+                                class="form-select">
+                            <option value="">Todos</option>
+                        </select>
+                    </div>
+                    <!-- FILTRO POR FECHA -->
+                    <div class="mb-3 pb-1 border-bottom">
 
-                    </select>
+                        <button class="btn w-100 d-flex justify-content-between align-items-center p-0 text-dark fw-semibold"
+                                type="button"
+                                data-bs-toggle="collapse"
+                                data-bs-target="#dateFilter">
+                            Fecha
+                            <i class="bi bi-chevron-down"></i>
+                        </button>
+
+                        <div class="collapse mt-3" id="dateFilter">
+
+                            <!-- SWITCH -->
+                            <div class="form-check form-switch mb-3">
+                                <input class="form-check-input" type="checkbox" id="dateRangeSwitch">
+                                <label class="form-check-label">Buscar por rango</label>
+                            </div>
+
+                            <!-- SINGLE DATE -->
+                            <div id="singleDateContainer">
+                                <label class="form-label">Fecha</label>
+                                <input type="date"
+                                       class="form-control"
+                                       name="Filtro.Fecha"
+                                       id="filter-date-single">
+                            </div>
+
+                            <!-- RANGE -->
+                            <div id="rangeDateContainer" class="d-none">
+
+                                <label class="form-label">Desde</label>
+                                <input type="date"
+                                       class="form-control mb-2"
+                                       name="Filtro.FechaInicio"
+                                       id="filter-date-from"
+                                       disabled>
+
+                                <label class="form-label">Hasta</label>
+                                <input type="date"
+                                       class="form-control"
+                                       name="Filtro.FechaFinal"
+                                       id="filter-date-to"
+                                       disabled>
+
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <div class="col-md-2">
+                        <button type="submit" class="btn btn-outline-secondary w-100">
+                            <i class="bi bi-funnel"></i>
+                            Filtrar
+                        </button>
+                    </div>
                 </div>
-                <div class="col-md-2">
-                    <label class="form-label">Prioridad</label>
-                    <select class="form-select">
-                        <option value="">Todas</option>
-                        <option>Alta</option>
-                        <option>Media</option>
-                        <option>Baja</option>
-                    </select>
-                </div>
-                <div class="col-md-2">
-                    <label class="form-label">Fecha</label>
-                    <input type="date" class="form-control">
-                </div>
-                <div class="col-md-2">
-                    <button class="btn btn-outline-secondary w-100">
-                        <i class="bi bi-funnel"></i>
-                        Filtrar
-                    </button>
-                </div>
-            </div>
+            </form>
             <!-- Table -->
             <div class="table-responsive">
                 <table class="table table-hover align-middle sasa-table">
                     <thead class="">
                         <tr>
                             <th>Acciones</th>
-                            <th>Id</th>
                             <th>Asunto</th>
                             <th>Estatus</th>
-                            <th>Prioridad</th>
                             <th>Categoría</th>
-                            <th>Cola</th>
                             <th>Creado Por</th>
+                            <th>Departamento</th>
                             <th>Fecha de Creación</th>
                             <th>Asignado</th>
                             <th>Fecha de Edición</th>
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach (var t in Model)
+                        @foreach (var t in Model.Tiquetes)
                         {
                             <tr>
                                 <td>
@@ -82,24 +119,25 @@
                                        asp-route-id="@t.IdTiquete">
                                         <i class="bi bi-eye detail-btn"></i>
                                     </a>
-                                    <a class="btn btn-link icon-btn" asp-area=""
-                                       asp-controller="Tiquete"
-                                       asp-action="Edit"
-                                       asp-route-id="@t.IdTiquete">
-                                        <i class="fa-regular fa-pen-to-square edit-btn"></i>
-                                    </a>
+                                    @if (User.IsInRole("Administrador"))
+                                    {
+                                        <a class="btn btn-link icon-btn" asp-area=""
+                                           asp-controller="Tiquete"
+                                           asp-action="Edit"
+                                           asp-route-id="@t.IdTiquete">
+                                            <i class="fa-regular fa-pen-to-square edit-btn"></i>
+                                        </a>
+                                    }
                                 </td>
-
-                                <td>@t.IdTiquete</td>
                                 <td>@t.Asunto</td>
                                 @switch (t.Estatus)
                                 {
-                                    case "Abierto":
+                                    case "Creado":
                                         <td>
                                             <span class="badge bg-primary">@t.Estatus</span>
                                         </td>
                                         break;
-                                    case "En Progreso":
+                                    case "En Proceso":
                                         <td>
                                             <span class="badge bg-warning">@t.Estatus</span>
                                         </td>
@@ -121,10 +159,9 @@
                                         break;
                                 }
 
-                                <td>@t.Prioridad</td>
                                 <td>@t.Categoria</td>
-                                <td>@t.Cola</td>
                                 <td>@t.ReportedBy</td>
+                                <td>@t.Departamento</td>
                                 <td>@t.CreatedAt</td>
                                 <td>@t.Asignee</td>
                                 <td>@t.UpdatedAt</td>
@@ -133,6 +170,48 @@
 
                     </tbody>
                 </table>
+                <nav aria-label="Paginación" class="align-content-center justify-content-center">
+                    <ul class="pagination pagination-sm mb-0 justify-content-center">
+
+                        <!-- Previous -->
+                        <li class="page-item @(Model.Filtro.TieneAnterior ? "" : "disabled")">
+                            <a class="page-link"
+                               asp-action="Index"
+                               asp-route-PageNumber="@(Model.Filtro.PageNumber - 1)"
+                               asp-route-PageSize="@Model.Filtro.PageSize"
+                               asp-route-Search="@Model.Filtro.Search"
+                               asp-route-Estatus="@Model.Filtro.Estatus"
+                               asp-route-Fecha="@Model.Filtro.Fecha"
+                               asp-route-FechaInicio="@Model.Filtro.FechaInicio"
+                               asp-route-FechaFinal="@Model.Filtro.FechaFinal">
+                                Anterior
+                            </a>
+                        </li>
+
+                        <!-- Info -->
+                        <li class="page-item disabled">
+                            <span class="page-link">
+                                Página @Model.Filtro.PageNumber de @Model.Filtro.TotalPages
+                            </span>
+                        </li>
+
+                        <!-- Next -->
+                        <li class="page-item @(Model.Filtro.TieneSiguiente ? "" : "disabled")">
+                            <a class="page-link"
+                               asp-action="Index"
+                               asp-route-PageNumber="@(Model.Filtro.PageNumber + 1)"
+                               asp-route-PageSize="@Model.Filtro.PageSize"
+                               asp-route-Search="@Model.Filtro.Search"
+                               asp-route-Estatus="@Model.Filtro.Estatus"
+                               asp-route-Fecha="@Model.Filtro.Fecha"
+                               asp-route-FechaInicio="@Model.Filtro.FechaInicio"
+                               asp-route-FechaFinal="@Model.Filtro.FechaFinal">
+                                Siguiente
+                            </a>
+                        </li>
+
+                    </ul>
+                </nav>
             </div>
         </div>
     </div>
@@ -141,11 +220,13 @@
 
 @await Html.PartialAsync("_SuccessModal")
 @await Html.PartialAsync("_ErrorModal")
+@await Html.PartialAsync("_AddModal", Model.CrearTiquete)
+
 
 
 @section Scripts {
     <script src="~/js/formSubmits.js" asp-append-version="true"></script>
-    <script>
+ @*    <script>
         $(document).on('click', '#openCreateModal', function () {
 
         $.get('/Tiquete/Add', function (data) {
@@ -167,5 +248,5 @@
 
 
         });
-    </script>
+    </script> *@
 }

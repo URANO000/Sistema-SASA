@@ -1,6 +1,7 @@
 ﻿using DataAccess.Identity;
 using DataAccess.Modelos.DTOs.Usuarios;
-using DataAccess.Modelos.Entidades;
+using DataAccess.Modelos.DTOs.Usuarios.Filtros;
+using DataAccess.Modelos.DTOs.Wrappers;
 using Microsoft.EntityFrameworkCore;
 
 namespace DataAccess.Repositorios.Usuarios
@@ -16,7 +17,94 @@ namespace DataAccess.Repositorios.Usuarios
         }
 
         //Implementación de los métodos del repositorio de usuarios
-        public async Task<IReadOnlyList<ListaUsuarioDto>> ObtenerUsuariosAsync()
+        public async Task<PagedResult<ListaUsuarioDto>> ObtenerUsuariosAsync(UsuarioFiltroDto filtro)
+        {
+            var query = _context.Users
+                .AsNoTracking()
+                .AsQueryable();
+
+            //Filtrar si el searchbar no está vacío
+            if (!string.IsNullOrWhiteSpace(filtro.Search))
+            {
+                var search = filtro.Search.Trim();
+
+                query = query.Where(u =>
+                    (u.PrimerNombre + " " +
+                     u.SegundoNombre + " " +
+                     u.PrimerApellido + " " +
+                     u.SegundoApellido)
+                    .Contains(search)
+                    || u.CorreoEmpresa.Contains(search));
+            }
+
+            //Si el filtro de Departamento no es vacío
+            if (!string.IsNullOrWhiteSpace(filtro.Departamento))
+            {
+                query = query.Where(u => u.Departamento == filtro.Departamento);
+            }
+
+            //Si el filtro de Estado mo es vacío
+            if (filtro.Estado != null)
+            {
+                query = query.Where(u => u.Estado == filtro.Estado);
+            }
+
+            var totalRecords = await query.CountAsync();
+
+            var items = await query
+                .OrderByDescending(u => u.CreatedAt)
+
+                .Skip((filtro.PageNumber - 1) * filtro.PageSize)
+
+                .Take(filtro.PageSize)
+                .Select(u => new ListaUsuarioDto
+                {
+                    Id = u.Id,
+                    PrimerNombre = u.PrimerNombre,
+                    SegundoNombre = u.SegundoNombre,
+                    PrimerApellido = u.PrimerApellido,
+                    SegundoApellido = u.SegundoApellido,
+                    Departamento = u.Departamento,
+                    Puesto = u.Puesto,
+                    CorreoEmpresa = u.CorreoEmpresa,
+                    Estado = u.Estado,
+                    CreatedAt = u.CreatedAt,
+                    CreatedById = u.CreatedById
+
+                })
+                .ToListAsync();
+
+            //Retrieving de roles
+            var userIds = items.Select(x => x.Id).ToList();
+            //Pensar en un SQL query
+            var rolesData = await (
+                from ur in _context.UserRoles
+                join r in _context.Roles on ur.RoleId equals r.Id
+                where userIds.Contains(ur.UserId)
+                select new { ur.UserId, r.Name }
+                ).ToListAsync();
+
+            var rolesLookup = rolesData
+                .GroupBy(x => x.UserId)
+                .ToDictionary(g => g.Key, g => g.Select(x => x.Name!).ToList());
+
+            foreach (var user in items)
+            {
+                if (user.Id != null && rolesLookup.ContainsKey(user.Id))
+                    user.Roles = rolesLookup[user.Id];
+            }
+
+            return new PagedResult<ListaUsuarioDto>
+            {
+                Items = items,
+                TotalRecords = totalRecords,
+                TotalPages = (int)Math.Ceiling(totalRecords / (double)filtro.PageSize)
+            };
+
+        }
+
+        //Para reportes ------ Lista de todos los usuarios ------------------------------
+        public async Task<IReadOnlyList<ListaUsuarioDto>> ObtenerUsuariosReporteAsync()
         {
             return await _context.Users
                 .AsNoTracking()

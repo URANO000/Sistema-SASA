@@ -29,12 +29,6 @@
             <h6 class="section-title mb-3">Información del Tiquete</h6>
 
             <div class="row g-3">
-                <div class="col-md-6">
-                    <label asp-for="Asunto" class="form-label required-field">Asunto</label>
-                    <input asp-for="Asunto" type="text" class="form-control">
-                    <span asp-validation-for="Asunto" class="text-danger"></span>
-                </div>
-
                 <div class="col-md-3">
                     <label asp-for="IdCategoria" class="form-label required-field">Categoría</label>
                     <select asp-for="IdCategoria"
@@ -44,28 +38,6 @@
                     </select>
                     <span asp-validation-for="IdCategoria" class="text-danger"></span>
                 </div>
-
-                <!-- Prioridad -->
-                <div class="col-md-3">
-                    <label asp-for="IdPrioridad" class="form-label required-field">Prioridad</label>
-                    <select asp-for="IdPrioridad"
-                            asp-items="Model.Prioridades"
-                            class="form-select">
-                        <option value="" disabled>Seleccione una prioridad</option>
-                    </select>
-                    <span asp-validation-for="IdPrioridad" class="text-danger"></span>
-                </div>
-
-                <!-- Asignee-->
-                <div class="col-md-6">
-                    <label asp-for="IdAsignee" class="form-label">Asignado</label>
-                    <select asp-for="IdAsignee"
-                            asp-items="Model.Asignees" class="form-select">
-                        <option value="">Seleccione al usuario a asignar</option>
-                    </select>
-                    <span asp-validation-for="IdAsignee" class="text-danger"></span>
-                </div>
-
                 <!-- Estado-->
                 <div class="col-md-6">
                     <label asp-for="IdEstatus" class="form-label">Estado</label>
@@ -75,18 +47,11 @@
                     </select>
                     <span asp-validation-for="IdEstatus" class="text-danger"></span>
                 </div>
-
                 <div class="col-12">
-                    <label asp-for="Descripcion" class="form-label required-field">Descripción</label>
-                    <textarea asp-for="Descripcion" class="form-control" rows="4"
-                              placeholder="Describa el problema o solicitud"></textarea>
-                    <span asp-validation-for="Descripcion" class="text-danger"></span>
-                </div>
-                <div class="col-12">
-                    <label asp-for="Resolucion" class="form-label">Resolución</label>
-                    <textarea asp-for="Resolucion" class="form-control" rows="4"
-                              placeholder="Para cerrar el tiquete, una resolución es necesaria"></textarea>
-                    <span asp-validation-for="Resolucion" class="text-danger"></span>
+                        <label asp-for="Resolucion" class="form-label">Resolución</label>
+                        <textarea asp-for="Resolucion" class="form-control" rows="4"
+                                  placeholder="Para cancelar el tiquete, una resolución es necesaria"></textarea>
+                        <span asp-validation-for="Resolucion" class="text-danger"></span>
                 </div>
             </div>
         </div>
@@ -104,69 +69,6 @@
 
             <button class="btn btn-primary-custom text-white" type="button">
                 <i class="bi bi-plus-circle"></i> Agregar avance
-            </button>
-        </div>
-    </div>
-
-    <!--History, should probably come from a bitacora table/audit table-->
-
-    <div class="card mb-4">
-        <div class="card-body">
-            <h6 class="section-title">Historial y Avances</h6>
-
-            <ul class="timeline">
-                <li>
-                    <span class="timeline-date">12/03/2025 09:14</span>
-                    <p><strong>Creado</strong> por Juan Pérez</p>
-                </li>
-                <li>
-                    <span class="timeline-date">12/03/2025 10:02</span>
-                    <p>Asignado a Soporte TI</p>
-                </li>
-                <li>
-                    <span class="timeline-date">12/03/2025 14:30</span>
-                    <p>Diagnóstico inicial completado</p>
-                </li>
-            </ul>
-        </div>
-    </div>
-
-    <!--For added documents-->
-
-    <div class="card mb-4">
-        <div class="card-body">
-            <h6 class="section-title">Documentos Adjuntos</h6>
-
-            <input type="file" class="form-control mb-3" multiple>
-
-            <ul class="list-unstyled">
-                <li>
-                    <i class="bi bi-paperclip"></i>
-                    diagnostico-red.pdf
-                </li>
-                <li>
-                    <i class="bi bi-paperclip"></i>
-                    foto-equipo.jpg
-                </li>
-            </ul>
-        </div>
-    </div>
-
-    <!--Satisfies the cancel user story-->
-
-
-    <div class="card border-danger">
-        <div class="card-body">
-            <h6 class="text-danger fw-bold">Zona de Riesgo</h6>
-
-            <p class="text-muted mb-3">
-                Cancelar un tiquete es una acción irreversible.
-            </p>
-
-            <button class="btn btn-outline-danger"
-                    data-bs-toggle="modal"
-                    data-bs-target="#cancelConfirm">
-                Cancelar Tiquete
             </button>
         </div>
     </div>
