@@ -229,13 +229,6 @@ public static class PlantillasCorreo
                 </tr>
               </table>
 
-              <div style='font-size:12px;line-height:1.6;color:#6b7280;margin:0 0 8px 0;'>
-                Si el botón no funciona, copia y pega este enlace en tu navegador:
-              </div>
-              <div style='font-size:12px;line-height:1.6;color:#012473;word-break:break-all;margin:0 0 16px 0;'>
-                {resetLink}
-              </div>
-
               <div style='height:1px;background:#eef2f7;margin:18px 0;'></div>
 
               <div style='font-size:12px;line-height:1.6;color:#6b7280;margin:0;'>
