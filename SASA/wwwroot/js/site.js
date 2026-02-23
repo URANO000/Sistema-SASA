@@ -57,8 +57,47 @@ document.querySelectorAll(".dropdown-toggle-btn")
 
 
 //---------------------------TICKETS----------------------------------------------
+//PARA FILTROS
+document.addEventListener("DOMContentLoaded", function () {
 
+    const switchInput = document.getElementById("dateRangeSwitch");
 
+    const singleContainer = document.getElementById("singleDateContainer");
+    const rangeContainer = document.getElementById("rangeDateContainer");
+
+    const singleDate = document.getElementById("filter-date-single");
+
+    const dateFrom = document.getElementById("filter-date-from");
+    const dateTo = document.getElementById("filter-date-to");
+
+    function updateMode() {
+
+        if (switchInput.checked) {
+
+            singleContainer.classList.add("d-none");
+            rangeContainer.classList.remove("d-none");
+
+            singleDate.disabled = true;
+
+            dateFrom.disabled = false;
+            dateTo.disabled = false;
+
+        } else {
+
+            singleContainer.classList.remove("d-none");
+            rangeContainer.classList.add("d-none");
+
+            singleDate.disabled = false;
+
+            dateFrom.disabled = true;
+            dateTo.disabled = true;
+        }
+    }
+
+    switchInput.addEventListener("change", updateMode);
+
+    updateMode();
+});
 //---------------------------USERS----------------------------------------------
 
 //-------------------QUEUE-------------------

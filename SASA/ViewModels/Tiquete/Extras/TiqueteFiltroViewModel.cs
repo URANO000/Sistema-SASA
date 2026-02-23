@@ -6,8 +6,9 @@ namespace SASA.ViewModels.Tiquete.Filtro
     {
         public string? Search { get; set; }
         public string? Estatus { get; set; }
-        public string? Prioridad { get; set; }
         public DateTime? Fecha { get; set; }
+        public DateTime? FechaInicio { get; set; }
+        public DateTime? FechaFinal { get; set; }
 
         public int PageNumber { get; set; } = 1;
         public int PageSize { get; set; } = 10;

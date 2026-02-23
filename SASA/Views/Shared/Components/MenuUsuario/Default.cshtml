@@ -1,0 +1,11 @@
+@model SASA.ViewModels.Shared.MenuUsuarioViewModel
+@if (Model.EstaAutenticado)
+{
+    <div class="fw-semibold text-black user-name">@Model.NombreMostrar</div>
+    <div class="small text-muted user-role">@Model.Rol</div>
+}
+else
+{
+    <div class="fw-semibold text-black user-name">Invitado</div>
+    <div class="small text-muted user-role">—</div>
+}
