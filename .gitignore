@@ -47,3 +47,6 @@ Thumbs.db
 
 # App settings de desarrollo (NO subir a git)
 appsettings.Development.json
+
+SASA/wwwroot/uploads/
+wwwroot/uploads/
