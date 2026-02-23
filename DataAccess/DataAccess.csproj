@@ -19,7 +19,6 @@
   <ItemGroup>
     <Folder Include="Migrations\" />
     <Folder Include="Modelos\DTOs\Categoria\" />
-    <Folder Include="Modelos\DTOs\Avances\" />
   </ItemGroup>
 
 </Project>

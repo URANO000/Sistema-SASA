@@ -1,4 +1,6 @@
-﻿namespace SASA.ViewModels.Tiquete
+﻿using SASA.ViewModels.Avances;
+
+namespace SASA.ViewModels.Tiquete
 {
     public class TiqueteDetalleViewModel
     {
@@ -17,5 +19,10 @@
 
         public DateTime CreatedAt { get; set; }
         public DateTime? UpdatedAt { get; set; }
+
+
+        //Para el avance
+        public AvanceCrearViewModel NuevoAvance { get; set; } = new();
+        public List<AvanceDetalleViewModel> Avances { get; init; } = new();
     }
 }

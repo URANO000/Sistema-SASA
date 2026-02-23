@@ -74,20 +74,22 @@ document.addEventListener("DOMContentLoaded", function () {
 
         if (switchInput.checked) {
 
-            singleContainer.classList.add("d-none");
-            rangeContainer.classList.remove("d-none");
-
+            singleDate.classList.add("d-none");
             singleDate.disabled = true;
+
+            dateFrom.classList.remove("d-none");
+            dateTo.classList.remove("d-none");
 
             dateFrom.disabled = false;
             dateTo.disabled = false;
 
         } else {
 
-            singleContainer.classList.remove("d-none");
-            rangeContainer.classList.add("d-none");
-
+            singleDate.classList.remove("d-none");
             singleDate.disabled = false;
+
+            dateFrom.classList.add("d-none");
+            dateTo.classList.add("d-none");
 
             dateFrom.disabled = true;
             dateTo.disabled = true;
