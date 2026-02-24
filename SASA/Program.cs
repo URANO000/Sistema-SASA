@@ -28,6 +28,8 @@ using DataAccess.Repositorios.Avances;
 using BusinessLogic.Servicios.Avances;
 using DataAccess.Repositorios.Attachments;
 using BusinessLogic.Servicios.Attachments;
+using DataAccess.Repositorios.TiqueteHistoriales;
+using BusinessLogic.Servicios.TiqueteHistoriales;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -127,6 +129,8 @@ builder.Services.AddScoped<IAvanceRepository, AvanceRepository>();
 builder.Services.AddScoped<IAvanceService, AvanceService>();
 builder.Services.AddScoped<IAttachmentRepository, AttachmentRepository>();
 builder.Services.AddScoped<IAttachmentService, AttachmentService>();
+builder.Services.AddScoped<ITiqueteHistorialRepository, TiqueteHistorialRepository>();
+builder.Services.AddScoped<ITiqueteHistorialService, TiqueteHistorialService>();
 
 
 builder.Services.AddScoped<IIntegracionHistorialRepository, IntegracionHistorialRepository>();

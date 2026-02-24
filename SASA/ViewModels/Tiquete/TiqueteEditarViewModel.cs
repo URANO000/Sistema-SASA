@@ -10,6 +10,9 @@ namespace SASA.ViewModels.Tiquete
         [Required]
         public int IdTiquete { get; set; }
 
+        public string Asunto { get; set; }
+        public string Descripcion { get; set; }
+
         [Required(ErrorMessage = "La categoría es obligatoria.")]
         public required int IdCategoria { get; set; }
 

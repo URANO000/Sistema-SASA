@@ -41,7 +41,8 @@ namespace DataAccess.Repositorios.Tiquetes
             //Si el filtro de estatus no es vacío
             if (!string.IsNullOrWhiteSpace(filtro.Estatus))
             {
-                query = query.Where(t => t.Estatus.NombreEstatus == filtro.Estatus);
+                query = query.Where(t =>
+                    t.Estatus.NombreEstatus.Replace(" ", "") == filtro.Estatus);
             }
 
 
