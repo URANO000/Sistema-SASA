@@ -39,6 +39,16 @@ namespace DataAccess
         {
             base.OnModelCreating(modelBuilder);
 
+            modelBuilder.Entity<Avance>()
+            .ToTable(tb => tb.HasTrigger("TR_Avance_Insert_Notificacion"));
+
+            modelBuilder.Entity<Tiquete>()
+                .ToTable(tb =>
+                {
+                    tb.HasTrigger("TR_Tiquete_Insert_Notificacion");
+                    tb.HasTrigger("TR_Tiquete_Update_Notificacion");
+                });
+
             modelBuilder.Entity<Estatus>()
             .Property(e => e.IdEstatus)
             .ValueGeneratedNever();
