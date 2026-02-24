@@ -4,8 +4,10 @@ using DataAccess.Modelos.DTOs.Tiquete.Filtros;
 using DataAccess.Modelos.DTOs.Wrappers;
 using DataAccess.Modelos.Entidades.ModTiquete;
 using DataAccess.Modelos.Enums;
+using DataAccess.Repositorios.Attachments;
 using DataAccess.Repositorios.Categorias;
 using DataAccess.Repositorios.Tiquetes;
+using Microsoft.AspNetCore.Http;
 
 namespace BusinessLogic.Servicios.Tiquetes
 {
@@ -15,11 +17,13 @@ namespace BusinessLogic.Servicios.Tiquetes
         private readonly ITiqueteRepository _tiqueteRepository;
         private readonly ICategoriaRepository _categoriaRepository;
         private readonly IAvanceService _avanceService;
-        public TiqueteService(ITiqueteRepository tiqueteRepository, ICategoriaRepository categoriaRepository, IAvanceService avanceService)
+        private readonly IAttachmentRepository _attachmentRepository;
+        public TiqueteService(ITiqueteRepository tiqueteRepository, ICategoriaRepository categoriaRepository, IAvanceService avanceService, IAttachmentRepository attachmentRepository)
         {
             _tiqueteRepository = tiqueteRepository;
             _categoriaRepository = categoriaRepository;
             _avanceService = avanceService;
+            _attachmentRepository = attachmentRepository;
         }
         //Implementación de los métodos para el servicio de Tiquete
 
@@ -67,6 +71,8 @@ namespace BusinessLogic.Servicios.Tiquetes
 
             //Guardar todos los avances por tiquete
             var avances = await _avanceService.ListaAvancesPorTiqueteAsync(id);
+            //Guardar todos los archivos adjuntos por tiquete
+            var attachments = await _attachmentRepository.ListarAttachmentsAsync(id);
 
             //Retornar dto
             return new DetalleTiqueteDto
@@ -83,7 +89,8 @@ namespace BusinessLogic.Servicios.Tiquetes
                 CreatedAt = dto.CreatedAt,
                 UpdatedAt = dto.UpdatedAt,
 
-                Avances = avances
+                Avances = avances,
+                Attachments = attachments
             };
         }
 
@@ -104,13 +111,23 @@ namespace BusinessLogic.Servicios.Tiquetes
                     "Un usuario normal no puede asignar tiquetes."
                 );
 
-            return await CrearTiqueteAsync(
+
+            var idTiquete = await CrearTiqueteAsync(
                 dto.Asunto,
                 dto.Descripcion,
                 dto.IdCategoria,
                 currentUserId,
-                null //Usuario normal no puede asignar
+                dto.IdAsignee
             );
+
+            //Primero se crea el tiquete para asegurar que el ID de este tiquete exista
+            //Luego de eso, es posible agregar los archivos adjuntos a la base de datos
+            if (dto.ArchivoAdjunto != null && dto.ArchivoAdjunto.Any())
+            {
+                await GuardarAdjuntosAsync(dto.ArchivoAdjunto, idTiquete, currentUserId);
+            }
+
+            return idTiquete;
         }
 
         //--------------------Actualizar tiquetes para el administrador-----------------------------------
@@ -155,7 +172,7 @@ namespace BusinessLogic.Servicios.Tiquetes
         }
 
 
-    //----------------------------HELPERS (DRY)--------------------------------
+        //----------------------------HELPERS (DRY)--------------------------------
         private void ValidarUsuarioActual(string currentUserId)
         {
             if (string.IsNullOrWhiteSpace(currentUserId))
@@ -190,6 +207,46 @@ namespace BusinessLogic.Servicios.Tiquetes
 
             var creado = await _tiqueteRepository.AgregarTiqueteAsync(tiquete);
             return creado.IdTiquete;
+        }
+
+        private async Task GuardarAdjuntosAsync(
+            List<IFormFile> archivos,
+            int idTiquete,
+            string currentUserId)
+        {
+            var extensionesPermitidas = new[] { ".jgp", "jpeg", ".png", ".pdf", ".docx" };
+            var attachments = new List<Attachment>();
+
+            foreach (var archivo in archivos)
+            {
+                if (archivo.Length <= 0)
+                    continue;
+
+                //Validar size
+                if (archivo.Length > 5 * 1024 * 1024)
+                    throw new ArgumentException("Archivo supera 5MB.");
+
+                //Validar extensión
+                var extension = Path.GetExtension(archivo.FileName).ToLower();
+                if (!extensionesPermitidas.Contains(extension))
+                    throw new ArgumentException("Tipo de archivo no permitido.");
+
+                using var memoryStream = new MemoryStream();
+                await archivo.CopyToAsync(memoryStream);
+
+                attachments.Add(new Attachment
+                {
+                    IdTiquete = idTiquete,
+                    File = memoryStream.ToArray(),
+                    FileName = archivo.FileName,
+                    UploadedBy = currentUserId,
+                    UploadedAt = DateTime.Now,
+                    FileSize = archivo.Length
+                });
+            }
+
+            if (attachments.Any())
+                await _attachmentRepository.AddRangeAsync(attachments);
         }
     }
 }

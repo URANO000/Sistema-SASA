@@ -42,7 +42,6 @@
                 <div class="text-end small text-muted">
                     <div>Creado: @Model.CreatedAt</div>
                     <div>Reportado por: @Model.ReportedBy</div>
-                    <div>Asignado a: @Model.Asignee</div>
                 </div>
             </div>
         </div>
@@ -71,6 +70,17 @@
                         <div>@Model.Departamento</div>
                     </div>
                 </div>
+                
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <small class="text-muted">Categoría</small>
+                        <div class="fw-semibold">@Model.Categoria</div>
+                    </div>
+                    <div class="col-md-6">
+                        <small class="text-muted">Sub-Categoría</small>
+                        <div class="fw-semibold">La subcategoría va aquí</div>
+                    </div>
+                </div>
 
                 <div class="mb-3">
                     <small class="text">Descripción</small>
@@ -96,7 +106,16 @@
         <!-- Avances-->
         <div class="card">
             <div class="card-body">
-                <h6 class="section-title border-bottom pb-2 mb-3">Avances</h6>
+                <div class="d-flex justify-content-between  border-bottom pb-2 mb-3">
+                    <h6 class="section-title">Avances</h6>
+
+                    @if (User.IsInRole("Administrador"))
+                    {
+                        <button class="btn btn-primary-custom text-white" data-bs-toggle="modal" data-bs-target="#avanceModal">
+                           Agregar avance
+                        </button>
+                    }
+                </div>
                 <div class="p-3" style="max-height: 200px; overflow-y: auto;">
                     @if (!Model.Avances.Any())
                     {
@@ -155,40 +174,71 @@
             </div>
         </div>
 
-        <!--Add advances to the ticket-->
-        @if (User.IsInRole("Administrador"))
-        {
-            <div class="card mb-4">
-                <div class="card-body">
-                    <h6 class="section-title border-bottom pb-2 mb-3">Agregar Avance</h6>
-
-                    <form asp-action="AgregarAvance"
-                          asp-controller="Tiquete"
-                          asp-route-id="@Model.IdTiquete"
-                          method="post"
-                          id="addAdvanceForm">
-
-                        @Html.AntiForgeryToken()
-
-                        <div class="mb-3">
-                            <textarea asp-for="NuevoAvance.TextoAvance"
-                                      class="form-control"
-                                      rows="3"
-                                      placeholder="Describa el avance realizado..."></textarea>
-                            <span asp-validation-for="NuevoAvance.TextoAvance"
-                                  class="text-danger"></span>
-                        </div>
-
-                        <button class="btn btn-primary-custom text-white"
-                                type="submit">
-                            <i class="bi bi-plus-circle"></i> Agregar avance
-                        </button>
-                    </form>
-                </div>
+        <div class="card mb-4">
+            <div class="card-body">
+                <h6 class="section-title border-bottom pb-2 mb-3">Archivos adjuntos</h6>
+                @foreach (var attachment in Model.Attachments)
+                {
+                    <div class="attachment-item d-flex justify-content-between">
+                        <a asp-controller="Tiquete"
+                           asp-action="DescargaArchivo"
+                           asp-route-id="@attachment.IdAttachment">
+                            @attachment.FileName
+                        </a>
+                        <small>@attachment.FileSize KB</small>
+                    </div>
+                }
             </div>
-        }
+        </div>
     </div>
 </div>
+
+<!--Add advances to the ticket-->
+<div class="modal fade" id="avanceModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-md">
+        <div class="modal-content avance-modal">
+            <!-------------------HEADER DEL MODAL--------------->
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="bi bi-ticket-perforated me-2"></i>
+                    Registrar Nuevo Avance
+                </h5>
+                <button type="button" class="btn-close icon-btn" data-bs-dismiss="modal"></button>
+            </div>
+
+            <!----------------MODAL CUERPO------------------>
+
+            <div class="modal-body text-center px-4 py-5">
+                <form asp-action="AgregarAvance"
+                      asp-controller="Tiquete"
+                      asp-route-id="@Model.IdTiquete"
+                      method="post"
+                      id="addAdvanceForm">
+
+                    @Html.AntiForgeryToken()
+
+                    <div class="mb-3">
+                        <textarea asp-for="NuevoAvance.TextoAvance"
+                                  class="form-control"
+                                  rows="3"
+                                  placeholder="Describa el avance realizado..."></textarea>
+                        <span asp-validation-for="NuevoAvance.TextoAvance"
+                              class="text-danger"></span>
+                    </div>
+                    <button class="btn btn-outline-secondary"
+                            data-bs-dismiss="modal">
+                        Cancelar
+                    </button>
+                    <button class="btn btn-primary-custom text-white"
+                            type="submit">
+                            Guardar
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
 
 @await Html.PartialAsync("_SuccessModal")
 @await Html.PartialAsync("_ErrorModal")

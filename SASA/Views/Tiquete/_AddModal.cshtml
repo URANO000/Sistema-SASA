@@ -7,7 +7,8 @@
            <form asp-action="Add"
                  asp-controller="Tiquete"
                  method="post"
-                  id="crearTiqueteForm">
+                 id="crearTiqueteForm"
+                 enctype="multipart/form-data">
 
                  @Html.AntiForgeryToken()
 
@@ -68,6 +69,26 @@
                                 </div>
                                 <span asp-validation-for="Descripcion" class="text-danger"></span>
 
+                                <!--Archivos adjuntos-->
+                                <div class="col-12">
+                                    <label asp-for="ArchivosAdjuntos" class="form-label">
+                                        Archivos Adjuntos
+                                    </label>
+                                    <input asp-for="ArchivosAdjuntos"
+                                           type="file"
+                                           class="form-control"
+                                           multiple />
+
+                                    <span asp-validation-for="ArchivosAdjuntos" class="text-danger"></span>
+
+                                    <div class="form-text">
+                                        Puede adjuntar múltiples archivos. Máx 5MB por archivo.
+                                    </div>
+                                    <div class="form-text">
+                                        Archivos permitidos: JPG, JPEG, PNG, PDF.
+                                    </div>
+
+                                </div>
                             </div>
                         </div>
 

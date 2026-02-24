@@ -1,5 +1,6 @@
 ﻿
 
+using DataAccess.Modelos.DTOs.Attachments;
 using DataAccess.Modelos.DTOs.Avances;
 
 namespace DataAccess.Modelos.DTOs.Tiquete
@@ -23,5 +24,6 @@ namespace DataAccess.Modelos.DTOs.Tiquete
 
         //Para detalle, ver los avances
         public List<ListaAvancesDto> Avances { get; init; } = new();
+        public List<ListaAttachmentDto> Attachments { get; init; } = new();
     }
 }
