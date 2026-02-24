@@ -1,4 +1,5 @@
-﻿using DataAccess.Modelos.DTOs.Avances;
+﻿using BusinessLogic.Servicios.TiqueteHistoriales;
+using DataAccess.Modelos.DTOs.Avances;
 using DataAccess.Modelos.Entidades.ModTiquete;
 using DataAccess.Repositorios.Avances;
 using DataAccess.Repositorios.Tiquetes;
@@ -9,10 +10,12 @@ namespace BusinessLogic.Servicios.Avances
     {
         private readonly IAvanceRepository _repository;
         private readonly ITiqueteRepository _tiqueteRepository;
-        public AvanceService(IAvanceRepository repository, ITiqueteRepository tiqueteRepository)
+        private readonly ITiqueteHistorialService _tiqueteHistorialService;
+        public AvanceService(IAvanceRepository repository, ITiqueteRepository tiqueteRepository, ITiqueteHistorialService tiqueteHistorialService)
         {
             _repository = repository;
             _tiqueteRepository = tiqueteRepository;
+            _tiqueteHistorialService = tiqueteHistorialService;
         }
         public async Task<int> AgregarAvanceAsync(CrearAvanceDto dto, string currentUserId, int tiqueteId)
         {
@@ -42,6 +45,13 @@ namespace BusinessLogic.Servicios.Avances
 
             //Llamar al repo
             var creado = await _repository.AgregarAvanceAsync(avance);
+
+            await _tiqueteHistorialService.RegistrarAvanceAsync
+                (
+                    tiqueteId,
+                    "Un avance ha sido agregado al tiquete.",
+                    currentUserId
+                );
             return creado.IdAvance;
         }
 

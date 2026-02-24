@@ -42,6 +42,7 @@
                 <div class="text-end small text-muted">
                     <div>Creado: @Model.CreatedAt</div>
                     <div>Reportado por: @Model.ReportedBy</div>
+                    <div>Asignado a: @Model.Asignee</div>
                 </div>
             </div>
         </div>
@@ -154,23 +155,30 @@
     <div class="col-lg-4">
         <div class="card">
             <div class="card-body">
-               
-                <h6 class="section-title border-bottom pb-2 mb-3">Historial</h6>
+                <div class="p-3" style="max-height: 314px; overflow-y: auto;">
+                    <h6 class="section-title border-bottom pb-2 mb-3">Historial</h6>
 
-                <ul class="timeline" style="max-height: 200px; overflow-y: auto;">
-                    <li>
-                        <span class="timeline-date">12/03/2025 09:14</span>
-                        <p><strong>Creado</strong> por Juan Pérez</p>
-                    </li>
-                    <li>
-                        <span class="timeline-date">12/03/2025 10:02</span>
-                        <p>Asignado a Soporte TI</p>
-                    </li>
-                    <li>
-                        <span class="timeline-date">12/03/2025 14:30</span>
-                        <p>Diagnóstico inicial completado</p>
-                    </li>
-                </ul>
+                    <ul class="timeline">
+                        @foreach (var historial in Model.Historiales)
+                        {
+                            <li class="mb-3">
+                                <div class="timeline-content">
+                                    <span class="timeline-date text-muted small">
+                                        @historial.PerformedAt
+                                    </span>
+
+                                    <p class="mb-1">
+                                        @historial.DescripcionEvento
+                                    </p>
+
+                                    <span class="text-muted small">
+                                        por <strong>@historial.PerformedBy</strong>
+                                    </span>
+                                </div>
+                            </li>
+                        }
+                    </ul>
+               </div>
             </div>
         </div>
 
@@ -183,7 +191,7 @@
                         <a asp-controller="Tiquete"
                            asp-action="DescargaArchivo"
                            asp-route-id="@attachment.IdAttachment">
-                            @attachment.FileName
+                            <i class="bi bi-paperclip"></i> @attachment.FileName
                         </a>
                         <small>@attachment.FileSize KB</small>
                     </div>

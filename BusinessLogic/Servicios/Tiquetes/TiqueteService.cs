@@ -1,4 +1,5 @@
 ﻿using BusinessLogic.Servicios.Avances;
+using BusinessLogic.Servicios.TiqueteHistoriales;
 using DataAccess.Modelos.DTOs.Tiquete;
 using DataAccess.Modelos.DTOs.Tiquete.Filtros;
 using DataAccess.Modelos.DTOs.Wrappers;
@@ -18,12 +19,16 @@ namespace BusinessLogic.Servicios.Tiquetes
         private readonly ICategoriaRepository _categoriaRepository;
         private readonly IAvanceService _avanceService;
         private readonly IAttachmentRepository _attachmentRepository;
-        public TiqueteService(ITiqueteRepository tiqueteRepository, ICategoriaRepository categoriaRepository, IAvanceService avanceService, IAttachmentRepository attachmentRepository)
+        private readonly ITiqueteHistorialService _tiqueteHistorialService;
+        public TiqueteService(ITiqueteRepository tiqueteRepository, ICategoriaRepository categoriaRepository,
+            IAvanceService avanceService, IAttachmentRepository attachmentRepository,
+            ITiqueteHistorialService tiqueteHistorialService)
         {
             _tiqueteRepository = tiqueteRepository;
             _categoriaRepository = categoriaRepository;
             _avanceService = avanceService;
             _attachmentRepository = attachmentRepository;
+            _tiqueteHistorialService = tiqueteHistorialService;
         }
         //Implementación de los métodos para el servicio de Tiquete
 
@@ -73,6 +78,7 @@ namespace BusinessLogic.Servicios.Tiquetes
             var avances = await _avanceService.ListaAvancesPorTiqueteAsync(id);
             //Guardar todos los archivos adjuntos por tiquete
             var attachments = await _attachmentRepository.ListarAttachmentsAsync(id);
+            var historiales = await _tiqueteHistorialService.GetByTiqueteIdAsync(id);
 
             //Retornar dto
             return new DetalleTiqueteDto
@@ -90,7 +96,8 @@ namespace BusinessLogic.Servicios.Tiquetes
                 UpdatedAt = dto.UpdatedAt,
 
                 Avances = avances,
-                Attachments = attachments
+                Attachments = attachments,
+                Historiales = historiales
             };
         }
 
@@ -120,6 +127,12 @@ namespace BusinessLogic.Servicios.Tiquetes
                 dto.IdAsignee
             );
 
+            //Una vez que todo está listo, entonces se puede hacer un log en el historial
+            await _tiqueteHistorialService.RegistrarTiqueteCreadoAsync(
+                    idTiquete,
+                    currentUserId
+                );
+
             //Primero se crea el tiquete para asegurar que el ID de este tiquete exista
             //Luego de eso, es posible agregar los archivos adjuntos a la base de datos
             if (dto.ArchivoAdjunto != null && dto.ArchivoAdjunto.Any())
@@ -134,30 +147,41 @@ namespace BusinessLogic.Servicios.Tiquetes
 
         public async Task ActualizarTiqueteAsync(EditarTiqueteDto dto, string currentUserId)
         {
-            //Validacion 1: El usuario debe estar autenticado para actualizar un tiquete
+            //Validación 1: El usuario debe estar autenticado para actualizar un tiquete
             //Puede fallar si se prueba con http y no https por los cookies
             ValidarUsuarioActual(currentUserId);
 
             var tiqueteActual = await _tiqueteRepository.ObtenerEntidadPorIdAsync(dto.IdTiquete);
 
-            //Validacion 2: El tiquete debe existir para ser actualizado
+            //Validación 2: El tiquete debe existir para ser actualizado
             //Si el tiquete no existe, se lanza una excepción
             if (tiqueteActual == null)
             {
                 throw new KeyNotFoundException("Tiquete no existe.");
             }
 
-            //Validacion 3: Si el estatus del tiquete es cerrado, entonces no se puede actualizar el tiquete
+            //Validación 3: Si el estatus del tiquete es cerrado, entonces no se puede actualizar el tiquete
             if (tiqueteActual.IdEstatus == (int)TiqueteEstatus.Cancelado)
             {
                 throw new InvalidOperationException("No se puede actualizar un tiquete cancelado.");
             }
 
-            //Validacion 4: Si el estatus del tiquete se mueve a cerrado, entonces se debe validar que el campo de resolución no esté vacío
+            //Validación 4: Si el estatus del tiquete se mueve a cerrado, entonces se debe validar que el campo de resolución no esté vacío
             if (dto.IdEstatus == (int)TiqueteEstatus.Cancelado && string.IsNullOrWhiteSpace(dto.Resolucion))
             {
                 throw new ArgumentException("La resolución es requerida para cerrar un tiquete.");
             }
+
+            //Validación 5: Si el estatus del tiquete está resuelto, sólo se puede mover a en progreso
+            if(tiqueteActual.IdEstatus == (int)TiqueteEstatus.Resuelto && dto.IdEstatus != (int)TiqueteEstatus.EnProceso)
+            {
+                throw new InvalidOperationException("El estatus del tiquete sólo se puede pasar a 'En Proceso' una vez que este ha sido marcado como 'Resuelto'");
+            }
+
+            //Antes de actualizar, se guarda el historial 
+            //Capturar valores previos
+            var categoriaAnterior = tiqueteActual.IdCategoria;
+            var estatusAnterior = tiqueteActual.IdEstatus;
 
 
             //Si el tiquete existe, se actualizan los campos
@@ -169,6 +193,42 @@ namespace BusinessLogic.Servicios.Tiquetes
 
             //Persistencia de datos -> Guardar cambios
             await _tiqueteRepository.ActualizarTiqueteAsync(tiqueteActual);
+
+            //Si algo cambió, entonces registrar en el historial
+            var categoriaAnteriorNombre = await _categoriaRepository.GetNombreAsync(categoriaAnterior);
+            var categoriaNuevaNombre = await _categoriaRepository.GetNombreAsync(dto.IdCategoria);
+            if (categoriaAnterior != dto.IdCategoria)
+            {
+                await _tiqueteHistorialService.RegistrarCambioCategoriaAsync(
+                        dto.IdTiquete,
+                        categoriaAnteriorNombre,
+                        categoriaNuevaNombre,
+                        currentUserId
+                    );
+            }
+            var nombreEstatusAnterior = ((TiqueteEstatus)estatusAnterior).ToString();
+            var nombreEstatusNuevo = ((TiqueteEstatus)dto.IdEstatus).ToString();
+
+            if (estatusAnterior != dto.IdEstatus)
+            {
+                await _tiqueteHistorialService.RegistrarCambioEstadoAsync(
+                    dto.IdTiquete,
+                    nombreEstatusAnterior,
+                    nombreEstatusNuevo,
+                    currentUserId
+                );
+            }
+
+            if (!string.IsNullOrWhiteSpace(dto.Resolucion) &&
+                estatusAnterior != (int)TiqueteEstatus.Cancelado &&
+                dto.IdEstatus == (int)TiqueteEstatus.Cancelado)
+            {
+                await _tiqueteHistorialService.RegistrarAvanceAsync(
+                    dto.IdTiquete,
+                    $"Tiquete cancelado con resolución: {dto.Resolucion}",
+                    currentUserId);
+            }
+
         }
 
 
@@ -214,7 +274,7 @@ namespace BusinessLogic.Servicios.Tiquetes
             int idTiquete,
             string currentUserId)
         {
-            var extensionesPermitidas = new[] { ".jgp", "jpeg", ".png", ".pdf", ".docx" };
+            var extensionesPermitidas = new[] { ".jpg", ".jpeg", ".png", ".pdf"};
             var attachments = new List<Attachment>();
 
             foreach (var archivo in archivos)
@@ -229,7 +289,9 @@ namespace BusinessLogic.Servicios.Tiquetes
                 //Validar extensión
                 var extension = Path.GetExtension(archivo.FileName).ToLower();
                 if (!extensionesPermitidas.Contains(extension))
+                {
                     throw new ArgumentException("Tipo de archivo no permitido.");
+                }
 
                 using var memoryStream = new MemoryStream();
                 await archivo.CopyToAsync(memoryStream);

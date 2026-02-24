@@ -39,7 +39,7 @@ namespace DataAccess.Repositorios.TiqueteHistoriales
                     ValorNuevo = t.ValorNuevo,
                     DescripcionEvento = t.DescripcionEvento,
                     PerformedAt = t.PerformedAt,
-                    PerformedBy = t.PerformedBy
+                    PerformedBy = t.User.CorreoEmpresa
                 })
                 .ToListAsync();
         }

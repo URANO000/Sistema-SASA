@@ -21,6 +21,15 @@ namespace DataAccess.Repositorios.Categorias
                 .AnyAsync(c => c.IdCategoria == idCategoria);
         }
 
+        public async Task<string?> GetNombreAsync(int idCategoria)
+        {
+            return await _context.Categorias
+                .AsNoTracking()
+                .Where(c => c.IdCategoria == idCategoria)
+                .Select(c => c.NombreCategoria)
+                .FirstOrDefaultAsync(); //No retorna nulos
+        }
+
         public async Task<IEnumerable<ListaCategoriaDto>> ObtenerCategoriaAsync()
         {
             return await _context.Categorias
