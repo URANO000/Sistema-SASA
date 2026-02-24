@@ -1,7 +1,7 @@
 using BusinessLogic.Servicios.Categorias;
 using BusinessLogic.Servicios.Correo;
-using BusinessLogic.Servicios.Prioridad;
 using BusinessLogic.Servicios.Notificaciones;
+using BusinessLogic.Servicios.Prioridad;
 using BusinessLogic.Servicios.Rol;
 using BusinessLogic.Servicios.Tiquetes;
 using BusinessLogic.Servicios.Usuarios;
@@ -9,8 +9,8 @@ using BusinessLogic.Servicios.Integracion;
 using DataAccess;
 using DataAccess.Identity;
 using DataAccess.Repositorios.Categorias;
-using DataAccess.Repositorios.Prioridad;
 using DataAccess.Repositorios.Notificaciones;
+using DataAccess.Repositorios.Prioridad;
 using DataAccess.Repositorios.Tiquetes;
 using DataAccess.Repositorios.Usuarios;
 using DataAccess.Repositorios.Integracion;
@@ -102,13 +102,33 @@ if (app.Environment.IsDevelopment())
     var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
     var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<ApplicationRole>>();
 
-    const string adminRole = "Administrador";
+    const string adminRoleName = "Administrador";
+    const string adminRoleId = "ROLE_ADMIN";
+
+    // 1) Asegurar rol
+    var role = await roleManager.FindByNameAsync(adminRoleName);
+    if (role is null)
+    {
+        role = new ApplicationRole
+        {
+            Id = adminRoleId,          // <-- para que coincida con kevin.sql
+            Name = adminRoleName,
+            NormalizedName = adminRoleName.ToUpper(),
+            Estado = true
+        };
+
+        var roleResult = await roleManager.CreateAsync(role);
+        // opcional: log si falla
+    }
 
     // 1) Crear rol si no existe
     if (!await roleManager.RoleExistsAsync(adminRole))
     {
         await roleManager.CreateAsync(new ApplicationRole { Name = adminRole });
     }
+
+
+    // 2) Asegurar usuario
 
     var email = "test@sasa.com";
 
@@ -140,6 +160,12 @@ if (app.Environment.IsDevelopment())
     if (!await userManager.IsInRoleAsync(user, adminRole))
     {
         await userManager.AddToRoleAsync(user, adminRole);
+    }
+
+    // 3) Asegurar asignación de rol (aunque el usuario ya exista)
+    if (!await userManager.IsInRoleAsync(user, adminRoleName))
+    {
+        await userManager.AddToRoleAsync(user, adminRoleName);
     }
 }
 

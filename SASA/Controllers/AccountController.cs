@@ -1,10 +1,13 @@
-using System.Text;
+using BusinessLogic.Servicios.Correo;
 using DataAccess.Identity;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.Extensions.Options;
+using SASA.Configuration;
 using SASA.ViewModels.Auth;
-
+using System.Text;
 namespace SASA.Controllers
 {
     public class AccountController : Controller
@@ -12,15 +15,21 @@ namespace SASA.Controllers
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly ILogger<AccountController> _logger;
+        private readonly ICorreoNotificacionesService _correoNotificaciones;
+        private readonly AppSettings _appSettings;
 
         public AccountController(
             SignInManager<ApplicationUser> signInManager,
             UserManager<ApplicationUser> userManager,
-            ILogger<AccountController> logger)
+            ILogger<AccountController> logger,
+            ICorreoNotificacionesService correoNotificaciones,
+            IOptions<AppSettings> appSettings)
         {
             _signInManager = signInManager;
             _userManager = userManager;
             _logger = logger;
+            _correoNotificaciones = correoNotificaciones;
+            _appSettings = appSettings.Value;
         }
 
         [HttpGet("/login")]
@@ -87,12 +96,11 @@ namespace SASA.Controllers
             return RedirectToAction(nameof(Login));
         }
 
+        [AllowAnonymous]
         [HttpGet("/forgot-password")]
-        public IActionResult ForgotPassword()
-        {
-            return View(new ForgotPasswordViewModel());
-        }
+        public IActionResult ForgotPassword() => View();
 
+        [AllowAnonymous]
         [HttpPost("/forgot-password")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ForgotPassword(ForgotPasswordViewModel vm)
@@ -103,7 +111,9 @@ namespace SASA.Controllers
             var genericMsg = "Si el correo existe, se enviará un enlace de recuperación.";
 
             var user = await _userManager.FindByEmailAsync(vm.Email!);
-            if (user is null)
+
+            // Si no existe o está inactivo -> misma respuesta
+            if (user is null || !user.Estado)
             {
                 TempData["Success"] = genericMsg;
                 return RedirectToAction(nameof(Login));
@@ -113,33 +123,38 @@ namespace SASA.Controllers
             var resetToken = await _userManager.GeneratePasswordResetTokenAsync(user);
             var payload = EncodeTokenPayload(user.Id, resetToken);
 
-            var callbackUrl = Url.Action(
-                nameof(ResetPassword),
-                "Account",
-                new { token = payload },
-                protocol: Request.Scheme
-            );
+            // Construir link usando BaseUrl (como UsuarioController)
+            var baseUrl = (_appSettings.BaseUrl ?? "").TrimEnd('/');
+            var resetLink = $"{baseUrl}/reset-password/{payload}";
 
-            // Temporal (hasta tener SMTP)
-            _logger.LogInformation("RESET PASSWORD LINK for {Email}: {Link}", user.Email, callbackUrl);
+            // Nombre para el correo
+            var toName = (user.UserName ?? user.Email ?? "Usuario").Trim();
+
+            // Enviar correo con Graph (si falla, NO rompe)
+            _ = await _correoNotificaciones.EnviarRecuperacionContrasenaAsync(user.Email!, toName, resetLink);
 
             TempData["Success"] = genericMsg;
             return RedirectToAction(nameof(Login));
         }
 
+        [AllowAnonymous]
         [HttpGet("/reset-password/{token}")]
-        public IActionResult ResetPassword(string token)
+        public async Task<IActionResult> ResetPassword(string token)
         {
+            //para evitar que se muestre el nav bar si el usuario ya está logueado y accede a este link
+            await _signInManager.SignOutAsync();
+
             var decoded = DecodeTokenPayload(token);
             if (!decoded.ok)
             {
-                TempData["Error"] = "Token inválido o mal formado.";
-                return RedirectToAction(nameof(Login));
+                TempData["Error"] = "El enlace de recuperación es inválido o ya expiró. Solicita uno nuevo.";
+                return RedirectToAction(nameof(ForgotPassword));
             }
 
             return View(new ResetPasswordViewModel { Token = token });
         }
 
+        [AllowAnonymous]
         [HttpPost("/reset-password/{token}")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ResetPassword(string token, ResetPasswordViewModel vm)
@@ -148,6 +163,7 @@ namespace SASA.Controllers
 
             if (!ModelState.IsValid) return View(vm);
 
+            // Si tu ViewModel ya tiene [Compare], esto es opcional.
             if (vm.NewPassword != vm.ConfirmPassword)
             {
                 ModelState.AddModelError(string.Empty, "Las contraseñas no coinciden.");
@@ -157,22 +173,24 @@ namespace SASA.Controllers
             var decoded = DecodeTokenPayload(token);
             if (!decoded.ok)
             {
-                ModelState.AddModelError(string.Empty, "Token inválido o mal formado.");
+                ModelState.AddModelError(string.Empty, "El enlace de recuperación es inválido o ya expiró. Solicita uno nuevo.");
                 return View(vm);
             }
 
             var user = await _userManager.FindByIdAsync(decoded.userId);
             if (user is null)
             {
-                // No revelar
                 TempData["Success"] = "Contraseña actualizada. Ahora puedes iniciar sesión.";
                 return RedirectToAction(nameof(Login));
             }
 
             var result = await _userManager.ResetPasswordAsync(user, decoded.identityToken, vm.NewPassword!);
+
             if (!result.Succeeded)
             {
-                ModelState.AddModelError(string.Empty, "No se pudo restablecer la contraseña. Verifica el enlace e intenta de nuevo.");
+                // Escenario 3: link expirado / usado / token inválido
+                // (Identity suele devolver InvalidToken o similares)
+                ModelState.AddModelError(string.Empty, "No se pudo restablecer la contraseña. Es posible que el enlace haya expirado o ya fue utilizado. Solicita uno nuevo.");
                 return View(vm);
             }
 
@@ -240,9 +258,12 @@ namespace SASA.Controllers
             }
         }
 
+        [AllowAnonymous]
         [HttpGet("/set-password/{token}")]
         public async Task<IActionResult> SetPassword(string token)
         {
+            await _signInManager.SignOutAsync();
+
             var decoded = DecodeTokenPayload(token);
             if (!decoded.ok)
             {
@@ -274,22 +295,24 @@ namespace SASA.Controllers
             return View(new SetPasswordViewModel { Token = token });
         }
 
-        [HttpPost("/set-password/{token}")]
+        [AllowAnonymous]
+        [HttpPost("/set-password")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> SetPassword(string token, SetPasswordViewModel vm)
+        public async Task<IActionResult> SetPassword(SetPasswordViewModel vm)
         {
-            vm.Token = token;
-
             if (!ModelState.IsValid)
+            {
+                // asegura que el token siga en el modelo al volver a mostrar la vista
                 return View(vm);
+            }
 
-            var decoded = DecodeTokenPayload(token);
+            var decoded = DecodeTokenPayload(vm.Token);
             if (!decoded.ok)
             {
                 TempData["Error"] = "Token inválido o mal formado.";
                 return RedirectToAction(nameof(Login));
             }
-            // Buscar usuario
+
             var user = await _userManager.FindByIdAsync(decoded.userId);
             if (user is null)
             {
@@ -297,36 +320,28 @@ namespace SASA.Controllers
                 return RedirectToAction(nameof(Login));
             }
 
-            // Solo permite si ya se confirmó el correo
             if (!user.EmailConfirmed)
             {
                 TempData["Error"] = "Debes activar tu cuenta antes de crear una contraseña.";
                 return RedirectToAction(nameof(Login));
             }
 
-            // Si ya tiene password, omite ese flujo
             if (await _userManager.HasPasswordAsync(user))
             {
                 TempData["Success"] = "Tu cuenta ya tiene contraseña. Puedes iniciar sesión.";
                 return RedirectToAction(nameof(Login));
             }
 
-            // Validar que las contraseñas coincidan
             if (vm.NewPassword != vm.ConfirmPassword)
             {
                 ModelState.AddModelError(string.Empty, "Las contraseñas no coinciden.");
                 return View(vm);
             }
 
-
-            // Se crea la contraseña por primera vez
-            var result = await _userManager.AddPasswordAsync(user, vm.NewPassword);
-
+            var result = await _userManager.AddPasswordAsync(user, vm.NewPassword!);
             if (!result.Succeeded)
             {
-                foreach (var e in result.Errors)
-                    ModelState.AddModelError(string.Empty, e.Description);
-
+                ModelState.AddModelError(string.Empty, "No se pudo crear la contraseña. Intenta con otra.");
                 return View(vm);
             }
 
