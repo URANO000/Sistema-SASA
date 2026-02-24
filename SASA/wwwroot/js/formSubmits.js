@@ -215,7 +215,6 @@ $(function () {
 //--TIQUETE EDITAR SUBMIT------------               
 $(function () {
     $(document).on("submit", "#editTicketForm", function (e) {
-
         e.preventDefault();
 
         const form = $(this);

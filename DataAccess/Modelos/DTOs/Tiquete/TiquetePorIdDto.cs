@@ -9,8 +9,8 @@ namespace DataAccess.Modelos.DTOs.Tiquete
     public class TiquetePorIdDto
     {
         public int IdTiquete { get; set; }
-        public string Asunto { get; set; } = default!;
-        public string Descripcion { get; set; } = default!;
+        public string? Asunto { get; set; } = default!;
+        public string? Descripcion { get; set; } = default!;
         public int IdCategoria { get; set; }
         public int IdPrioridad { get; set; }
         public int IdEstatus { get; set; }
