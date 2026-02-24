@@ -1,11 +1,14 @@
-﻿
+﻿@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Antiforgery
+@using System.Linq
+@using System.Security.Claims
+
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Sistema de gestion SASA"] Sistema de gestión SASA</title>
+    <title>@ViewData["Title"] - Sistema de gestión SASA</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" />
 
@@ -21,17 +24,22 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
     <!--Chart js CDN-->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    @{
+        var tokens = Antiforgery.GetAndStoreTokens(Context);
+    }
+    <meta name="csrf-token" content="@tokens.RequestToken" />
+
 </head>
 
-@using System.Linq
-@using System.Security.Claims
-
+<body>
 <!--Global modal, for now at least-->
 @await Html.PartialAsync("_SuccessModal")
 @await Html.PartialAsync("_ErrorModal")
 <!---------------------------------->
 
-<body>
+    @if (User?.Identity?.IsAuthenticated == true)
+    {
     <!--TOPBAR LAYOUT-->
     <header class="topbar-custom">
         <div class="topbar-left">
@@ -207,10 +215,6 @@
                         Carga de Archivos
                     </a>
 
-                    <a asp-controller="Integration" asp-action="Validation" class="submenu-link">
-                        Validación de Datos
-                    </a>
-
                     <a asp-controller="Integration" asp-action="History" class="submenu-link">
                         Historial de Integraciones
                     </a>
@@ -242,6 +246,13 @@
             @RenderBody()
         </main>
     </div>
+    }
+    else
+    {
+        <main role="main">
+            @RenderBody()
+        </main>
+    }
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"
         integrity="sha512-fD9DI5bZwQxOi7MhYWnnNPlvXdp/2Pj3XSTRrFs5FQa4mizyGLnJcN6tuvUS6LbmgN1ut+XGSABKvjN0H6Aoow=="
@@ -253,6 +264,13 @@
         <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
         <script src="~/js/site.js" asp-append-version="true"></script>
         <script src="~/js/ui-sasa.js" asp-append-version="true"></script>
+
+        @if (User?.Identity?.IsAuthenticated == true)
+            {
+                <script src="~/js/idle-timeout.js" asp-append-version="true"></script>
+            }
+        
+
         @await RenderSectionAsync("Scripts", required: false)
 
         <script>
@@ -267,6 +285,30 @@
             });
         </script>
 
+        <div class="modal fade" id="sessionTimeoutModal" tabindex="-1" aria-hidden="true"
+             data-bs-backdrop="static" data-bs-keyboard="false">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Tu sesión está por expirar</h5>
+                    </div>
+                    <div class="modal-body">
+                        <p class="mb-2">
+                            Por seguridad, tu sesión se cerrará por inactividad en:
+                            <strong><span id="sessionTimeoutCountdown">60</span>s</strong>
+                        </p>
+                        <p class="mb-0 text-muted">
+                            Haz clic en “Seguir conectado” para mantener la sesión activa.
+                        </p>
+                    </div>
+                <div class="modal-footer justify-content-center">
+                    <button type="button" class="btn btn-custom" id="btnStayConnected">
+                            Seguir conectado
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
 </body>
 
 </html>

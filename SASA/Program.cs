@@ -1,26 +1,33 @@
 using BusinessLogic.Servicios.Categorias;
 using BusinessLogic.Servicios.Correo;
-using BusinessLogic.Servicios.Prioridad;
+using BusinessLogic.Servicios.Integracion;
 using BusinessLogic.Servicios.Notificaciones;
+using BusinessLogic.Servicios.Prioridad;
 using BusinessLogic.Servicios.Rol;
 using BusinessLogic.Servicios.Tiquetes;
 using BusinessLogic.Servicios.Usuarios;
 using DataAccess;
 using DataAccess.Identity;
 using DataAccess.Repositorios.Categorias;
-using DataAccess.Repositorios.Prioridad;
+using DataAccess.Repositorios.Integracion;
+using DataAccess.Repositorios.Inventario;
 using DataAccess.Repositorios.Notificaciones;
+using DataAccess.Repositorios.Prioridad;
 using DataAccess.Repositorios.Tiquetes;
 using DataAccess.Repositorios.Usuarios;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Distributed;
 using SASA.Configuration;
 using SASA.Services.Correo;
 using DataAccess.Repositorios.Avances;
 using BusinessLogic.Servicios.Avances;
 using DataAccess.Repositorios.Attachments;
 using BusinessLogic.Servicios.Attachments;
-
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -58,6 +65,46 @@ builder.Services.ConfigureApplicationCookie(options =>
 {
     options.LoginPath = "/login";
     options.AccessDeniedPath = "/Account/AccessDenied";
+
+    // Esto ya NO es el "idle real", pero evita tickets eternos
+    options.ExpireTimeSpan = TimeSpan.FromMinutes(30);
+
+    // Muy importante para que requests automáticos NO revivan sesión
+    options.SlidingExpiration = false;
+
+    options.Events = new Microsoft.AspNetCore.Authentication.Cookies.CookieAuthenticationEvents
+    {
+        OnValidatePrincipal = async context =>
+        {
+            var userId = context.Principal?
+                .FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+
+            if (string.IsNullOrEmpty(userId))
+                return;
+
+            var cache = context.HttpContext.RequestServices.GetRequiredService<IDistributedCache>();
+            var lastStr = await cache.GetStringAsync($"last-activity:{userId}");
+
+            // Si no existe registro, lo inicializamos (primer request)
+            if (!long.TryParse(lastStr, out var lastUnix))
+            {
+                await cache.SetStringAsync(
+                    $"last-activity:{userId}",
+                    DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString()
+                );
+                return;
+            }
+
+            var last = DateTimeOffset.FromUnixTimeSeconds(lastUnix);
+            var idleTimeout = TimeSpan.FromMinutes(5); // <-- AQUÍ tu X (pruebas)
+
+            if (DateTimeOffset.UtcNow - last > idleTimeout)
+            {
+                context.RejectPrincipal();
+                await context.HttpContext.SignOutAsync();
+            }
+        }
+    };
 });
 
 //Repositories y Servicios de negocio
@@ -75,10 +122,18 @@ builder.Services.AddScoped<IPrioridadService, PrioridadService>();
 builder.Services.AddScoped<INotificacionRepository, NotificacionRepository>();
 builder.Services.AddScoped<INotificacionService, NotificacionService>();
 
+
 builder.Services.AddScoped<IAvanceRepository, AvanceRepository>();
 builder.Services.AddScoped<IAvanceService, AvanceService>();
 builder.Services.AddScoped<IAttachmentRepository, AttachmentRepository>();
 builder.Services.AddScoped<IAttachmentService, AttachmentService>();
+
+
+builder.Services.AddScoped<IIntegracionHistorialRepository, IntegracionHistorialRepository>();
+builder.Services.AddScoped<IActivoInventarioRepository, ActivoInventarioRepository>();
+builder.Services.AddScoped<ICatalogosInventarioRepository, CatalogosInventarioRepository>();
+
+builder.Services.AddScoped<IIntegracionService, IntegracionService>();
 
 
 // Configuración de correo (Microsoft Graph)
@@ -90,37 +145,102 @@ builder.Services.Configure<ConfiguracionEmail>(builder.Configuration.GetSection(
 builder.Services.Configure<AppSettings>(
     builder.Configuration.GetSection("AppSettings"));
 
+// Antiforgery
+builder.Services.AddAntiforgery(o =>
+{
+    o.Cookie.Name = "SASA.AntiForgery";
+    o.Cookie.SameSite = SameSiteMode.Lax;
+    o.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+});
 
-// MVC
-builder.Services.AddControllersWithViews();
+builder.Services.AddDataProtection()
+    .PersistKeysToFileSystem(
+        new DirectoryInfo(
+            Path.Combine(builder.Environment.ContentRootPath, "dp_keys")))
+    .SetApplicationName("SASA");
+
+// Cache en memoria (para sesiones, etc.)
+builder.Services.AddDistributedMemoryCache();
+
+// MVC + Autorización global
+builder.Services.AddControllersWithViews(options =>
+{
+    var policy = new AuthorizationPolicyBuilder()
+        .RequireAuthenticatedUser()
+        .Build();
+
+    options.Filters.Add(new AuthorizeFilter(policy));
+});
 
 var app = builder.Build();
 
-//Seeder (temporal)
+// Seeder (temporal)
 if (app.Environment.IsDevelopment())
 {
     using var scope = app.Services.CreateScope();
     var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
-
     var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<ApplicationRole>>();
 
-    const string adminRole = "Administrador";
+    const string adminRoleName = "Administrador";
+    const string adminRoleId = "ROLE_ADMIN";
+    const string adminEmail = "test@sasa.com";
+    const string adminPassword = "Test123!";
 
-    var email = "test@sasa.com";
-    var user = await userManager.FindByEmailAsync(email);
+    // 1️ Crear rol si no existe
+    var role = await roleManager.FindByNameAsync(adminRoleName);
+
+    if (role is null)
+    {
+        var newRole = new ApplicationRole
+        {
+            Id = adminRoleId,
+            Name = adminRoleName,
+            NormalizedName = adminRoleName.ToUpperInvariant(),
+            Estado = true
+        };
+
+        var roleResult = await roleManager.CreateAsync(newRole);
+
+        if (!roleResult.Succeeded)
+        {
+            throw new Exception("Error creando rol admin: " +
+                string.Join(" | ", roleResult.Errors.Select(e => e.Description)));
+        }
+    }
+
+    // 2️ Crear usuario si no existe
+    var user = await userManager.FindByEmailAsync(adminEmail);
 
     if (user is null)
     {
         user = new ApplicationUser
         {
-            UserName = email,
-            Email = email,
-            EmailConfirmed = true, // para que no falle por RequireConfirmedEmail
+            UserName = adminEmail,
+            Email = adminEmail,
+            EmailConfirmed = true,
             Estado = true,
             LockoutEnabled = true
         };
 
-        await userManager.CreateAsync(user, "Test123!");
+        var userResult = await userManager.CreateAsync(user, adminPassword);
+
+        if (!userResult.Succeeded)
+        {
+            throw new Exception("Error creando usuario admin: " +
+                string.Join(" | ", userResult.Errors.Select(e => e.Description)));
+        }
+    }
+
+    // 3️ Asignar rol si no lo tiene
+    if (!await userManager.IsInRoleAsync(user, adminRoleName))
+    {
+        var addRoleResult = await userManager.AddToRoleAsync(user, adminRoleName);
+
+        if (!addRoleResult.Succeeded)
+        {
+            throw new Exception("Error asignando rol admin: " +
+                string.Join(" | ", addRoleResult.Errors.Select(e => e.Description)));
+        }
     }
 }
 
@@ -137,6 +257,38 @@ app.UseRouting();
 
 app.UseAuthentication();
 app.UseAuthorization();
+
+app.Use(async (ctx, next) =>
+{
+    await next();
+
+    // Solo si está autenticado
+    if (ctx.User?.Identity?.IsAuthenticated != true)
+        return;
+
+    // Definición de "actividad humana":
+    // 1) Navegación normal (HTML)
+    var isHtmlNavigation = ctx.Request.Headers.Accept.ToString().Contains("text/html");
+
+    // 2) O request explícito marcado por JS (para clicks/acciones sin navegación)
+    var hasUserActivityHeader =
+        ctx.Request.Headers.TryGetValue("X-User-Activity", out var v) && v == "1";
+
+    var shouldCountAsActivity = isHtmlNavigation || hasUserActivityHeader;
+
+    if (!shouldCountAsActivity)
+        return;
+
+    var userId = ctx.User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+    if (string.IsNullOrEmpty(userId))
+        return;
+
+    var cache = ctx.RequestServices.GetRequiredService<IDistributedCache>();
+    await cache.SetStringAsync(
+        $"last-activity:{userId}",
+        DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString()
+    );
+});
 
 app.MapGet("/", (HttpContext ctx) =>
 {
