@@ -39,6 +39,54 @@ namespace DataAccess.Repositorios.Inventario
             return await query.OrderByDescending(a => a.FechaCreacion).ToListAsync();
         }
 
+        public async Task<int> ContarAsync(string? q, int? estadoId, int? tipoId)
+        {
+            var query = _db.ActivoInventario
+                .Include(a => a.EstadoActivo)
+                .Include(a => a.TipoActivo)
+                .AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(q))
+            {
+                var t = q.Trim();
+                query = query.Where(a =>
+                    a.NumeroActivo.Contains(t) ||
+                    (a.NombreMaquina != null && a.NombreMaquina.Contains(t)) ||
+                    (a.SerieServicio != null && a.SerieServicio.Contains(t)));
+            }
+
+            if (estadoId.HasValue) query = query.Where(a => a.IdEstadoActivo == estadoId.Value);
+            if (tipoId.HasValue) query = query.Where(a => a.IdTipoActivo == tipoId.Value);
+
+            return await query.CountAsync();
+        }
+
+        public async Task<List<ActivoInventario>> ListarPaginadoAsync(string? q, int? estadoId, int? tipoId, int skip, int take)
+        {
+            var query = _db.ActivoInventario
+                .Include(a => a.EstadoActivo)
+                .Include(a => a.TipoActivo)
+                .AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(q))
+            {
+                var t = q.Trim();
+                query = query.Where(a =>
+                    a.NumeroActivo.Contains(t) ||
+                    (a.NombreMaquina != null && a.NombreMaquina.Contains(t)) ||
+                    (a.SerieServicio != null && a.SerieServicio.Contains(t)));
+            }
+
+            if (estadoId.HasValue) query = query.Where(a => a.IdEstadoActivo == estadoId.Value);
+            if (tipoId.HasValue) query = query.Where(a => a.IdTipoActivo == tipoId.Value);
+
+            return await query
+                .OrderByDescending(a => a.FechaCreacion)
+                .Skip(skip)
+                .Take(take)
+                .ToListAsync();
+        }
+
         public Task<bool> ExisteNumeroActivoAsync(string numeroActivo) =>
             _db.ActivoInventario.AnyAsync(a => a.NumeroActivo == numeroActivo);
 

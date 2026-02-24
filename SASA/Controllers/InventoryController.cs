@@ -19,9 +19,14 @@ namespace SASA.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Index(string? q, int? estadoId, int? tipoId)
+        public async Task<IActionResult> Index(string? q, int? estadoId, int? tipoId, int page = 1, int pageSize = 10)
         {
-            ViewData["Title"] = "Gestión de Activos";
+            ViewData["Title"] = "Gestión de Activos de Equipos";
+
+            // seguridad básica
+            if (page < 1) page = 1;
+            if (pageSize < 5) pageSize = 5;
+            if (pageSize > 50) pageSize = 50;
 
             ViewBag.Estados = new SelectList(
                 (await _catRepo.ObtenerEstadosAsync()).OrderBy(e => e.Nombre),
@@ -35,11 +40,19 @@ namespace SASA.Controllers
             {
                 Texto = q,
                 IdEstadoActivo = estadoId,
-                IdTipoActivo = tipoId
+                IdTipoActivo = tipoId,
+                Page = page,
+                PageSize = pageSize
             };
 
-            var data = await _inventario.ListarAsync(filtros);
-            return View(data);
+            // 👇 Recomendado: que el service te devuelva (items + total)
+            var result = await _inventario.ListarPaginadoAsync(filtros);
+
+            ViewBag.Page = page;
+            ViewBag.PageSize = pageSize;
+            ViewBag.TotalPages = result.TotalPages;
+
+            return View(result.Items);
         }
 
         [HttpGet]

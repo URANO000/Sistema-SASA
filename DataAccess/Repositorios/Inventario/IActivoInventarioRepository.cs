@@ -9,6 +9,9 @@ namespace DataAccess.Repositorios.Inventario
         Task<ActivoInventario?> ObtenerDetalleAsync(int id); // includes (si aplica)
         Task<List<ActivoInventario>> ListarAsync(string? q, int? estadoId, int? tipoId);
 
+        Task<int> ContarAsync(string? q, int? estadoId, int? tipoId);
+        Task<List<ActivoInventario>> ListarPaginadoAsync(string? q, int? estadoId, int? tipoId, int skip, int take);
+
         // Validaciones / soporte Integración
         Task<bool> ExisteNumeroActivoAsync(string numeroActivo);
         Task<List<string>> ObtenerNumerosExistentesAsync(IEnumerable<string> numeros);

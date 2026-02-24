@@ -1,4 +1,6 @@
 ﻿using BusinessLogic.Modelos.DTOs.Inventario;
+using DataAccess.Modelos.DTOs.Inventario;
+using DataAccess.Modelos.DTOs.Wrappers;
 using DataAccess.Modelos.Entidades.Inventario;
 using DataAccess.Repositorios.Inventario;
 
@@ -32,6 +34,46 @@ namespace BusinessLogic.Servicios.Inventario
                 EstadoActivoNombre = a.EstadoActivo?.Nombre,
                 FechaCreacion = a.FechaCreacion
             }).ToList();
+        }
+
+        public async Task<PagedResult<ActivoInventarioListItemDto>> ListarPaginadoAsync(ActivoInventarioFiltroDto filtros)
+        {
+            // Normalizar
+            if (filtros.Page < 1) filtros.Page = 1;
+            if (filtros.PageSize < 5) filtros.PageSize = 5;
+            if (filtros.PageSize > 50) filtros.PageSize = 50;
+
+            var total = await _repo.ContarAsync(filtros.Texto, filtros.IdEstadoActivo, filtros.IdTipoActivo);
+
+            int skip = (filtros.Page - 1) * filtros.PageSize;
+
+            var data = await _repo.ListarPaginadoAsync(
+                filtros.Texto,
+                filtros.IdEstadoActivo,
+                filtros.IdTipoActivo,
+                skip,
+                filtros.PageSize
+            );
+
+            var items = data.Select(a => new ActivoInventarioListItemDto
+            {
+                IdActivo = a.IdActivo,
+                NumeroActivo = a.NumeroActivo,
+                NombreMaquina = a.NombreMaquina,
+                SerieServicio = a.SerieServicio,
+                IdTipoActivo = a.IdTipoActivo,
+                IdEstadoActivo = a.IdEstadoActivo,
+                TipoActivoNombre = a.TipoActivo?.Nombre,
+                EstadoActivoNombre = a.EstadoActivo?.Nombre,
+                FechaCreacion = a.FechaCreacion
+            }).ToList();
+
+            return new PagedResult<ActivoInventarioListItemDto>
+            {
+                Items = items,
+                TotalRecords = total,
+                TotalPages = (int)Math.Ceiling(total / (double)filtros.PageSize)
+            };
         }
 
         public async Task<ActivoInventarioDetailDto?> ObtenerDetalleAsync(int id)
@@ -70,7 +112,6 @@ namespace BusinessLogic.Servicios.Inventario
 
             var numero = dto.NumeroActivo.Trim();
 
-            // Unicidad (Sprint 1)
             if (await _repo.ExisteNumeroActivoAsync(numero))
                 return (false, "Ya existe un activo con este código.");
 
@@ -101,7 +142,6 @@ namespace BusinessLogic.Servicios.Inventario
             var entity = await _repo.ObtenerPorIdAsync(id);
             if (entity == null) return (false, "Activo no encontrado.");
 
-            // Regla: NO se cambia NumeroActivo
             if (!string.Equals(entity.NumeroActivo, dto.NumeroActivo, StringComparison.OrdinalIgnoreCase))
                 return (false, "No se permite modificar el Número de Activo.");
 
@@ -115,7 +155,6 @@ namespace BusinessLogic.Servicios.Inventario
             entity.SistemaOperativo = dto.SistemaOperativo;
             entity.IdTipoLicencia = dto.IdTipoLicencia;
             entity.ClaveLicencia = dto.ClaveLicencia;
-
             entity.FechaActualizacion = DateTime.UtcNow;
 
             await _repo.GuardarAsync();

@@ -1,7 +1,16 @@
 @model List<DataAccess.Modelos.Entidades.Inventario.ActivoInventario>
 
 @{
-    ViewData["Title"] = "Inventario";
+    ViewData["Title"] = "Activos de Equipos";
+
+    // Paginación (si el controller no lo manda, usamos defaults)
+    int page = ViewBag.Page ?? 1;
+    int totalPages = ViewBag.TotalPages ?? 1;
+    int pageSize = ViewBag.PageSize ?? 10;
+
+    string q = Context.Request.Query["q"];
+    string estadoId = Context.Request.Query["estadoId"];
+    string tipoId = Context.Request.Query["tipoId"];
 }
 
 <div class="container-fluid">
@@ -10,32 +19,39 @@
         <div class="card-body">
 
             <!-- Header -->
-            <div class="d-flex justify-content-between align-items-center mb-3">
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2 mb-3">
                 <div>
-                    <h4 class="mb-0 fw-bold">Gestión de Inventario</h4>
+                    <h4 class="mb-0 fw-bold">Gestión de Activos de Equipos</h4>
                     <small class="text-muted">
-                        Administre y supervise los activos registrados en el sistema.
+                        Administre y supervise los activos de equipos registrados en el sistema.
                     </small>
                 </div>
-                <a class="btn btn-custom" asp-controller="Inventory" asp-action="Create">
-                    <i class="bi bi-plus-lg"></i>
-                    Nuevo Activo
-                </a>
+
+                <div class="d-flex gap-2">
+                    <a class="btn btn-custom" asp-controller="Inventory" asp-action="Create">
+                        <i class="bi bi-plus-lg"></i>
+                        Nuevo Activo
+                    </a>
+                </div>
             </div>
 
             <!-- Filters -->
             <form method="get">
-                <div class="row mb-3">
+                <!-- Cuando filtro, vuelvo a la página 1 -->
+                <input type="hidden" name="page" value="1" />
+                <input type="hidden" name="pageSize" value="@pageSize" />
 
-                    <div class="col-md-4">
+                <div class="row g-2 mb-3">
+
+                    <div class="col-12 col-md-4">
                         <input type="text"
                                name="q"
-                               value="@Context.Request.Query["q"]"
+                               value="@q"
                                class="form-control"
                                placeholder="Buscar por nombre o código..." />
                     </div>
 
-                    <div class="col-md-4">
+                    <div class="col-12 col-md-4">
                         <select class="form-select"
                                 name="estadoId"
                                 asp-items="ViewBag.Estados">
@@ -43,7 +59,7 @@
                         </select>
                     </div>
 
-                    <div class="col-md-2">
+                    <div class="col-12 col-md-2">
                         <select class="form-select"
                                 name="tipoId"
                                 asp-items="ViewBag.Tipos">
@@ -51,7 +67,7 @@
                         </select>
                     </div>
 
-                    <div class="col-md-2">
+                    <div class="col-12 col-md-2">
                         <button class="btn btn-outline-secondary w-100" type="submit">
                             <i class="bi bi-funnel"></i>
                             Filtrar
@@ -66,59 +82,97 @@
                 <table class="table table-hover align-middle">
                     <thead class="table-light">
                         <tr>
-                            <th class="text-center">Acciones</th>
-                            <th>#</th>
+                            <th class="text-center" style="width:140px;">Acciones</th>
                             <th>Código</th>
                             <th>Nombre</th>
-                            <th>Tipo</th>
-                            <th>Estado</th>
+
+                            <!-- En móvil se ocultan para que no se rompa -->
+                            <th class="d-none d-md-table-cell">Tipo</th>
+                            <th class="d-none d-md-table-cell">Estado</th>
                         </tr>
                     </thead>
-                    <tbody>
 
+                    <tbody>
                         @if (Model != null && Model.Any())
                         {
-                            var index = 1;
                             foreach (var a in Model)
                             {
                                 <tr>
                                     <td class="text-center">
-                                        <a asp-action="Detail" asp-route-id="@a.IdActivo" class="btn btn-link">
+                                        <a asp-action="Detail" asp-route-id="@a.IdActivo" class="btn btn-link p-0 me-2" title="Ver detalle">
                                             <i class="bi bi-eye detail-btn"></i>
                                         </a>
 
-                                        <a asp-action="Edit" asp-route-id="@a.IdActivo" class="btn btn-link">
+                                        <a asp-action="Edit" asp-route-id="@a.IdActivo" class="btn btn-link p-0 me-2" title="Editar">
                                             <i class="fa-regular fa-pen-to-square edit-btn"></i>
                                         </a>
 
-                                        <a class="btn btn-link text-danger">
+                                        <button type="button" class="btn btn-link text-danger p-0" title="Eliminar (pendiente)">
                                             <i class="bi bi-trash3"></i>
-                                        </a>
+                                        </button>
                                     </td>
-                                    <td>@index</td>
-                                    <td>@a.NumeroActivo</td>
+
+                                    <td class="fw-semibold">@a.NumeroActivo</td>
                                     <td>@a.NombreMaquina</td>
-                                    <td>@a.TipoActivo?.Nombre</td>
-                                    <td>
-                                        <span class="badge bg-secondary">
-                                            @a.EstadoActivo?.Nombre
-                                        </span>
+
+                                    <td class="d-none d-md-table-cell">@a.TipoActivo?.Nombre</td>
+
+                                    <td class="d-none d-md-table-cell">
+                                        <span class="badge bg-secondary">@a.EstadoActivo?.Nombre</span>
                                     </td>
                                 </tr>
-                                index++;
                             }
                         }
                         else
                         {
                             <tr>
-                                <td colspan="6" class="text-center text-muted py-4">
+                                <td colspan="5" class="text-center text-muted py-4">
                                     No se encontraron activos registrados.
                                 </td>
                             </tr>
                         }
-
                     </tbody>
                 </table>
+            </div>
+
+            <!-- Paginación -->
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-center gap-2 mt-3">
+                <div class="text-muted small">
+                    Página <strong>@page</strong> de <strong>@totalPages</strong>
+                </div>
+
+                <nav aria-label="Paginación">
+                    <ul class="pagination mb-0">
+
+                        @{
+                            bool prevDisabled = page <= 1;
+                            bool nextDisabled = page >= totalPages;
+
+                            string BuildUrl(int targetPage) =>
+                                Url.Action("Index", "Inventory", new
+                                {
+                                    q,
+                                    estadoId,
+                                    tipoId,
+                                    page = targetPage,
+                                    pageSize
+                                })!;
+                        }
+
+                        <li class="page-item @(prevDisabled ? "disabled" : "")">
+                            <a class="page-link" href="@(prevDisabled ? "#" : BuildUrl(page - 1))">Anterior</a>
+                        </li>
+
+                        <li class="page-item active">
+                            <span class="page-link">@page</span>
+                        </li>
+
+                        <li class="page-item @(nextDisabled ? "disabled" : "")">
+                            <a class="page-link" href="@(nextDisabled ? "#" : BuildUrl(page + 1))">Siguiente</a>
+                        </li>
+
+                    </ul>
+                </nav>
             </div>
 
         </div>
