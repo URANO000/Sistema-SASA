@@ -1,5 +1,4 @@
 ﻿using BusinessLogic.Modelos.DTOs.Inventario;
-using DataAccess.Modelos.DTOs.Inventario;
 using DataAccess.Modelos.DTOs.Wrappers;
 using DataAccess.Modelos.Entidades.Inventario;
 using DataAccess.Repositorios.Inventario;
@@ -22,57 +21,33 @@ namespace BusinessLogic.Servicios.Inventario
                 filtros.IdEstadoActivo,
                 filtros.IdTipoActivo);
 
-            return data.Select(a => new ActivoInventarioListItemDto
-            {
-                IdActivo = a.IdActivo,
-                NumeroActivo = a.NumeroActivo,
-                NombreMaquina = a.NombreMaquina,
-                SerieServicio = a.SerieServicio,
-                IdTipoActivo = a.IdTipoActivo,
-                IdEstadoActivo = a.IdEstadoActivo,
-                TipoActivoNombre = a.TipoActivo?.Nombre,
-                EstadoActivoNombre = a.EstadoActivo?.Nombre,
-                FechaCreacion = a.FechaCreacion
-            }).ToList();
+            return data.Select(MapListItem).ToList();
         }
 
         public async Task<PagedResult<ActivoInventarioListItemDto>> ListarPaginadoAsync(ActivoInventarioFiltroDto filtros)
         {
-            // Normalizar
-            if (filtros.Page < 1) filtros.Page = 1;
-            if (filtros.PageSize < 5) filtros.PageSize = 5;
-            if (filtros.PageSize > 50) filtros.PageSize = 50;
+            // seguridad básica (también la tenés en el Controller, pero aquí queda blindado)
+            var page = filtros.Page < 1 ? 1 : filtros.Page;
+            var pageSize = filtros.PageSize < 5 ? 5 : (filtros.PageSize > 50 ? 50 : filtros.PageSize);
 
             var total = await _repo.ContarAsync(filtros.Texto, filtros.IdEstadoActivo, filtros.IdTipoActivo);
 
-            int skip = (filtros.Page - 1) * filtros.PageSize;
-
-            var data = await _repo.ListarPaginadoAsync(
+            var skip = (page - 1) * pageSize;
+            var items = await _repo.ListarPaginadoAsync(
                 filtros.Texto,
                 filtros.IdEstadoActivo,
                 filtros.IdTipoActivo,
                 skip,
-                filtros.PageSize
-            );
+                pageSize);
 
-            var items = data.Select(a => new ActivoInventarioListItemDto
-            {
-                IdActivo = a.IdActivo,
-                NumeroActivo = a.NumeroActivo,
-                NombreMaquina = a.NombreMaquina,
-                SerieServicio = a.SerieServicio,
-                IdTipoActivo = a.IdTipoActivo,
-                IdEstadoActivo = a.IdEstadoActivo,
-                TipoActivoNombre = a.TipoActivo?.Nombre,
-                EstadoActivoNombre = a.EstadoActivo?.Nombre,
-                FechaCreacion = a.FechaCreacion
-            }).ToList();
+            var totalPages = (int)Math.Ceiling(total / (double)pageSize);
+            if (totalPages < 1) totalPages = 1;
 
             return new PagedResult<ActivoInventarioListItemDto>
             {
-                Items = items,
+                Items = items.Select(MapListItem).ToList(),
                 TotalRecords = total,
-                TotalPages = (int)Math.Ceiling(total / (double)filtros.PageSize)
+                TotalPages = totalPages
             };
         }
 
@@ -160,5 +135,18 @@ namespace BusinessLogic.Servicios.Inventario
             await _repo.GuardarAsync();
             return (true, null);
         }
+
+        private static ActivoInventarioListItemDto MapListItem(ActivoInventario a) => new()
+        {
+            IdActivo = a.IdActivo,
+            NumeroActivo = a.NumeroActivo,
+            NombreMaquina = a.NombreMaquina,
+            SerieServicio = a.SerieServicio,
+            IdTipoActivo = a.IdTipoActivo,
+            IdEstadoActivo = a.IdEstadoActivo,
+            TipoActivoNombre = a.TipoActivo?.Nombre,
+            EstadoActivoNombre = a.EstadoActivo?.Nombre,
+            FechaCreacion = a.FechaCreacion
+        };
     }
 }
