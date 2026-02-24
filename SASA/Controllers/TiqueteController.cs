@@ -181,6 +181,8 @@ namespace SASA.Controllers
             var model = new TiqueteEditarViewModel
             {
                 IdTiquete = tiquete.IdTiquete,
+                //Asunto = tiquete.Asunto,
+                //Descripcion = tiquete.Descripcion,
                 IdCategoria = tiquete.IdCategoria,
                 IdEstatus = tiquete.IdEstatus,
                 Resolucion = tiquete.Resolucion,
@@ -200,6 +202,12 @@ namespace SASA.Controllers
             if (!ModelState.IsValid)
             {
                 await CargarDropdownsAsync(model);
+                foreach (var error in ModelState)
+                {
+                    Console.WriteLine($"KEY: {error.Key}");
+                    foreach (var e in error.Value.Errors)
+                        Console.WriteLine($"ERROR: {e.ErrorMessage}");
+                }
                 return Json(new
                 {
                     success = false,
