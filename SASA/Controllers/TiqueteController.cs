@@ -17,6 +17,7 @@ using SASA.ViewModels.Avances;
 using SASA.ViewModels.Tiquete;
 using SASA.ViewModels.Tiquete.Extras;
 using SASA.ViewModels.Tiquete.Filtro;
+using SASA.ViewModels.TiqueteHistoriales;
 using System.Security.Claims;
 
 namespace SASA.Controllers
@@ -311,9 +312,17 @@ namespace SASA.Controllers
                     .Select(at => new AttachmentDetalleViewModel
                     {
                         IdAttachment = at.IdAttachment,
-                         FileName = at.FileName,
-                         FileSize = at.FileSize
+                        FileName = at.FileName,
+                        FileSize = at.FileSize
 
+                    })
+                    .ToList(),
+                Historiales = tiquete.Historiales
+                    .Select(h => new TiqueteHistorialDetalleViewModel
+                    {
+                        PerformedAt = h.PerformedAt,
+                        PerformedBy = h.PerformedBy,
+                        DescripcionEvento = h.DescripcionEvento
                     })
                     .ToList()
 

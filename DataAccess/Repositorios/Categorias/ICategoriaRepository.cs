@@ -6,8 +6,11 @@ namespace DataAccess.Repositorios.Categorias
 {
     public interface ICategoriaRepository
     {
-        public Task<bool> ExisteAsync(int idCategoria);
-        public Task<IEnumerable<ListaCategoriaDto>> ObtenerCategoriaAsync();
+        Task<bool> ExisteAsync(int idCategoria);
+        Task<IEnumerable<ListaCategoriaDto>> ObtenerCategoriaAsync();
+
+        //Retorna el nombre -- Para historial
+        Task<string?> GetNombreAsync(int idCategoria);
     }
 
 }

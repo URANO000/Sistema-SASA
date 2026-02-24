@@ -6,7 +6,6 @@
         CambioDeEstatus = 2,
         Asignado = 3,
         CambioDeCategoria = 4,
-        AvanceAgregado = 5,
-        ArchivoAdjuntoAgregado = 6
+        AvanceAgregado = 5
     }
 }
