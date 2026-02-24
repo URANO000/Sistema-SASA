@@ -1,4 +1,5 @@
-﻿using SASA.ViewModels.Avances;
+﻿using SASA.ViewModels.Attachments;
+using SASA.ViewModels.Avances;
 
 namespace SASA.ViewModels.Tiquete
 {
@@ -24,5 +25,6 @@ namespace SASA.ViewModels.Tiquete
         //Para el avance
         public AvanceCrearViewModel NuevoAvance { get; set; } = new();
         public List<AvanceDetalleViewModel> Avances { get; init; } = new();
+        public List<AttachmentDetalleViewModel> Attachments { get; init; } = new();
     }
 }

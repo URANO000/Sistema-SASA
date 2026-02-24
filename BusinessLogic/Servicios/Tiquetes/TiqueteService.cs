@@ -71,6 +71,8 @@ namespace BusinessLogic.Servicios.Tiquetes
 
             //Guardar todos los avances por tiquete
             var avances = await _avanceService.ListaAvancesPorTiqueteAsync(id);
+            //Guardar todos los archivos adjuntos por tiquete
+            var attachments = await _attachmentRepository.ListarAttachmentsAsync(id);
 
             //Retornar dto
             return new DetalleTiqueteDto
@@ -87,7 +89,8 @@ namespace BusinessLogic.Servicios.Tiquetes
                 CreatedAt = dto.CreatedAt,
                 UpdatedAt = dto.UpdatedAt,
 
-                Avances = avances
+                Avances = avances,
+                Attachments = attachments
             };
         }
 
@@ -114,7 +117,7 @@ namespace BusinessLogic.Servicios.Tiquetes
                 dto.Descripcion,
                 dto.IdCategoria,
                 currentUserId,
-                null
+                dto.IdAsignee
             );
 
             //Primero se crea el tiquete para asegurar que el ID de este tiquete exista
@@ -211,7 +214,7 @@ namespace BusinessLogic.Servicios.Tiquetes
             int idTiquete,
             string currentUserId)
         {
-            var extensionesPermitidas = new[] { ".jgp", ".png", ".pdf", ".docx" };
+            var extensionesPermitidas = new[] { ".jgp", "jpeg", ".png", ".pdf", ".docx" };
             var attachments = new List<Attachment>();
 
             foreach (var archivo in archivos)

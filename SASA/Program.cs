@@ -19,6 +19,7 @@ using SASA.Services.Correo;
 using DataAccess.Repositorios.Avances;
 using BusinessLogic.Servicios.Avances;
 using DataAccess.Repositorios.Attachments;
+using BusinessLogic.Servicios.Attachments;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -77,6 +78,8 @@ builder.Services.AddScoped<INotificacionService, NotificacionService>();
 builder.Services.AddScoped<IAvanceRepository, AvanceRepository>();
 builder.Services.AddScoped<IAvanceService, AvanceService>();
 builder.Services.AddScoped<IAttachmentRepository, AttachmentRepository>();
+builder.Services.AddScoped<IAttachmentService, AttachmentService>();
+
 
 // Configuración de correo (Microsoft Graph)
 builder.Services.AddScoped<ICorreoNotificacionesService, CorreoNotificacionesService>();

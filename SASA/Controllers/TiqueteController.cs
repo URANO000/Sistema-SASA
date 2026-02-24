@@ -1,3 +1,4 @@
+using BusinessLogic.Servicios.Attachments;
 using BusinessLogic.Servicios.Avances;
 using BusinessLogic.Servicios.Categorias;
 using BusinessLogic.Servicios.Prioridad;
@@ -11,6 +12,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using SASA.Filters;
+using SASA.ViewModels.Attachments;
 using SASA.ViewModels.Avances;
 using SASA.ViewModels.Tiquete;
 using SASA.ViewModels.Tiquete.Extras;
@@ -28,15 +30,17 @@ namespace SASA.Controllers
         private readonly ICategoriaService _categoriaService;
         private readonly IPrioridadService _prioridadService;
         private readonly IAvanceService _avanceService;
+        private readonly IAttachmentService _attachmentService;
 
         public TiqueteController(ITiqueteService tiqueteService, IUsuarioService usuarioService,
-            ICategoriaService categoriaService, IPrioridadService prioridadService, IAvanceService avanceService)
+            ICategoriaService categoriaService, IPrioridadService prioridadService, IAvanceService avanceService, IAttachmentService attachmentService)
         {
             _tiqueteService = tiqueteService;
             _usuarioService = usuarioService;
             _categoriaService = categoriaService;
             _prioridadService = prioridadService;
             _avanceService = avanceService;
+            _attachmentService = attachmentService;
         }
         //GET: TiqueteController
         [Authorize(Roles = "Administrador, Empleado Normal")]
@@ -302,6 +306,15 @@ namespace SASA.Controllers
                         TextoAvance = a.TextoAvance,
                         CreatedAt = a.CreatedAt
                     })
+                    .ToList(),
+                Attachments = tiquete.Attachments
+                    .Select(at => new AttachmentDetalleViewModel
+                    {
+                        IdAttachment = at.IdAttachment,
+                         FileName = at.FileName,
+                         FileSize = at.FileSize
+
+                    })
                     .ToList()
 
             };
@@ -354,10 +367,31 @@ namespace SASA.Controllers
             }
         }
 
+
+        [HttpGet]
+        public async Task<IActionResult> DescargaArchivo(int id)
+        {
+            try
+            {
+                var attachment = await _attachmentService.DownloadAttachmentAsync(id);
+
+                return File(
+                    attachment.File,
+                    "application/octet-stream",
+                    attachment.FileName
+                );
+            }
+            catch (KeyNotFoundException)
+            {
+                return NotFound();
+            }
+        }
+
         public IActionResult Dashboard()
         {
             return View();
         }
+
 
         //----------------------------Helpers---------------------------------------
         private async Task CargarDropdownsAsync(TiqueteFormViewModel model)

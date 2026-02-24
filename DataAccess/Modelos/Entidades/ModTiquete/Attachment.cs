@@ -32,7 +32,7 @@ namespace DataAccess.Modelos.Entidades.ModTiquete
         public required DateTime UploadedAt { get; set; }
 
         [Column("fileSize")]
-        public required double FileSize { get; set; }
+        public required long FileSize { get; set; }
 
         //Navigation properties -> Relaciones entre entidades
         //[ForeignKey(nameof(IdTiquete))]

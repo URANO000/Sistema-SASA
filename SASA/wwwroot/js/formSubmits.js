@@ -24,7 +24,7 @@ $(function () {
                     $("#successModal").modal("show");
 
                     //Reload de tabla
-                    setTimeout(() => location.reload(), 1200);
+                    setTimeout(() => location.reload(), 900);
                     return;
                 }
                 else {
@@ -38,7 +38,7 @@ $(function () {
                     $("#errorModal").modal("show")
                     setTimeout(() => {
                         window.location.href = "/Usuario";
-                    }, 1200);
+                    }, 900);
                 }
             },
             error: function () {
@@ -46,7 +46,7 @@ $(function () {
                 $("#errorModal").modal("show")
                 setTimeout(() => {
                     window.location.href = "/Usuario";
-                }, 1200);
+                }, 900);
             }
         });
     });
@@ -120,7 +120,7 @@ $(function () {
                     //Ir a la tabla después de un tiempo
                     setTimeout(() => {
                         window.location.href = "/Usuario";
-                    }, 1200);
+                    }, 900);
                 }
 
                 if (response.error) {
@@ -145,7 +145,7 @@ $(function () {
                 $("#errorModal").modal("show")
                 setTimeout(() => {
                     window.location.href = "/Usuario";
-                }, 1200);
+                }, 900);
             }
         });
     });
@@ -180,8 +180,8 @@ $(function () {
             url: form.action,
             type: "POST",
             data: formData,
-            processData: false,  // 🔴 REQUIRED
-            contentType: false,  // 🔴 REQUIRED
+            processData: false,  
+            contentType: false,  
 
             success: function (response) {
 
@@ -191,7 +191,7 @@ $(function () {
 
                     setTimeout(() => {
                         window.location.href = "/Tiquete";
-                    }, 1200);
+                    }, 900);
                 }
                 else {
                     $("#addTicket .modal-content").html(response);
@@ -205,7 +205,7 @@ $(function () {
 
                 setTimeout(() => {
                     window.location.href = "/Tiquete";
-                }, 1400);
+                }, 900);
             }
         });
     });
@@ -238,7 +238,7 @@ $(function () {
                     //Ir a la tabla después de un tiempo
                     setTimeout(() => {
                         window.location.href = "/Tiquete";
-                    }, 1200);
+                    }, 900);
                 }
                 else { 
                     //Limpiar mensajes previos
@@ -263,7 +263,7 @@ $(function () {
                 $("#errorModal").modal("show")
                 setTimeout(() => {
                     window.location.href = "/Tiquete";
-                }, 1400);
+                }, 900);
             }
         });
 
@@ -292,12 +292,14 @@ $(function () {
 
                 //Caso 1, si todo sale bien
                 if (response.success) {
+                    $("#avanceModal").modal("hide");
                     $("#successModal").modal("show");
 
                     //No se vá a ningún lugar, sólo se queda en detalle
                     setTimeout(() => {
                         $("#successModal").modal("hide");
-                    }, 1200);
+                        location.reload();
+                    }, 900);
                 }
                 else {
                     //Limpiar mensajes previos
@@ -319,6 +321,7 @@ $(function () {
             },
 
             error: function () {
+                $("#avanceModal").modal("hide");
                 $("#errorModal").modal("show")
                 setTimeout(() => {
                     $("#errorModal").modal("hide")
