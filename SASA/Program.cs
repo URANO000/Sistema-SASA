@@ -12,11 +12,15 @@ using DataAccess.Repositorios.Notificaciones;
 using DataAccess.Repositorios.Prioridad;
 using DataAccess.Repositorios.Tiquetes;
 using DataAccess.Repositorios.Usuarios;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Distributed;
 using SASA.Configuration;
 using SASA.Services.Correo;
-
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -54,6 +58,46 @@ builder.Services.ConfigureApplicationCookie(options =>
 {
     options.LoginPath = "/login";
     options.AccessDeniedPath = "/Account/AccessDenied";
+
+    // Esto ya NO es el "idle real", pero evita tickets eternos
+    options.ExpireTimeSpan = TimeSpan.FromMinutes(30);
+
+    // Muy importante para que requests automáticos NO revivan sesión
+    options.SlidingExpiration = false;
+
+    options.Events = new Microsoft.AspNetCore.Authentication.Cookies.CookieAuthenticationEvents
+    {
+        OnValidatePrincipal = async context =>
+        {
+            var userId = context.Principal?
+                .FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+
+            if (string.IsNullOrEmpty(userId))
+                return;
+
+            var cache = context.HttpContext.RequestServices.GetRequiredService<IDistributedCache>();
+            var lastStr = await cache.GetStringAsync($"last-activity:{userId}");
+
+            // Si no existe registro, lo inicializamos (primer request)
+            if (!long.TryParse(lastStr, out var lastUnix))
+            {
+                await cache.SetStringAsync(
+                    $"last-activity:{userId}",
+                    DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString()
+                );
+                return;
+            }
+
+            var last = DateTimeOffset.FromUnixTimeSeconds(lastUnix);
+            var idleTimeout = TimeSpan.FromMinutes(5); // <-- AQUÍ tu X (pruebas)
+
+            if (DateTimeOffset.UtcNow - last > idleTimeout)
+            {
+                context.RejectPrincipal();
+                await context.HttpContext.SignOutAsync();
+            }
+        }
+    };
 });
 
 //Repositories y Servicios de negocio
@@ -80,9 +124,32 @@ builder.Services.Configure<ConfiguracionEmail>(builder.Configuration.GetSection(
 builder.Services.Configure<AppSettings>(
     builder.Configuration.GetSection("AppSettings"));
 
+// Antiforgery
+builder.Services.AddAntiforgery(o =>
+{
+    o.Cookie.Name = "SASA.AntiForgery";
+    o.Cookie.SameSite = SameSiteMode.Lax;
+    o.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+});
 
-// MVC
-builder.Services.AddControllersWithViews();
+builder.Services.AddDataProtection()
+    .PersistKeysToFileSystem(
+        new DirectoryInfo(
+            Path.Combine(builder.Environment.ContentRootPath, "dp_keys")))
+    .SetApplicationName("SASA");
+
+// Cache en memoria (para sesiones, etc.)
+builder.Services.AddDistributedMemoryCache();
+
+// MVC + Autorización global
+builder.Services.AddControllersWithViews(options =>
+{
+    var policy = new AuthorizationPolicyBuilder()
+        .RequireAuthenticatedUser()
+        .Build();
+
+    options.Filters.Add(new AuthorizeFilter(policy));
+});
 
 var app = builder.Build();
 
@@ -102,7 +169,7 @@ if (app.Environment.IsDevelopment())
     {
         role = new ApplicationRole
         {
-            Id = adminRoleId,          // <-- para que coincida con kevin.sql
+            Id = adminRoleId,
             Name = adminRoleName,
             NormalizedName = adminRoleName.ToUpper(),
             Estado = true
@@ -150,6 +217,38 @@ app.UseRouting();
 
 app.UseAuthentication();
 app.UseAuthorization();
+
+app.Use(async (ctx, next) =>
+{
+    await next();
+
+    // Solo si está autenticado
+    if (ctx.User?.Identity?.IsAuthenticated != true)
+        return;
+
+    // Definición de "actividad humana":
+    // 1) Navegación normal (HTML)
+    var isHtmlNavigation = ctx.Request.Headers.Accept.ToString().Contains("text/html");
+
+    // 2) O request explícito marcado por JS (para clicks/acciones sin navegación)
+    var hasUserActivityHeader =
+        ctx.Request.Headers.TryGetValue("X-User-Activity", out var v) && v == "1";
+
+    var shouldCountAsActivity = isHtmlNavigation || hasUserActivityHeader;
+
+    if (!shouldCountAsActivity)
+        return;
+
+    var userId = ctx.User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+    if (string.IsNullOrEmpty(userId))
+        return;
+
+    var cache = ctx.RequestServices.GetRequiredService<IDistributedCache>();
+    await cache.SetStringAsync(
+        $"last-activity:{userId}",
+        DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString()
+    );
+});
 
 app.MapGet("/", (HttpContext ctx) =>
 {

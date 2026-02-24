@@ -1,5 +1,6 @@
 using BusinessLogic.Servicios.Correo;
 using DataAccess.Identity;
+using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -17,27 +18,32 @@ namespace SASA.Controllers
         private readonly ILogger<AccountController> _logger;
         private readonly ICorreoNotificacionesService _correoNotificaciones;
         private readonly AppSettings _appSettings;
+        private readonly IAntiforgery _antiforgery;
 
         public AccountController(
             SignInManager<ApplicationUser> signInManager,
             UserManager<ApplicationUser> userManager,
             ILogger<AccountController> logger,
             ICorreoNotificacionesService correoNotificaciones,
-            IOptions<AppSettings> appSettings)
+            IOptions<AppSettings> appSettings,
+            IAntiforgery antiforgery)
         {
             _signInManager = signInManager;
             _userManager = userManager;
             _logger = logger;
             _correoNotificaciones = correoNotificaciones;
             _appSettings = appSettings.Value;
+            _antiforgery = antiforgery;
         }
 
+        [AllowAnonymous]
         [HttpGet("/login")]
         public IActionResult Login()
         {
             return View(new LoginViewModel());
         }
 
+        [AllowAnonymous]
         [HttpPost("/login")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Login(LoginViewModel vm)
@@ -144,6 +150,8 @@ namespace SASA.Controllers
             //para evitar que se muestre el nav bar si el usuario ya está logueado y accede a este link
             await _signInManager.SignOutAsync();
 
+            _antiforgery.GetAndStoreTokens(HttpContext);
+
             var decoded = DecodeTokenPayload(token);
             if (!decoded.ok)
             {
@@ -227,6 +235,7 @@ namespace SASA.Controllers
             return RedirectToAction(nameof(SetPassword), new { token });
         }
 
+        [AllowAnonymous]
         [HttpGet("/Account/AccessDenied")]
         public IActionResult AccessDenied()
         {
@@ -264,6 +273,8 @@ namespace SASA.Controllers
         {
             await _signInManager.SignOutAsync();
 
+            _antiforgery.GetAndStoreTokens(HttpContext);
+
             var decoded = DecodeTokenPayload(token);
             if (!decoded.ok)
             {
@@ -296,15 +307,15 @@ namespace SASA.Controllers
         }
 
         [AllowAnonymous]
-        [HttpPost("/set-password")]
+        [HttpPost("/set-password/{token}")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> SetPassword(SetPasswordViewModel vm)
+        public async Task<IActionResult> SetPassword(string token, SetPasswordViewModel vm)
         {
+            // Si viene token en la URL, úsalo; si no, usa el hidden
+            vm.Token = token ?? vm.Token;
+
             if (!ModelState.IsValid)
-            {
-                // asegura que el token siga en el modelo al volver a mostrar la vista
                 return View(vm);
-            }
 
             var decoded = DecodeTokenPayload(vm.Token);
             if (!decoded.ok)
@@ -349,6 +360,11 @@ namespace SASA.Controllers
             return RedirectToAction(nameof(Login));
         }
 
-
+        [HttpGet]
+        public IActionResult KeepAlive()
+        {
+            // No hace nada: el middleware ve el header X-User-Activity y actualiza last-activity
+            return NoContent();
+        }
     }
 }
