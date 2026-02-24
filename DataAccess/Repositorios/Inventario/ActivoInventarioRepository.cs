@@ -5,29 +5,71 @@ namespace DataAccess.Repositorios.Inventario
 {
     public class ActivoInventarioRepository : IActivoInventarioRepository
     {
-        private readonly ApplicationDbContext _context;
-        public ActivoInventarioRepository(ApplicationDbContext context) => _context = context;
+        private readonly ApplicationDbContext _db;
+        public ActivoInventarioRepository(ApplicationDbContext db) => _db = db;
+
+        public Task<ActivoInventario?> ObtenerPorIdAsync(int id) =>
+            _db.ActivoInventario.FirstOrDefaultAsync(a => a.IdActivo == id);
+
+        public Task<ActivoInventario?> ObtenerDetalleAsync(int id) =>
+            _db.ActivoInventario
+               .Include(a => a.TipoActivo)
+               .Include(a => a.EstadoActivo)
+               .FirstOrDefaultAsync(a => a.IdActivo == id);
+
+        public async Task<List<ActivoInventario>> ListarAsync(string? q, int? estadoId, int? tipoId)
+        {
+            var query = _db.ActivoInventario
+                .Include(a => a.TipoActivo)
+                .Include(a => a.EstadoActivo)
+                .AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(q))
+            {
+                var t = q.Trim();
+                query = query.Where(a =>
+                    a.NumeroActivo.Contains(t) ||
+                    (a.NombreMaquina != null && a.NombreMaquina.Contains(t)) ||
+                    (a.SerieServicio != null && a.SerieServicio.Contains(t)));
+            }
+
+            if (estadoId.HasValue) query = query.Where(a => a.IdEstadoActivo == estadoId.Value);
+            if (tipoId.HasValue) query = query.Where(a => a.IdTipoActivo == tipoId.Value);
+
+            return await query.OrderByDescending(a => a.FechaCreacion).ToListAsync();
+        }
+
+        public Task<bool> ExisteNumeroActivoAsync(string numeroActivo) =>
+            _db.ActivoInventario.AnyAsync(a => a.NumeroActivo == numeroActivo);
 
         public async Task<List<string>> ObtenerNumerosExistentesAsync(IEnumerable<string> numeros)
         {
-            var lista = numeros.Distinct().ToList();
-            if (lista.Count == 0) return new List<string>();
+            var list = numeros
+                .Where(x => !string.IsNullOrWhiteSpace(x))
+                .Select(x => x.Trim())
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .ToList();
 
-            return await _context.ActivoInventario.AsNoTracking()
-                .Where(a => lista.Contains(a.NumeroActivo))
+            if (list.Count == 0) return new List<string>();
+
+            return await _db.ActivoInventario
+                .Where(a => list.Contains(a.NumeroActivo))
                 .Select(a => a.NumeroActivo)
                 .ToListAsync();
         }
 
-        public Task<bool> ExisteNumeroAsync(string numeroActivo) =>
-            _context.ActivoInventario.AnyAsync(a => a.NumeroActivo == numeroActivo);
+        public async Task CrearAsync(ActivoInventario entity) =>
+            await _db.ActivoInventario.AddAsync(entity);
 
-        public Task AgregarRangoAsync(IEnumerable<ActivoInventario> activos)
+        public Task ActualizarAsync(ActivoInventario entity)
         {
-            _context.ActivoInventario.AddRange(activos);
+            _db.ActivoInventario.Update(entity);
             return Task.CompletedTask;
         }
 
-        public Task GuardarAsync() => _context.SaveChangesAsync();
+        public async Task AgregarRangoAsync(IEnumerable<ActivoInventario> entities) =>
+            await _db.ActivoInventario.AddRangeAsync(entities);
+
+        public Task GuardarAsync() => _db.SaveChangesAsync();
     }
 }

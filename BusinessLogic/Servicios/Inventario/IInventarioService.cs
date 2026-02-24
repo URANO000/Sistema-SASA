@@ -1,0 +1,13 @@
+﻿using BusinessLogic.Modelos.DTOs.Inventario;
+
+namespace BusinessLogic.Servicios.Inventario
+{
+    public interface IInventarioService
+    {
+        Task<List<ActivoInventarioListItemDto>> ListarAsync(ActivoInventarioFiltroDto filtros);
+        Task<ActivoInventarioDetailDto?> ObtenerDetalleAsync(int id);
+
+        Task<(bool ok, string? error)> CrearAsync(ActivoInventarioCreateDto dto);
+        Task<(bool ok, string? error)> ActualizarAsync(int id, ActivoInventarioEditDto dto);
+    }
+}
