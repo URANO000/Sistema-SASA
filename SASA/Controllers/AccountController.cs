@@ -206,6 +206,7 @@ namespace SASA.Controllers
             return RedirectToAction(nameof(Login));
         }
 
+        [AllowAnonymous]
         [HttpGet("/activate-account/{token}")]
         public async Task<IActionResult> ActivateAccount(string token)
         {
@@ -232,7 +233,7 @@ namespace SASA.Controllers
             }
 
             TempData["Success"] = "Cuenta activada. Ahora crea tu contraseña.";
-            return RedirectToAction(nameof(SetPassword), new { token });
+            return Redirect($"/set-password/{token}");
         }
 
         [AllowAnonymous]

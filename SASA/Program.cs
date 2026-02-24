@@ -1,20 +1,20 @@
 using BusinessLogic.Servicios.Categorias;
 using BusinessLogic.Servicios.Correo;
+using BusinessLogic.Servicios.Integracion;
 using BusinessLogic.Servicios.Notificaciones;
 using BusinessLogic.Servicios.Prioridad;
 using BusinessLogic.Servicios.Rol;
 using BusinessLogic.Servicios.Tiquetes;
 using BusinessLogic.Servicios.Usuarios;
-using BusinessLogic.Servicios.Integracion;
 using DataAccess;
 using DataAccess.Identity;
 using DataAccess.Repositorios.Categorias;
+using DataAccess.Repositorios.Integracion;
+using DataAccess.Repositorios.Inventario;
 using DataAccess.Repositorios.Notificaciones;
 using DataAccess.Repositorios.Prioridad;
 using DataAccess.Repositorios.Tiquetes;
 using DataAccess.Repositorios.Usuarios;
-using DataAccess.Repositorios.Integracion;
-using DataAccess.Repositorios.Inventario;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.DataProtection;
@@ -162,7 +162,7 @@ builder.Services.AddControllersWithViews(options =>
 
 var app = builder.Build();
 
-//Seeder (temporal)
+// Seeder (temporal)
 if (app.Environment.IsDevelopment())
 {
     using var scope = app.Services.CreateScope();
@@ -171,68 +171,64 @@ if (app.Environment.IsDevelopment())
 
     const string adminRoleName = "Administrador";
     const string adminRoleId = "ROLE_ADMIN";
+    const string adminEmail = "test@sasa.com";
+    const string adminPassword = "Test123!";
 
-    // 1) Asegurar rol
+    // 1️ Crear rol si no existe
     var role = await roleManager.FindByNameAsync(adminRoleName);
+
     if (role is null)
     {
-        role = new ApplicationRole
+        var newRole = new ApplicationRole
         {
             Id = adminRoleId,
             Name = adminRoleName,
-            NormalizedName = adminRoleName.ToUpper(),
+            NormalizedName = adminRoleName.ToUpperInvariant(),
             Estado = true
         };
 
-        var roleResult = await roleManager.CreateAsync(role);
-        // opcional: log si falla
+        var roleResult = await roleManager.CreateAsync(newRole);
+
+        if (!roleResult.Succeeded)
+        {
+            throw new Exception("Error creando rol admin: " +
+                string.Join(" | ", roleResult.Errors.Select(e => e.Description)));
+        }
     }
 
-    // 1) Crear rol si no existe
-    if (!await roleManager.RoleExistsAsync(adminRole))
-    {
-        await roleManager.CreateAsync(new ApplicationRole { Name = adminRole });
-    }
+    // 2️ Crear usuario si no existe
+    var user = await userManager.FindByEmailAsync(adminEmail);
 
-
-    // 2) Asegurar usuario
-
-    var email = "test@sasa.com";
-
-    // 2) Buscar usuario
-    var user = await userManager.FindByEmailAsync(email);
-
-    // 3) Crear usuario si no existe
     if (user is null)
     {
         user = new ApplicationUser
         {
-            UserName = email,
-            Email = email,
+            UserName = adminEmail,
+            Email = adminEmail,
             EmailConfirmed = true,
             Estado = true,
             LockoutEnabled = true
         };
 
-        var result = await userManager.CreateAsync(user, "Test123!");
+        var userResult = await userManager.CreateAsync(user, adminPassword);
 
-        if (!result.Succeeded)
+        if (!userResult.Succeeded)
         {
-            throw new Exception("No se pudo crear usuario admin: " +
-                string.Join(" | ", result.Errors.Select(e => e.Description)));
+            throw new Exception("Error creando usuario admin: " +
+                string.Join(" | ", userResult.Errors.Select(e => e.Description)));
         }
     }
 
-    // 4) Asignar rol al usuario (ya existe seguro)
-    if (!await userManager.IsInRoleAsync(user, adminRole))
-    {
-        await userManager.AddToRoleAsync(user, adminRole);
-    }
-
-    // 3) Asegurar asignación de rol (aunque el usuario ya exista)
+    // 3️ Asignar rol si no lo tiene
     if (!await userManager.IsInRoleAsync(user, adminRoleName))
     {
-        await userManager.AddToRoleAsync(user, adminRoleName);
+        var addRoleResult = await userManager.AddToRoleAsync(user, adminRoleName);
+
+        if (!addRoleResult.Succeeded)
+        {
+            throw new Exception("Error asignando rol admin: " +
+                string.Join(" | ", addRoleResult.Errors.Select(e => e.Description)));
+        }
     }
 }
 
