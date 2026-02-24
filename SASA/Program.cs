@@ -24,6 +24,10 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Distributed;
 using SASA.Configuration;
 using SASA.Services.Correo;
+using DataAccess.Repositorios.Avances;
+using BusinessLogic.Servicios.Avances;
+using DataAccess.Repositorios.Attachments;
+using BusinessLogic.Servicios.Attachments;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -118,11 +122,19 @@ builder.Services.AddScoped<IPrioridadService, PrioridadService>();
 builder.Services.AddScoped<INotificacionRepository, NotificacionRepository>();
 builder.Services.AddScoped<INotificacionService, NotificacionService>();
 
+
+builder.Services.AddScoped<IAvanceRepository, AvanceRepository>();
+builder.Services.AddScoped<IAvanceService, AvanceService>();
+builder.Services.AddScoped<IAttachmentRepository, AttachmentRepository>();
+builder.Services.AddScoped<IAttachmentService, AttachmentService>();
+
+
 builder.Services.AddScoped<IIntegracionHistorialRepository, IntegracionHistorialRepository>();
 builder.Services.AddScoped<IActivoInventarioRepository, ActivoInventarioRepository>();
 builder.Services.AddScoped<ICatalogosInventarioRepository, CatalogosInventarioRepository>();
 
 builder.Services.AddScoped<IIntegracionService, IntegracionService>();
+
 
 // Configuración de correo (Microsoft Graph)
 builder.Services.AddScoped<ICorreoNotificacionesService, CorreoNotificacionesService>();

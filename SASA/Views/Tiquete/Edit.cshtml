@@ -56,26 +56,6 @@
             </div>
         </div>
     </div>
-
-    <!--Add advances to the ticket-->
-
-    <div class="card mb-4">
-        <div class="card-body">
-            <h6 class="section-title">Agregar Avance</h6>
-
-            <textarea class="form-control mb-3"
-                      rows="3"
-                      placeholder="Describa el avance realizado..."></textarea>
-
-            <button class="btn btn-primary-custom text-white" type="button">
-                <i class="bi bi-plus-circle"></i> Agregar avance
-            </button>
-        </div>
-    </div>
-
-    <!--Many sections, hard to look good on mobile-->
-
-
     <div class="d-flex justify-content-end gap-2 mt-4">
         <a asp-area="" asp-controller="Tiquete" asp-action="Index" class="btn btn-outline-secondary" type="button">
             Cancelar
@@ -85,7 +65,10 @@
         </button>
     </div>
 </form>
-@await Html.PartialAsync("_CancelConfirm")
+
+
+<!--Many sections, hard to look good on mobile-->
+@* @await Html.PartialAsync("_CancelConfirm") *@
 @await Html.PartialAsync("_SuccessModal")
 @await Html.PartialAsync("_ErrorModal")
 

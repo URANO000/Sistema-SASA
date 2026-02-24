@@ -21,6 +21,7 @@ namespace DataAccess.Modelos.Entidades.ModTiquete
 
         [ForeignKey(nameof(IdTiquete))]
         public Tiquete Tiquete { get; set; } = null!;
+        [ForeignKey(nameof(IdAutor))]
         public ApplicationUser Autor { get; set; } = null!;
     }
 }

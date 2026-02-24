@@ -24,7 +24,7 @@ $(function () {
                     $("#successModal").modal("show");
 
                     //Reload de tabla
-                    setTimeout(() => location.reload(), 1200);
+                    setTimeout(() => location.reload(), 900);
                     return;
                 }
                 else {
@@ -38,7 +38,7 @@ $(function () {
                     $("#errorModal").modal("show")
                     setTimeout(() => {
                         window.location.href = "/Usuario";
-                    }, 1200);
+                    }, 900);
                 }
             },
             error: function () {
@@ -46,7 +46,7 @@ $(function () {
                 $("#errorModal").modal("show")
                 setTimeout(() => {
                     window.location.href = "/Usuario";
-                }, 1200);
+                }, 900);
             }
         });
     });
@@ -120,7 +120,7 @@ $(function () {
                     //Ir a la tabla después de un tiempo
                     setTimeout(() => {
                         window.location.href = "/Usuario";
-                    }, 1200);
+                    }, 900);
                 }
 
                 if (response.error) {
@@ -145,7 +145,7 @@ $(function () {
                 $("#errorModal").modal("show")
                 setTimeout(() => {
                     window.location.href = "/Usuario";
-                }, 1200);
+                }, 900);
             }
         });
     });
@@ -153,52 +153,62 @@ $(function () {
 
 //--TIQUETE SUBMIT------------
 $(function () {
+
     $(document).on("submit", "#crearTiqueteForm", function (e) {
 
         e.preventDefault();
 
-        const form = $(this);
+        const form = document.getElementById("crearTiqueteForm");
+        const files = form.querySelector('input[type="file"]').files;
 
-        if (!form.valid()) {
+        // Client-side size validation
+        for (let i = 0; i < files.length; i++) {
+            if (files[i].size > 5 * 1024 * 1024) {
+                alert("Un archivo supera el límite de 5MB.");
+                return;
+            }
+        }
+
+        // jQuery validation
+        if (!$(form).valid()) {
             return;
         }
 
+        const formData = new FormData(form);
+
         $.ajax({
-            url: form.attr("action"),
+            url: form.action,
             type: "POST",
-            data: form.serialize(),
+            data: formData,
+            processData: false,  
+            contentType: false,  
 
             success: function (response) {
 
-                //Caso 1, si todo sale bien
                 if (response.success) {
                     $("#addTicket").modal("hide");
                     $("#successModal").modal("show");
 
-                    //Ir a la tabla después de un tiempo
                     setTimeout(() => {
                         window.location.href = "/Tiquete";
-                    }, 1200);
+                    }, 900);
                 }
                 else {
-
-                    $("#addTicketModal .modal-content").html(response);
-
+                    $("#addTicket .modal-content").html(response);
                     $.validator.unobtrusive.parse("#crearTiqueteForm");
                 }
             },
 
             error: function () {
                 $("#addTicket").modal("hide");
-                $("#errorModal").modal("show")
+                $("#errorModal").modal("show");
+
                 setTimeout(() => {
                     window.location.href = "/Tiquete";
-                }, 1400);
+                }, 900);
             }
         });
-
     });
-
 });
 
 
@@ -228,7 +238,7 @@ $(function () {
                     //Ir a la tabla después de un tiempo
                     setTimeout(() => {
                         window.location.href = "/Tiquete";
-                    }, 1200);
+                    }, 900);
                 }
                 else { 
                     //Limpiar mensajes previos
@@ -253,6 +263,68 @@ $(function () {
                 $("#errorModal").modal("show")
                 setTimeout(() => {
                     window.location.href = "/Tiquete";
+                }, 900);
+            }
+        });
+
+    });
+
+});
+
+//------------PARA AVANCE SUBMIT---------------------------
+$(function () {
+    $(document).on("submit", "#addAdvanceForm", function (e) {
+
+        e.preventDefault();
+
+        const form = $(this);
+
+        if (!form.valid()) {
+            return;
+        }
+
+        $.ajax({
+            url: form.attr("action"),
+            type: "POST",
+            data: form.serialize(),
+
+            success: function (response) {
+
+                //Caso 1, si todo sale bien
+                if (response.success) {
+                    $("#avanceModal").modal("hide");
+                    $("#successModal").modal("show");
+
+                    //No se vá a ningún lugar, sólo se queda en detalle
+                    setTimeout(() => {
+                        $("#successModal").modal("hide");
+                        location.reload();
+                    }, 900);
+                }
+                else {
+                    //Limpiar mensajes previos
+                    form.find("[data-valmsg-for]").text("");
+
+                    //Mostrar errores
+                    $.each(response.errors, function (key, messages) {
+                        if (key === "_form") {
+                            alert(messages[0]);
+                            return;
+                        }
+
+                        const span = form.find(`[data-valmsg-for="${key}"]`);
+                        if (span.length) {
+                            span.text(messages.join(", "));
+                        }
+                    });
+                }
+            },
+
+            error: function () {
+                $("#avanceModal").modal("hide");
+                $("#errorModal").modal("show")
+                setTimeout(() => {
+                    $("#errorModal").modal("hide")
                 }, 1400);
             }
         });

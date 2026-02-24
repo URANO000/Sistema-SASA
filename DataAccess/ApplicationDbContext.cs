@@ -87,6 +87,20 @@ namespace DataAccess
 
             });
 
+            //Para los attachments
+            modelBuilder.Entity<Attachment>()
+                .HasOne(a => a.Tiquete)
+                .WithMany(t => t.Attachments)
+                .HasForeignKey(a => a.IdTiquete)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Attachment>()
+                .HasOne(a => a.Usuario)
+                .WithMany(u => u.Attachments)
+                .HasForeignKey(a => a.UploadedBy)
+                .HasPrincipalKey(u => u.Id)
+                .OnDelete(DeleteBehavior.Restrict);
+
 
             //Tablas "intermedias" de Identity (como en el script)
             modelBuilder.Entity<IdentityUserRole<string>>().ToTable("AspNetUserRoles");

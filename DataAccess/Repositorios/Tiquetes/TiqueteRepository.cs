@@ -49,9 +49,8 @@ namespace DataAccess.Repositorios.Tiquetes
             if (filtro.Fecha.HasValue)
             {
                 var fecha = filtro.Fecha.Value.Date;
-                var nextDay = fecha.AddDays(1);
 
-                query = query.Where(t => t.CreatedAt >= fecha && t.CreatedAt < nextDay);
+                query = query.Where(t => t.CreatedAt >= fecha);
             }
             else if (filtro.FechaInicio.HasValue && filtro.FechaFinal.HasValue)
             {
@@ -122,17 +121,17 @@ namespace DataAccess.Repositorios.Tiquetes
 
         //Para detalles----------------------------------------------------------
 
-        public async Task<ListaTiqueteDTO?> ObtenerTiquetePorIdReadAsync(int id)
+        public async Task<DetalleTiqueteDto?> ObtenerTiquetePorIdReadAsync(int id)
         {
             return await _context.Tiquetes
                 .AsNoTracking()
                 .Where(t => t.IdTiquete == id)
-                .Select(t => new ListaTiqueteDTO
+                .Select(t => new DetalleTiqueteDto
                 {
                     IdTiquete = t.IdTiquete,
                     Asunto = t.Asunto,
                     Descripcion = t.Descripcion,
-                    Resolucion = t.Resolucion,
+                    Resolucion = t.Resolucion != null ? t.Resolucion : "Sin Resolución",
 
                     Estatus = t.Estatus.NombreEstatus,
                     Categoria = t.Categoria.NombreCategoria,
@@ -182,6 +181,13 @@ namespace DataAccess.Repositorios.Tiquetes
         {
             //_context.Tiquetes.Update(tiquete);
             await _context.SaveChangesAsync();
+        }
+
+        public async Task<bool> ExisteTiquete(int id)
+        {
+            return await _context.Tiquetes
+                .AsNoTracking()
+                .AnyAsync(t => t.IdTiquete == id);
         }
     }
 }
