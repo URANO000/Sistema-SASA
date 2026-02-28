@@ -1,8 +1,9 @@
 ﻿using DataAccess.Identity;
 using DataAccess.Modelos.Entidades;
+using DataAccess.Modelos.Entidades.Autenticacion;
+using DataAccess.Modelos.Entidades.Integracion;
 using DataAccess.Modelos.Entidades.Inventario;
 using DataAccess.Modelos.Entidades.ModTiquete;
-using DataAccess.Modelos.Entidades.Integracion;
 using DataAccess.Modelos.Enums;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
@@ -33,6 +34,7 @@ namespace DataAccess
         public DbSet<Notificacion> Notificaciones { get; set; }
         public DbSet<NotificacionSilencio> NotificacionSilencios { get; set; }
         public DbSet<IntegracionHistorial> IntegracionHistorial { get; set; }
+        public DbSet<IntentoInicioSesion> IntentosInicioSesion { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -162,6 +164,22 @@ namespace DataAccess
                 entity.ToTable("TipoLicenciaInventario");
                 entity.HasKey(x => x.IdTipoLicencia);
                 entity.Property(x => x.Nombre).HasMaxLength(60).IsRequired();
+            });
+
+            modelBuilder.Entity<IntentoInicioSesion>(entity =>
+            {
+                entity.ToTable("IntentoInicioSesion");
+                entity.HasKey(x => x.Id);
+
+                entity.Property(x => x.EmailIngresado).HasMaxLength(256).IsRequired();
+                entity.Property(x => x.MotivoFallo).HasMaxLength(80);
+                entity.Property(x => x.IpAddress).HasMaxLength(45);
+                entity.Property(x => x.UserAgent).HasMaxLength(256);
+
+                entity.HasOne(x => x.User)
+                    .WithMany()
+                    .HasForeignKey(x => x.UserId)
+                    .OnDelete(DeleteBehavior.SetNull);
             });
         }
 

@@ -1,4 +1,5 @@
-﻿using BusinessLogic.Servicios.Correo;
+﻿using BusinessLogic.Servicios.Autenticacion;
+using BusinessLogic.Servicios.Correo;
 using BusinessLogic.Servicios.Rol;
 using BusinessLogic.Servicios.Usuarios;
 using DataAccess.Modelos.DTOs.Usuarios;
@@ -27,13 +28,15 @@ namespace SASA.Controllers
         private readonly IRolService _rolService;
         private readonly ICorreoNotificacionesService _correoNotificaciones;
         private readonly AppSettings _appSettings;
+        private readonly ILoginAttemptService _loginAttemptService;
 
-        public UsuarioController(IUsuarioService usuarioService, IRolService rolService, ICorreoNotificacionesService correoNotificaciones, IOptions<AppSettings> appOptions)
+        public UsuarioController(IUsuarioService usuarioService, IRolService rolService, ICorreoNotificacionesService correoNotificaciones, IOptions<AppSettings> appOptions, ILoginAttemptService loginAttemptService)
         {
             _usuarioService = usuarioService;
             _rolService = rolService;
             _correoNotificaciones = correoNotificaciones;
             _appSettings = appOptions.Value;
+            _loginAttemptService = loginAttemptService;
         }
 
 
@@ -74,7 +77,7 @@ namespace SASA.Controllers
                 {
                     Search = filtro.Search,
                     Departamento = filtro.Departamento,
-                    Estado =  filtro.Estado,
+                    Estado = filtro.Estado,
                     PageNumber = filtroDto.PageNumber,
                     PageSize = filtroDto.PageSize,
                     TotalPages = result.TotalPages
@@ -335,6 +338,17 @@ namespace SASA.Controllers
                     ? string.Join(", ", usuario.Roles)
                     : "SIN ROL"
             };
+            var intentos = await _loginAttemptService.ObtenerUltimosPorUsuarioAsync(id, 15);
+
+            model.IntentosLogin = intentos.Select(x => new LoginAttemptItemViewModel
+            {
+                FechaUtc = x.FechaUtc,
+                Exitoso = x.Exitoso,
+                MotivoFallo = x.MotivoFallo,
+                IpAddress = x.IpAddress,
+                UserAgent = x.UserAgent,
+                EmailIngresado = x.EmailIngresado
+            }).ToList();
 
             return View(model);
         }

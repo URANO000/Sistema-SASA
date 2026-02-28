@@ -11,5 +11,8 @@
 
         //Rol de usuario
         public string? Rol { get; init; } = default!;
+
+        //Intentos de login
+        public List<LoginAttemptItemViewModel> IntentosLogin { get; set; } = new();
     }
 }

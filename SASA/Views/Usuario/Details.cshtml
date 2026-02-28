@@ -73,7 +73,51 @@
             </div>
         </div>
 
-    
+        <hr />
+
+        <h5 class="mt-4">Intentos de inicio de sesión (últimos 15)</h5>
+
+        @if (Model.IntentosLogin == null || !Model.IntentosLogin.Any())
+        {
+            <div class="alert alert-info">
+                No hay intentos registrados para este usuario.
+            </div>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table table-sm table-striped align-middle">
+                    <thead>
+                        <tr>
+                            <th>Fecha (UTC)</th>
+                            <th>Resultado</th>
+                            <th>Motivo</th>
+                            <th>IP</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var intento in Model.IntentosLogin)
+                        {
+                            <tr>
+                                <td>@intento.FechaUtc.ToString("yyyy-MM-dd HH:mm:ss")</td>
+                                <td>
+                                    @if (intento.Exitoso)
+                                    {
+                                        <span class="badge bg-success">Exitoso</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-danger">Fallido</span>
+                                    }
+                                </td>
+                                <td>@(intento.Exitoso ? "-" : intento.MotivoFallo)</td>
+                                <td>@intento.IpAddress</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
 @* 
         <!-- ACTIVIDAD EN TIQUETES -->
         <div class="card">
