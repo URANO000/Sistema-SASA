@@ -89,7 +89,7 @@
                 <table class="table table-sm table-striped align-middle">
                     <thead>
                         <tr>
-                            <th>Fecha (UTC)</th>
+                            <th>Fecha (Local)</th>
                             <th>Resultado</th>
                             <th>Motivo</th>
                             <th>IP</th>
@@ -99,7 +99,7 @@
                         @foreach (var intento in Model.IntentosLogin)
                         {
                             <tr>
-                                <td>@intento.FechaUtc.ToString("yyyy-MM-dd HH:mm:ss")</td>
+                                <td>@intento.FechaLocal</td>
                                 <td>
                                     @if (intento.Exitoso)
                                     {
@@ -111,7 +111,7 @@
                                     }
                                 </td>
                                 <td>@(intento.Exitoso ? "-" : intento.MotivoFallo)</td>
-                                <td>@intento.IpAddress</td>
+                                <td>@(intento.IpAddress == "::1" ? "Localhost" : intento.IpAddress)</td>
                             </tr>
                         }
                     </tbody>

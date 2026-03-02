@@ -11,11 +11,11 @@ using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Options;
 using SASA.Configuration;
 using SASA.Filters;
+using SASA.Helpers;
 using SASA.ViewModels.Usuario;
 using SASA.ViewModels.Usuario.Extras;
 using System.Security.Claims;
 using System.Text;
-
 
 namespace SASA.Controllers
 {
@@ -343,6 +343,7 @@ namespace SASA.Controllers
             model.IntentosLogin = intentos.Select(x => new LoginAttemptItemViewModel
             {
                 FechaUtc = x.FechaUtc,
+                FechaLocal = DateTimeHelper.ToLocalString(x.FechaUtc),
                 Exitoso = x.Exitoso,
                 MotivoFallo = x.MotivoFallo,
                 IpAddress = x.IpAddress,
