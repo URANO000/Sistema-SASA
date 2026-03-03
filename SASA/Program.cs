@@ -1,18 +1,26 @@
+using BusinessLogic.Servicios.Attachments;
+using BusinessLogic.Servicios.Autenticacion;
+using BusinessLogic.Servicios.Avances;
 using BusinessLogic.Servicios.Categorias;
 using BusinessLogic.Servicios.Correo;
 using BusinessLogic.Servicios.Integracion;
 using BusinessLogic.Servicios.Notificaciones;
 using BusinessLogic.Servicios.Prioridad;
 using BusinessLogic.Servicios.Rol;
+using BusinessLogic.Servicios.TiqueteHistoriales;
 using BusinessLogic.Servicios.Tiquetes;
 using BusinessLogic.Servicios.Usuarios;
 using DataAccess;
 using DataAccess.Identity;
+using DataAccess.Repositorios.Attachments;
+using DataAccess.Repositorios.Autenticacion;
+using DataAccess.Repositorios.Avances;
 using DataAccess.Repositorios.Categorias;
 using DataAccess.Repositorios.Integracion;
 using DataAccess.Repositorios.Inventario;
 using DataAccess.Repositorios.Notificaciones;
 using DataAccess.Repositorios.Prioridad;
+using DataAccess.Repositorios.TiqueteHistoriales;
 using DataAccess.Repositorios.Tiquetes;
 using DataAccess.Repositorios.Usuarios;
 using Microsoft.AspNetCore.Authentication;
@@ -24,12 +32,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Distributed;
 using SASA.Configuration;
 using SASA.Services.Correo;
-using DataAccess.Repositorios.Avances;
-using BusinessLogic.Servicios.Avances;
-using DataAccess.Repositorios.Attachments;
-using BusinessLogic.Servicios.Attachments;
-using DataAccess.Repositorios.TiqueteHistoriales;
-using BusinessLogic.Servicios.TiqueteHistoriales;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -139,6 +141,8 @@ builder.Services.AddScoped<ICatalogosInventarioRepository, CatalogosInventarioRe
 
 builder.Services.AddScoped<IIntegracionService, IntegracionService>();
 
+builder.Services.AddScoped<ILoginAttemptRepository, LoginAttemptRepository>();
+builder.Services.AddScoped<ILoginAttemptService, LoginAttemptService>();
 
 // Configuración de correo (Microsoft Graph)
 builder.Services.AddScoped<ICorreoNotificacionesService, CorreoNotificacionesService>();
