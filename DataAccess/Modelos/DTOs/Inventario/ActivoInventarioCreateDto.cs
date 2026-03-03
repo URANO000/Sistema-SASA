@@ -1,4 +1,4 @@
-﻿namespace BusinessLogic.Modelos.DTOs.Inventario
+﻿namespace DataAccess.Modelos.DTOs.Inventario
 {
     public class ActivoInventarioCreateDto
     {

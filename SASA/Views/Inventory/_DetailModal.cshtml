@@ -1,0 +1,74 @@
+@model DataAccess.Modelos.DTOs.Inventario.ActivoInventarioDetailDto
+
+<div class="modal-header">
+    <h5 class="modal-title">
+        Detalle del Activo — <span class="fw-semibold">@Model.NumeroActivo</span>
+    </h5>
+    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+</div>
+
+<div class="modal-body">
+    <div class="row g-3">
+
+        <div class="col-md-7">
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <div class="border rounded p-3">
+                        <div class="text-muted small">Código</div>
+                        <div class="fw-semibold">@Model.NumeroActivo</div>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="border rounded p-3">
+                        <div class="text-muted small">Nombre máquina</div>
+                        <div class="fw-semibold">@(!string.IsNullOrWhiteSpace(Model.NombreMaquina) ? Model.NombreMaquina : "-")</div>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="border rounded p-3">
+                        <div class="text-muted small">Serie servicio</div>
+                        <div class="fw-semibold">@(!string.IsNullOrWhiteSpace(Model.SerieServicio) ? Model.SerieServicio : "-")</div>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="border rounded p-3">
+                        <div class="text-muted small">Tipo</div>
+                        <div class="fw-semibold">@(!string.IsNullOrWhiteSpace(Model.TipoActivoNombre) ? Model.TipoActivoNombre : "-")</div>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="border rounded p-3">
+                        <div class="text-muted small">Estado</div>
+                        <div class="fw-semibold">@(!string.IsNullOrWhiteSpace(Model.EstadoActivoNombre) ? Model.EstadoActivoNombre : "-")</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- QR -->
+        <div class="col-md-5">
+            <div class="border rounded p-3 h-100 d-flex flex-column align-items-center justify-content-center">
+                <div class="fw-semibold mb-2">QR del Activo</div>
+
+                <!-- data-code = el texto del QR -->
+                <div id="qrcodeModal" data-code="@Model.NumeroActivo" class="mb-2"></div>
+
+                <div class="text-muted small text-center">
+                    Escanee este código para identificar el activo rápidamente.
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<div class="modal-footer">
+    <a class="btn btn-outline-secondary" asp-action="Detail" asp-route-id="@Model.IdActivo">
+        Abrir en página
+    </a>
+    <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Cerrar</button>
+</div>

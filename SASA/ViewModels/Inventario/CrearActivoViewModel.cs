@@ -1,5 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using BusinessLogic.Modelos.DTOs.Inventario;
+using DataAccess.Modelos.DTOs.Inventario;
 
 namespace SASA.ViewModels.Inventario
 {

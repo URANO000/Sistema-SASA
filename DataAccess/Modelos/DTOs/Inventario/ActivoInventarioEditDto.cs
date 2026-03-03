@@ -1,8 +1,9 @@
-﻿namespace BusinessLogic.Modelos.DTOs.Inventario
+﻿namespace DataAccess.Modelos.DTOs.Inventario
 {
     public class ActivoInventarioEditDto
     {
-        public string NumeroActivo { get; set; } = ""; // para validar “no cambiar”
+        // Se mantiene aquí por compatibilidad, pero en el Service NO se permite cambiarlo.
+        public string NumeroActivo { get; set; } = "";
 
         public string NombreMaquina { get; set; } = "";
         public int IdTipoActivo { get; set; }

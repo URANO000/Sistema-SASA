@@ -1,16 +1,19 @@
-@model List<BusinessLogic.Modelos.DTOs.Inventario.ActivoInventarioListItemDto>
+@model SASA.ViewModels.Inventario.InventarioIndexViewModel
 
 @{
     ViewData["Title"] = "Activos de Equipos";
 
-    // Paginación (si el controller no lo manda, usamos defaults)
-    int page = ViewBag.Page ?? 1;
-    int totalPages = ViewBag.TotalPages ?? 1;
-    int pageSize = ViewBag.PageSize ?? 10;
-
-    string q = Context.Request.Query["q"];
-    string estadoId = Context.Request.Query["estadoId"];
-    string tipoId = Context.Request.Query["tipoId"];
+    string BuildUrl(string sortBy, string sortDir, int pageNumber)
+        => Url.Action("Index", "Inventory", new
+        {
+            q = Model.Q,
+            estadoId = Model.EstadoId,
+            tipoId = Model.TipoId,
+            pageNumber = pageNumber,
+            pageSize = Model.PageSize,
+            sortBy = sortBy,
+            sortDir = sortDir
+        })!;
 }
 
 <div class="container-fluid">
@@ -37,16 +40,16 @@
 
             <!-- Filters -->
             <form method="get">
-                <!-- Cuando filtro, vuelvo a la página 1 -->
-                <input type="hidden" name="page" value="1" />
-                <input type="hidden" name="pageSize" value="@pageSize" />
+                <input type="hidden" name="pageNumber" value="1" />
+                <input type="hidden" name="pageSize" value="@Model.PageSize" />
+                <input type="hidden" name="sortBy" value="@Model.SortBy" />
+                <input type="hidden" name="sortDir" value="@Model.SortDir" />
 
                 <div class="row g-2 mb-3">
-
                     <div class="col-12 col-md-4">
                         <input type="text"
                                name="q"
-                               value="@q"
+                               value="@Model.Q"
                                class="form-control"
                                placeholder="Buscar por nombre o código..." />
                     </div>
@@ -54,7 +57,7 @@
                     <div class="col-12 col-md-4">
                         <select class="form-select"
                                 name="estadoId"
-                                asp-items="ViewBag.Estados">
+                                asp-items="Model.Estados">
                             <option value="">Estado</option>
                         </select>
                     </div>
@@ -62,7 +65,7 @@
                     <div class="col-12 col-md-2">
                         <select class="form-select"
                                 name="tipoId"
-                                asp-items="ViewBag.Tipos">
+                                asp-items="Model.Tipos">
                             <option value="">Tipo de Activo</option>
                         </select>
                     </div>
@@ -73,7 +76,6 @@
                             Filtrar
                         </button>
                     </div>
-
                 </div>
             </form>
 
@@ -83,42 +85,67 @@
                     <thead class="table-light">
                         <tr>
                             <th class="text-center" style="width:140px;">Acciones</th>
-                            <th>Código</th>
-                            <th>Nombre</th>
 
-                            <!-- En móvil se ocultan para que no se rompa -->
-                            <th class="d-none d-md-table-cell">Tipo</th>
-                            <th class="d-none d-md-table-cell">Estado</th>
+                            <th>
+                                <a class="text-decoration-none"
+                                   href="@BuildUrl("Codigo", Model.ToggleDir("Codigo"), 1)">
+                                    Código @Model.SortIcon("Codigo")
+                                </a>
+                            </th>
+
+                            <th>
+                                <a class="text-decoration-none"
+                                   href="@BuildUrl("Nombre", Model.ToggleDir("Nombre"), 1)">
+                                    Nombre @Model.SortIcon("Nombre")
+                                </a>
+                            </th>
+
+                            <th class="d-none d-md-table-cell">
+                                <a class="text-decoration-none"
+                                   href="@BuildUrl("Tipo", Model.ToggleDir("Tipo"), 1)">
+                                    Tipo @Model.SortIcon("Tipo")
+                                </a>
+                            </th>
+
+                            <th class="d-none d-md-table-cell">
+                                <a class="text-decoration-none"
+                                   href="@BuildUrl("Estado", Model.ToggleDir("Estado"), 1)">
+                                    Estado @Model.SortIcon("Estado")
+                                </a>
+                            </th>
                         </tr>
                     </thead>
 
                     <tbody>
-                        @if (Model != null && Model.Any())
+                        @if (Model.Items != null && Model.Items.Any())
                         {
-                            foreach (var a in Model)
+                            foreach (var a in Model.Items)
                             {
                                 <tr>
                                     <td class="text-center">
-                                        <a asp-action="Detail" asp-route-id="@a.IdActivo" class="btn btn-link p-0 me-2" title="Ver detalle">
+                                        <button type="button"
+                                                class="btn btn-link p-0 me-2"
+                                                title="Ver detalle"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#activoDetailModal"
+                                                data-id="@a.IdActivo">
                                             <i class="bi bi-eye detail-btn"></i>
-                                        </a>
+                                        </button>
 
                                         <a asp-action="Edit" asp-route-id="@a.IdActivo" class="btn btn-link p-0 me-2" title="Editar">
                                             <i class="fa-regular fa-pen-to-square edit-btn"></i>
                                         </a>
-
-                                        <button type="button" class="btn btn-link text-danger p-0" title="Eliminar (pendiente)">
-                                            <i class="bi bi-trash3"></i>
-                                        </button>
                                     </td>
 
                                     <td class="fw-semibold">@a.NumeroActivo</td>
                                     <td>@a.NombreMaquina</td>
 
-                                    <td class="d-none d-md-table-cell">@a.TipoActivo?.Nombre</td>
+                                    <td class="d-none d-md-table-cell">@(!string.IsNullOrWhiteSpace(a.TipoActivoNombre) ? a.TipoActivoNombre : "-")</td>
 
                                     <td class="d-none d-md-table-cell">
-                                        <span class="badge bg-secondary">@a.EstadoActivo?.Nombre</span>
+                                        <span class="badge bg-secondary">
+                                            @(!string.IsNullOrWhiteSpace(a.EstadoActivoNombre) ? a.EstadoActivoNombre : "-")
+                                        </span>
                                     </td>
                                 </tr>
                             }
@@ -138,43 +165,83 @@
             <!-- Paginación -->
             <div class="d-flex flex-column flex-md-row justify-content-between align-items-center gap-2 mt-3">
                 <div class="text-muted small">
-                    Página <strong></strong> de <strong>@totalPages</strong>
+                    Página <strong>@Model.PageNumber</strong> de <strong>@Model.TotalPages</strong>
                 </div>
 
                 <nav aria-label="Paginación">
                     <ul class="pagination mb-0">
-
-                        @{
-                            bool prevDisabled = page <= 1;
-                            bool nextDisabled = page >= totalPages;
-
-                            string BuildUrl(int targetPage) =>
-                                Url.Action("Index", "Inventory", new
-                                {
-                                    q,
-                                    estadoId,
-                                    tipoId,
-                                    page = targetPage,
-                                    pageSize
-                                })!;
-                        }
-
-                        <li class="page-item @(prevDisabled ? "disabled" : "")">
-                            <a class="page-link" href="@(prevDisabled ? "#" : BuildUrl(page - 1))">Anterior</a>
+                        <li class="page-item @(!Model.HasPrev ? "disabled" : "")">
+                            <a class="page-link"
+                               href="@(!Model.HasPrev ? "#" : BuildUrl(Model.SortBy, Model.SortDir, Model.PageNumber - 1))">
+                                Anterior
+                            </a>
                         </li>
 
                         <li class="page-item active">
-                            <span class="page-link"></span>
+                            <span class="page-link">@Model.PageNumber</span>
                         </li>
 
-                        <li class="page-item @(nextDisabled ? "disabled" : "")">
-                            <a class="page-link" href="@(nextDisabled ? "#" : BuildUrl(page + 1))">Siguiente</a>
+                        <li class="page-item @(!Model.HasNext ? "disabled" : "")">
+                            <a class="page-link"
+                               href="@(!Model.HasNext ? "#" : BuildUrl(Model.SortBy, Model.SortDir, Model.PageNumber + 1))">
+                                Siguiente
+                            </a>
                         </li>
-
                     </ul>
                 </nav>
+            </div>
+
+            <!-- Modal (contenedor) -->
+            <div class="modal fade" id="activoDetailModal" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog modal-lg modal-dialog-scrollable">
+                    <div class="modal-content" id="activoDetailModalContent">
+                        <div class="modal-body text-center p-4 text-muted">
+                            Seleccione un activo...
+                        </div>
+                    </div>
+                </div>
             </div>
 
         </div>
     </div>
 </div>
+
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script>
+        const detailModal = document.getElementById('activoDetailModal');
+
+        detailModal.addEventListener('show.bs.modal', function (event) {
+            const button = event.relatedTarget;
+            const id = button.getAttribute('data-id');
+
+            const content = document.getElementById('activoDetailModalContent');
+            content.innerHTML = `<div class="modal-body text-center p-4 text-muted">Cargando...</div>`;
+
+            fetch(`/Inventory/DetailModal?id=${id}`)
+                .then(r => {
+                    if (!r.ok) throw new Error("No se pudo cargar el detalle.");
+                    return r.text();
+                })
+                .then(html => {
+                    content.innerHTML = html;
+
+                    // ✅ Generar QR luego de insertar el partial
+                    const qrDiv = document.getElementById("qrcodeModal");
+                    if (qrDiv && window.QRCode) {
+                        const codigo = qrDiv.getAttribute("data-code") || "";
+                        qrDiv.innerHTML = ""; // limpiar por si se abre varias veces
+                        new QRCode(qrDiv, { text: codigo, width: 160, height: 160 });
+                    }
+                })
+                .catch(() => {
+                    content.innerHTML = `
+                        <div class="modal-body p-4">
+                            <div class="alert alert-danger mb-0">
+                                Error cargando detalle.
+                            </div>
+                        </div>`;
+                });
+        });
+    </script>
+}

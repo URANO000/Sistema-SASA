@@ -10,7 +10,16 @@ namespace DataAccess.Repositorios.Inventario
         Task<List<ActivoInventario>> ListarAsync(string? q, int? estadoId, int? tipoId);
 
         Task<int> ContarAsync(string? q, int? estadoId, int? tipoId);
-        Task<List<ActivoInventario>> ListarPaginadoAsync(string? q, int? estadoId, int? tipoId, int skip, int take);
+
+        // ✅ Agregado sortBy/sortDir
+        Task<List<ActivoInventario>> ListarPaginadoAsync(
+            string? q,
+            int? estadoId,
+            int? tipoId,
+            int skip,
+            int take,
+            string sortBy,
+            string sortDir);
 
         // Validaciones / soporte Integración
         Task<bool> ExisteNumeroActivoAsync(string numeroActivo);
