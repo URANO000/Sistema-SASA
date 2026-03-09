@@ -12,6 +12,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using SASA.Filters;
+using Microsoft.Extensions.Options;
+using SASA.Configuration;
 using SASA.ViewModels.Attachments;
 using SASA.ViewModels.Avances;
 using SASA.ViewModels.Tiquete;
@@ -32,9 +34,18 @@ namespace SASA.Controllers
         private readonly IPrioridadService _prioridadService;
         private readonly IAvanceService _avanceService;
         private readonly IAttachmentService _attachmentService;
+        private readonly BusinessLogic.Servicios.Correo.ICorreoNotificacionesService _correoNotificaciones;
+        private readonly AppSettings _appSettings;
 
-        public TiqueteController(ITiqueteService tiqueteService, IUsuarioService usuarioService,
-            ICategoriaService categoriaService, IPrioridadService prioridadService, IAvanceService avanceService, IAttachmentService attachmentService)
+        public TiqueteController(
+            ITiqueteService tiqueteService,
+            IUsuarioService usuarioService,
+            ICategoriaService categoriaService,
+            IPrioridadService prioridadService,
+            IAvanceService avanceService,
+            IAttachmentService attachmentService,
+            BusinessLogic.Servicios.Correo.ICorreoNotificacionesService correoNotificaciones,
+            IOptions<AppSettings> appSettings)
         {
             _tiqueteService = tiqueteService;
             _usuarioService = usuarioService;
@@ -42,6 +53,8 @@ namespace SASA.Controllers
             _prioridadService = prioridadService;
             _avanceService = avanceService;
             _attachmentService = attachmentService;
+            _correoNotificaciones = correoNotificaciones;
+            _appSettings = appSettings.Value;
         }
         //GET: TiqueteController
         [Authorize(Roles = "Administrador, Empleado Normal")]
@@ -148,6 +161,26 @@ namespace SASA.Controllers
                 var esAdmin = User.IsInRole("Administrador"); //Retorna true o false
 
                 var idTiquete = await _tiqueteService.AgregarTiqueteAsync(dto, currentUserId, esAdmin);
+
+                // Enviar correo de confirmación al reporter (no bloqueante)
+                try
+                {
+                    var usuario = await _usuarioService.ObtenerUsuarioPorIdAsync(currentUserId);
+                    if (usuario != null && !string.IsNullOrWhiteSpace(usuario.CorreoEmpresa))
+                    {
+                        var nombre = $"{usuario.PrimerNombre} {usuario.PrimerApellido}".Trim();
+                        var baseUrl = (_appSettings.BaseUrl ?? "").TrimEnd('/');
+                        var detalleLink = string.IsNullOrWhiteSpace(baseUrl)
+                            ? $"/Tiquete/Details/{idTiquete}"
+                            : $"{baseUrl}/Tiquete/Details/{idTiquete}";
+
+                        _ = await _correoNotificaciones.EnviarTiqueteCreadoAsync(usuario.CorreoEmpresa, nombre, idTiquete, dto.Asunto, detalleLink);
+                    }
+                }
+                catch
+                {
+                    // No interrumpir el flujo si el correo falla
+                }
 
                 return Ok(new
                 {

@@ -43,5 +43,22 @@ namespace BusinessLogic.Servicios.Correo
                 return false; // regla: no rompe el sistema
             }
         }
+
+        public async Task<bool> EnviarTiqueteCreadoAsync(string toEmail, string nombreUsuario, int tiqueteId, string asunto, string detalleLink)
+        {
+            var subject = $"Tiquete creado - {asunto}";
+            var html = PlantillasCorreo.TiqueteCreado(nombreUsuario, tiqueteId, asunto, detalleLink);
+
+            try
+            {
+                await _emailService.SendEmailAsync(toEmail, nombreUsuario, subject, html);
+                return true;
+            }
+            catch
+            {
+                // No propagamos la excepción: la regla del sistema es no romper el flujo por fallos en correo
+                return false;
+            }
+        }
     }
 }
