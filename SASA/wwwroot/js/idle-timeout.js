@@ -1,6 +1,6 @@
 ﻿(() => {
-    const IDLE_MINUTES = 2;       // ✅ antes 2, ahora 15
-    const WARNING_SECONDS = 60;    // modal 60s antes
+    const IDLE_MINUTES = 15;
+    const WARNING_SECONDS = 60;
 
     const idleMs = IDLE_MINUTES * 60 * 1000;
     const warningMs = idleMs - (WARNING_SECONDS * 1000);
@@ -11,7 +11,7 @@
 
     let modalInstance = null;
     let lastPingAt = 0; // para no spamear keepalive
-    let warningVisible = false; // ✅ NUEVO: si el modal está visible
+    let warningVisible = false; // NUEVO: si el modal está visible
 
     const getCsrf = () => {
         const el = document.querySelector('meta[name="csrf-token"]');
@@ -83,7 +83,7 @@
         } catch { }
     };
 
-    // ✅ Arranca/reinicia timers SIN tocar el modal
+    // Arranca/reinicia timers SIN tocar el modal
     const startTimers = () => {
         clearTimeout(warnTimer);
         clearTimeout(logoutTimer);
@@ -92,15 +92,14 @@
         logoutTimer = setTimeout(logoutNow, idleMs);
     };
 
-    // ✅ Solo reinicia por actividad si NO está el modal visible
     const onUserActivity = () => {
-        if (warningVisible) return; // 👈 aquí está la clave
+        if (warningVisible) return;
         startTimers();
         pingActivity();
     };
 
     const stayConnected = async () => {
-        // ✅ SOLO el botón revive sesión
+        // SOLO el botón revive sesión
         await pingActivity();
         hideWarning();
         startTimers();
@@ -109,7 +108,6 @@
     document.addEventListener('click', (e) => {
         const target = e.target;
         if (target && target.id === 'btnStayConnected') {
-            console.log("✅ Click en Mantener sesión");
             e.preventDefault();
             stayConnected();
         }
