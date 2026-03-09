@@ -51,7 +51,7 @@ namespace DataAccess.Repositorios.Tiquetes
             {
                 var fecha = filtro.Fecha.Value.Date;
 
-                query = query.Where(t => t.CreatedAt >= fecha);
+                query = query.Where(t => t.CreatedAt == fecha);
             }
             else if (filtro.FechaInicio.HasValue && filtro.FechaFinal.HasValue)
             {
