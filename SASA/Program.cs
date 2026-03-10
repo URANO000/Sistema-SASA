@@ -1,4 +1,5 @@
 using BusinessLogic.Servicios.Attachments;
+using BusinessLogic.Servicios.Autenticacion;
 using BusinessLogic.Servicios.Avances;
 using BusinessLogic.Servicios.Categorias;
 using BusinessLogic.Servicios.Correo;
@@ -7,6 +8,7 @@ using BusinessLogic.Servicios.Inventario;
 using BusinessLogic.Servicios.Notificaciones;
 using BusinessLogic.Servicios.Prioridad;
 using BusinessLogic.Servicios.Rol;
+using BusinessLogic.Servicios.SubCategorias;
 using BusinessLogic.Servicios.TiqueteHistoriales;
 using BusinessLogic.Servicios.Tiquetes;
 using BusinessLogic.Servicios.Usuarios;
@@ -14,6 +16,7 @@ using BusinessLogic.Servicios.InventarioTelefono;
 using DataAccess;
 using DataAccess.Identity;
 using DataAccess.Repositorios.Attachments;
+using DataAccess.Repositorios.Autenticacion;
 using DataAccess.Repositorios.Avances;
 using DataAccess.Repositorios.Categorias;
 using DataAccess.Repositorios.Integracion;
@@ -21,6 +24,7 @@ using DataAccess.Repositorios.Inventario;
 using DataAccess.Repositorios.InventarioTelefono;
 using DataAccess.Repositorios.Notificaciones;
 using DataAccess.Repositorios.Prioridad;
+using DataAccess.Repositorios.SubCategorias;
 using DataAccess.Repositorios.TiqueteHistoriales;
 using DataAccess.Repositorios.Tiquetes;
 using DataAccess.Repositorios.Usuarios;
@@ -115,6 +119,8 @@ builder.Services.ConfigureApplicationCookie(options =>
 //Repositories y Servicios de negocio
 builder.Services.AddScoped<ITiqueteRepository, TiqueteRepository>();
 builder.Services.AddScoped<ITiqueteService, TiqueteService>();
+builder.Services.AddScoped<ISubCategoriaRepository, SubCategoriaRepository>();
+builder.Services.AddScoped<ISubCategoriaService, SubCategoriaService>();
 builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
 builder.Services.AddScoped<IUsuarioService, UsuarioService>();
 builder.Services.AddScoped<IRolService, RolService>();
@@ -145,6 +151,10 @@ builder.Services.AddScoped<IInventarioService, InventarioService>();
 builder.Services.AddScoped<IActivoInventarioRepository, ActivoInventarioRepository>();
 builder.Services.AddScoped<ICatalogosInventarioRepository, CatalogosInventarioRepository>();
 
+builder.Services.AddScoped<IIntegracionService, IntegracionService>();
+
+builder.Services.AddScoped<ILoginAttemptRepository, LoginAttemptRepository>();
+builder.Services.AddScoped<ILoginAttemptService, LoginAttemptService>();
 // Inventario Teléfonos
 builder.Services.AddScoped<IActivoTelefonoRepository, ActivoTelefonoRepository>();
 builder.Services.AddScoped<IActivoTelefonoService, ActivoTelefonoService>();

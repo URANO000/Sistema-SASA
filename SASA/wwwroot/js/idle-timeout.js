@@ -1,6 +1,6 @@
 ﻿(() => {
-    const IDLE_MINUTES = 2;        // <-- X aquí (producción)
-    const WARNING_SECONDS = 60;     // modal 60s antes
+    const IDLE_MINUTES = 15;
+    const WARNING_SECONDS = 60;
 
     const idleMs = IDLE_MINUTES * 60 * 1000;
     const warningMs = idleMs - (WARNING_SECONDS * 1000);
@@ -11,6 +11,7 @@
 
     let modalInstance = null;
     let lastPingAt = 0; // para no spamear keepalive
+    let warningVisible = false; // NUEVO: si el modal está visible
 
     const getCsrf = () => {
         const el = document.querySelector('meta[name="csrf-token"]');
@@ -20,7 +21,7 @@
     const ensureModal = () => {
         const el = document.getElementById('sessionTimeoutModal');
         if (!el) return null;
-        if (!modalInstance) modalInstance = new bootstrap.Modal(el);
+        if (!modalInstance) modalInstance = new bootstrap.Modal(el, { backdrop: 'static', keyboard: false });
         return modalInstance;
     };
 
@@ -31,6 +32,7 @@
 
     const hideWarning = () => {
         stopCountdown();
+        warningVisible = false;
         const m = ensureModal();
         if (m) m.hide();
     };
@@ -38,6 +40,8 @@
     const showWarning = () => {
         const m = ensureModal();
         if (!m) return;
+
+        warningVisible = true;
 
         let remaining = WARNING_SECONDS;
         const label = document.getElementById('sessionTimeoutCountdown');
@@ -57,9 +61,7 @@
         try {
             await fetch('/logout', {
                 method: 'POST',
-                headers: {
-                    'RequestVerificationToken': getCsrf()
-                }
+                headers: { 'RequestVerificationToken': getCsrf() }
             });
         } catch { }
 
@@ -81,31 +83,40 @@
         } catch { }
     };
 
-    const resetTimers = () => {
+    // Arranca/reinicia timers SIN tocar el modal
+    const startTimers = () => {
         clearTimeout(warnTimer);
         clearTimeout(logoutTimer);
 
-        hideWarning();
-
         warnTimer = setTimeout(showWarning, warningMs);
         logoutTimer = setTimeout(logoutNow, idleMs);
+    };
 
-        // actividad humana → avisa al backend (throttle)
+    const onUserActivity = () => {
+        if (warningVisible) return;
+        startTimers();
         pingActivity();
     };
 
     const stayConnected = async () => {
-        // botón del modal
+        // SOLO el botón revive sesión
         await pingActivity();
-        resetTimers();
+        hideWarning();
+        startTimers();
     };
 
-    const btn = document.getElementById('btnStayConnected');
-    if (btn) btn.addEventListener('click', stayConnected);
-
-    ['mousemove', 'mousedown', 'keydown', 'scroll', 'touchstart'].forEach(ev => {
-        document.addEventListener(ev, resetTimers, { passive: true });
+    document.addEventListener('click', (e) => {
+        const target = e.target;
+        if (target && target.id === 'btnStayConnected') {
+            e.preventDefault();
+            stayConnected();
+        }
     });
 
-    resetTimers();
+    ['mousemove', 'mousedown', 'keydown', 'scroll', 'touchstart'].forEach(ev => {
+        document.addEventListener(ev, onUserActivity, { passive: true });
+    });
+
+    // inicio
+    startTimers();
 })();

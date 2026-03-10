@@ -73,7 +73,79 @@
             </div>
         </div>
 
-    
+        <hr />
+
+        <div class="card mb-4">
+            <div class="card-body">
+                <div class="text-uppercase text-muted mb-3" style="font-size: .75rem; letter-spacing: .04em;">
+                    Intentos de inicio de sesión (últimos 15)
+                </div>
+
+                @if (Model.IntentosLogin == null || !Model.IntentosLogin.Any())
+                {
+                    <div class="alert alert-info mb-0">
+                        No hay intentos registrados para este usuario.
+                    </div>
+                }
+                else
+                {
+                    <div class="table-responsive">
+                        <table class="table table-sm align-middle mb-0">
+                            <thead>
+                                <tr class="text-muted" style="font-size:.875rem;">
+                                    <th>Fecha (Local)</th>
+                                    <th>Resultado</th>
+                                    <th>Motivo</th>
+                                    <th>IP</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var intento in Model.IntentosLogin)
+                                {
+                                    <tr>
+                                        <td>@intento.FechaLocal</td>
+                                        <td>
+                                            @if (intento.Exitoso)
+                                            {
+                                                <span class="badge bg-success">Exitoso</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-danger">Fallido</span>
+                                            }
+                                        </td>
+                                        <td>
+                                            @{
+                                                string motivo = intento.MotivoFallo ?? "";
+                                                motivo = motivo switch
+                                                {
+                                                    "InvalidCredentials" => "Credenciales inválidas",
+                                                    "UserNotFound" => "Usuario no existe",
+                                                    "LockedOut" => "Bloqueo temporal",
+                                                    "NotAllowed" => "No permitido (sin activar)",
+                                                    "Disabled" => "Cuenta desactivada",
+                                                    _ => (string.IsNullOrWhiteSpace(motivo) ? "-" : motivo)
+                                                };
+                                            }
+                                            @(intento.Exitoso ? "-" : motivo)
+                                        </td>
+                                        <td>
+                                            @{
+                                                var ipMostrar =
+                                                (intento.IpAddress == "::1" || intento.IpAddress == "127.0.0.1")
+                                                ? "Localhost"
+                                                : intento.IpAddress;
+                                            }
+                                            <span class="badge bg-light text-dark">@ipMostrar</span>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+            </div>
+        </div>
 @* 
         <!-- ACTIVIDAD EN TIQUETES -->
         <div class="card">

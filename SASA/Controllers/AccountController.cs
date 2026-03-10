@@ -1,3 +1,4 @@
+using BusinessLogic.Servicios.Autenticacion;
 using BusinessLogic.Servicios.Correo;
 using DataAccess.Identity;
 using Microsoft.AspNetCore.Antiforgery;
@@ -9,6 +10,7 @@ using Microsoft.Extensions.Options;
 using SASA.Configuration;
 using SASA.ViewModels.Auth;
 using System.Text;
+
 namespace SASA.Controllers
 {
     public class AccountController : Controller
@@ -19,6 +21,7 @@ namespace SASA.Controllers
         private readonly ICorreoNotificacionesService _correoNotificaciones;
         private readonly AppSettings _appSettings;
         private readonly IAntiforgery _antiforgery;
+        private readonly ILoginAttemptService _loginAttemptService;
 
         public AccountController(
             SignInManager<ApplicationUser> signInManager,
@@ -26,7 +29,8 @@ namespace SASA.Controllers
             ILogger<AccountController> logger,
             ICorreoNotificacionesService correoNotificaciones,
             IOptions<AppSettings> appSettings,
-            IAntiforgery antiforgery)
+            IAntiforgery antiforgery,
+            ILoginAttemptService loginAttemptService)
         {
             _signInManager = signInManager;
             _userManager = userManager;
@@ -34,6 +38,7 @@ namespace SASA.Controllers
             _correoNotificaciones = correoNotificaciones;
             _appSettings = appSettings.Value;
             _antiforgery = antiforgery;
+            _loginAttemptService = loginAttemptService;
         }
 
         [AllowAnonymous]
@@ -51,10 +56,17 @@ namespace SASA.Controllers
             if (!ModelState.IsValid)
                 return View(vm);
 
+            // captura datos del request una sola vez
+            var ip = HttpContext.Connection.RemoteIpAddress?.ToString();
+            var userAgent = Request.Headers["User-Agent"].ToString();
+
             // Buscar por email (no revelar si existe o no)
             var user = await _userManager.FindByEmailAsync(vm.Email!);
             if (user is null)
             {
+                // intento fallido (no existe usuario)
+                await _loginAttemptService.RegistrarAsync(vm.Email!, null, false, "UserNotFound", ip, userAgent);
+
                 ModelState.AddModelError(string.Empty, "Credenciales inválidas.");
                 return View(vm);
             }
@@ -62,6 +74,9 @@ namespace SASA.Controllers
             // Si el admin desactivó la cuenta
             if (!user.Estado)
             {
+                // intento fallido (deshabilitado)
+                await _loginAttemptService.RegistrarAsync(vm.Email!, user.Id, false, "Disabled", ip, userAgent);
+
                 ModelState.AddModelError(string.Empty, "Tu cuenta está desactivada. Contacta a un administrador.");
                 return View(vm);
             }
@@ -75,20 +90,32 @@ namespace SASA.Controllers
             );
 
             if (result.Succeeded)
+            {
+                // successful login
+                await _loginAttemptService.RegistrarAsync(vm.Email!, user.Id, true, null, ip, userAgent);
                 return Redirect("/Home/Index");
+            }
 
             if (result.IsLockedOut)
             {
+                // locked out
+                await _loginAttemptService.RegistrarAsync(vm.Email!, user.Id, false, "LockedOut", ip, userAgent);
+
                 ModelState.AddModelError(string.Empty, "Cuenta bloqueada temporalmente por múltiples intentos fallidos. Intenta más tarde.");
                 return View(vm);
             }
 
             if (result.IsNotAllowed)
             {
-                // Con RequireConfirmedEmail = true, cae aquí si no ha confirmado el email
+                // not allowed: email not confirmed, etc.
+                await _loginAttemptService.RegistrarAsync(vm.Email!, user.Id, false, "NotAllowed", ip, userAgent);
+
                 ModelState.AddModelError(string.Empty, "Debes activar tu cuenta desde el enlace enviado a tu correo antes de iniciar sesión.");
                 return View(vm);
             }
+
+            // not successful for other reasons (e.g. password incorrect)
+            await _loginAttemptService.RegistrarAsync(vm.Email!, user.Id, false, "InvalidCredentials", ip, userAgent);
 
             ModelState.AddModelError(string.Empty, "Credenciales inválidas.");
             return View(vm);

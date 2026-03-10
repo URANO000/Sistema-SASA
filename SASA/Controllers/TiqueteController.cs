@@ -181,6 +181,8 @@ namespace SASA.Controllers
             var model = new TiqueteEditarViewModel
             {
                 IdTiquete = tiquete.IdTiquete,
+                //Asunto = tiquete.Asunto,
+                //Descripcion = tiquete.Descripcion,
                 IdCategoria = tiquete.IdCategoria,
                 IdEstatus = tiquete.IdEstatus,
                 Resolucion = tiquete.Resolucion,
@@ -200,6 +202,12 @@ namespace SASA.Controllers
             if (!ModelState.IsValid)
             {
                 await CargarDropdownsAsync(model);
+                foreach (var error in ModelState)
+                {
+                    Console.WriteLine($"KEY: {error.Key}");
+                    foreach (var e in error.Value.Errors)
+                        Console.WriteLine($"ERROR: {e.ErrorMessage}");
+                }
                 return Json(new
                 {
                     success = false,
@@ -406,7 +414,7 @@ namespace SASA.Controllers
         private async Task CargarDropdownsAsync(TiqueteFormViewModel model)
         {
             //Obtener datos por medio de servicios
-            var categorias = await _categoriaService.ObtenerCategoriasAsync();
+            var categorias = await _categoriaService.ObtenerTodasAsync();
             var usuarios = await _usuarioService.ObtenerUsuariosTIAsync();
             var estatuses = Enum.GetValues(typeof(TiqueteEstatus))
                     .Cast<TiqueteEstatus>();
