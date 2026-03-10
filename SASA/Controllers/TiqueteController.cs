@@ -428,7 +428,7 @@ namespace SASA.Controllers
         private async Task CargarDropdownsAsync(TiqueteFormViewModel model)
         {
             //Obtener datos por medio de servicios
-            var categorias = await _categoriaService.ObtenerCategoriasAsync();
+            var categorias = await _categoriaService.ObtenerTodasAsync();
             var usuarios = await _usuarioService.ObtenerUsuariosTIAsync();
             var estatuses = Enum.GetValues(typeof(TiqueteEstatus))
                     .Cast<TiqueteEstatus>();

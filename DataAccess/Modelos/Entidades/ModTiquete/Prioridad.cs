@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace DataAccess.Modelos.Entidades.ModTiquete
 {
-    [Table("PRIORIDAD")]
+    [Table("Prioridad")]
     public class Prioridad
     {
         [Key]
@@ -11,12 +11,13 @@ namespace DataAccess.Modelos.Entidades.ModTiquete
         public int IdPrioridad { get; set; }
 
         [Column("nombrePrioridad")]
-        public string NombrePrioridad { get; set; }
+        public string NombrePrioridad { get; set; } = null!;
 
         [Column("duracionMinutos")]
         public int DuracionMinutos { get; set; }
-
-        //Collection -> Relacion entre entidades
+//Collection -> Relacion entre entidades
         public ICollection<SubCategoria>? SubCategorias { get; set; }
     }
 }
+
+

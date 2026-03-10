@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace DataAccess.Modelos.Entidades.ModTiquete
 {
-    [Table("CATEGORIA")]
+    [Table("Categoria")]
     public class Categoria
     {
         [Key]

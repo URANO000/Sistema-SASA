@@ -116,6 +116,8 @@ builder.Services.ConfigureApplicationCookie(options =>
 //Repositories y Servicios de negocio
 builder.Services.AddScoped<ITiqueteRepository, TiqueteRepository>();
 builder.Services.AddScoped<ITiqueteService, TiqueteService>();
+builder.Services.AddScoped<ISubCategoriaRepository, SubCategoriaRepository>();
+builder.Services.AddScoped<ISubCategoriaService, SubCategoriaService>();
 builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
 builder.Services.AddScoped<IUsuarioService, UsuarioService>();
 builder.Services.AddScoped<IRolService, RolService>();
