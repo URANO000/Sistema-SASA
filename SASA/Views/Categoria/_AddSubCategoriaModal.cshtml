@@ -1,0 +1,45 @@
+﻿@model SASA.ViewModels.Categoria.CrearSubCategoriaViewModel
+
+<div class="modal fade" id="addSubCategoriaModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form asp-controller="Categoria" asp-action="CrearSubCategoria" method="post">
+                @Html.AntiForgeryToken()
+
+                <div class="modal-header">
+                    <h5 class="modal-title">Nueva Subcategoría</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label asp-for="IdCategoria" class="form-label required-field"></label>
+                        <select asp-for="IdCategoria" asp-items="Model.Categorias" class="form-select">
+                            <option value="">Seleccione una categoría</option>
+                        </select>
+                        <span asp-validation-for="IdCategoria" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="IdPrioridad" class="form-label required-field"></label>
+                        <select asp-for="IdPrioridad" asp-items="Model.Prioridades" class="form-select">
+                            <option value="">Seleccione una prioridad</option>
+                        </select>
+                        <span asp-validation-for="IdPrioridad" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="NombreSubCategoria" class="form-label required-field"></label>
+                        <input asp-for="NombreSubCategoria" class="form-control" />
+                        <span asp-validation-for="NombreSubCategoria" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-custom">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
