@@ -5,7 +5,7 @@ namespace BusinessLogic.Servicios.Inventario
 {
     public interface IInventarioService
     {
-        Task<PagedResult<ActivoInventarioListItemDto>> ListarPaginadoAsync(ActivoInventarioFiltroDto filtros);
+        Task<PagedResult<ActivoTelefonoInventarioListItemDto>> ListarPaginadoAsync(ActivoInventarioFiltroDto filtros);
 
         Task<ActivoInventarioDetailDto?> ObtenerDetalleAsync(int id);
 

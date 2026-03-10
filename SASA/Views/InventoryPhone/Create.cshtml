@@ -1,0 +1,97 @@
+@model SASA.ViewModels.InventarioTelefono.CrearTelefonoViewModel
+
+@{
+    ViewData["Title"] = "Registrar Teléfono";
+}
+
+<div class="container-fluid">
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <div class="d-flex justify-content-between align-items-start mb-4">
+                <div>
+                    <h4 class="mb-1 fw-bold">Registrar Teléfono</h4>
+                    <div class="text-muted">Ingrese la información del activo teléfono.</div>
+                </div>
+
+                <div class="d-flex gap-2">
+                    <a asp-action="Index" class="btn btn-outline-secondary">Volver</a>
+                </div>
+            </div>
+
+            <form asp-action="Create" method="post">
+                @Html.AntiForgeryToken()
+
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label asp-for="NombreColaborador" class="form-label"></label>
+                        <input asp-for="NombreColaborador" class="form-control" />
+                        <span asp-validation-for="NombreColaborador" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="Departamento" class="form-label"></label>
+                        <input asp-for="Departamento" class="form-control" />
+                        <span asp-validation-for="Departamento" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="Operador" class="form-label"></label>
+                        <input asp-for="Operador" class="form-control" />
+                        <span asp-validation-for="Operador" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="NumeroCelular" class="form-label"></label>
+                        <input asp-for="NumeroCelular" class="form-control" />
+                        <span asp-validation-for="NumeroCelular" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="CorreoSistemasAnaliticos" class="form-label"></label>
+                        <input asp-for="CorreoSistemasAnaliticos" class="form-control" />
+                        <span asp-validation-for="CorreoSistemasAnaliticos" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="Modelo" class="form-label"></label>
+                        <input asp-for="Modelo" class="form-control" />
+                        <span asp-validation-for="Modelo" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="IMEI" class="form-label"></label>
+                        <input asp-for="IMEI" class="form-control" />
+                        <span asp-validation-for="IMEI" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-3">
+                        <div class="form-check mt-4">
+                            <input asp-for="Cargador" class="form-check-input" />
+                            <label asp-for="Cargador" class="form-check-label"></label>
+                        </div>
+                        <span asp-validation-for="Cargador" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-3">
+                        <div class="form-check mt-4">
+                            <input asp-for="Auriculares" class="form-check-input" />
+                            <label asp-for="Auriculares" class="form-check-label"></label>
+                        </div>
+                        <span asp-validation-for="Auriculares" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="mt-4 d-flex gap-2">
+                    <button type="submit" class="btn btn-custom">Guardar</button>
+                    <a asp-action="Index" class="btn btn-outline-secondary">Cancelar</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

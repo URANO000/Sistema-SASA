@@ -14,7 +14,7 @@ namespace BusinessLogic.Servicios.Inventario
             _repo = repo;
         }
 
-        public async Task<PagedResult<ActivoInventarioListItemDto>> ListarPaginadoAsync(ActivoInventarioFiltroDto filtros)
+        public async Task<PagedResult<ActivoTelefonoInventarioListItemDto>> ListarPaginadoAsync(ActivoInventarioFiltroDto filtros)
         {
             var page = filtros.Page < 1 ? 1 : filtros.Page;
             var pageSize = filtros.PageSize < 5 ? 5 : filtros.PageSize;
@@ -35,7 +35,7 @@ namespace BusinessLogic.Servicios.Inventario
                 filtros.SortDir
             );
 
-            var items = data.Select(a => new ActivoInventarioListItemDto
+            var items = data.Select(a => new ActivoTelefonoInventarioListItemDto
             {
                 IdActivo = a.IdActivo,
                 NumeroActivo = a.NumeroActivo,
@@ -51,7 +51,7 @@ namespace BusinessLogic.Servicios.Inventario
             var totalPages = (int)Math.Ceiling(total / (double)pageSize);
             if (totalPages < 1) totalPages = 1;
 
-            return new PagedResult<ActivoInventarioListItemDto>
+            return new PagedResult<ActivoTelefonoInventarioListItemDto>
             {
                 Items = items,
                 TotalRecords = total,

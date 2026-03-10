@@ -5,7 +5,7 @@ namespace SASA.ViewModels.Inventario
 {
     public class InventarioIndexViewModel
     {
-        public List<ActivoInventarioListItemDto> Items { get; set; } = new();
+        public List<ActivoTelefonoInventarioListItemDto> Items { get; set; } = new();
 
         // Paginación
         public int PageNumber { get; set; } = 1;

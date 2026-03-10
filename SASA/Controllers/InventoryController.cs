@@ -3,11 +3,13 @@ using DataAccess.Modelos.DTOs.Inventario;
 using DataAccess.Repositorios.Inventario;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.AspNetCore.Authorization;
+using SASA.Filters;
 using SASA.ViewModels.Inventario;
-using System.Globalization;
 
 namespace SASA.Controllers
 {
+    [RequireAuth]
     public class InventoryController : Controller
     {
         private readonly IInventarioService _inventario;
@@ -20,33 +22,14 @@ namespace SASA.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Index(
-    string? q,
-    int? estadoId,
-    int? tipoId,
-    int pageNumber = 1,
-    int pageSize = 10,
-    string sortBy = "Codigo",
-    string sortDir = "asc")
+        public async Task<IActionResult> Index(string? q, int? estadoId, int? tipoId, int pageNumber = 1, int pageSize = 10, string sortBy = "Codigo", string sortDir = "desc")
         {
             ViewData["Title"] = "Gestión de Activos de Equipos";
 
-            // Seguridad básica
             if (pageNumber < 1) pageNumber = 1;
             if (pageSize < 5) pageSize = 5;
             if (pageSize > 50) pageSize = 50;
 
-            // Sanitizar sorting
-            sortBy = (sortBy ?? "Codigo").Trim();
-            sortDir = (sortDir ?? "asc").Trim().ToLower();
-            if (sortDir != "asc" && sortDir != "desc") sortDir = "asc";
-
-            // Whitelist columnas válidas
-            var allowed = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
-    { "Codigo", "Nombre", "Tipo", "Estado" };
-            if (!allowed.Contains(sortBy)) sortBy = "Codigo";
-
-            // Cargar combos (se mantiene como lo tenías para no mover capas hoy)
             var estados = (await _catRepo.ObtenerEstadosAsync()).OrderBy(e => e.Nombre);
             var tipos = (await _catRepo.ObtenerTiposAsync()).OrderBy(t => t.Nombre);
 
@@ -57,8 +40,6 @@ namespace SASA.Controllers
                 IdTipoActivo = tipoId,
                 Page = pageNumber,
                 PageSize = pageSize,
-
-                // NUEVO
                 SortBy = sortBy,
                 SortDir = sortDir
             };
@@ -67,7 +48,7 @@ namespace SASA.Controllers
 
             var vm = new InventarioIndexViewModel
             {
-                Items = result.Items?.ToList() ?? new List<ActivoInventarioListItemDto>(),
+                Items = result.Items?.ToList() ?? new List<ActivoTelefonoInventarioListItemDto>(),
 
                 PageNumber = result.PageNumber,
                 PageSize = result.PageSize,
@@ -78,7 +59,6 @@ namespace SASA.Controllers
                 EstadoId = estadoId,
                 TipoId = tipoId,
 
-                // NUEVO
                 SortBy = sortBy,
                 SortDir = sortDir,
 
@@ -89,6 +69,7 @@ namespace SASA.Controllers
             return View(vm);
         }
 
+        [Authorize(Roles = "Administrador")]
         [HttpGet]
         public async Task<IActionResult> Create()
         {
@@ -97,6 +78,7 @@ namespace SASA.Controllers
             return View(new CrearActivoViewModel());
         }
 
+        [Authorize(Roles = "Administrador")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(CrearActivoViewModel model)
@@ -113,9 +95,17 @@ namespace SASA.Controllers
             {
                 NumeroActivo = model.NumeroActivo,
                 NombreMaquina = model.NombreMaquina,
-                SerieServicio = model.SerieServicio,
                 IdTipoActivo = model.IdTipoActivo,
-                IdEstadoActivo = model.IdEstadoActivo
+                IdEstadoActivo = model.IdEstadoActivo,
+
+                Marca = model.Marca,
+                Modelo = model.Modelo,
+                SerieServicio = model.SerieServicio,
+                DireccionMAC = model.DireccionMAC,
+                SistemaOperativo = model.SistemaOperativo,
+
+                IdTipoLicencia = model.IdTipoLicencia,
+                ClaveLicencia = model.ClaveLicencia
             };
 
             var (ok, error) = await _inventario.CrearAsync(dto);
@@ -130,6 +120,7 @@ namespace SASA.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+        [Authorize(Roles = "Administrador")]
         [HttpGet]
         public async Task<IActionResult> Edit(int id)
         {
@@ -142,16 +133,26 @@ namespace SASA.Controllers
 
             var vm = new CrearActivoViewModel
             {
-                NumeroActivo = detalle.NumeroActivo,
+                NumeroActivo = detalle.NumeroActivo ?? "",
                 NombreMaquina = detalle.NombreMaquina ?? "",
-                SerieServicio = detalle.SerieServicio ?? "",
+                SerieServicio = detalle.SerieServicio,
+
                 IdTipoActivo = detalle.IdTipoActivo,
-                IdEstadoActivo = detalle.IdEstadoActivo
+                IdEstadoActivo = detalle.IdEstadoActivo,
+
+                Marca = detalle.Marca,
+                Modelo = detalle.Modelo,
+                DireccionMAC = detalle.DireccionMAC,
+                SistemaOperativo = detalle.SistemaOperativo,
+
+                IdTipoLicencia = detalle.IdTipoLicencia,
+                ClaveLicencia = detalle.ClaveLicencia
             };
 
             return View(vm);
         }
 
+        [Authorize(Roles = "Administrador")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, CrearActivoViewModel model)
@@ -166,11 +167,19 @@ namespace SASA.Controllers
 
             var dto = new ActivoInventarioEditDto
             {
-                // NumeroActivo NO se cambia (regla)
+                NumeroActivo = model.NumeroActivo,
                 NombreMaquina = model.NombreMaquina,
                 SerieServicio = model.SerieServicio,
                 IdTipoActivo = model.IdTipoActivo,
-                IdEstadoActivo = model.IdEstadoActivo
+                IdEstadoActivo = model.IdEstadoActivo,
+
+                Marca = model.Marca,
+                Modelo = model.Modelo,
+                DireccionMAC = model.DireccionMAC,
+                SistemaOperativo = model.SistemaOperativo,
+
+                IdTipoLicencia = model.IdTipoLicencia,
+                ClaveLicencia = model.ClaveLicencia
             };
 
             var (ok, error) = await _inventario.ActualizarAsync(id, dto);
@@ -185,17 +194,9 @@ namespace SASA.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        [HttpGet]
-        public async Task<IActionResult> Detail(int id)
-        {
-            ViewData["Title"] = "Detalle del Activo";
-
-            var detalle = await _inventario.ObtenerDetalleAsync(id);
-            if (detalle == null) return NotFound();
-
-            return View(detalle);
-        }
-
+        // ==========================
+        // DETAIL MODAL (YA LO TENÉS)
+        // ==========================
         [HttpGet]
         public async Task<IActionResult> DetailModal(int id)
         {
@@ -204,6 +205,134 @@ namespace SASA.Controllers
 
             return PartialView("_DetailModal", detalle);
         }
+
+        // ==========================
+        // EDIT MODAL — NUEVO
+        // ==========================
+        [Authorize(Roles = "Administrador")]
+        [HttpGet]
+        public async Task<IActionResult> EditModal(int id)
+        {
+            var detalle = await _inventario.ObtenerDetalleAsync(id);
+            if (detalle == null) return NotFound();
+
+            await CargarCatalogosAsync(detalle.IdTipoActivo, detalle.IdEstadoActivo);
+
+            var vm = new CrearActivoViewModel
+            {
+                NumeroActivo = detalle.NumeroActivo ?? "",
+                NombreMaquina = detalle.NombreMaquina ?? "",
+
+                IdTipoActivo = detalle.IdTipoActivo,
+                IdEstadoActivo = detalle.IdEstadoActivo,
+
+                Marca = detalle.Marca,
+                Modelo = detalle.Modelo,
+                SerieServicio = detalle.SerieServicio,
+                DireccionMAC = detalle.DireccionMAC,
+                SistemaOperativo = detalle.SistemaOperativo,
+
+                IdTipoLicencia = detalle.IdTipoLicencia,
+                ClaveLicencia = detalle.ClaveLicencia
+            };
+
+            return PartialView("_EditModal", vm);
+        }
+
+        [Authorize(Roles = "Administrador")]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EditModal(int id, CrearActivoViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                await CargarCatalogosAsync(model.IdTipoActivo, model.IdEstadoActivo);
+                return PartialView("_EditModal", model);
+            }
+
+            var dto = new ActivoInventarioEditDto
+            {
+                NumeroActivo = model.NumeroActivo,
+                NombreMaquina = model.NombreMaquina,
+                IdTipoActivo = model.IdTipoActivo,
+                IdEstadoActivo = model.IdEstadoActivo,
+
+                Marca = model.Marca,
+                Modelo = model.Modelo,
+                SerieServicio = model.SerieServicio,
+                DireccionMAC = model.DireccionMAC,
+                SistemaOperativo = model.SistemaOperativo,
+
+                IdTipoLicencia = model.IdTipoLicencia,
+                ClaveLicencia = model.ClaveLicencia
+            };
+
+            var (ok, error) = await _inventario.ActualizarAsync(id, dto);
+
+            if (!ok)
+            {
+                ModelState.AddModelError(string.Empty, error ?? "No se pudo actualizar el activo.");
+                await CargarCatalogosAsync(model.IdTipoActivo, model.IdEstadoActivo);
+                return PartialView("_EditModal", model);
+            }
+
+            return Json(new { success = true });
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Phones(string? q, int? estadoId, int pageNumber = 1, int pageSize = 10, string sortBy = "Codigo", string sortDir = "desc")
+        {
+            ViewData["Title"] = "Gestión de Activos Teléfono";
+
+            if (pageNumber < 1) pageNumber = 1;
+            if (pageSize < 5) pageSize = 5;
+            if (pageSize > 50) pageSize = 50;
+
+            // Cargar combos
+            var estados = (await _catRepo.ObtenerEstadosAsync()).OrderBy(e => e.Nombre);
+
+            // 📌 Aquí viene lo importante:
+            // Necesitamos filtrar por TipoActivo que represente Teléfonos.
+            // Ejemplo: si tu TipoActivo tiene un Id específico para "Teléfono", lo ponemos fijo aquí.
+            // Por ahora lo dejo como "tipoIdTelefono" (vos lo reemplazás por el id real).
+            const int tipoIdTelefono = 999; // <-- reemplazar por el IdTipoActivo real de Teléfono
+
+            var filtros = new ActivoInventarioFiltroDto
+            {
+                Texto = q,
+                IdEstadoActivo = estadoId,
+                IdTipoActivo = tipoIdTelefono,
+                Page = pageNumber,
+                PageSize = pageSize,
+                SortBy = sortBy,
+                SortDir = sortDir
+            };
+
+            var result = await _inventario.ListarPaginadoAsync(filtros);
+
+            var vm = new InventarioIndexViewModel
+            {
+                Items = result.Items?.ToList() ?? new List<ActivoTelefonoInventarioListItemDto>(),
+
+                PageNumber = result.PageNumber,
+                PageSize = result.PageSize,
+                TotalPages = result.TotalPages,
+                TotalRecords = result.TotalRecords,
+
+                Q = q,
+                EstadoId = estadoId,
+                TipoId = tipoIdTelefono,
+
+                SortBy = sortBy,
+                SortDir = sortDir,
+
+                Estados = new SelectList(estados, "IdEstadoActivo", "Nombre", estadoId),
+                Tipos = new SelectList(Enumerable.Empty<SelectListItem>()) // en teléfonos no mostramos el combo tipo
+            };
+
+            return View("Phones", vm);
+        }
+
         private async Task CargarCatalogosAsync(int? tipoIdSeleccionado = null, int? estadoIdSeleccionado = null)
         {
             ViewBag.Estados = new SelectList(

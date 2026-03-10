@@ -10,6 +10,7 @@ using BusinessLogic.Servicios.Rol;
 using BusinessLogic.Servicios.TiqueteHistoriales;
 using BusinessLogic.Servicios.Tiquetes;
 using BusinessLogic.Servicios.Usuarios;
+using BusinessLogic.Servicios.InventarioTelefono;
 using DataAccess;
 using DataAccess.Identity;
 using DataAccess.Repositorios.Attachments;
@@ -17,6 +18,7 @@ using DataAccess.Repositorios.Avances;
 using DataAccess.Repositorios.Categorias;
 using DataAccess.Repositorios.Integracion;
 using DataAccess.Repositorios.Inventario;
+using DataAccess.Repositorios.InventarioTelefono;
 using DataAccess.Repositorios.Notificaciones;
 using DataAccess.Repositorios.Prioridad;
 using DataAccess.Repositorios.TiqueteHistoriales;
@@ -138,12 +140,14 @@ builder.Services.AddScoped<ITiqueteHistorialService, TiqueteHistorialService>();
 builder.Services.AddScoped<IIntegracionHistorialRepository, IntegracionHistorialRepository>();
 builder.Services.AddScoped<IIntegracionService, IntegracionService>();
 
-// Inventario
+// Inventario Equipos
 builder.Services.AddScoped<IInventarioService, InventarioService>();
 builder.Services.AddScoped<IActivoInventarioRepository, ActivoInventarioRepository>();
 builder.Services.AddScoped<ICatalogosInventarioRepository, CatalogosInventarioRepository>();
-builder.Services.AddScoped<BusinessLogic.Servicios.Inventario.IInventarioService, BusinessLogic.Servicios.Inventario.InventarioService>();
 
+// Inventario Teléfonos
+builder.Services.AddScoped<IActivoTelefonoRepository, ActivoTelefonoRepository>();
+builder.Services.AddScoped<IActivoTelefonoService, ActivoTelefonoService>();
 
 // Configuración de correo (Microsoft Graph)
 builder.Services.AddScoped<ICorreoNotificacionesService, CorreoNotificacionesService>();

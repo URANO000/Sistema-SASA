@@ -1,6 +1,6 @@
 ﻿namespace DataAccess.Modelos.DTOs.Inventario
 {
-    public class ActivoInventarioListItemDto
+    public class ActivoTelefonoInventarioListItemDto
     {
         public int IdActivo { get; set; }
         public string NumeroActivo { get; set; } = "";

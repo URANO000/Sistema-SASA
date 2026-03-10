@@ -1,6 +1,7 @@
 ﻿using DataAccess.Identity;
 using DataAccess.Modelos.Entidades;
 using DataAccess.Modelos.Entidades.Inventario;
+using DataAccess.Modelos.Entidades.InventarioTelefono;
 using DataAccess.Modelos.Entidades.ModTiquete;
 using DataAccess.Modelos.Entidades.Integracion;
 using DataAccess.Modelos.Enums;
@@ -30,6 +31,7 @@ namespace DataAccess
         public DbSet<TipoActivoInventario> TipoActivoInventario { get; set; }
         public DbSet<EstadoActivoInventario> EstadoActivoInventario { get; set; }
         public DbSet<TipoLicenciaInventario> TipoLicenciaInventario { get; set; }
+        public DbSet<ActivoTelefono> ActivoTelefono { get; set; }
         public DbSet<Notificacion> Notificaciones { get; set; }
         public DbSet<NotificacionSilencio> NotificacionSilencios { get; set; }
         public DbSet<IntegracionHistorial> IntegracionHistorial { get; set; }
