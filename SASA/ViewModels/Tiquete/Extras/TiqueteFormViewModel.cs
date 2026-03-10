@@ -10,5 +10,8 @@ namespace SASA.ViewModels.Tiquete.Extras
         public IEnumerable<SelectListItem>? Categorias { get; set; }
         public IEnumerable<SelectListItem>? Asignees { get; set; }
         public IEnumerable<SelectListItem>? Estatuses { get; set; }
+
+        //  3/9/2026  Adición de propiedad para manejar la selección de subcategorías en el formulario
+        public IEnumerable<SelectListItem>? SubCategorias { get; set; }
     }
 }

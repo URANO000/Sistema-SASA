@@ -7,6 +7,7 @@ using BusinessLogic.Servicios.Integracion;
 using BusinessLogic.Servicios.Notificaciones;
 using BusinessLogic.Servicios.Prioridad;
 using BusinessLogic.Servicios.Rol;
+using BusinessLogic.Servicios.SubCategorias;
 using BusinessLogic.Servicios.TiqueteHistoriales;
 using BusinessLogic.Servicios.Tiquetes;
 using BusinessLogic.Servicios.Usuarios;
@@ -20,6 +21,7 @@ using DataAccess.Repositorios.Integracion;
 using DataAccess.Repositorios.Inventario;
 using DataAccess.Repositorios.Notificaciones;
 using DataAccess.Repositorios.Prioridad;
+using DataAccess.Repositorios.SubCategorias;
 using DataAccess.Repositorios.TiqueteHistoriales;
 using DataAccess.Repositorios.Tiquetes;
 using DataAccess.Repositorios.Usuarios;
@@ -133,6 +135,8 @@ builder.Services.AddScoped<IAttachmentRepository, AttachmentRepository>();
 builder.Services.AddScoped<IAttachmentService, AttachmentService>();
 builder.Services.AddScoped<ITiqueteHistorialRepository, TiqueteHistorialRepository>();
 builder.Services.AddScoped<ITiqueteHistorialService, TiqueteHistorialService>();
+builder.Services.AddScoped<ISubCategoriaRepository, SubCategoriaRepository>();
+builder.Services.AddScoped<ISubCategoriaService, SubCategoriaService>();
 
 
 builder.Services.AddScoped<IIntegracionHistorialRepository, IntegracionHistorialRepository>();

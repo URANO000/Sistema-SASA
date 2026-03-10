@@ -24,5 +24,9 @@ namespace DataAccess.Modelos.Entidades.ModTiquete
 
         [ForeignKey(nameof(IdPrioridad))]
         public Prioridad Prioridad { get; set; } = null!;
+
+
+        //Navegación
+        public ICollection<Tiquete>? Tiquetes { get; set; }
     }
 }

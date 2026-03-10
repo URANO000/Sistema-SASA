@@ -123,6 +123,7 @@ namespace BusinessLogic.Servicios.Tiquetes
                 dto.Asunto,
                 dto.Descripcion,
                 dto.IdCategoria,
+                dto.IdSubCategoria,
                 currentUserId,
                 dto.IdAsignee
             );
@@ -250,6 +251,7 @@ namespace BusinessLogic.Servicios.Tiquetes
             string asunto,
             string descripcion,
             int idCategoria,
+            int idSubCategoria,
             string reportedBy,
             string? idAsignee
         )
@@ -259,6 +261,7 @@ namespace BusinessLogic.Servicios.Tiquetes
                 Asunto = asunto.Trim(),
                 Descripcion = descripcion.Trim(),
                 IdCategoria = idCategoria,
+                IdSubCategoria = idSubCategoria,
                 IdReportedBy = reportedBy,
                 IdAsignee = idAsignee,
                 IdEstatus = (int)TiqueteEstatus.Creado,

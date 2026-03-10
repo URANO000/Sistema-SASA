@@ -10,7 +10,8 @@ namespace SASA.ViewModels.Tiquete
         {
             Asunto = string.Empty,
             Descripcion = string.Empty,
-            Categoria = 0
+            Categoria = 0,
+            IdSubCategoria = 0
         };
 
         public TiqueteFiltroViewModel Filtro { get; set; } = new();

@@ -7,6 +7,8 @@ namespace DataAccess.Modelos.DTOs.Tiquete
         public required string Asunto { get; init; }
         public required string Descripcion { get; init; }
         public required int IdCategoria { get; init; }
+
+        public required int IdSubCategoria { get; init; }
         public string? IdAsignee { get; init; }
 
         //Opcional: Archivos adjuntos

@@ -211,6 +211,35 @@ $(function () {
     });
 });
 
+//-------CARGAR SUB-CATEGORÍAS DINÁMICAMENTE -----------------
+$("#categoriaDropdown").on('change', function () {
+
+    var categoriaId = $(this).val();
+    var subDropdown = $("#subcategoriaDropdown");
+
+    subDropdown.empty(); // remove previous options
+
+    subDropdown.append('<option value="">Seleccione una subcategoría</option>');
+
+    if (!categoriaId)
+        return;
+
+    $.get("/Tiquete/ObtenerSubCategorias", { idCategoria: categoriaId }, function (data) {
+
+        $.each(data, function (index, sub) {
+
+            subDropdown.append(
+                $('<option>', {
+                    value: sub.idSubCategoria,
+                    text: sub.nombreSubCategoria
+                })
+            );
+
+        });
+
+    });
+});
+
 
 //--TIQUETE EDITAR SUBMIT------------               
 $(function () {
