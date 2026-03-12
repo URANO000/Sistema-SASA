@@ -182,6 +182,11 @@ namespace BusinessLogic.Servicios.Tiquetes
                 throw new InvalidOperationException("El estatus del tiquete sólo se puede pasar a 'En Proceso' una vez que este ha sido marcado como 'Resuelto'");
             }
 
+            //Validación 6: Si el estatus del tiquete está en proceso, entonces no se puede regresar a creado
+            if (tiqueteActual.IdEstatus != (int)TiqueteEstatus.Creado && dto.IdEstatus == (int)TiqueteEstatus.Creado)
+            {
+                throw new InvalidOperationException("El estatus del tiquete no se puede pasar de otro estado a 'Creado'.");
+            }
             //Antes de actualizar, se guarda el historial 
             //Capturar valores previos
             var categoriaAnterior = tiqueteActual.IdCategoria;

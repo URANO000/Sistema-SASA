@@ -36,6 +36,7 @@
 <!--Global modal, for now at least-->
 @await Html.PartialAsync("_SuccessModal")
 @await Html.PartialAsync("_ErrorModal")
+@await Html.PartialAsync("_Alert")
 <!---------------------------------->
 
     @if (User?.Identity?.IsAuthenticated == true)

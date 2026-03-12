@@ -285,11 +285,8 @@ $(function () {
                     //Mostrar errores
                     $.each(response.errors, function (key, messages) {
                         if (key === "_form") {
-                            $("#mensaje").text(messages[0])
                             $("#alertModal").modal("show")
-                            setTimeout(() => {
-                                $("#alertModal").modal("hide");
-                            }, 900);
+                            $("#mensaje").text(messages[0])
                             return;
                         }
 

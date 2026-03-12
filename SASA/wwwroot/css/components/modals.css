@@ -87,17 +87,12 @@
 }
 
 /*Then for alert modal*/
-.alert-icon {
+#alertModal .alert-icon i {
     font-size: 3.5rem;
     color: #D99209;
 }
 
-.alert-title {
-    font-weight: 700;
-    color: #D99209;
-}
-
-.alert-title {
+#alertModal .alert-title {
     font-weight: 700;
     color: #D99209;
 }
