@@ -27,7 +27,7 @@ namespace DataAccess.Modelos.Entidades.ModTiquete
         public required int IdCategoria { get; set; }
 
         [Column("idSubCategoria")]
-        public required int IdSubCategoria { get; set; }
+        public int IdSubCategoria { get; set; }
 
         [Column("ordenCola")]
         public int OrdenCola { get; set; }

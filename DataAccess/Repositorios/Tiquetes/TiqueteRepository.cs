@@ -110,6 +110,7 @@ namespace DataAccess.Repositorios.Tiquetes
 
                     Estatus = t.Estatus != null ? t.Estatus.NombreEstatus : "Sin estatus",
                     Categoria = t.Categoria != null ? t.Categoria.NombreCategoria : "Sin categoría",
+                    SubCategoria = t.SubCategoria != null ? t.SubCategoria.NombreSubCategoria : "Sin subcategoría",
 
                     ReportedBy = t.ReportedBy != null ? t.ReportedBy.CorreoEmpresa : "Desconocido",
                     Asignee = t.Asignee != null ? t.Asignee.CorreoEmpresa : "Sin asignar",
@@ -136,11 +137,16 @@ namespace DataAccess.Repositorios.Tiquetes
 
                     Estatus = t.Estatus.NombreEstatus,
                     Categoria = t.Categoria.NombreCategoria,
+                    SubCategoria = t.SubCategoria != null
+                        ? t.SubCategoria.NombreSubCategoria
+                        : "Sin SubCategoria",
                     ReportedBy = t.ReportedBy.CorreoEmpresa,
                     Departamento = t.ReportedBy.Departamento,
                     Asignee = t.Asignee != null ? t.Asignee.CorreoEmpresa : "Sin asignar",
                     CreatedAt = t.CreatedAt,
-                    UpdatedAt = t.UpdatedAt
+                    UpdatedAt = t.UpdatedAt,
+                    Prioridad = t.SubCategoria.Prioridad.NombrePrioridad
+
                 })
                 .FirstOrDefaultAsync();
         }
@@ -164,6 +170,7 @@ namespace DataAccess.Repositorios.Tiquetes
             Asunto = t.Asunto,
             Descripcion = t.Descripcion,
             IdCategoria = t.IdCategoria,
+            IdSubCategoria = t.IdSubCategoria,
             IdEstatus = t.IdEstatus,
             IdAsignee = t.IdAsignee,
             Resolucion = t.Resolucion

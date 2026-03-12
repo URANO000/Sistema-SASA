@@ -54,6 +54,7 @@ namespace BusinessLogic.Servicios.Tiquetes
                     Resolucion = tiquete.Resolucion,
                     Estatus = tiquete.Estatus,
                     Categoria = tiquete.Categoria,
+                    SubCategoria = tiquete.SubCategoria,
                     ReportedBy = tiquete.ReportedBy,
                     Asignee = tiquete.Asignee,
                     CreatedAt = tiquete.CreatedAt,
@@ -89,11 +90,13 @@ namespace BusinessLogic.Servicios.Tiquetes
                 Resolucion = dto.Resolucion,
                 Estatus = dto.Estatus,
                 Categoria = dto.Categoria,
+                SubCategoria = dto.SubCategoria,
                 Asignee = dto.Asignee,
                 ReportedBy = dto.ReportedBy,
                 Departamento = dto.Departamento,
                 CreatedAt = dto.CreatedAt,
                 UpdatedAt = dto.UpdatedAt,
+                Prioridad = dto.Prioridad,
 
                 Avances = avances,
                 Attachments = attachments,
@@ -187,6 +190,7 @@ namespace BusinessLogic.Servicios.Tiquetes
 
             //Si el tiquete existe, se actualizan los campos
             tiqueteActual.IdCategoria = dto.IdCategoria;
+            tiqueteActual.IdSubCategoria = dto.IdSubCategoria;
             tiqueteActual.IdEstatus = dto.IdEstatus;
             tiqueteActual.Resolucion = dto.Resolucion?.Trim(); //Puede no tener nada
             tiqueteActual.UpdatedAt = DateTime.Now;

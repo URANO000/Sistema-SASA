@@ -187,16 +187,25 @@ namespace SASA.Controllers
             var model = new TiqueteEditarViewModel
             {
                 IdTiquete = tiquete.IdTiquete,
-                //Asunto = tiquete.Asunto,
-                //Descripcion = tiquete.Descripcion,
+                Asunto = tiquete.Asunto,
+                Descripcion = tiquete.Descripcion,
                 IdCategoria = tiquete.IdCategoria,
+                IdSubCategoria = tiquete.IdSubCategoria,
                 IdEstatus = tiquete.IdEstatus,
                 Resolucion = tiquete.Resolucion,
 
             };
 
             await CargarDropdownsAsync(model);
+            var subcategorias = await _subCategoriasService
+                    .ObtenerSubCategoriasPorCategoria(model.IdCategoria);
 
+
+            model.SubCategorias = subcategorias.Select(s => new SelectListItem
+            {
+                Value = s.IdSubCategoria.ToString(),
+                Text = s.NombreSubCategoria
+            });
             return View(model);
         }
 
@@ -233,6 +242,7 @@ namespace SASA.Controllers
                 {
                     IdTiquete = model.IdTiquete,
                     IdCategoria = model.IdCategoria,
+                    IdSubCategoria = model.IdSubCategoria,
                     IdEstatus = model.IdEstatus,
                     Resolucion = model.Resolucion
                 };
@@ -307,12 +317,15 @@ namespace SASA.Controllers
                 Resolucion = tiquete.Resolucion,
                 Estatus = tiquete.Estatus,
                 Categoria = tiquete.Categoria,
+                SubCategoria = tiquete.SubCategoria,
                 ReportedBy = tiquete.ReportedBy,
                 Departamento = tiquete.Departamento,
                 Asignee = tiquete.Asignee,
 
                 CreatedAt = tiquete.CreatedAt,
                 UpdatedAt = tiquete.UpdatedAt,
+
+                Prioridad = tiquete.Prioridad,
 
                 Avances = tiquete.Avances
                     .Select(a => new AvanceDetalleViewModel

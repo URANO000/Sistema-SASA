@@ -55,7 +55,7 @@
 
 /*Pop ups*/
 ﻿ /*First for success modal*/
-.success-modal {
+.custom-modal {
     border-radius: 14px;
 }
 
@@ -69,15 +69,12 @@
     color: var(--primary-color);
 }
 
-.success-message {
+.custom-modal-message {
     font-size: 0.95rem;
     color: #6c757d;
 }
 
 /*Then for error modal*/
-.error-modal {
-    border-radius: 14px;
-}
 
 .error-icon {
     font-size: 3.5rem;
@@ -89,7 +86,18 @@
     color: var(--danger-color);
 }
 
-.error-message {
-    font-size: 0.95rem;
-    color: #6c757d;
+/*Then for alert modal*/
+.alert-icon {
+    font-size: 3.5rem;
+    color: #D99209;
+}
+
+.alert-title {
+    font-weight: 700;
+    color: #D99209;
+}
+
+.alert-title {
+    font-weight: 700;
+    color: #D99209;
 }

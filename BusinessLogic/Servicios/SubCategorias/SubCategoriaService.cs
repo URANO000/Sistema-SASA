@@ -17,7 +17,7 @@ namespace BusinessLogic.Servicios.SubCategorias
             _categoriaRepository = categoriaRepository;
             _prioridadRepository = prioridadRepository;
         }
-        public async Task<IEnumerable<ListaSubCategoriasDto>> ObtenerSubCategoriasPorCategoria(int idCategoria)
+        public async Task<IEnumerable<ListaSubCategoriaDto>> ObtenerSubCategoriasPorCategoria(int idCategoria)
         {
             return await _repository.ObtenerSubCategoriasPorCategoria(idCategoria);
         }

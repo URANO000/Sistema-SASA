@@ -5,7 +5,7 @@ namespace BusinessLogic.Servicios.SubCategorias
 {
     public interface ISubCategoriaService
     {
-        Task<IEnumerable<ListaSubCategoriasDto>> ObtenerSubCategoriasPorCategoria(int idCategoria);
+        Task<IEnumerable<ListaSubCategoriaDto>> ObtenerSubCategoriasPorCategoria(int idCategoria);
         Task<PagedResultDto<ListaSubCategoriaDto>> ObtenerSubCategoriasAsync(FiltroSubCategoriaDto filtro);
         Task<(bool Ok, string Mensaje)> CrearAsync(CrearSubCategoriaDto dto);
         Task<EditarSubCategoriaDto?> ObtenerParaEditarAsync(int idSubCategoria);

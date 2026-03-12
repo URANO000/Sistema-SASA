@@ -33,7 +33,10 @@
                                 <span class="badge bg-secondary"> @Model.Estatus </span>
                                 break;
                         }
-                        <span class="badge bg-danger">Prioridad va acá</span>
+                        @if(User.IsInRole("Administrador"))
+                        {
+                            <span class="badge bg-danger">Prioridad: @Model.Prioridad</span>
+                        }
                         <span class="badge bg-dark">SLA: 2h restantes</span>
                     </div>
                 </div>
@@ -79,7 +82,7 @@
                     </div>
                     <div class="col-md-6">
                         <small class="text-muted">Sub-Categoría</small>
-                        <div class="fw-semibold">La subcategoría va aquí</div>
+                        <div class="fw-semibold">@Model.SubCategoria</div>
                     </div>
                 </div>
 
@@ -153,7 +156,7 @@
 
     <!-- SIDE - Timeline-->
     <div class="col-lg-4">
-        <div class="card">
+        <div class="card mb-3">
             <div class="card-body">
                 <div class="p-3" style="max-height: 314px; overflow-y: auto;">
                     <h6 class="section-title border-bottom pb-2 mb-3">Historial</h6>

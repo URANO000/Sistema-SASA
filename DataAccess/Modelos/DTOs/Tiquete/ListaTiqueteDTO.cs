@@ -11,6 +11,7 @@ namespace DataAccess.Modelos.DTOs.Tiquete
 
         public required string Estatus { get; set; }
         public string Categoria { get; set; }
+        public string? SubCategoria { get; set; }
 
         public required string ReportedBy { get; set; }
         public string? Departamento { get; set; }

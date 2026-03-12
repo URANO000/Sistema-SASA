@@ -231,13 +231,23 @@ $("#categoriaDropdown").on('change', function () {
             subDropdown.append(
                 $('<option>', {
                     value: sub.idSubCategoria,
-                    text: sub.nombreSubCategoria
+                    text: sub.nombreSubCategoria,
+                    "data-prioridad": sub.nombrePrioridad
                 })
             );
 
         });
 
     });
+});
+
+$("#subcategoriaDropdown").on('change', function () {
+
+    var selectedOption = $(this).find(":selected");
+    var prioridad = selectedOption.data("prioridad");
+
+    $("#prioridadInput").val(prioridad);
+
 });
 
 
@@ -275,7 +285,11 @@ $(function () {
                     //Mostrar errores
                     $.each(response.errors, function (key, messages) {
                         if (key === "_form") {
-                            alert(messages[0]);
+                            $("#mensaje").text(messages[0])
+                            $("#alertModal").modal("show")
+                            setTimeout(() => {
+                                $("#alertModal").modal("hide");
+                            }, 900);
                             return;
                         }
 

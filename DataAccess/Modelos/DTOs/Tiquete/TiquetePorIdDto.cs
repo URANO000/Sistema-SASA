@@ -12,6 +12,7 @@ namespace DataAccess.Modelos.DTOs.Tiquete
         public string? Asunto { get; set; } = default!;
         public string? Descripcion { get; set; } = default!;
         public int IdCategoria { get; set; }
+        public int IdSubCategoria { get; set; }
         public int IdPrioridad { get; set; }
         public int IdEstatus { get; set; }
         public string? IdAsignee { get; set; }

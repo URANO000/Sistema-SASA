@@ -13,15 +13,17 @@ namespace DataAccess.Repositorios.SubCategorias
         {
             _context = context;
         }
-        public async Task<IEnumerable<ListaSubCategoriasDto>> ObtenerSubCategoriasPorCategoria(int idCategoria)
+        public async Task<IEnumerable<ListaSubCategoriaDto>> ObtenerSubCategoriasPorCategoria(int idCategoria)
         {
             return await _context.SubCategorias
                 .AsNoTracking()
                 .Where(s => s.IdCategoria == idCategoria)
-                .Select(s => new ListaSubCategoriasDto
+                .Select(s => new ListaSubCategoriaDto
                 {
                     IdSubCategoria = s.IdSubCategoria,
-                    NombreSubCategoria = s.NombreSubCategoria
+                    NombreSubCategoria = s.NombreSubCategoria,
+                    IdPrioridad = s.IdPrioridad,
+                    NombrePrioridad = s.Prioridad.NombrePrioridad
                 })
                 .ToListAsync();
 

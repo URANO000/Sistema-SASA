@@ -60,6 +60,13 @@
                                     </select>
                                     <span asp-validation-for="SubCategorias" class="text-danger"></span>
                                 </div>
+                                @if (User.IsInRole("Administrador"))
+                                    {
+                                    <div class="col-md-6">
+                                        <label class="form-label">Prioridad</label>
+                                        <input id="prioridadInput" class="form-control" readonly />
+                                    </div>
+                                    }
 
                                 <!-- Asignee-->
                                 @if (User.IsInRole("Administrador"))
