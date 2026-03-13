@@ -1,4 +1,24 @@
-﻿function updateSelectedCount() {
+﻿//No mostrar el botón de asignar hasta que un tiquete esté seleccionado y alguien sea elegido
+function validarAsignacion() {
+
+    const selectedTickets = $(".ticket-checkbox:checked").length;
+    const assignee = $("#assigneeSelect").val();
+
+    const isValid = selectedTickets > 0 && assignee;
+
+    $("#assignTicketsBtn").prop("disabled", !isValid);
+}
+
+//En caso de que algo sale pre-seleccionado
+$(document).ready(function () {
+
+    validarAsignacion();
+    updateSelectedCount();
+
+});
+
+//Función para ver cuántos usuarios hay seleccionados
+function updateSelectedCount() {
 
     const count = $(".ticket-checkbox:checked").length;
 
@@ -8,7 +28,14 @@
         $("#selectedCount").text(count + " tiquete(s) seleccionado(s)");
 }
 
-$(document).on("change", ".ticket-checkbox", updateSelectedCount);
+$(document).on("change", ".ticket-checkbox", function () {
+
+    updateSelectedCount();
+    validarAsignacion();
+
+});
+
+//Para seleccionar todos los tiquetes masivamente
 
 $("#selectAllTickets").change(function () {
 
@@ -18,8 +45,15 @@ $("#selectAllTickets").change(function () {
         .prop("checked", checked);
 
     updateSelectedCount();
+    validarAsignacion();
 });
 
+//Validar al cambiar de asignado
+$("#assigneeSelect").change(function () {
+    validarAsignacion();
+});
+
+//Para asignar, aquí se llama el controlador
 
 $("#assignTicketsBtn").click(function () {
 

@@ -75,34 +75,39 @@
                     </div>
                 </div>
             </form>
+            @if (User.IsInRole("Administrador"))
+            {
+                <div class="d-flex gap-2 mb-3">
 
-            <div class="d-flex gap-2 mb-3">
+                    <select id="assigneeSelect" class="form-select w-auto">
+                        <option value="">Seleccionar usuario</option>
 
-                <select id="assigneeSelect" class="form-select w-auto">
-                    <option value="">Seleccionar usuario</option>
+                        @foreach (var u in Model.Asignees)
+                        {
+                            <option value="@u.Value">@u.Text</option>
+                        }
 
-                    @foreach (var u in Model.Asignees)
-                    {
-                        <option value="@u.Value">@u.Text</option>
-                    }
+                    </select>
 
-                </select>
+                    <button class="btn btn-primary" id="assignTicketsBtn" disabled>
+                        Asignar seleccionados
+                    </button>
 
-                <button class="btn btn-primary" id="assignTicketsBtn">
-                    Asignar seleccionados
-                </button>
+                    <span id="selectedCount" class="text-muted small"></span>
 
-                <span id="selectedCount" class="text-muted small"></span>
-
-            </div>
+                </div>
+            }
             <!-- Table -->
             <div class="table-responsive">
                 <table class="table table-hover align-middle sasa-table">
                     <thead class="">
                         <tr>
-                            <th>
-                                <input type="checkbox" id="selectAllTickets" />
-                            </th>
+                            @if (User.IsInRole("Administrador"))
+                            {
+                                <th>
+                                    <input type="checkbox" id="selectAllTickets" />
+                                </th>
+                            }
                             <th>Acciones</th>
                             <th>Asunto</th>
                             <th>Estatus</th>
@@ -118,12 +123,15 @@
                         @foreach (var t in Model.Tiquetes)
                         {
                             <tr>
-                                <td>
-                                    <input type="checkbox"
-                                           class="ticket-checkbox"
-                                           value="@t.IdTiquete"
-                                    @(t.Estatus == "Cancelado" || t.Estatus == "Resuelto" ? "disabled" : "") />
-                                </td>
+                                @if (User.IsInRole("Administrador"))
+                                {
+                                    <td>
+                                        <input type="checkbox"
+                                               class="ticket-checkbox"
+                                               value="@t.IdTiquete"
+                                        @(t.Estatus == "Cancelado" || t.Estatus == "Resuelto" ? "disabled" : "") />
+                                    </td>
+                                }
                                 <td>
                                     <a class="btn btn-link icon-btn" asp-area=""
                                        asp-controller="Tiquete"
@@ -239,5 +247,5 @@
 
 @section Scripts {
     <script src="~/js/formSubmits.js" asp-append-version="true"></script>
-    <script src="~js/AssignTickets.js"></script>
+    <script src="~/js/AssignTickets.js" asp-append-version="true"></script>
 }
