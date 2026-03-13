@@ -217,7 +217,7 @@ $("#categoriaDropdown").on('change', function () {
     var categoriaId = $(this).val();
     var subDropdown = $("#subcategoriaDropdown");
 
-    subDropdown.empty(); // remove previous options
+    subDropdown.empty(); 
 
     subDropdown.append('<option value="">Seleccione una subcategoría</option>');
 
@@ -247,9 +247,7 @@ $("#subcategoriaDropdown").on('change', function () {
     var prioridad = selectedOption.data("prioridad");
 
     $("#prioridadInput").val(prioridad);
-
 });
-
 
 //--TIQUETE EDITAR SUBMIT------------               
 $(function () {

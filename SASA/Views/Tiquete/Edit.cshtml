@@ -36,12 +36,12 @@
                 </div>
 
                 <!-- Descripción readonly -->
-                <div class="col-md-5">
+                <div class="col-md-8">
                     <label asp-for="Descripcion" class="form-label">Descripción</label>
                     <input asp-for="Descripcion" class="form-control" readonly />
                 </div>
                 <!-- Categorías -->
-                <div class="col-md-3">
+                <div class="col-md-5">
                     <label asp-for="IdCategoria" class="form-label required-field">Categoría</label>
                     <select asp-for="IdCategoria"
                             asp-items="Model.Categorias"
@@ -53,17 +53,35 @@
                 </div>
 
                 <!-- Sub Categorías-->
-                <div class="col-md-3">
+                <div class="col-md-4">
                     <label asp-for="IdSubCategoria" class="form-label required-field">SubCategoría</label>
                     <select asp-for="IdSubCategoria"
                             id="subcategoriaDropdown"
-                            asp-items="Model.SubCategorias"
                             class="form-select">
-                        <option value="" disabled>Seleccione una subcategoría</option>
+
+                        <option value="">Seleccione una subcategoría</option>
+
+                        @foreach (var sub in Model.SubCategorias)
+                        {
+                            <option value="@sub.IdSubCategoria"
+                                    data-prioridad="@sub.NombrePrioridad"
+                                    selected="@(sub.IdSubCategoria == Model.IdSubCategoria)">
+                                @sub.NombreSubCategoria
+                            </option>
+                        }
 
                     </select>
-                    <span asp-validation-for="SubCategorias" class="text-danger"></span>
+                    <span asp-validation-for="IdSubCategoria" class="text-danger"></span>
                 </div>
+
+                @if (User.IsInRole("Administrador"))
+                {
+                    <div class="col-md-3">
+                        <label class="form-label">Prioridad</label>
+                        <input id="prioridadInput" class="form-control"
+                               value="@Model.NombrePrioridad" readonly />
+                    </div>
+                }
                 <!-- Estado-->
                 <div class="col-md-6">
                     <label asp-for="IdEstatus" class="form-label">Estado</label>

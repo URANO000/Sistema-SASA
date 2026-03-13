@@ -171,6 +171,7 @@ namespace DataAccess.Repositorios.Tiquetes
             Descripcion = t.Descripcion,
             IdCategoria = t.IdCategoria,
             IdSubCategoria = t.IdSubCategoria,
+            NombrePrioridad = t.SubCategoria.Prioridad.NombrePrioridad,
             IdEstatus = t.IdEstatus,
             IdAsignee = t.IdAsignee,
             Resolucion = t.Resolucion,
@@ -200,5 +201,20 @@ namespace DataAccess.Repositorios.Tiquetes
                 .AsNoTracking()
                 .AnyAsync(t => t.IdTiquete == id);
         }
+
+        //Para asignar masivamente a los tiquetes
+        public async Task<List<Tiquete>> ObtenerTiquetesPorIdsAsync(List<int> ids)
+        {
+            return await _context.Tiquetes
+                .Where(t => ids.Contains(t.IdTiquete))
+                .ToListAsync();
+        }
+
+        public async Task ActualizarAsignacionAsync(List<Tiquete> tiquetes)
+        {
+            await _context.SaveChangesAsync();
+        }
+
+
     }
 }

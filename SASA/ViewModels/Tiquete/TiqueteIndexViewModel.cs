@@ -3,7 +3,7 @@ using SASA.ViewModels.Tiquete.Filtro;
 
 namespace SASA.ViewModels.Tiquete
 {
-    public class TiqueteIndexViewModel
+    public class TiqueteIndexViewModel : TiqueteFormViewModel
     {
         public List<TiqueteListaViewModel> Tiquetes { get; set; } = new();
         public CrearTiqueteViewModel CrearTiquete { get; set; } = new()

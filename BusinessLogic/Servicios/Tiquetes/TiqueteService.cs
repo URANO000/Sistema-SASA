@@ -241,6 +241,48 @@ namespace BusinessLogic.Servicios.Tiquetes
 
         }
 
+        //--------------------------ASIGNAR DE MANERA MASIVA-----------------------
+        public async Task AsignarTiquetesAsync(AsignarTiqueteDto dto, string currentUserId, bool esAdministrador)
+        {
+            ValidarUsuarioActual(currentUserId);
+
+            if(!esAdministrador)
+            {
+                throw new UnauthorizedAccessException("Solo administradores pueden asignar tiquetes.");
+            }
+            
+            //Obtener todos los tiquetes por la lista de IDs
+            var tiquetes = await _tiqueteRepository.ObtenerTiquetesPorIdsAsync(dto.IdsTiquetes);
+
+            //Si no hay ninguno
+            if (!tiquetes.Any())
+            {
+                throw new KeyNotFoundException("No se encontraron tiquetes.");
+            }
+
+            //Si todo bien, iterar por cada tiquete en la lista y asignar individualmente
+            foreach(var tiquete in tiquetes)
+            {
+                //Validación de no tocar un tiquete cancelado o resuelto
+                if(tiquete.IdEstatus == (int)TiqueteEstatus.Cancelado || tiquete.IdEstatus == (int)TiqueteEstatus.Resuelto)
+                {
+                    continue;
+                }
+
+                tiquete.IdAsignee = dto.IdAsignee;
+                tiquete.UpdatedAt = DateTime.Now;
+                tiquete.UpdatedBy = currentUserId;
+
+                //Historial de tiquetes
+                await _tiqueteHistorialService.RegistrarAsignacionAsync(
+                    tiquete.IdTiquete,
+                    tiquete.IdAsignee,
+                    tiquete.UpdatedBy);
+            }
+
+            await _tiqueteRepository.ActualizarAsignacionAsync(tiquetes);
+        }
+
 
         //----------------------------HELPERS (DRY)--------------------------------
         private void ValidarUsuarioActual(string currentUserId)

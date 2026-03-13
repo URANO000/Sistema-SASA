@@ -22,5 +22,7 @@ namespace BusinessLogic.Servicios.Tiquetes
         //Actualización de tiquetes para el administrador
         Task ActualizarTiqueteAsync(EditarTiqueteDto tiquete, string currentUserId);
 
+        Task AsignarTiquetesAsync(AsignarTiqueteDto dto, string currentUserId, bool esAdministrador);
+
     }
 }

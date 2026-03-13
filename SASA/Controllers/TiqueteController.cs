@@ -47,7 +47,7 @@ namespace SASA.Controllers
             IPrioridadService prioridadService,
             IAvanceService avanceService,
             IAttachmentService attachmentService,
-            SubCategoriaService subCategoriaService,
+            ISubCategoriaService subCategoriaService,
             BusinessLogic.Servicios.Correo.ICorreoNotificacionesService correoNotificaciones,
             IOptions<AppSettings> appSettings)
 
@@ -119,6 +119,9 @@ namespace SASA.Controllers
 
             //Cargo los valores para los dropdowns
             await CargarFiltrosAsync(viewModel.Filtro);
+
+            //Cargar para asignar
+            await CargarDropdownsAsync(viewModel);
 
             //Cargo los dropdowns de el add modal
             viewModel.CrearTiquete = new CrearTiqueteViewModel
@@ -238,21 +241,16 @@ namespace SASA.Controllers
                 Descripcion = tiquete.Descripcion,
                 IdCategoria = tiquete.IdCategoria,
                 IdSubCategoria = tiquete.IdSubCategoria,
+                NombrePrioridad = tiquete.NombrePrioridad,
                 IdEstatus = tiquete.IdEstatus,
                 Resolucion = tiquete.Resolucion,
 
             };
 
             await CargarDropdownsAsync(model);
-            var subcategorias = await _subCategoriasService
+
+            model.SubCategorias = await _subCategoriasService
                     .ObtenerSubCategoriasPorCategoria(model.IdCategoria);
-
-
-            model.SubCategorias = subcategorias.Select(s => new SelectListItem
-            {
-                Value = s.IdSubCategoria.ToString(),
-                Text = s.NombreSubCategoria
-            });
             return View(model);
         }
 
@@ -382,6 +380,31 @@ namespace SASA.Controllers
                 });
             }
         }
+
+
+        [Authorize(Roles = "Administrador")]
+        [HttpPost]
+        public async Task<IActionResult> AsignarTiquetes([FromBody] AsignarTiqueteDto dto)
+        {
+            try
+            {
+                var currentUserId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+                await _tiqueteService.AsignarTiquetesAsync(
+                    dto,
+                    currentUserId,
+                    User.IsInRole("Administrador")
+                );
+
+                return Ok(new { success = true, message = "Tiquetes asignados correctamente." });
+
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { success = false, message = ex.Message });
+            }
+        }
+
 
         [HttpGet]
         public async Task<IActionResult> Details(int id)

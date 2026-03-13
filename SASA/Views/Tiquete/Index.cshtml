@@ -75,11 +75,34 @@
                     </div>
                 </div>
             </form>
+
+            <div class="d-flex gap-2 mb-3">
+
+                <select id="assigneeSelect" class="form-select w-auto">
+                    <option value="">Seleccionar usuario</option>
+
+                    @foreach (var u in Model.Asignees)
+                    {
+                        <option value="@u.Value">@u.Text</option>
+                    }
+
+                </select>
+
+                <button class="btn btn-primary" id="assignTicketsBtn">
+                    Asignar seleccionados
+                </button>
+
+                <span id="selectedCount" class="text-muted small"></span>
+
+            </div>
             <!-- Table -->
             <div class="table-responsive">
                 <table class="table table-hover align-middle sasa-table">
                     <thead class="">
                         <tr>
+                            <th>
+                                <input type="checkbox" id="selectAllTickets" />
+                            </th>
                             <th>Acciones</th>
                             <th>Asunto</th>
                             <th>Estatus</th>
@@ -95,6 +118,12 @@
                         @foreach (var t in Model.Tiquetes)
                         {
                             <tr>
+                                <td>
+                                    <input type="checkbox"
+                                           class="ticket-checkbox"
+                                           value="@t.IdTiquete"
+                                    @(t.Estatus == "Cancelado" || t.Estatus == "Resuelto" ? "disabled" : "") />
+                                </td>
                                 <td>
                                     <a class="btn btn-link icon-btn" asp-area=""
                                        asp-controller="Tiquete"
@@ -203,33 +232,12 @@
 
 @await Html.PartialAsync("_SuccessModal")
 @await Html.PartialAsync("_ErrorModal")
+@await Html.PartialAsync("_Alert")
 @await Html.PartialAsync("_AddModal", Model.CrearTiquete)
 
 
 
 @section Scripts {
     <script src="~/js/formSubmits.js" asp-append-version="true"></script>
- @*    <script>
-        $(document).on('click', '#openCreateModal', function () {
-
-        $.get('/Tiquete/Add', function (data) {
-
-            $('#modalContainer').html(data);
-
-            const form = $("#crearTiqueteForm");
-
-            form.removeData("validator");
-            form.removeData("unobtrusiveValidation");
-
-            $.validator.unobtrusive.parse(form);
-
-            const modalElement = document.getElementById('addTicketModal');
-            const modal = new bootstrap.Modal(modalElement);
-
-            modal.show();
-        });
-
-
-        });
-    </script> *@
+    <script src="~js/AssignTickets.js"></script>
 }
