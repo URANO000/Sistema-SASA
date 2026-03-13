@@ -11,6 +11,8 @@ using DataAccess.Modelos.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.Extensions.Options;
+using SASA.Configuration;
 using SASA.Filters;
 using SASA.ViewModels.Attachments;
 using SASA.ViewModels.Avances;
@@ -32,9 +34,18 @@ namespace SASA.Controllers
         private readonly IPrioridadService _prioridadService;
         private readonly IAvanceService _avanceService;
         private readonly IAttachmentService _attachmentService;
+        private readonly BusinessLogic.Servicios.Correo.ICorreoNotificacionesService _correoNotificaciones;
+        private readonly AppSettings _appSettings;
 
-        public TiqueteController(ITiqueteService tiqueteService, IUsuarioService usuarioService,
-            ICategoriaService categoriaService, IPrioridadService prioridadService, IAvanceService avanceService, IAttachmentService attachmentService)
+        public TiqueteController(
+            ITiqueteService tiqueteService,
+            IUsuarioService usuarioService,
+            ICategoriaService categoriaService,
+            IPrioridadService prioridadService,
+            IAvanceService avanceService,
+            IAttachmentService attachmentService,
+            BusinessLogic.Servicios.Correo.ICorreoNotificacionesService correoNotificaciones,
+            IOptions<AppSettings> appSettings)
         {
             _tiqueteService = tiqueteService;
             _usuarioService = usuarioService;
@@ -42,6 +53,8 @@ namespace SASA.Controllers
             _prioridadService = prioridadService;
             _avanceService = avanceService;
             _attachmentService = attachmentService;
+            _correoNotificaciones = correoNotificaciones;
+            _appSettings = appSettings.Value;
         }
         //GET: TiqueteController
         [Authorize(Roles = "Administrador, Empleado Normal")]
@@ -149,6 +162,38 @@ namespace SASA.Controllers
 
                 var idTiquete = await _tiqueteService.AgregarTiqueteAsync(dto, currentUserId, esAdmin);
 
+                try
+                {
+                    var usuario = await _usuarioService.ObtenerUsuarioPorIdAsync(currentUserId);
+                    if (usuario != null && !string.IsNullOrWhiteSpace(usuario.CorreoEmpresa))
+                    {
+                        var nombre = $"{usuario.PrimerNombre} {usuario.PrimerApellido}".Trim();
+                        var baseUrl = (_appSettings.BaseUrl ?? "").TrimEnd('/');
+                        var detalleLink = string.IsNullOrWhiteSpace(baseUrl)
+                            ? $"/Tiquete/Details/{idTiquete}"
+                            : $"{baseUrl}/Tiquete/Details/{idTiquete}";
+
+                        await _correoNotificaciones.EnviarTiqueteCreadoAsync(
+                            usuario.CorreoEmpresa,
+                            nombre,
+                            idTiquete,
+                            dto.Asunto,
+                            detalleLink);
+
+                        await _correoNotificaciones.EnviarTiqueteCreadoAdminsAsync(
+                            new List<string> { "spti@sistemasanaliticos.cr" },
+                            idTiquete,
+                            dto.Asunto,
+                            nombre,
+                            usuario.CorreoEmpresa,
+                            detalleLink);
+                    }
+                }
+                catch
+                {
+                    // No romper el flujo si falla el correo
+                }
+
                 return Ok(new
                 {
                     success = true,
@@ -223,6 +268,9 @@ namespace SASA.Controllers
             try
             {
                 var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+                var tiqueteActual = await _tiqueteService.ObtenerTiquetePorIdAsync(model.IdTiquete);
+
                 var dto = new EditarTiqueteDto
                 {
                     IdTiquete = model.IdTiquete,
@@ -231,6 +279,43 @@ namespace SASA.Controllers
                     Resolucion = model.Resolucion
                 };
                 await _tiqueteService.ActualizarTiqueteAsync(dto, currentUserId);
+
+                if (tiqueteActual != null)
+                {
+                    var estadoAnterior = tiqueteActual.IdEstatus;
+                    var estadoNuevo = model.IdEstatus;
+
+                    var cambioEstado = estadoAnterior != estadoNuevo;
+
+                    var esResuelto = estadoNuevo == (int)TiqueteEstatus.Resuelto;
+                    var esCancelado = estadoNuevo == (int)TiqueteEstatus.Cancelado;
+
+                    if (cambioEstado &&
+                        (esResuelto || esCancelado) &&
+                        !string.IsNullOrWhiteSpace(tiqueteActual.ReportedByEmail))
+                    {
+                        var baseUrl = (_appSettings.BaseUrl ?? "").TrimEnd('/');
+
+                        var detalleLink = string.IsNullOrWhiteSpace(baseUrl)
+                            ? $"/Tiquete/Details/{model.IdTiquete}"
+                            : $"{baseUrl}/Tiquete/Details/{model.IdTiquete}";
+
+                        var nombreUsuario = string.IsNullOrWhiteSpace(tiqueteActual.ReportedByNombre)
+                            ? "Usuario"
+                            : tiqueteActual.ReportedByNombre;
+
+                        var estadoTexto = esResuelto ? "Resuelto" : "Cancelado";
+
+                        await _correoNotificaciones.EnviarTiqueteResueltoOCerradoAsync(
+                            tiqueteActual.ReportedByEmail,
+                            nombreUsuario,
+                            model.IdTiquete,
+                            tiqueteActual.Asunto ?? "Sin asunto",
+                            estadoTexto,
+                            detalleLink);
+                    }
+                }
+
                 return Json(new
                 {
                     success = true
@@ -362,12 +447,35 @@ namespace SASA.Controllers
             {
                 var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
+                var tiquete = await _tiqueteService.ObtenerTiquetePorIdAsync(id);
+
                 var dto = new CrearAvanceDto
                 {
                     TextoAvance = model.TextoAvance
                 };
 
                 await _avanceService.AgregarAvanceAsync(dto, currentUserId, id);
+
+                if (tiquete != null && !string.IsNullOrWhiteSpace(tiquete.ReportedByEmail))
+                {
+                    var baseUrl = (_appSettings.BaseUrl ?? "").TrimEnd('/');
+
+                    var detalleLink = string.IsNullOrWhiteSpace(baseUrl)
+                        ? $"/Tiquete/Details/{id}"
+                        : $"{baseUrl}/Tiquete/Details/{id}";
+
+                    var nombreUsuario = string.IsNullOrWhiteSpace(tiquete.ReportedByNombre)
+                        ? "Usuario"
+                        : tiquete.ReportedByNombre;
+
+                    await _correoNotificaciones.EnviarNuevoAvanceTiqueteAsync(
+                        tiquete.ReportedByEmail,
+                        nombreUsuario,
+                        id,
+                        tiquete.Asunto ?? "Sin asunto",
+                        dto.TextoAvance,
+                        detalleLink);
+                }
 
                 return Json(new { success = true });
             }

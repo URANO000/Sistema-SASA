@@ -166,7 +166,10 @@ namespace DataAccess.Repositorios.Tiquetes
             IdCategoria = t.IdCategoria,
             IdEstatus = t.IdEstatus,
             IdAsignee = t.IdAsignee,
-            Resolucion = t.Resolucion
+            Resolucion = t.Resolucion,
+            ReportedByEmail = t.ReportedBy.CorreoEmpresa,
+            ReportedByNombre = (t.ReportedBy.PrimerNombre ?? "") + " " + (t.ReportedBy.PrimerApellido ?? ""),
+            EstatusNombre = t.Estatus.NombreEstatus
         })
         .FirstOrDefaultAsync();
         }
