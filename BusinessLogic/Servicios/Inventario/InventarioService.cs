@@ -8,10 +8,14 @@ namespace BusinessLogic.Servicios.Inventario
     public class InventarioService : IInventarioService
     {
         private readonly IActivoInventarioRepository _repo;
+        private readonly IActivoInventarioTiqueteRepository _asociacionRepo;
 
-        public InventarioService(IActivoInventarioRepository repo)
+        public InventarioService(
+            IActivoInventarioRepository repo,
+            IActivoInventarioTiqueteRepository asociacionRepo)
         {
             _repo = repo;
+            _asociacionRepo = asociacionRepo;
         }
 
         public async Task<PagedResult<ActivoTelefonoInventarioListItemDto>> ListarPaginadoAsync(ActivoInventarioFiltroDto filtros)
@@ -24,7 +28,6 @@ namespace BusinessLogic.Servicios.Inventario
 
             var skip = (page - 1) * pageSize;
 
-            // ✅ ahora pasa sortBy/sortDir
             var data = await _repo.ListarPaginadoAsync(
                 filtros.Texto,
                 filtros.IdEstadoActivo,
@@ -59,6 +62,26 @@ namespace BusinessLogic.Servicios.Inventario
                 PageNumber = page,
                 PageSize = pageSize
             };
+        }
+
+        public async Task<IReadOnlyList<ActivoTelefonoInventarioListItemDto>> ObtenerActivosParaAsociacionAsync()
+        {
+            var activos = await _repo.ListarAsync(null, null, null);
+
+            return activos
+                .Select(a => new ActivoTelefonoInventarioListItemDto
+                {
+                    IdActivo = a.IdActivo,
+                    NumeroActivo = a.NumeroActivo,
+                    NombreMaquina = a.NombreMaquina,
+                    SerieServicio = a.SerieServicio,
+                    IdTipoActivo = a.IdTipoActivo,
+                    IdEstadoActivo = a.IdEstadoActivo,
+                    TipoActivoNombre = a.TipoActivo?.Nombre,
+                    EstadoActivoNombre = a.EstadoActivo?.Nombre,
+                    FechaCreacion = a.FechaCreacion
+                })
+                .ToList();
         }
 
         public async Task<ActivoInventarioDetailDto?> ObtenerDetalleAsync(int id)
@@ -127,7 +150,6 @@ namespace BusinessLogic.Servicios.Inventario
             var entity = await _repo.ObtenerPorIdAsync(id);
             if (entity == null) return (false, "Activo no encontrado.");
 
-            // Regla Sprint 1: no se permite cambiar el código
             if (!string.Equals(entity.NumeroActivo, dto.NumeroActivo, StringComparison.OrdinalIgnoreCase))
                 return (false, "No se permite modificar el Número de Activo.");
 
@@ -144,6 +166,29 @@ namespace BusinessLogic.Servicios.Inventario
             entity.FechaActualizacion = DateTime.UtcNow;
 
             await _repo.GuardarAsync();
+            return (true, null);
+        }
+
+        public async Task<(bool ok, string? error)> AsociarActivoConTiqueteAsync(ActivoTiqueteAsociacionDto dto)
+        {
+            var activo = await _repo.ObtenerPorIdAsync(dto.IdActivo);
+            if (activo == null)
+                return (false, "El activo seleccionado no existe.");
+
+            var yaExiste = await _asociacionRepo.ExisteAsociacionAsync(dto.IdActivo, dto.IdTiquete);
+            if (yaExiste)
+                return (false, "Este activo ya está asociado a ese tiquete.");
+
+            var entity = new ActivoInventarioTiquete
+            {
+                IdActivo = dto.IdActivo,
+                IdTiquete = dto.IdTiquete,
+                FechaAsociacion = DateTime.UtcNow
+            };
+
+            await _asociacionRepo.CrearAsync(entity);
+            await _asociacionRepo.GuardarAsync();
+
             return (true, null);
         }
     }

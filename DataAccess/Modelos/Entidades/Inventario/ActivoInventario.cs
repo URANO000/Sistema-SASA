@@ -34,4 +34,3 @@ namespace DataAccess.Modelos.Entidades.Inventario
         public TipoLicenciaInventario? TipoLicencia { get; set; }
     }
 }
-

@@ -29,6 +29,7 @@ namespace DataAccess
         public DbSet<Attachment> Attachments { get; set; }
         public DbSet<Auditoria> Auditorias { get; set; }
         public DbSet<ActivoInventario> ActivoInventario { get; set; }
+        public DbSet<ActivoInventarioTiquete> ActivoInventarioTiquete { get; set; }
         public DbSet<TipoActivoInventario> TipoActivoInventario { get; set; }
         public DbSet<EstadoActivoInventario> EstadoActivoInventario { get; set; }
         public DbSet<TipoLicenciaInventario> TipoLicenciaInventario { get; set; }
@@ -159,6 +160,28 @@ namespace DataAccess
                 entity.ToTable("EstadoActivoInventario");
                 entity.HasKey(x => x.IdEstadoActivo);
                 entity.Property(x => x.Nombre).HasMaxLength(40).IsRequired();
+            });
+
+            modelBuilder.Entity<ActivoInventarioTiquete>(entity =>
+            {
+                entity.ToTable("ActivoInventarioTiquete");
+                entity.HasKey(x => x.IdActivoInventarioTiquete);
+
+                entity.Property(x => x.FechaAsociacion)
+                    .IsRequired();
+
+                entity.HasOne(x => x.Activo)
+                    .WithMany()
+                    .HasForeignKey(x => x.IdActivo)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(x => x.Tiquete)
+                    .WithMany()
+                    .HasForeignKey(x => x.IdTiquete)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasIndex(x => new { x.IdActivo, x.IdTiquete })
+                    .IsUnique();
             });
 
             modelBuilder.Entity<TipoLicenciaInventario>(entity =>

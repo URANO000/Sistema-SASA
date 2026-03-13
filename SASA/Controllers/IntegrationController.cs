@@ -1,10 +1,14 @@
 ﻿using BusinessLogic.Servicios.Integracion;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
+using SASA.Filters;
 using SASA.ViewModels.Integracion;
 using System.Security.Claims;
 
 namespace SASA.Controllers
 {
+    [RequireAuth]
+    [Authorize(Roles = "Administrador")]
     public class IntegrationController : Controller
     {
         private readonly IIntegracionService _integracion;
@@ -34,7 +38,6 @@ namespace SASA.Controllers
                 return View();
             }
 
-            // ✅ NUEVO: tamaño máximo
             if (archivo.Length > MaxFileSizeBytes)
             {
                 ModelState.AddModelError("", $"El archivo supera el tamaño máximo permitido ({MaxFileSizeBytes / (1024 * 1024)}MB).");
@@ -48,11 +51,9 @@ namespace SASA.Controllers
                 return View();
             }
 
-            // Guardar físico (MVC puede hacerlo)
             var carpeta = Path.Combine(_env.WebRootPath, "uploads", "integracion");
             Directory.CreateDirectory(carpeta);
 
-            // ✅ NUEVO: nombre seguro
             var originalName = Path.GetFileName(archivo.FileName);
             var safeName = string.Join("_", originalName.Split(Path.GetInvalidFileNameChars(), StringSplitOptions.RemoveEmptyEntries))
                                 .Replace(" ", "_");
@@ -67,7 +68,6 @@ namespace SASA.Controllers
 
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            // BD ahora la maneja BusinessLogic
             var historialId = await _integracion.RegistrarCargaAsync(
                 nombreArchivoOriginal: originalName,
                 rutaArchivoRelativa: $"/uploads/integracion/{nombreSeguro}",

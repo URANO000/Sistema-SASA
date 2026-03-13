@@ -8,6 +8,7 @@ using SASA.ViewModels.InventarioTelefono;
 namespace SASA.Controllers
 {
     [RequireAuth]
+    [Authorize(Roles = "Administrador")]
     public class InventoryPhoneController : Controller
     {
         private readonly IActivoTelefonoService _service;
@@ -50,7 +51,6 @@ namespace SASA.Controllers
             return View(vm);
         }
 
-        [Authorize(Roles = "Administrador")]
         [HttpGet]
         public IActionResult Create()
         {
@@ -58,7 +58,6 @@ namespace SASA.Controllers
             return View(new CrearTelefonoViewModel());
         }
 
-        [Authorize(Roles = "Administrador")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(CrearTelefonoViewModel model)
@@ -90,7 +89,6 @@ namespace SASA.Controllers
             return PartialView("_DetailModal", data);
         }
 
-        [Authorize(Roles = "Administrador")]
         [HttpGet]
         public async Task<IActionResult> EditModal(int id)
         {
@@ -116,7 +114,6 @@ namespace SASA.Controllers
             return PartialView("_EditModal", vm);
         }
 
-        [Authorize(Roles = "Administrador")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> EditModal(int id, CrearTelefonoViewModel model)

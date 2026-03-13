@@ -150,8 +150,7 @@ builder.Services.AddScoped<IIntegracionService, IntegracionService>();
 builder.Services.AddScoped<IInventarioService, InventarioService>();
 builder.Services.AddScoped<IActivoInventarioRepository, ActivoInventarioRepository>();
 builder.Services.AddScoped<ICatalogosInventarioRepository, CatalogosInventarioRepository>();
-
-builder.Services.AddScoped<IIntegracionService, IntegracionService>();
+builder.Services.AddScoped<IActivoInventarioTiqueteRepository, ActivoInventarioTiqueteRepository>();
 
 builder.Services.AddScoped<ILoginAttemptRepository, LoginAttemptRepository>();
 builder.Services.AddScoped<ILoginAttemptService, LoginAttemptService>();

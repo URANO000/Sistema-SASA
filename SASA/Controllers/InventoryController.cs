@@ -1,4 +1,5 @@
 using BusinessLogic.Servicios.Inventario;
+using BusinessLogic.Servicios.Tiquetes;
 using DataAccess.Modelos.DTOs.Inventario;
 using DataAccess.Repositorios.Inventario;
 using Microsoft.AspNetCore.Mvc;
@@ -10,15 +11,21 @@ using SASA.ViewModels.Inventario;
 namespace SASA.Controllers
 {
     [RequireAuth]
+    [Authorize(Roles = "Administrador")]
     public class InventoryController : Controller
     {
         private readonly IInventarioService _inventario;
         private readonly ICatalogosInventarioRepository _catRepo;
+        private readonly ITiqueteService _tiqueteService;
 
-        public InventoryController(IInventarioService inventario, ICatalogosInventarioRepository catRepo)
+        public InventoryController(
+            IInventarioService inventario,
+            ICatalogosInventarioRepository catRepo,
+            ITiqueteService tiqueteService)
         {
             _inventario = inventario;
             _catRepo = catRepo;
+            _tiqueteService = tiqueteService;
         }
 
         [HttpGet]
@@ -49,7 +56,6 @@ namespace SASA.Controllers
             var vm = new InventarioIndexViewModel
             {
                 Items = result.Items?.ToList() ?? new List<ActivoTelefonoInventarioListItemDto>(),
-
                 PageNumber = result.PageNumber,
                 PageSize = result.PageSize,
                 TotalPages = result.TotalPages,
@@ -69,7 +75,6 @@ namespace SASA.Controllers
             return View(vm);
         }
 
-        [Authorize(Roles = "Administrador")]
         [HttpGet]
         public async Task<IActionResult> Create()
         {
@@ -78,7 +83,6 @@ namespace SASA.Controllers
             return View(new CrearActivoViewModel());
         }
 
-        [Authorize(Roles = "Administrador")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(CrearActivoViewModel model)
@@ -120,7 +124,6 @@ namespace SASA.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        [Authorize(Roles = "Administrador")]
         [HttpGet]
         public async Task<IActionResult> Edit(int id)
         {
@@ -152,7 +155,6 @@ namespace SASA.Controllers
             return View(vm);
         }
 
-        [Authorize(Roles = "Administrador")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, CrearActivoViewModel model)
@@ -194,9 +196,6 @@ namespace SASA.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        // ==========================
-        // DETAIL MODAL (YA LO TENÉS)
-        // ==========================
         [HttpGet]
         public async Task<IActionResult> DetailModal(int id)
         {
@@ -206,10 +205,6 @@ namespace SASA.Controllers
             return PartialView("_DetailModal", detalle);
         }
 
-        // ==========================
-        // EDIT MODAL — NUEVO
-        // ==========================
-        [Authorize(Roles = "Administrador")]
         [HttpGet]
         public async Task<IActionResult> EditModal(int id)
         {
@@ -239,7 +234,6 @@ namespace SASA.Controllers
             return PartialView("_EditModal", vm);
         }
 
-        [Authorize(Roles = "Administrador")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> EditModal(int id, CrearActivoViewModel model)
@@ -279,58 +273,77 @@ namespace SASA.Controllers
             return Json(new { success = true });
         }
 
+        // ==========================
+        // ASOCIAR ACTIVO CON TIQUETE
+        // ==========================
+
         [HttpGet]
-        public async Task<IActionResult> Phones(string? q, int? estadoId, int pageNumber = 1, int pageSize = 10, string sortBy = "Codigo", string sortDir = "desc")
+        public async Task<IActionResult> TicketAssociation()
         {
-            ViewData["Title"] = "Gestión de Activos Teléfono";
+            ViewData["Title"] = "Asociación de Activos con Tiquetes";
 
-            if (pageNumber < 1) pageNumber = 1;
-            if (pageSize < 5) pageSize = 5;
-            if (pageSize > 50) pageSize = 50;
+            var vm = new AsociacionActivoTiqueteViewModel();
 
-            // Cargar combos
-            var estados = (await _catRepo.ObtenerEstadosAsync()).OrderBy(e => e.Nombre);
+            var activos = await _inventario.ObtenerActivosParaAsociacionAsync();
+            var tiquetes = await _tiqueteService.ObtenerTiquetesReporteAsync();
 
-            // 📌 Aquí viene lo importante:
-            // Necesitamos filtrar por TipoActivo que represente Teléfonos.
-            // Ejemplo: si tu TipoActivo tiene un Id específico para "Teléfono", lo ponemos fijo aquí.
-            // Por ahora lo dejo como "tipoIdTelefono" (vos lo reemplazás por el id real).
-            const int tipoIdTelefono = 999; // <-- reemplazar por el IdTipoActivo real de Teléfono
+            vm.Activos = activos
+                .Select(a => new SelectListItem
+                {
+                    Value = a.IdActivo.ToString(),
+                    Text = $"{a.NumeroActivo} - {a.NombreMaquina}"
+                }).ToList();
 
-            var filtros = new ActivoInventarioFiltroDto
+            vm.Tiquetes = tiquetes
+                .Select(t => new SelectListItem
+                {
+                    Value = t.IdTiquete.ToString(),
+                    Text = $"TCK-{t.IdTiquete} - {t.Asunto}"
+                }).ToList();
+
+            return View(vm);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> TicketAssociation(AsociacionActivoTiqueteViewModel model)
+        {
+            ViewData["Title"] = "Asociación de Activos con Tiquetes";
+
+            var activos = await _inventario.ObtenerActivosParaAsociacionAsync();
+            var tiquetes = await _tiqueteService.ObtenerTiquetesReporteAsync();
+
+            model.Activos = activos.Select(a => new SelectListItem
             {
-                Texto = q,
-                IdEstadoActivo = estadoId,
-                IdTipoActivo = tipoIdTelefono,
-                Page = pageNumber,
-                PageSize = pageSize,
-                SortBy = sortBy,
-                SortDir = sortDir
+                Value = a.IdActivo.ToString(),
+                Text = $"{a.NumeroActivo} - {a.NombreMaquina}"
+            }).ToList();
+
+            model.Tiquetes = tiquetes.Select(t => new SelectListItem
+            {
+                Value = t.IdTiquete.ToString(),
+                Text = $"TCK-{t.IdTiquete} - {t.Asunto}"
+            }).ToList();
+
+            if (!ModelState.IsValid)
+                return View(model);
+
+            var dto = new ActivoTiqueteAsociacionDto
+            {
+                IdActivo = model.IdActivo!.Value,
+                IdTiquete = model.IdTiquete!.Value
             };
 
-            var result = await _inventario.ListarPaginadoAsync(filtros);
+            var (ok, error) = await _inventario.AsociarActivoConTiqueteAsync(dto);
 
-            var vm = new InventarioIndexViewModel
+            if (!ok)
             {
-                Items = result.Items?.ToList() ?? new List<ActivoTelefonoInventarioListItemDto>(),
+                ModelState.AddModelError(string.Empty, error ?? "No se pudo realizar la asociación.");
+                return View(model);
+            }
 
-                PageNumber = result.PageNumber,
-                PageSize = result.PageSize,
-                TotalPages = result.TotalPages,
-                TotalRecords = result.TotalRecords,
-
-                Q = q,
-                EstadoId = estadoId,
-                TipoId = tipoIdTelefono,
-
-                SortBy = sortBy,
-                SortDir = sortDir,
-
-                Estados = new SelectList(estados, "IdEstadoActivo", "Nombre", estadoId),
-                Tipos = new SelectList(Enumerable.Empty<SelectListItem>()) // en teléfonos no mostramos el combo tipo
-            };
-
-            return View("Phones", vm);
+            TempData["Success"] = "El activo fue asociado correctamente al tiquete.";
+            return RedirectToAction(nameof(TicketAssociation));
         }
 
         private async Task CargarCatalogosAsync(int? tipoIdSeleccionado = null, int? estadoIdSeleccionado = null)

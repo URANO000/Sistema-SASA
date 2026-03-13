@@ -12,5 +12,9 @@ namespace BusinessLogic.Servicios.Inventario
         Task<(bool ok, string? error)> CrearAsync(ActivoInventarioCreateDto dto);
 
         Task<(bool ok, string? error)> ActualizarAsync(int id, ActivoInventarioEditDto dto);
+
+        Task<(bool ok, string? error)> AsociarActivoConTiqueteAsync(ActivoTiqueteAsociacionDto dto);
+
+        Task<IReadOnlyList<ActivoTelefonoInventarioListItemDto>> ObtenerActivosParaAsociacionAsync();
     }
 }
