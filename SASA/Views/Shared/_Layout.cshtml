@@ -3,7 +3,7 @@
 @using System.Security.Claims
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 
 <head>
     <meta charset="utf-8" />
@@ -36,6 +36,7 @@
 <!--Global modal, for now at least-->
 @await Html.PartialAsync("_SuccessModal")
 @await Html.PartialAsync("_ErrorModal")
+@await Html.PartialAsync("_Alert")
 <!---------------------------------->
 
     @if (User?.Identity?.IsAuthenticated == true)

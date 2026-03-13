@@ -43,11 +43,30 @@
                                     <label asp-for="Categoria" class="form-label required-field">Categoría</label>
                                     <select asp-for="Categoria" 
                                             asp-items="Model.Categorias"
-                                            class="form-select">
+                                            class="form-select"
+                                            id="categoriaDropdown">
                                     <option value="" disabled>Seleccione una categoría</option>
                                     </select>
                                     <span asp-validation-for="Categoria" class="text-danger"></span>
                                 </div>
+
+                                <!-- SubCategoría -->
+                                <div class="col-md-6">
+                                    <label asp-for="SubCategorias" class="form-label required-field">Subcategoría</label>
+                                    <select asp-for="IdSubCategoria"
+                                            class="form-select"
+                                            id="subcategoriaDropdown">
+                                        <option value="" disabled>Seleccione una subcategoría</option>
+                                    </select>
+                                    <span asp-validation-for="SubCategorias" class="text-danger"></span>
+                                </div>
+                                @if (User.IsInRole("Administrador"))
+                                    {
+                                    <div class="col-md-6">
+                                        <label class="form-label">Prioridad</label>
+                                        <input id="prioridadInput" class="form-control" readonly />
+                                    </div>
+                                    }
 
                                 <!-- Asignee-->
                                 @if (User.IsInRole("Administrador"))

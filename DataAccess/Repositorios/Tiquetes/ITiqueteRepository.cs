@@ -16,5 +16,7 @@ namespace DataAccess.Repositorios.Tiquetes
         Task<TiquetePorIdDto?> ObtenerTiquetePorIdAsync(int id);
 
         Task<bool> ExisteTiquete(int id);
+        Task<List<Tiquete>> ObtenerTiquetesPorIdsAsync(List<int> ids);
+        Task ActualizarAsignacionAsync(List<Tiquete> tiquetes);
     }
 }

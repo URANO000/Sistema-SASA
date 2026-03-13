@@ -2,6 +2,7 @@ using BusinessLogic.Servicios.Attachments;
 using BusinessLogic.Servicios.Avances;
 using BusinessLogic.Servicios.Categorias;
 using BusinessLogic.Servicios.Prioridad;
+using BusinessLogic.Servicios.SubCategorias;
 using BusinessLogic.Servicios.Tiquetes;
 using BusinessLogic.Servicios.Usuarios;
 using DataAccess.Modelos.DTOs.Avances;
@@ -34,6 +35,8 @@ namespace SASA.Controllers
         private readonly IPrioridadService _prioridadService;
         private readonly IAvanceService _avanceService;
         private readonly IAttachmentService _attachmentService;
+        private readonly ISubCategoriaService _subCategoriasService;
+
         private readonly BusinessLogic.Servicios.Correo.ICorreoNotificacionesService _correoNotificaciones;
         private readonly AppSettings _appSettings;
 
@@ -44,8 +47,10 @@ namespace SASA.Controllers
             IPrioridadService prioridadService,
             IAvanceService avanceService,
             IAttachmentService attachmentService,
+            ISubCategoriaService subCategoriaService,
             BusinessLogic.Servicios.Correo.ICorreoNotificacionesService correoNotificaciones,
             IOptions<AppSettings> appSettings)
+
         {
             _tiqueteService = tiqueteService;
             _usuarioService = usuarioService;
@@ -53,6 +58,7 @@ namespace SASA.Controllers
             _prioridadService = prioridadService;
             _avanceService = avanceService;
             _attachmentService = attachmentService;
+            _subCategoriasService = subCategoriaService;
             _correoNotificaciones = correoNotificaciones;
             _appSettings = appSettings.Value;
         }
@@ -114,12 +120,16 @@ namespace SASA.Controllers
             //Cargo los valores para los dropdowns
             await CargarFiltrosAsync(viewModel.Filtro);
 
+            //Cargar para asignar
+            await CargarDropdownsAsync(viewModel);
+
             //Cargo los dropdowns de el add modal
             viewModel.CrearTiquete = new CrearTiqueteViewModel
             {
                 Asunto = string.Empty,
                 Descripcion = string.Empty,
-                Categoria = 0
+                Categoria = 0,
+                IdSubCategoria = 0
             };
 
             await CargarDropdownsAsync(viewModel.CrearTiquete);
@@ -152,6 +162,7 @@ namespace SASA.Controllers
                     Asunto = model.Asunto,
                     Descripcion = model.Descripcion,
                     IdCategoria = model.Categoria,
+                    IdSubCategoria = model.IdSubCategoria,
                     IdAsignee = model.IdAsignee,
 
                     ArchivoAdjunto = model.ArchivosAdjuntos
@@ -226,9 +237,11 @@ namespace SASA.Controllers
             var model = new TiqueteEditarViewModel
             {
                 IdTiquete = tiquete.IdTiquete,
-                //Asunto = tiquete.Asunto,
-                //Descripcion = tiquete.Descripcion,
+                Asunto = tiquete.Asunto,
+                Descripcion = tiquete.Descripcion,
                 IdCategoria = tiquete.IdCategoria,
+                IdSubCategoria = tiquete.IdSubCategoria,
+                NombrePrioridad = tiquete.NombrePrioridad,
                 IdEstatus = tiquete.IdEstatus,
                 Resolucion = tiquete.Resolucion,
 
@@ -236,6 +249,8 @@ namespace SASA.Controllers
 
             await CargarDropdownsAsync(model);
 
+            model.SubCategorias = await _subCategoriasService
+                    .ObtenerSubCategoriasPorCategoria(model.IdCategoria);
             return View(model);
         }
 
@@ -275,6 +290,7 @@ namespace SASA.Controllers
                 {
                     IdTiquete = model.IdTiquete,
                     IdCategoria = model.IdCategoria,
+                    IdSubCategoria = model.IdSubCategoria,
                     IdEstatus = model.IdEstatus,
                     Resolucion = model.Resolucion
                 };
@@ -365,6 +381,31 @@ namespace SASA.Controllers
             }
         }
 
+
+        [Authorize(Roles = "Administrador")]
+        [HttpPost]
+        public async Task<IActionResult> AsignarTiquetes([FromBody] AsignarTiqueteDto dto)
+        {
+            try
+            {
+                var currentUserId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+                await _tiqueteService.AsignarTiquetesAsync(
+                    dto,
+                    currentUserId,
+                    User.IsInRole("Administrador")
+                );
+
+                return Ok(new { success = true, message = "Tiquetes asignados correctamente." });
+
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { success = false, message = ex.Message });
+            }
+        }
+
+
         [HttpGet]
         public async Task<IActionResult> Details(int id)
         {
@@ -386,12 +427,15 @@ namespace SASA.Controllers
                 Resolucion = tiquete.Resolucion,
                 Estatus = tiquete.Estatus,
                 Categoria = tiquete.Categoria,
+                SubCategoria = tiquete.SubCategoria,
                 ReportedBy = tiquete.ReportedBy,
                 Departamento = tiquete.Departamento,
                 Asignee = tiquete.Asignee,
 
                 CreatedAt = tiquete.CreatedAt,
                 UpdatedAt = tiquete.UpdatedAt,
+
+                Prioridad = tiquete.Prioridad,
 
                 Avances = tiquete.Avances
                     .Select(a => new AvanceDetalleViewModel
@@ -519,6 +563,14 @@ namespace SASA.Controllers
 
 
         //----------------------------Helpers---------------------------------------
+
+        //Para las subcategorias
+        [HttpGet]
+        public async Task<IActionResult> ObtenerSubCategorias(int idCategoria)
+        {
+            var subcategorias = await _subCategoriasService.ObtenerSubCategoriasPorCategoria(idCategoria);
+            return Json(subcategorias);
+        }
         private async Task CargarDropdownsAsync(TiqueteFormViewModel model)
         {
             //Obtener datos por medio de servicios
@@ -526,6 +578,7 @@ namespace SASA.Controllers
             var usuarios = await _usuarioService.ObtenerUsuariosTIAsync();
             var estatuses = Enum.GetValues(typeof(TiqueteEstatus))
                     .Cast<TiqueteEstatus>();
+
 
             //Mapear a selectlistitems
 

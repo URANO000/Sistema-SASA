@@ -137,6 +137,8 @@ builder.Services.AddScoped<IAttachmentRepository, AttachmentRepository>();
 builder.Services.AddScoped<IAttachmentService, AttachmentService>();
 builder.Services.AddScoped<ITiqueteHistorialRepository, TiqueteHistorialRepository>();
 builder.Services.AddScoped<ITiqueteHistorialService, TiqueteHistorialService>();
+builder.Services.AddScoped<ISubCategoriaRepository, SubCategoriaRepository>();
+builder.Services.AddScoped<ISubCategoriaService, SubCategoriaService>();
 
 
 builder.Services.AddScoped<IIntegracionHistorialRepository, IntegracionHistorialRepository>();
@@ -256,11 +258,8 @@ if (app.Environment.IsDevelopment())
     }
 }
 
-if (!app.Environment.IsDevelopment())
-{
-    app.UseExceptionHandler("/Home/Error");
-    app.UseHsts();
-}
+app.UseExceptionHandler("/Home/Error");
+app.UseHsts();
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();

@@ -1,14 +1,15 @@
 ﻿/* Content area - for mobile*/
 .content {
-    min-height: 100vh;
     padding: 1rem;
+    min-height: 100vh;
 }
 
 /* Desktop */
 @media (min-width:992px) {
     .content {
         margin: 0 6rem 0 6rem;
-        padding: 2rem;
+        padding: 0.2rem 2rem 0 2rem;
+
     }
 
     .logo-sasa {
