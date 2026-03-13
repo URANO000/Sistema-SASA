@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace DataAccess.Modelos.DTOs.Tiquete
+﻿namespace DataAccess.Modelos.DTOs.Tiquete
 {
     public class TiquetePorIdDto
     {
@@ -19,5 +13,9 @@ namespace DataAccess.Modelos.DTOs.Tiquete
         public string? Resolucion { get; set; }
         public DateTime UpdatedAt { get; set; }
         public string UpdatedBy { get; set; }
+
+        public string? ReportedByEmail { get; set; }
+        public string? ReportedByNombre { get; set; }
+        public string? EstatusNombre { get; set; }
     }
 }
