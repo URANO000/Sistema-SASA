@@ -81,6 +81,7 @@ namespace DataAccess
                     .OnDelete(DeleteBehavior.Restrict);
             });
 
+
             //Para usuarios, por la auto-referencia con createdBy
             modelBuilder.Entity<ApplicationUser>()
                .HasOne(u => u.CreatedByUser)

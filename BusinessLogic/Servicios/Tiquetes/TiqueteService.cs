@@ -1,5 +1,6 @@
 ﻿using BusinessLogic.Servicios.Avances;
 using BusinessLogic.Servicios.TiqueteHistoriales;
+using DataAccess.Identity;
 using DataAccess.Modelos.DTOs.Tiquete;
 using DataAccess.Modelos.DTOs.Tiquete.Filtros;
 using DataAccess.Modelos.DTOs.Wrappers;
@@ -9,6 +10,7 @@ using DataAccess.Repositorios.Attachments;
 using DataAccess.Repositorios.Categorias;
 using DataAccess.Repositorios.Tiquetes;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 
 namespace BusinessLogic.Servicios.Tiquetes
 {
@@ -20,15 +22,18 @@ namespace BusinessLogic.Servicios.Tiquetes
         private readonly IAvanceService _avanceService;
         private readonly IAttachmentRepository _attachmentRepository;
         private readonly ITiqueteHistorialService _tiqueteHistorialService;
+        private readonly UserManager<ApplicationUser> _userManager;
+
         public TiqueteService(ITiqueteRepository tiqueteRepository, ICategoriaRepository categoriaRepository,
             IAvanceService avanceService, IAttachmentRepository attachmentRepository,
-            ITiqueteHistorialService tiqueteHistorialService)
+            ITiqueteHistorialService tiqueteHistorialService, UserManager<ApplicationUser> userManager)
         {
             _tiqueteRepository = tiqueteRepository;
             _categoriaRepository = categoriaRepository;
             _avanceService = avanceService;
             _attachmentRepository = attachmentRepository;
             _tiqueteHistorialService = tiqueteHistorialService;
+            _userManager = userManager;
         }
         //Implementación de los métodos para el servicio de Tiquete
 
@@ -269,14 +274,29 @@ namespace BusinessLogic.Servicios.Tiquetes
                     continue;
                 }
 
+                //Para historial
+                var asignadoAnterior = tiquete.IdAsignee ?? "Sin asignado anterior";
+                //-------------
+
                 tiquete.IdAsignee = dto.IdAsignee;
                 tiquete.UpdatedAt = DateTime.Now;
                 tiquete.UpdatedBy = currentUserId;
 
                 //Historial de tiquetes
+                //Convertir IdAsignee al correo del asignado
+                var user = await _userManager.FindByIdAsync(dto.IdAsignee);
+
+                if (user == null)
+                {
+                    throw new KeyNotFoundException("El usuario asignado no existe.");
+                }
+
+                var correo = user.Email;
+
                 await _tiqueteHistorialService.RegistrarAsignacionAsync(
                     tiquete.IdTiquete,
-                    tiquete.IdAsignee,
+                    asignadoAnterior,
+                    correo,
                     tiquete.UpdatedBy);
             }
 
