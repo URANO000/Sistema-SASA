@@ -99,7 +99,7 @@ namespace SASA.Controllers
                     Categoria = u.Categoria,
                     ReportedBy = u.ReportedBy,
                     Departamento = u.Departamento,
-                    Asignee = u.Asignee,
+                    Asignee = u.Assignee,
                     CreatedAt = u.CreatedAt,
                     UpdatedAt = u.UpdatedAt
                 }).ToList(),
@@ -430,7 +430,7 @@ namespace SASA.Controllers
                 SubCategoria = tiquete.SubCategoria,
                 ReportedBy = tiquete.ReportedBy,
                 Departamento = tiquete.Departamento,
-                Asignee = tiquete.Asignee,
+                Asignee = tiquete.Assignee,
 
                 CreatedAt = tiquete.CreatedAt,
                 UpdatedAt = tiquete.UpdatedAt,

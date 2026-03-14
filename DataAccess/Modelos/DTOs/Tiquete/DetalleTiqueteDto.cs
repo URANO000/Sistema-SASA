@@ -20,7 +20,7 @@ namespace DataAccess.Modelos.DTOs.Tiquete
 
         public required string ReportedBy { get; set; }
         public string? Departamento { get; set; }
-        public string? Asignee { get; set; }
+        public string? Assignee { get; set; }
 
         public DateTime CreatedAt { get; set; }
         public DateTime? UpdatedAt { get; set; }

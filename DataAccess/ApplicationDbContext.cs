@@ -79,6 +79,9 @@ namespace DataAccess
                     .WithMany(u => u.TiquetesReportados)
                     .HasForeignKey(t => t.IdReportedBy)
                     .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasIndex(t => new { t.IdAsignee, t.OrdenCola })
+                    .IsUnique();
             });
 
 

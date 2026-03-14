@@ -2,6 +2,7 @@
 using BusinessLogic.Servicios.TiqueteHistoriales;
 using DataAccess.Identity;
 using DataAccess.Modelos.DTOs.Tiquete;
+using DataAccess.Modelos.DTOs.Tiquete.Colas;
 using DataAccess.Modelos.DTOs.Tiquete.Filtros;
 using DataAccess.Modelos.DTOs.Wrappers;
 using DataAccess.Modelos.Entidades.ModTiquete;
@@ -9,6 +10,7 @@ using DataAccess.Modelos.Enums;
 using DataAccess.Repositorios.Attachments;
 using DataAccess.Repositorios.Categorias;
 using DataAccess.Repositorios.Tiquetes;
+using DocumentFormat.OpenXml.Spreadsheet;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 
@@ -61,7 +63,7 @@ namespace BusinessLogic.Servicios.Tiquetes
                     Categoria = tiquete.Categoria,
                     SubCategoria = tiquete.SubCategoria,
                     ReportedBy = tiquete.ReportedBy,
-                    Asignee = tiquete.Asignee,
+                    Assignee = tiquete.Assignee,
                     CreatedAt = tiquete.CreatedAt,
                     UpdatedAt = tiquete.UpdatedAt
                 });
@@ -96,7 +98,7 @@ namespace BusinessLogic.Servicios.Tiquetes
                 Estatus = dto.Estatus,
                 Categoria = dto.Categoria,
                 SubCategoria = dto.SubCategoria,
-                Asignee = dto.Asignee,
+                Assignee = dto.Assignee,
                 ReportedBy = dto.ReportedBy,
                 Departamento = dto.Departamento,
                 CreatedAt = dto.CreatedAt,
@@ -265,6 +267,12 @@ namespace BusinessLogic.Servicios.Tiquetes
                 throw new KeyNotFoundException("No se encontraron tiquetes.");
             }
 
+            var user = await _userManager.FindByIdAsync(dto.IdAssignee);
+            if (user == null)
+                throw new KeyNotFoundException("El usuario asignado no existe.");
+
+            var correo = user.Email;
+
             //Si todo bien, iterar por cada tiquete en la lista y asignar individualmente
             foreach(var tiquete in tiquetes)
             {
@@ -274,33 +282,61 @@ namespace BusinessLogic.Servicios.Tiquetes
                     continue;
                 }
 
-                //Para historial
-                var asignadoAnterior = tiquete.IdAsignee ?? "Sin asignado anterior";
-                //-------------
+                //Para historial y colas-----------------------------------------------
+                var asignadoAnterior = tiquete.IdAsignee;
+                
+                //Remover de la cola anterior, si el tiquete tenía a alguien asignado antes,
+                //y no está siendo asignado a la misma persona
+                if(asignadoAnterior != null && asignadoAnterior != dto.IdAssignee)
+                {
+                    await _tiqueteRepository.ReordenarColaTrasRemover(
+                        asignadoAnterior,
+                        tiquete.OrdenCola.Value
+                        );
+                }
 
-                tiquete.IdAsignee = dto.IdAsignee;
+                //Añadir a nueva cola si aplica
+                if(dto.IdAssignee != null && asignadoAnterior != dto.IdAssignee)
+                {
+                    var siguienteOrden =
+                        await _tiqueteRepository.ObtenerSiguienteOrdenColaAsync(dto.IdAssignee);
+                    tiquete.OrdenCola = siguienteOrden;
+                }
+
+                tiquete.IdAsignee = dto.IdAssignee;
                 tiquete.UpdatedAt = DateTime.Now;
                 tiquete.UpdatedBy = currentUserId;
 
                 //Historial de tiquetes
-                //Convertir IdAsignee al correo del asignado
-                var user = await _userManager.FindByIdAsync(dto.IdAsignee);
 
                 if (user == null)
                 {
                     throw new KeyNotFoundException("El usuario asignado no existe.");
                 }
 
-                var correo = user.Email;
-
                 await _tiqueteHistorialService.RegistrarAsignacionAsync(
                     tiquete.IdTiquete,
-                    asignadoAnterior,
+                    asignadoAnterior ?? "Sin asignado anterior",
                     correo,
                     tiquete.UpdatedBy);
             }
 
             await _tiqueteRepository.ActualizarAsignacionAsync(tiquetes);
+        }
+
+
+        //---------------------------Zona de colas ---------------------------------------------
+        public async Task<List<ColaTiqueteDto>> GetColaPersonalAsync(string currentUserId)
+        {
+            //Primeramente, validar y asegurar que usuario es admin
+            ValidarUsuarioActual(currentUserId);
+
+            return await _tiqueteRepository.GetColaPersonalAsync(currentUserId);
+        }
+
+        public async Task<List<ColaPorAssigneeDto>> GetColasGlobalAsync()
+        {
+            return await _tiqueteRepository.GetColasGlobalAsync();
         }
 
 
@@ -327,6 +363,16 @@ namespace BusinessLogic.Servicios.Tiquetes
             string? idAsignee
         )
         {
+
+            //Un poco de lógica para colas---------------------------------
+            int? ordenCola = null;
+
+            //Si el tiquete es assignado, entonces debe de entrar a la cola del usuario asignado
+            if (!string.IsNullOrEmpty(idAsignee))
+            {
+                ordenCola = await _tiqueteRepository.ObtenerSiguienteOrdenColaAsync(idAsignee);
+            }
+
             var tiquete = new Tiquete
             {
                 Asunto = asunto.Trim(),
@@ -335,6 +381,7 @@ namespace BusinessLogic.Servicios.Tiquetes
                 IdSubCategoria = idSubCategoria,
                 IdReportedBy = reportedBy,
                 IdAsignee = idAsignee,
+                OrdenCola = ordenCola,
                 IdEstatus = (int)TiqueteEstatus.Creado,
                 CreatedAt = DateTime.Now
             };
@@ -384,5 +431,6 @@ namespace BusinessLogic.Servicios.Tiquetes
             if (attachments.Any())
                 await _attachmentRepository.AddRangeAsync(attachments);
         }
+
     }
 }
