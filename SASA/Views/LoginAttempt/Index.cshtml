@@ -1,0 +1,136 @@
+﻿@model SASA.ViewModels.Auth.LoginAttemptIndexViewModel
+
+@{
+    ViewData["Title"] = "Historial de intentos de inicio de sesión";
+}
+
+<h2 class="mb-4">Historial de intentos de inicio de sesión</h2>
+
+<form method="get" asp-controller="LoginAttempt" asp-action="Index" class="row g-3 mb-4">
+    <div class="col-md-3">
+        <label class="form-label">Correo ingresado</label>
+        <input asp-for="Filtros.EmailIngresado" class="form-control" />
+    </div>
+
+    <div class="col-md-2">
+        <label class="form-label">Resultado</label>
+        <select name="Exitoso" class="form-select">
+            <option value="">Todos</option>
+            @if (Model.Filtros.Exitoso == true)
+            {
+                <option value="true" selected>Exitoso</option>
+                <option value="false">Fallido</option>
+            }
+            else if (Model.Filtros.Exitoso == false)
+            {
+                <option value="true">Exitoso</option>
+                <option value="false" selected>Fallido</option>
+            }
+            else
+            {
+                <option value="true">Exitoso</option>
+                <option value="false">Fallido</option>
+            }
+        </select>
+    </div>
+
+    <div class="col-md-2">
+        <label class="form-label">Fecha desde</label>
+        <input asp-for="Filtros.FechaDesde" type="date" class="form-control" />
+    </div>
+
+    <div class="col-md-2">
+        <label class="form-label">Fecha hasta</label>
+        <input asp-for="Filtros.FechaHasta" type="date" class="form-control" />
+    </div>
+
+    <div class="col-md-2">
+        <label class="form-label">Cantidad por página</label>
+        <input asp-for="Filtros.PageSize" type="number" min="1" class="form-control" />
+    </div>
+
+    <div class="col-md-1 d-flex align-items-end">
+        <button type="submit" class="btn btn-primary w-100">Filtrar</button>
+    </div>
+</form>
+
+@if (Model.Items == null || !Model.Items.Any())
+{
+    <div class="alert alert-info">
+        No se encontraron intentos de inicio de sesión con los filtros seleccionados.
+    </div>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table table-bordered table-striped align-middle">
+            <thead>
+                <tr>
+                    <th>Fecha UTC</th>
+                    <th>Correo ingresado</th>
+                    <th>Tipo de cuenta</th>
+                    <th>Resultado</th>
+                    <th>Motivo fallo</th>
+                    <th>IP</th>
+                    <th>User Agent</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model.Items)
+                {
+                    <tr>
+                        <td>@item.FechaUtc.ToString("yyyy-MM-dd HH:mm:ss")</td>
+                        <td>@item.EmailIngresado</td>
+                        <td>
+                            @if (string.IsNullOrWhiteSpace(item.UserId))
+                            {
+                                <span>No registrada</span>
+                            }
+                            else
+                            {
+                                <span>Registrada</span>
+                            }
+                        </td>
+                        <td>
+                            @if (item.Exitoso)
+                            {
+                                <span class="badge bg-success">Exitoso</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-danger">Fallido</span>
+                            }
+                        </td>
+                        <td>@item.MotivoFallo</td>
+                        <td>@item.IpAddress</td>
+                        <td style="max-width: 300px; word-break: break-word;">@item.UserAgent</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+
+@if (Model.TotalPages > 1)
+{
+    <nav>
+        <ul class="pagination">
+            @for (int i = 1; i <= Model.TotalPages; i++)
+            {
+                <li class="page-item @(i == Model.Filtros.Page ? "active" : "")">
+                    <a class="page-link"
+                           asp-controller="LoginAttempt"
+                           asp-action="Index"
+                           asp-route-EmailIngresado="@Model.Filtros.EmailIngresado"
+                           asp-route-Exitoso="@Model.Filtros.Exitoso"
+                           asp-route-FechaDesde="@(Model.Filtros.FechaDesde?.ToString("yyyy-MM-dd"))"
+                           asp-route-FechaHasta="@(Model.Filtros.FechaHasta?.ToString("yyyy-MM-dd"))"
+                           asp-route-Page="@i"
+                           asp-route-PageSize="@Model.Filtros.PageSize">
+                        @i
+                    </a>
+                </li>
+            }
+        </ul>
+    </nav>
+}
