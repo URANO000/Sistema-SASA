@@ -1,59 +1,89 @@
-﻿@{
+﻿@using SASA.ViewModels.Tiquete.Cola
+@model ColaIndexViewModel
+@{
     ViewData["Title"] = "Gestión de Colas de Trabajo";
+    var tabColaPersonalActiva = Model.TabActiva == "Cola Personal";
+    var tabColaGlobalActiva = Model.TabActiva == "Cola Global";
 }
 
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
-<div class="container py-4 sasa-card">
+<div class="container-fluid">
+    <div class="card mb-3">
+        <div class="card-body">
+            <div class="">
+                <h2 class="mb-4 fw-bold">Colas de Trabajo</h2>
 
-    <h4 class="mb-4 fw-bold">Cola de Tiquetes</h4>
 
-    <div id="ticketQueue" class="notif-list">
+                <ul class="nav nav-tabs mb-3" id="categoriaTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link @(tabColaPersonalActiva ? "active" : "")"
+                                id="personal-tab"
+                                data-bs-toggle="tab"
+                                data-bs-target="#personal-pane"
+                                type="button"
+                                role="tab">
+                                Cola Personal
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link @(tabColaGlobalActiva ? "active" : "")"
+                                id="global-tab"
+                                data-bs-toggle="tab"
+                                data-bs-target="#global-pane"
+                                type="button"
+                                role="tab">
+                                Cola Global
+                        </button>
+                    </li>
+                </ul>
 
-        <div class="notif-item notif-unread" data-id="1">
-            <div class="notif-body">
-                <div class="queue-position">#1</div>
+                <div class="tab-content" id="colaTabsContent">
+                    <div class="tab-pane fade @(tabColaPersonalActiva ? "show active" : "")" id="personal-pane" role="tabpanel">
+                        <div id="ticketQueue" class="notif-list">
 
-                <div>
-                    <div class="ticket-title">Printer not working</div>
-                    <div class="ticket-meta">
-                        Hardware • High Priority
+                            @foreach (var c in Model.Personal)
+                            {
+                                <div class="notif-item notif-unread">
+                                    <div class="notif-body">
+                                       <div class="notif-row">
+                                            <div>
+                                                <div class="queue-position">#@c.PosicionCola</div>
+
+                                                <div class="notif-title">@c.Asunto</div>
+                                                <div class="notif-meta">
+                                                    <ul class="list-unstyled">
+                                                        <li>Categoría: @c.Categoria </li>
+                                                        <li>Prioridad: @c.Prioridad</li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+
+                                            <div class="notif-controls">
+                                                <a asp-route-id="@c.IdTiquete" 
+                                                class="btn btn-sm btn-primary notif-btn"
+                                                asp-action="Details" 
+                                                asp-controller="Tiquete"
+                                                title="Ver detalle">
+
+                                                    <i class="bi bi-eye"></i>
+                                                </a>
+                                            </div>
+                                       </div>
+                                    </div>
+                                </div>
+                            }
+
+                        </div>
+                    </div>
+
+                    <div class="tab-pane fade @(tabColaGlobalActiva ? "show active" : "")" id="global-pane" role="tabpanel">
+                        <div id="ticketQueue" class="notif-list">
+                            <p>Hola</p>
+                        </div>
                     </div>
                 </div>
-            </div>
-
-            <span class="badge bg-warning text-dark">In Progress</span>
+           </div>
         </div>
-
-        <div class="notif-item notif-unread" data-id="2">
-            <div class="notif-body">
-                <div class="queue-position">#2</div>
-
-                <div>
-                    <div class="ticket-title">Email login issue</div>
-                    <div class="ticket-meta">
-                        Software • Medium Priority
-                    </div>
-                </div>
-            </div>
-
-            <span class="badge bg-secondary">Open</span>
-        </div>
-
-        <div class="notif-item notif-unread" data-id="3">
-            <div class="notif-body">
-                <div class="queue-position">#3</div>
-
-                <div>
-                    <div class="ticket-title">VPN connection failing</div>
-                    <div class="ticket-meta">
-                        Network • Medium Priority
-                    </div>
-                </div>
-            </div>
-
-            <span class="badge bg-secondary">Open</span>
-        </div>
-
     </div>
 
 </div>

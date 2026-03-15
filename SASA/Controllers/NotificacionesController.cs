@@ -134,7 +134,7 @@ namespace SASA.Controllers
                 vm.Asunto = t.Asunto;
                 vm.Estatus = t.Estatus ?? "—";
                 vm.Categoria = t.Categoria ?? "—";
-                vm.AsignadoA = !string.IsNullOrWhiteSpace(t.Asignee) ? t.Asignee : null;
+                vm.AsignadoA = !string.IsNullOrWhiteSpace(t.Assignee) ? t.Assignee : null;
                 vm.ReportadoPor = !string.IsNullOrWhiteSpace(t.ReportedBy) ? t.ReportedBy : null;
 
                 vm.DescripcionPreview = Shorten(t.Descripcion, 220);
@@ -251,7 +251,7 @@ namespace SASA.Controllers
                 vm.Asunto = t.Asunto;
                 vm.Estatus = t.Estatus ?? "—";
                 vm.Categoria = t.Categoria ?? "—";
-                vm.AsignadoA = t.Asignee ?? "—";
+                vm.AsignadoA = t.Assignee ?? "—";
                 vm.ReportadoPor = t.ReportedBy ?? "—";
 
                 vm.DescripcionPreview = Shorten(t.Descripcion, 220);

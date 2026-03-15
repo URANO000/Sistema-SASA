@@ -223,26 +223,36 @@ namespace DataAccess.Repositorios.Tiquetes
 
         //-----------------------------------------------------------------------------------------------------
         //---------------------------LÓGICA DE COLAS - Orden de colas y por asignado --------------------------
-        
+
         //Get All para cola personal
         public async Task<List<ColaTiqueteDto>> GetColaPersonalAsync(string currentUserId)
         {
-            return await _context.Tiquetes
-                .AsNoTracking()
-                .Where(t => t.IdAsignee == currentUserId)
-                .OrderBy(t => t.OrdenCola)
-                .Select(t => new ColaTiqueteDto
-                {
-                    IdTiquete = t.IdTiquete,
-                    Asignee = t.Asignee.CorreoEmpresa,
-                    Asunto = t.Asunto,
-                    OrdenCola = t.OrdenCola,
-                    Categoria = t.Categoria.NombreCategoria,
-                    SubCategoria = t.SubCategoria.NombreSubCategoria,
-                    Prioridad = t.SubCategoria.Prioridad.NombrePrioridad,
-                    CreatedAt = t.CreatedAt
-                })
-                .ToListAsync();
+            var cola = await _context.Tiquetes
+                    .AsNoTracking()
+                    .Where(t => t.IdAsignee == currentUserId)
+                    .OrderBy(t => t.OrdenCola)
+                    .Select(t => new ColaTiqueteDto
+                    {
+                        IdTiquete = t.IdTiquete,
+                        Asignee = t.Asignee.CorreoEmpresa,
+                        Asunto = t.Asunto,
+                        OrdenCola = t.OrdenCola,
+                        Categoria = t.Categoria.NombreCategoria,
+                        SubCategoria = t.SubCategoria.NombreSubCategoria,
+                        Prioridad = t.SubCategoria.Prioridad.NombrePrioridad,
+                        Estatus = t.Estatus.NombreEstatus,
+                        CreatedAt = t.CreatedAt
+                    })
+                    .ToListAsync();
+
+            int posicion = 1; //Para el UI
+
+            foreach (var t in cola)
+            {
+                t.PosicionCola = posicion++;
+            }
+
+            return cola;
         }
 
         //Get All de todos los de TI - Global
@@ -253,8 +263,7 @@ namespace DataAccess.Repositorios.Tiquetes
                 .Where(t => t.IdAsignee != null)
                 .OrderBy(t => t.IdAsignee)
                 .ThenBy(t => t.OrdenCola)
-                .Select(t => new
-                {
+                .Select(t => new {
                     t.IdAsignee,
                     AssigneeCorreo = t.Asignee.CorreoEmpresa,
 
@@ -267,49 +276,48 @@ namespace DataAccess.Repositorios.Tiquetes
                         SubCategoria = t.SubCategoria.NombreSubCategoria,
                         Prioridad = t.SubCategoria.Prioridad.NombrePrioridad
                     }
-
-                }).ToListAsync();
+                })
+                .ToListAsync();
 
             var resultado = tiquetes
                 .GroupBy(t => new { t.IdAsignee, t.AssigneeCorreo })
-                .Select(g => new ColaPorAssigneeDto
+                .Select(g =>
                 {
-                    AssigneeId = g.Key.IdAsignee,
-                    AssigneeCorreo = g.Key.AssigneeCorreo,
-                    Colas = g.Select(x => x.Tiquete).ToList()
-                }).ToList();
+                    int posicion = 1; //Para UI
+
+                    var lista = g.Select(x =>
+                    {
+                        x.Tiquete.PosicionCola = posicion++;
+                        return x.Tiquete;
+                    }).ToList();
+
+                    return new ColaPorAssigneeDto
+                    {
+                        AssigneeId = g.Key.IdAsignee,
+                        AssigneeCorreo = g.Key.AssigneeCorreo,
+                        Colas = lista
+                    };
+                })
+                .ToList();
 
             return resultado;
         }
 
         //Get número que sigue en la cola
-        public async Task<int> ObtenerSiguienteOrdenColaAsync(string idAssignee)
+        public async Task<decimal> ObtenerSiguienteOrdenColaAsync(string idAssignee)
         {
             var maxOrden = await _context.Tiquetes
                 .Where(t => t.IdAsignee == idAssignee && t.OrdenCola != null)
-                .MaxAsync(t => (int?)t.OrdenCola);
+                .MaxAsync(t => (decimal?)t.OrdenCola);
 
-            return (maxOrden ?? 0) + 1;
+            return (maxOrden ?? 0) + 1000m;
         }
 
-
-        //Remover de la cola ---> Reordenar
-        public async Task ReordenarColaTrasRemover(string assigneeId, int ordenEliminado)
+        //Posible para drag & drop
+        public decimal CalcularOrdenEntre(decimal ordenAnterior, decimal ordenSiguiente)
         {
-            var tiquetesAfectados = await _context.Tiquetes
-                .Where(t => t.IdAsignee == assigneeId && t.OrdenCola > ordenEliminado)
-                .ToListAsync();
-
-            foreach (var t in tiquetesAfectados)
-            {
-                t.OrdenCola--;
-            }
-
-            await _context.SaveChangesAsync();
+            return (ordenAnterior + ordenSiguiente) / 2m;
         }
-
-
-
 
     }
 }

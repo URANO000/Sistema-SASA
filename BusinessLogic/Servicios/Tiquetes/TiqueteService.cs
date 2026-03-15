@@ -1,5 +1,6 @@
 ﻿using BusinessLogic.Servicios.Avances;
 using BusinessLogic.Servicios.TiqueteHistoriales;
+using DataAccess;
 using DataAccess.Identity;
 using DataAccess.Modelos.DTOs.Tiquete;
 using DataAccess.Modelos.DTOs.Tiquete.Colas;
@@ -10,7 +11,6 @@ using DataAccess.Modelos.Enums;
 using DataAccess.Repositorios.Attachments;
 using DataAccess.Repositorios.Categorias;
 using DataAccess.Repositorios.Tiquetes;
-using DocumentFormat.OpenXml.Spreadsheet;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 
@@ -25,10 +25,11 @@ namespace BusinessLogic.Servicios.Tiquetes
         private readonly IAttachmentRepository _attachmentRepository;
         private readonly ITiqueteHistorialService _tiqueteHistorialService;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly ApplicationDbContext _context;
 
         public TiqueteService(ITiqueteRepository tiqueteRepository, ICategoriaRepository categoriaRepository,
             IAvanceService avanceService, IAttachmentRepository attachmentRepository,
-            ITiqueteHistorialService tiqueteHistorialService, UserManager<ApplicationUser> userManager)
+            ITiqueteHistorialService tiqueteHistorialService, UserManager<ApplicationUser> userManager, ApplicationDbContext context)
         {
             _tiqueteRepository = tiqueteRepository;
             _categoriaRepository = categoriaRepository;
@@ -36,6 +37,7 @@ namespace BusinessLogic.Servicios.Tiquetes
             _attachmentRepository = attachmentRepository;
             _tiqueteHistorialService = tiqueteHistorialService;
             _userManager = userManager;
+            _context = context;
         }
         //Implementación de los métodos para el servicio de Tiquete
 
@@ -257,71 +259,92 @@ namespace BusinessLogic.Servicios.Tiquetes
             {
                 throw new UnauthorizedAccessException("Solo administradores pueden asignar tiquetes.");
             }
-            
-            //Obtener todos los tiquetes por la lista de IDs
-            var tiquetes = await _tiqueteRepository.ObtenerTiquetesPorIdsAsync(dto.IdsTiquetes);
 
-            //Si no hay ninguno
-            if (!tiquetes.Any())
+            //---------------------------------INICIA LA TRANSACCIÓN--------------------------------------------
+            //--------------------------------------------------------------------------------------------------
+
+            using var transaction = await _context.Database.BeginTransactionAsync();
+
+            try
             {
-                throw new KeyNotFoundException("No se encontraron tiquetes.");
-            }
+                //Obtener todos los tiquetes por la lista de IDs
+                var tiquetes = await _tiqueteRepository.ObtenerTiquetesPorIdsAsync(dto.IdsTiquetes);
 
-            var user = await _userManager.FindByIdAsync(dto.IdAssignee);
-            if (user == null)
-                throw new KeyNotFoundException("El usuario asignado no existe.");
-
-            var correo = user.Email;
-
-            //Si todo bien, iterar por cada tiquete en la lista y asignar individualmente
-            foreach(var tiquete in tiquetes)
-            {
-                //Validación de no tocar un tiquete cancelado o resuelto
-                if(tiquete.IdEstatus == (int)TiqueteEstatus.Cancelado || tiquete.IdEstatus == (int)TiqueteEstatus.Resuelto)
+                //Si no hay ninguno
+                if (!tiquetes.Any())
                 {
-                    continue;
+                    throw new KeyNotFoundException("No se encontraron tiquetes.");
                 }
 
-                //Para historial y colas-----------------------------------------------
-                var asignadoAnterior = tiquete.IdAsignee;
-                
-                //Remover de la cola anterior, si el tiquete tenía a alguien asignado antes,
-                //y no está siendo asignado a la misma persona
-                if(asignadoAnterior != null && asignadoAnterior != dto.IdAssignee)
-                {
-                    await _tiqueteRepository.ReordenarColaTrasRemover(
-                        asignadoAnterior,
-                        tiquete.OrdenCola.Value
-                        );
-                }
-
-                //Añadir a nueva cola si aplica
-                if(dto.IdAssignee != null && asignadoAnterior != dto.IdAssignee)
-                {
-                    var siguienteOrden =
-                        await _tiqueteRepository.ObtenerSiguienteOrdenColaAsync(dto.IdAssignee);
-                    tiquete.OrdenCola = siguienteOrden;
-                }
-
-                tiquete.IdAsignee = dto.IdAssignee;
-                tiquete.UpdatedAt = DateTime.Now;
-                tiquete.UpdatedBy = currentUserId;
-
-                //Historial de tiquetes
-
+                var user = await _userManager.FindByIdAsync(dto.IdAssignee);
                 if (user == null)
                 {
                     throw new KeyNotFoundException("El usuario asignado no existe.");
                 }
 
-                await _tiqueteHistorialService.RegistrarAsignacionAsync(
-                    tiquete.IdTiquete,
-                    asignadoAnterior ?? "Sin asignado anterior",
-                    correo,
-                    tiquete.UpdatedBy);
-            }
+                //Para historial de tiquetes, abajo
+                var correo = user.Email;
 
-            await _tiqueteRepository.ActualizarAsignacionAsync(tiquetes);
+                //Para colas
+                decimal siguienteOrden = 0;
+
+                if (dto.IdAssignee != null)
+                {
+                    siguienteOrden =
+                        await _tiqueteRepository.ObtenerSiguienteOrdenColaAsync(dto.IdAssignee);
+                }
+
+                //Si todo bien, iterar por cada tiquete en la lista y asignar individualmente
+                foreach (var tiquete in tiquetes)
+                {
+                    //Validación de no tocar un tiquete cancelado o resuelto
+                    if (tiquete.IdEstatus == (int)TiqueteEstatus.Cancelado || tiquete.IdEstatus == (int)TiqueteEstatus.Resuelto)
+                    {
+                        continue;
+                    }
+
+                    //Para historial y colas
+                    var asignadoAnterior = tiquete.IdAsignee;
+
+                    //Para colas nada más
+                    bool cambiaAssignee = asignadoAnterior != dto.IdAssignee;
+
+                    if (cambiaAssignee)
+                    {
+                        if(dto.IdAssignee == null)
+                        {
+                            tiquete.OrdenCola = null;
+                        }
+                        else
+                        {
+                            tiquete.OrdenCola = siguienteOrden;
+                            siguienteOrden += 1000m;
+                        }
+                    }
+
+                    //De la operación para reasignar
+                    tiquete.IdAsignee = dto.IdAssignee;
+                    tiquete.UpdatedAt = DateTime.Now;
+                    tiquete.UpdatedBy = currentUserId;
+
+                    //Historial de tiquetes
+
+                    await _tiqueteHistorialService.RegistrarAsignacionAsync(
+                        tiquete.IdTiquete,
+                        asignadoAnterior ?? "Sin asignado anterior",
+                        correo,
+                        tiquete.UpdatedBy);
+                }
+
+                await _tiqueteRepository.ActualizarAsignacionAsync(tiquetes);
+                await transaction.CommitAsync();
+            }
+            catch
+            {
+                //Si algo falla, abortar la transacción
+                await transaction.RollbackAsync();
+                throw;
+            }
         }
 
 
@@ -365,7 +388,7 @@ namespace BusinessLogic.Servicios.Tiquetes
         {
 
             //Un poco de lógica para colas---------------------------------
-            int? ordenCola = null;
+            decimal? ordenCola = null;
 
             //Si el tiquete es assignado, entonces debe de entrar a la cola del usuario asignado
             if (!string.IsNullOrEmpty(idAsignee))

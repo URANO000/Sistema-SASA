@@ -18,7 +18,7 @@ namespace SASA.ViewModels.Tiquete
 
         public string? ReportedBy { get; init; }
         public string? Departamento { get; init; }
-        public string? Asignee { get; init; }
+        public string? Assignee { get; init; }
 
         public DateTime CreatedAt { get; set; }
         public DateTime? UpdatedAt { get; set; }

@@ -81,7 +81,7 @@ $("#assignTicketsBtn").click(function () {
         contentType: "application/json",
         data: JSON.stringify({
             idsTiquetes: selectedTickets,
-            idAsignee: assigneeId
+            idAssignee: assigneeId
         }),
         success: function (response) {
 

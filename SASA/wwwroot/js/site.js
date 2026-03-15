@@ -95,3 +95,29 @@ document.addEventListener("DOMContentLoaded", function () {
     updateMode();
 });
 
+
+//TABS--------------------------------------------------------------
+document.addEventListener("DOMContentLoaded", function () {
+    const activeTab = "@Model.TabActiva";
+
+    if (activeTab === "subcategorias") {
+        const trigger = document.getElementById("subcategorias-tab");
+        if (trigger) {
+            const tab = new bootstrap.Tab(trigger);
+            tab.show();
+        }
+    }
+});
+
+
+document.addEventListener("DOMContentLoaded", function () {
+    const activeTab = "@Model.TabActiva";
+
+    if (activeTab === "Cola Global") {
+        const trigger = document.getElementById("global-tab");
+        if (trigger) {
+            const tab = new bootstrap.Tab(trigger);
+            tab.show();
+        }
+    }
+});

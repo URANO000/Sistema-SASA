@@ -25,7 +25,6 @@ namespace DataAccess.Repositorios.Tiquetes
         //------------------------------Zona de colas------------------------------------------
         Task<List<ColaTiqueteDto>> GetColaPersonalAsync(string currentUserId);
         Task<List<ColaPorAssigneeDto>> GetColasGlobalAsync();
-        Task<int> ObtenerSiguienteOrdenColaAsync(string idAssignee);
-        Task ReordenarColaTrasRemover(string assigneeId, int ordenEliminado);
+        Task<decimal> ObtenerSiguienteOrdenColaAsync(string idAssignee);
     }
 }
