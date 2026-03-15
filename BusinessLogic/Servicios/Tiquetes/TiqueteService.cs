@@ -207,7 +207,7 @@ namespace BusinessLogic.Servicios.Tiquetes
             tiqueteActual.IdSubCategoria = dto.IdSubCategoria;
             tiqueteActual.IdEstatus = dto.IdEstatus;
             tiqueteActual.Resolucion = dto.Resolucion?.Trim(); //Puede no tener nada
-            tiqueteActual.UpdatedAt = DateTime.Now;
+            tiqueteActual.UpdatedAt = DateTime.UtcNow;
             tiqueteActual.UpdatedBy = currentUserId; //En el controller se debe pasar el id del usuario autenticado
 
             //Persistencia de datos -> Guardar cambios
@@ -324,7 +324,7 @@ namespace BusinessLogic.Servicios.Tiquetes
 
                     //De la operación para reasignar
                     tiquete.IdAsignee = dto.IdAssignee;
-                    tiquete.UpdatedAt = DateTime.Now;
+                    tiquete.UpdatedAt = DateTime.UtcNow;
                     tiquete.UpdatedBy = currentUserId;
 
                     //Historial de tiquetes
