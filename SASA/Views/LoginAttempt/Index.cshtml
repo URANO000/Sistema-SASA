@@ -4,68 +4,84 @@
     ViewData["Title"] = "Historial de intentos de inicio de sesión";
 }
 
-<h2 class="mb-4">Historial de intentos de inicio de sesión</h2>
+<div class="card mb-4">
+    <div class="card-body">
+        <div class="ticket-header mb-4">
+            <div class="d-flex justify-content-between align-items-center mt-2">
+                <h4 class="mb-0 fw-bold">Historial de intentos de inicio de sesión</h4>
 
-<form method="get" asp-controller="LoginAttempt" asp-action="Index" class="row g-3 mb-4">
-    <div class="col-md-3">
-        <label class="form-label">Correo ingresado</label>
-        <input asp-for="Filtros.EmailIngresado" class="form-control" />
-    </div>
+                <span class="badge bg-secondary">
+                    Total: @Model.TotalCount
+                </span>
+            </div>
+        </div>
 
-    <div class="col-md-2">
-        <label class="form-label">Resultado</label>
-        <select name="Filtros.Exitoso" class="form-select">
-            @if (Model.Filtros.Exitoso == null)
-            {
-                <option value="" selected>Todos</option>
-                <option value="true">Exitoso</option>
-                <option value="false">Fallido</option>
-            }
-            else if (Model.Filtros.Exitoso == true)
-            {
-                <option value="">Todos</option>
-                <option value="true" selected>Exitoso</option>
-                <option value="false">Fallido</option>
-            }
-            else
-            {
-                <option value="">Todos</option>
-                <option value="true">Exitoso</option>
-                <option value="false" selected>Fallido</option>
-            }
-        </select>
-    </div>
+        <h6 class="section-title">Filtros de búsqueda</h6>
 
-    <div class="col-md-2">
-        <label class="form-label">Fecha desde</label>
-        <input asp-for="Filtros.FechaDesde" type="date" class="form-control" />
-    </div>
+        <form method="get" asp-controller="LoginAttempt" asp-action="Index" class="row g-3">
+            <div class="col-md-3">
+                <label class="form-label">Correo ingresado</label>
+                <input asp-for="Filtros.EmailIngresado" class="form-control" placeholder="Ej: usuario@correo.com" />
+            </div>
 
-    <div class="col-md-2">
-        <label class="form-label">Fecha hasta</label>
-        <input asp-for="Filtros.FechaHasta" type="date" class="form-control" />
-    </div>
+            <div class="col-md-2">
+                <label class="form-label">Resultado</label>
+                <select name="Filtros.Exitoso" class="form-select">
+                    @if (Model.Filtros.Exitoso == null)
+                    {
+                        <option value="" selected>Todos</option>
+                        <option value="true">Exitoso</option>
+                        <option value="false">Fallido</option>
+                    }
+                    else if (Model.Filtros.Exitoso == true)
+                    {
+                        <option value="">Todos</option>
+                        <option value="true" selected>Exitoso</option>
+                        <option value="false">Fallido</option>
+                    }
+                    else
+                    {
+                        <option value="">Todos</option>
+                        <option value="true">Exitoso</option>
+                        <option value="false" selected>Fallido</option>
+                    }
+                </select>
+            </div>
 
-    <div class="col-md-2">
-        <label class="form-label">Cantidad por página</label>
-        <input asp-for="Filtros.PageSize" type="number" min="1" class="form-control" />
-    </div>
+            <div class="col-md-2">
+                <label class="form-label">Fecha desde</label>
+                <input asp-for="Filtros.FechaDesde" type="date" class="form-control" />
+            </div>
 
-    <div class="col-md-1 d-flex align-items-end">
-        <button type="submit" class="btn btn-primary w-100">Filtrar</button>
-    </div>
-</form>
+            <div class="col-md-2">
+                <label class="form-label">Fecha hasta</label>
+                <input asp-for="Filtros.FechaHasta" type="date" class="form-control" />
+            </div>
 
-@if (Model.Items == null || !Model.Items.Any())
-{
-    <div class="alert alert-info">
-        No se encontraron intentos de inicio de sesión con los filtros seleccionados.
+            <div class="col-md-2">
+                <label class="form-label">Cantidad por página</label>
+                <input asp-for="Filtros.PageSize" type="number" min="1" class="form-control" />
+            </div>
+
+            <div class="col-md-1 d-flex align-items-end">
+                <button type="submit" class="btn btn-primary w-100">Filtrar</button>
+            </div>
+        </form>
     </div>
-}
-else
-{
-    <div class="table-responsive">
-        <table class="table table-bordered table-striped align-middle">
+</div>
+
+<div class="table-responsive card">
+    @if (Model.Items == null || !Model.Items.Any())
+    {
+        <div class="card-body">
+            <div class="alert alert-info mb-0">
+                No se encontraron intentos de inicio de sesión con los filtros seleccionados.
+            </div>
+        </div>
+    }
+    else
+    {
+        <table class="table table-hover align-middle sasa-table mb-0">
             <thead>
                 <tr>
                     <th>Fecha UTC</th>
@@ -86,11 +102,11 @@ else
                         <td>
                             @if (string.IsNullOrWhiteSpace(item.UserId))
                             {
-                                <span>No registrada</span>
+                                <span class="badge bg-secondary">No registrada</span>
                             }
                             else
                             {
-                                <span>Registrada</span>
+                                <span class="badge bg-info text-dark">Registrada</span>
                             }
                         </td>
                         <td>
@@ -103,36 +119,78 @@ else
                                 <span class="badge bg-danger">Fallido</span>
                             }
                         </td>
-                        <td>@item.MotivoFallo</td>
-                        <td>@item.IpAddress</td>
-                        <td style="max-width: 300px; word-break: break-word;">@item.UserAgent</td>
+                        <td>
+                            @{
+                                string motivo = item.MotivoFallo ?? "";
+                                motivo = motivo switch
+                                {
+                                    "InvalidCredentials" => "Credenciales inválidas",
+                                    "UserNotFound" => "Usuario no existe",
+                                    "LockedOut" => "Bloqueo temporal",
+                                    "NotAllowed" => "No permitido",
+                                    "Disabled" => "Cuenta desactivada",
+                                    _ => (string.IsNullOrWhiteSpace(motivo) ? "-" : motivo)
+                                };
+                            }
+                            @motivo
+                        </td>
+                        <td>
+                            @{
+                                var ipMostrar =
+                                (item.IpAddress == "::1" || item.IpAddress == "127.0.0.1")
+                                ? "Localhost"
+                                : (string.IsNullOrWhiteSpace(item.IpAddress) ? "-" : item.IpAddress);
+                            }
+                            <span class="badge bg-light text-dark">@ipMostrar</span>
+                        </td>
+                        <td style="max-width: 320px; word-break: break-word;">
+                            @(string.IsNullOrWhiteSpace(item.UserAgent) ? "-" : item.UserAgent)
+                        </td>
                     </tr>
                 }
             </tbody>
         </table>
-    </div>
-}
 
-@if (Model.TotalPages > 1)
-{
-    <nav>
-        <ul class="pagination">
-            @for (int i = 1; i <= Model.TotalPages; i++)
-            {
-                <li class="page-item @(i == Model.Filtros.Page ? "active" : "")">
-                    <a class="page-link"
-                           asp-controller="LoginAttempt"
-                           asp-action="Index"
-                           asp-route-EmailIngresado="@Model.Filtros.EmailIngresado"
-                           asp-route-Exitoso="@Model.Filtros.Exitoso"
-                           asp-route-FechaDesde="@(Model.Filtros.FechaDesde?.ToString("yyyy-MM-dd"))"
-                           asp-route-FechaHasta="@(Model.Filtros.FechaHasta?.ToString("yyyy-MM-dd"))"
-                           asp-route-Page="@i"
-                           asp-route-PageSize="@Model.Filtros.PageSize">
-                        @i
-                    </a>
-                </li>
-            }
-        </ul>
-    </nav>
-}
+        @if (Model.TotalPages > 1)
+        {
+            <nav aria-label="Paginación" class="align-content-center justify-content-center mt-3 mb-3">
+                <ul class="pagination pagination-sm mb-0 justify-content-center">
+
+                    <li class="page-item @(Model.Filtros.Page > 1 ? "" : "disabled")">
+                        <a class="page-link"
+                               asp-action="Index"
+                               asp-route-Filtros.EmailIngresado="@Model.Filtros.EmailIngresado"
+                               asp-route-Filtros.Exitoso="@Model.Filtros.Exitoso"
+                               asp-route-Filtros.FechaDesde="@(Model.Filtros.FechaDesde?.ToString("yyyy-MM-dd"))"
+                               asp-route-Filtros.FechaHasta="@(Model.Filtros.FechaHasta?.ToString("yyyy-MM-dd"))"
+                               asp-route-Filtros.Page="@(Model.Filtros.Page - 1)"
+                               asp-route-Filtros.PageSize="@Model.Filtros.PageSize">
+                            Anterior
+                        </a>
+                    </li>
+
+                    <li class="page-item disabled">
+                        <span class="page-link">
+                            Página @Model.Filtros.Page de @Model.TotalPages
+                        </span>
+                    </li>
+
+                    <li class="page-item @(Model.Filtros.Page < Model.TotalPages ? "" : "disabled")">
+                        <a class="page-link"
+                               asp-action="Index"
+                               asp-route-Filtros.EmailIngresado="@Model.Filtros.EmailIngresado"
+                               asp-route-Filtros.Exitoso="@Model.Filtros.Exitoso"
+                               asp-route-Filtros.FechaDesde="@(Model.Filtros.FechaDesde?.ToString("yyyy-MM-dd"))"
+                               asp-route-Filtros.FechaHasta="@(Model.Filtros.FechaHasta?.ToString("yyyy-MM-dd"))"
+                               asp-route-Filtros.Page="@(Model.Filtros.Page + 1)"
+                               asp-route-Filtros.PageSize="@Model.Filtros.PageSize">
+                            Siguiente
+                        </a>
+                    </li>
+
+                </ul>
+            </nav>
+        }
+    }
+</div>
+
