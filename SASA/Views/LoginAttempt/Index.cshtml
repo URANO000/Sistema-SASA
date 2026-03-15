@@ -14,22 +14,24 @@
 
     <div class="col-md-2">
         <label class="form-label">Resultado</label>
-        <select name="Exitoso" class="form-select">
-            <option value="">Todos</option>
-            @if (Model.Filtros.Exitoso == true)
+        <select name="Filtros.Exitoso" class="form-select">
+            @if (Model.Filtros.Exitoso == null)
             {
+                <option value="" selected>Todos</option>
+                <option value="true">Exitoso</option>
+                <option value="false">Fallido</option>
+            }
+            else if (Model.Filtros.Exitoso == true)
+            {
+                <option value="">Todos</option>
                 <option value="true" selected>Exitoso</option>
                 <option value="false">Fallido</option>
             }
-            else if (Model.Filtros.Exitoso == false)
-            {
-                <option value="true">Exitoso</option>
-                <option value="false" selected>Fallido</option>
-            }
             else
             {
+                <option value="">Todos</option>
                 <option value="true">Exitoso</option>
-                <option value="false">Fallido</option>
+                <option value="false" selected>Fallido</option>
             }
         </select>
     </div>
