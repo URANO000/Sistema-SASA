@@ -27,6 +27,7 @@ namespace SASA.Controllers
             var currentUser = await _userManager.GetUserAsync(User);
 
             var colaDto = await _service.GetColaPersonalAsync(currentUser.Id);
+            var colaAssigneeDto = await _service.GetColasGlobalAsync();
 
             var viewModel = new ColaIndexViewModel
             {
@@ -42,6 +43,22 @@ namespace SASA.Controllers
                     Prioridad = t.Prioridad,
                     Asignee = t.Asignee,
                     CreatedAt = t.CreatedAt
+                }).ToList(),
+
+                Global = colaAssigneeDto.Select(g => new ColaGlobalViewModel
+                {
+                    AssigneeId = g.AssigneeId,
+                    AssigneeCorreo = g.AssigneeCorreo,
+
+                    Colas = g.Colas.Select(t => new ColaPersonalViewModel
+                    {
+                        IdTiquete = t.IdTiquete,
+                        Asunto = t.Asunto,
+                        PosicionCola = t.PosicionCola,
+                        Categoria = t.Categoria,
+                        SubCategoria = t.SubCategoria,
+                        Prioridad = t.Prioridad
+                    }).ToList()
                 }).ToList()
             };
             return View(viewModel);

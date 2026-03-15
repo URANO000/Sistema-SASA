@@ -30,13 +30,15 @@ document.addEventListener('DOMContentLoaded', () => {
 //This is for my sidebar toggle
 
 document.getElementById("sidebarToggle")
-    .addEventListener("click", function () {
+    .addEventListener("click", function (e) {
+        e.stopPropagation();
         document.getElementById("sidebar")
             .classList.toggle("open"); //Toggle adds open if not present, removes it if present
     });
-//I am not smart enough to do this better so for now, I'll do it the brainless way
+
 document.getElementById("sidebarClose")
-    .addEventListener("click", function () {
+    .addEventListener("click", function (e) {
+        e.stopPropagation();
         document.getElementById("sidebar")
             .classList.toggle("open");
     });
@@ -49,6 +51,20 @@ document.querySelectorAll(".dropdown-toggle-btn")
         });
     });
 
+document.addEventListener("DOMContentLoaded", function () {
+    const sidebar = document.getElementById("sidebar");
+    const body = document.body;
+
+    const closeSidebar = (e) => {
+        if (!sidebar.contains(e.target) && sidebar.classList.contains("open")) {
+            sidebar.classList.remove("open");
+        }
+    };
+
+    body.addEventListener('touchend', closeSidebar, { passive: true });
+    body.addEventListener('click', closeSidebar);
+
+});
 
 //---------------------------TICKETS----------------------------------------------
 //PARA FILTROS

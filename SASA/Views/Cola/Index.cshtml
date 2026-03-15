@@ -44,14 +44,18 @@
                             @foreach (var c in Model.Personal)
                             {
                                 <div class="notif-item notif-unread">
+                                    <div class="notif-left">
+                                        <div class="notif-icon info">
+                                            #@c.PosicionCola
+                                        </div>
+                                    </div>
                                     <div class="notif-body">
                                        <div class="notif-row">
                                             <div>
-                                                <div class="queue-position">#@c.PosicionCola</div>
-
                                                 <div class="notif-title">@c.Asunto</div>
                                                 <div class="notif-meta">
                                                     <ul class="list-unstyled">
+                                                        <li>@FormatearTiempo(c.CreatedAt)</li>
                                                         <li>Categoría: @c.Categoria </li>
                                                         <li>Prioridad: @c.Prioridad</li>
                                                     </ul>
@@ -78,7 +82,71 @@
 
                     <div class="tab-pane fade @(tabColaGlobalActiva ? "show active" : "")" id="global-pane" role="tabpanel">
                         <div id="ticketQueue" class="notif-list">
-                            <p>Hola</p>
+                            @foreach (var assignee in Model.Global)
+                            {
+                                <div class="mb-4">
+
+                                    <!-- Assignee Header -->
+                                    <div class="d-flex align-items-center mb-2">
+                                        <h5 class="fw-bold me-2">@assignee.AssigneeCorreo</h5>
+
+                                            @if(assignee.Colas.Count > 1)
+                                            {
+                                            <span class="badge bg-secondary">
+                                                @assignee.Colas.Count tiquetes
+                                             </span>
+                                            }
+                                        else
+                                        {
+                                            <span class="badge bg-secondary">
+                                                @assignee.Colas.Count tiquete
+                                            </span>
+                                        }
+                                    </div>
+
+                                    <div class="notif-list">
+
+                                        @foreach (var c in assignee.Colas)
+                                        {
+                                            <div class="notif-item notif-unread">
+                                                <div class="notif-left">
+                                                    <div class="notif-icon info">
+                                                        #@c.PosicionCola
+                                                    </div>
+                                                </div>
+
+                                                <div class="notif-body">
+                                                    <div class="notif-row">
+
+                                                        <div>
+                                                            <div class="notif-title">@c.Asunto</div>
+
+                                                            <div class="notif-meta">
+                                                                <ul class="list-unstyled">
+                                                                    <li>Categoría: @c.Categoria</li>
+                                                                    <li>Prioridad: @c.Prioridad</li>
+                                                                </ul>
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="notif-controls">
+                                                            <a asp-route-id="@c.IdTiquete"
+                                                                   class="btn btn-sm btn-primary notif-btn"
+                                                                   asp-action="Details"
+                                                                   asp-controller="Tiquete">
+
+                                                                <i class="bi bi-eye"></i>
+                                                            </a>
+                                                        </div>
+
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        }
+
+                                    </div>
+                                </div>
+                            }
                         </div>
                     </div>
                 </div>
@@ -88,6 +156,23 @@
 
 </div>
 
+@functions {
+    private string FormatearTiempo(DateTime fecha)
+    {
+        var f = fecha;
+
+        var hoy = DateTime.Now.Date;
+        var ayer = hoy.AddDays(-1);
+
+        if (f.Date == hoy)
+            return $"Hoy • {f:HH:mm}";
+
+        if (f.Date == ayer)
+            return $"Ayer • {f:HH:mm}";
+
+        return $"{f:yyyy-MM-dd} • {f:HH:mm}";
+    }
+}
 
 @section Scripts {
     <script src="~/js/Queue.js" asp-append-version="true"></script>
