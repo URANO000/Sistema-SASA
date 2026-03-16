@@ -9,13 +9,19 @@ namespace BusinessLogic.Servicios.Inventario
     {
         private readonly IActivoInventarioRepository _repo;
         private readonly IActivoInventarioTiqueteRepository _asociacionRepo;
+        private readonly IMantenimientoActivoRepository _mantenimientoRepo;
+        private readonly ICatalogosInventarioRepository _catRepo;
 
         public InventarioService(
             IActivoInventarioRepository repo,
-            IActivoInventarioTiqueteRepository asociacionRepo)
+            IActivoInventarioTiqueteRepository asociacionRepo,
+            IMantenimientoActivoRepository mantenimientoRepo,
+            ICatalogosInventarioRepository catRepo)
         {
             _repo = repo;
             _asociacionRepo = asociacionRepo;
+            _mantenimientoRepo = mantenimientoRepo;
+            _catRepo = catRepo;
         }
 
         public async Task<PagedResult<ActivoTelefonoInventarioListItemDto>> ListarPaginadoAsync(ActivoInventarioFiltroDto filtros)
@@ -148,10 +154,24 @@ namespace BusinessLogic.Servicios.Inventario
         public async Task<(bool ok, string? error)> ActualizarAsync(int id, ActivoInventarioEditDto dto)
         {
             var entity = await _repo.ObtenerPorIdAsync(id);
-            if (entity == null) return (false, "Activo no encontrado.");
+            if (entity == null)
+                return (false, "Activo no encontrado.");
 
             if (!string.Equals(entity.NumeroActivo, dto.NumeroActivo, StringComparison.OrdinalIgnoreCase))
                 return (false, "No se permite modificar el Número de Activo.");
+
+            var estados = await _catRepo.ObtenerEstadosAsync();
+
+            var estadoMantenimiento = estados.FirstOrDefault(x =>
+                string.Equals(x.Nombre, "Mantenimiento", StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(x.Nombre, "En Mantenimiento", StringComparison.OrdinalIgnoreCase));
+
+            var mantenimientoEnProceso = await _mantenimientoRepo.ExisteMantenimientoEnProcesoAsync(id);
+
+            if (mantenimientoEnProceso && estadoMantenimiento != null && dto.IdEstadoActivo != estadoMantenimiento.IdEstadoActivo)
+            {
+                return (false, "No se puede cambiar el estado del activo mientras tenga un mantenimiento en proceso.");
+            }
 
             entity.IdEstadoActivo = dto.IdEstadoActivo;
             entity.IdTipoActivo = dto.IdTipoActivo;
@@ -190,6 +210,171 @@ namespace BusinessLogic.Servicios.Inventario
             await _asociacionRepo.GuardarAsync();
 
             return (true, null);
+        }
+
+        public async Task<IReadOnlyList<MantenimientoActivoListItemDto>> ObtenerHistorialMantenimientoAsync(int? idActivo = null)
+        {
+            var data = idActivo.HasValue
+                ? await _mantenimientoRepo.ListarPorActivoAsync(idActivo.Value)
+                : await _mantenimientoRepo.ListarAsync();
+
+            return data.Select(x => new MantenimientoActivoListItemDto
+            {
+                IdMantenimiento = x.IdMantenimiento,
+                IdActivo = x.IdActivo,
+                NumeroActivo = x.Activo?.NumeroActivo ?? string.Empty,
+                NombreMaquina = x.Activo?.NombreMaquina,
+                FechaMantenimiento = x.FechaMantenimiento,
+                TipoMantenimiento = x.TipoMantenimiento,
+                Estado = x.Estado,
+                Descripcion = x.Descripcion
+            }).ToList();
+        }
+
+        public async Task<MantenimientoActivoListItemDto?> ObtenerMantenimientoPorIdAsync(int id)
+        {
+            var x = await _mantenimientoRepo.ObtenerPorIdAsync(id);
+            if (x == null) return null;
+
+            return new MantenimientoActivoListItemDto
+            {
+                IdMantenimiento = x.IdMantenimiento,
+                IdActivo = x.IdActivo,
+                NumeroActivo = x.Activo?.NumeroActivo ?? string.Empty,
+                NombreMaquina = x.Activo?.NombreMaquina,
+                FechaMantenimiento = x.FechaMantenimiento,
+                TipoMantenimiento = x.TipoMantenimiento,
+                Estado = x.Estado,
+                Descripcion = x.Descripcion
+            };
+        }
+
+        public async Task<IReadOnlyList<ActivoTelefonoInventarioListItemDto>> ObtenerActivosReporteGeneralAsync()
+        {
+            var data = await _repo.ListarAsync(null, null, null);
+
+            return data.Select(a => new ActivoTelefonoInventarioListItemDto
+            {
+                IdActivo = a.IdActivo,
+                NumeroActivo = a.NumeroActivo,
+                NombreMaquina = a.NombreMaquina,
+                SerieServicio = a.SerieServicio,
+                IdTipoActivo = a.IdTipoActivo,
+                IdEstadoActivo = a.IdEstadoActivo,
+                TipoActivoNombre = a.TipoActivo?.Nombre,
+                EstadoActivoNombre = a.EstadoActivo?.Nombre,
+                FechaCreacion = a.FechaCreacion
+            }).ToList();
+        }
+
+        public async Task<Dictionary<string, int>> ObtenerResumenPorEstadoAsync()
+        {
+            var data = await _repo.ListarAsync(null, null, null);
+
+            return data
+                .GroupBy(x => x.EstadoActivo?.Nombre ?? "Sin estado")
+                .ToDictionary(g => g.Key, g => g.Count());
+        }
+
+        public async Task<(bool ok, string? error)> RegistrarMantenimientoAsync(CrearMantenimientoActivoDto dto)
+        {
+            var activo = await _repo.ObtenerPorIdAsync(dto.IdActivo);
+            if (activo == null)
+                return (false, "El activo seleccionado no existe.");
+
+            if (string.IsNullOrWhiteSpace(dto.TipoMantenimiento))
+                return (false, "El tipo de mantenimiento es requerido.");
+
+            if (string.IsNullOrWhiteSpace(dto.Estado))
+                return (false, "El estado es requerido.");
+
+            var entity = new MantenimientoActivo
+            {
+                IdActivo = dto.IdActivo,
+                FechaMantenimiento = dto.FechaMantenimiento,
+                TipoMantenimiento = dto.TipoMantenimiento.Trim(),
+                Estado = dto.Estado.Trim(),
+                Descripcion = dto.Descripcion,
+                FechaCreacion = DateTime.UtcNow
+            };
+
+            await _mantenimientoRepo.CrearAsync(entity);
+            await _mantenimientoRepo.GuardarAsync();
+
+            await SincronizarEstadoActivoPorMantenimientoAsync(dto.IdActivo, dto.Estado);
+
+            return (true, null);
+        }
+
+        public async Task<(bool ok, string? error)> ActualizarMantenimientoAsync(int id, CrearMantenimientoActivoDto dto)
+        {
+            var entity = await _mantenimientoRepo.ObtenerPorIdAsync(id);
+            if (entity == null)
+                return (false, "Mantenimiento no encontrado.");
+
+            var activo = await _repo.ObtenerPorIdAsync(dto.IdActivo);
+            if (activo == null)
+                return (false, "El activo seleccionado no existe.");
+
+            if (string.IsNullOrWhiteSpace(dto.TipoMantenimiento))
+                return (false, "El tipo de mantenimiento es requerido.");
+
+            if (string.IsNullOrWhiteSpace(dto.Estado))
+                return (false, "El estado es requerido.");
+
+            entity.IdActivo = dto.IdActivo;
+            entity.FechaMantenimiento = dto.FechaMantenimiento;
+            entity.TipoMantenimiento = dto.TipoMantenimiento.Trim();
+            entity.Estado = dto.Estado.Trim();
+            entity.Descripcion = dto.Descripcion;
+
+            await _mantenimientoRepo.ActualizarAsync(entity);
+            await _mantenimientoRepo.GuardarAsync();
+
+            await SincronizarEstadoActivoPorMantenimientoAsync(dto.IdActivo, dto.Estado, entity.IdMantenimiento);
+
+            return (true, null);
+        }
+
+        private async Task SincronizarEstadoActivoPorMantenimientoAsync(int idActivo, string estadoMantenimiento, int? excluirIdMantenimiento = null)
+        {
+            var activo = await _repo.ObtenerPorIdAsync(idActivo);
+            if (activo == null) return;
+
+            var estados = await _catRepo.ObtenerEstadosAsync();
+
+            if (string.Equals(estadoMantenimiento, "En proceso", StringComparison.OrdinalIgnoreCase))
+            {
+                var estadoMantenimientoDb = estados.FirstOrDefault(x =>
+                    string.Equals(x.Nombre, "Mantenimiento", StringComparison.OrdinalIgnoreCase) ||
+                    string.Equals(x.Nombre, "En Mantenimiento", StringComparison.OrdinalIgnoreCase));
+
+                if (estadoMantenimientoDb != null)
+                {
+                    activo.IdEstadoActivo = estadoMantenimientoDb.IdEstadoActivo;
+                    await _repo.GuardarAsync();
+                }
+
+                return;
+            }
+
+            if (string.Equals(estadoMantenimiento, "Finalizado", StringComparison.OrdinalIgnoreCase))
+            {
+                var existeOtroEnProceso = await _mantenimientoRepo.ExisteMantenimientoEnProcesoAsync(idActivo, excluirIdMantenimiento);
+
+                if (!existeOtroEnProceso)
+                {
+                    var estadoActivoDb = estados.FirstOrDefault(x =>
+                        string.Equals(x.Nombre, "Activo", StringComparison.OrdinalIgnoreCase) ||
+                        string.Equals(x.Nombre, "Operativo", StringComparison.OrdinalIgnoreCase));
+
+                    if (estadoActivoDb != null)
+                    {
+                        activo.IdEstadoActivo = estadoActivoDb.IdEstadoActivo;
+                        await _repo.GuardarAsync();
+                    }
+                }
+            }
         }
     }
 }

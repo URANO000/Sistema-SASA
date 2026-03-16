@@ -2,9 +2,9 @@ using BusinessLogic.Servicios.Inventario;
 using BusinessLogic.Servicios.Tiquetes;
 using DataAccess.Modelos.DTOs.Inventario;
 using DataAccess.Repositorios.Inventario;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.AspNetCore.Authorization;
 using SASA.Filters;
 using SASA.ViewModels.Inventario;
 
@@ -60,14 +60,11 @@ namespace SASA.Controllers
                 PageSize = result.PageSize,
                 TotalPages = result.TotalPages,
                 TotalRecords = result.TotalRecords,
-
                 Q = q,
                 EstadoId = estadoId,
                 TipoId = tipoId,
-
                 SortBy = sortBy,
                 SortDir = sortDir,
-
                 Estados = new SelectList(estados, "IdEstadoActivo", "Nombre", estadoId),
                 Tipos = new SelectList(tipos, "IdTipoActivo", "Nombre", tipoId)
             };
@@ -101,13 +98,11 @@ namespace SASA.Controllers
                 NombreMaquina = model.NombreMaquina,
                 IdTipoActivo = model.IdTipoActivo,
                 IdEstadoActivo = model.IdEstadoActivo,
-
                 Marca = model.Marca,
                 Modelo = model.Modelo,
                 SerieServicio = model.SerieServicio,
                 DireccionMAC = model.DireccionMAC,
                 SistemaOperativo = model.SistemaOperativo,
-
                 IdTipoLicencia = model.IdTipoLicencia,
                 ClaveLicencia = model.ClaveLicencia
             };
@@ -139,15 +134,12 @@ namespace SASA.Controllers
                 NumeroActivo = detalle.NumeroActivo ?? "",
                 NombreMaquina = detalle.NombreMaquina ?? "",
                 SerieServicio = detalle.SerieServicio,
-
                 IdTipoActivo = detalle.IdTipoActivo,
                 IdEstadoActivo = detalle.IdEstadoActivo,
-
                 Marca = detalle.Marca,
                 Modelo = detalle.Modelo,
                 DireccionMAC = detalle.DireccionMAC,
                 SistemaOperativo = detalle.SistemaOperativo,
-
                 IdTipoLicencia = detalle.IdTipoLicencia,
                 ClaveLicencia = detalle.ClaveLicencia
             };
@@ -174,12 +166,10 @@ namespace SASA.Controllers
                 SerieServicio = model.SerieServicio,
                 IdTipoActivo = model.IdTipoActivo,
                 IdEstadoActivo = model.IdEstadoActivo,
-
                 Marca = model.Marca,
                 Modelo = model.Modelo,
                 DireccionMAC = model.DireccionMAC,
                 SistemaOperativo = model.SistemaOperativo,
-
                 IdTipoLicencia = model.IdTipoLicencia,
                 ClaveLicencia = model.ClaveLicencia
             };
@@ -217,16 +207,13 @@ namespace SASA.Controllers
             {
                 NumeroActivo = detalle.NumeroActivo ?? "",
                 NombreMaquina = detalle.NombreMaquina ?? "",
-
                 IdTipoActivo = detalle.IdTipoActivo,
                 IdEstadoActivo = detalle.IdEstadoActivo,
-
                 Marca = detalle.Marca,
                 Modelo = detalle.Modelo,
                 SerieServicio = detalle.SerieServicio,
                 DireccionMAC = detalle.DireccionMAC,
                 SistemaOperativo = detalle.SistemaOperativo,
-
                 IdTipoLicencia = detalle.IdTipoLicencia,
                 ClaveLicencia = detalle.ClaveLicencia
             };
@@ -250,13 +237,11 @@ namespace SASA.Controllers
                 NombreMaquina = model.NombreMaquina,
                 IdTipoActivo = model.IdTipoActivo,
                 IdEstadoActivo = model.IdEstadoActivo,
-
                 Marca = model.Marca,
                 Modelo = model.Modelo,
                 SerieServicio = model.SerieServicio,
                 DireccionMAC = model.DireccionMAC,
                 SistemaOperativo = model.SistemaOperativo,
-
                 IdTipoLicencia = model.IdTipoLicencia,
                 ClaveLicencia = model.ClaveLicencia
             };
@@ -272,10 +257,6 @@ namespace SASA.Controllers
 
             return Json(new { success = true });
         }
-
-        // ==========================
-        // ASOCIAR ACTIVO CON TIQUETE
-        // ==========================
 
         [HttpGet]
         public async Task<IActionResult> TicketAssociation()
@@ -344,6 +325,226 @@ namespace SASA.Controllers
 
             TempData["Success"] = "El activo fue asociado correctamente al tiquete.";
             return RedirectToAction(nameof(TicketAssociation));
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Maintenance()
+        {
+            ViewData["Title"] = "Historial de Mantenimiento";
+
+            var data = await _inventario.ObtenerHistorialMantenimientoAsync();
+
+            var vm = new MantenimientoIndexViewModel
+            {
+                Items = data.ToList()
+            };
+
+            return View(vm);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> CreateMaintenance()
+        {
+            ViewData["Title"] = "Registrar Mantenimiento";
+
+            var activos = await _inventario.ObtenerActivosParaAsociacionAsync();
+
+            var vm = new CrearMantenimientoViewModel
+            {
+                FechaMantenimiento = DateTime.Today,
+                Activos = new SelectList(
+                    activos.Select(a => new
+                    {
+                        a.IdActivo,
+                        Texto = $"{a.NumeroActivo} - {a.NombreMaquina}"
+                    }),
+                    "IdActivo",
+                    "Texto")
+            };
+
+            return View(vm);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CreateMaintenance(CrearMantenimientoViewModel model)
+        {
+            ViewData["Title"] = "Registrar Mantenimiento";
+
+            if (!ModelState.IsValid)
+            {
+                var activosError = await _inventario.ObtenerActivosParaAsociacionAsync();
+                model.Activos = new SelectList(
+                    activosError.Select(a => new
+                    {
+                        a.IdActivo,
+                        Texto = $"{a.NumeroActivo} - {a.NombreMaquina}"
+                    }),
+                    "IdActivo",
+                    "Texto",
+                    model.IdActivo);
+
+                return View(model);
+            }
+
+            var dto = new CrearMantenimientoActivoDto
+            {
+                IdActivo = model.IdActivo,
+                FechaMantenimiento = model.FechaMantenimiento,
+                TipoMantenimiento = model.TipoMantenimiento,
+                Estado = model.Estado,
+                Descripcion = model.Descripcion
+            };
+
+            var (ok, error) = await _inventario.RegistrarMantenimientoAsync(dto);
+
+            if (!ok)
+            {
+                ModelState.AddModelError(string.Empty, error ?? "No se pudo registrar el mantenimiento.");
+
+                var activosError = await _inventario.ObtenerActivosParaAsociacionAsync();
+                model.Activos = new SelectList(
+                    activosError.Select(a => new
+                    {
+                        a.IdActivo,
+                        Texto = $"{a.NumeroActivo} - {a.NombreMaquina}"
+                    }),
+                    "IdActivo",
+                    "Texto",
+                    model.IdActivo);
+
+                return View(model);
+            }
+
+            TempData["Success"] = "El mantenimiento fue registrado correctamente.";
+            return RedirectToAction(nameof(Maintenance));
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> EditMaintenanceModal(int id)
+        {
+            var data = await _inventario.ObtenerMantenimientoPorIdAsync(id);
+            if (data == null) return NotFound();
+
+            var activos = await _inventario.ObtenerActivosParaAsociacionAsync();
+
+            var vm = new CrearMantenimientoViewModel
+            {
+                IdMantenimiento = data.IdMantenimiento,
+                IdActivo = data.IdActivo,
+                FechaMantenimiento = data.FechaMantenimiento,
+                TipoMantenimiento = data.TipoMantenimiento,
+                Estado = data.Estado,
+                Descripcion = data.Descripcion,
+                Activos = new SelectList(
+                    activos.Select(a => new
+                    {
+                        a.IdActivo,
+                        Texto = $"{a.NumeroActivo} - {a.NombreMaquina}"
+                    }),
+                    "IdActivo",
+                    "Texto",
+                    data.IdActivo)
+            };
+
+            return PartialView("_EditMaintenanceModal", vm);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EditMaintenanceModal(int id, CrearMantenimientoViewModel model)
+        {
+            var activos = await _inventario.ObtenerActivosParaAsociacionAsync();
+            model.Activos = new SelectList(
+                activos.Select(a => new
+                {
+                    a.IdActivo,
+                    Texto = $"{a.NumeroActivo} - {a.NombreMaquina}"
+                }),
+                "IdActivo",
+                "Texto",
+                model.IdActivo);
+
+            if (!ModelState.IsValid)
+                return PartialView("_EditMaintenanceModal", model);
+
+            var dto = new CrearMantenimientoActivoDto
+            {
+                IdActivo = model.IdActivo,
+                FechaMantenimiento = model.FechaMantenimiento,
+                TipoMantenimiento = model.TipoMantenimiento,
+                Estado = model.Estado,
+                Descripcion = model.Descripcion
+            };
+
+            var (ok, error) = await _inventario.ActualizarMantenimientoAsync(id, dto);
+
+            if (!ok)
+            {
+                ModelState.AddModelError(string.Empty, error ?? "No se pudo actualizar el mantenimiento.");
+                return PartialView("_EditMaintenanceModal", model);
+            }
+
+            return Json(new { success = true });
+        }
+
+        [HttpGet]
+        public IActionResult Reports()
+        {
+            ViewData["Title"] = "Reportes de Inventario";
+            return View();
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GeneralReport()
+        {
+            ViewData["Title"] = "Reporte General de Inventario";
+
+            var items = (await _inventario.ObtenerActivosReporteGeneralAsync()).ToList();
+
+            var vm = new ReporteGeneralInventarioViewModel
+            {
+                TotalActivos = items.Count,
+                ActivosActivos = items.Count(x =>
+                    string.Equals(x.EstadoActivoNombre, "Activo", StringComparison.OrdinalIgnoreCase) ||
+                    string.Equals(x.EstadoActivoNombre, "Operativo", StringComparison.OrdinalIgnoreCase)),
+                EnMantenimiento = items.Count(x =>
+                    string.Equals(x.EstadoActivoNombre, "Mantenimiento", StringComparison.OrdinalIgnoreCase) ||
+                    string.Equals(x.EstadoActivoNombre, "En Mantenimiento", StringComparison.OrdinalIgnoreCase)),
+                Items = items
+            };
+
+            return View(vm);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> StatusReport()
+        {
+            ViewData["Title"] = "Reporte por Estado";
+
+            var resumen = await _inventario.ObtenerResumenPorEstadoAsync();
+
+            var vm = new ReporteEstadoInventarioViewModel
+            {
+                Estados = resumen
+            };
+
+            return View(vm);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> MaintenanceReport()
+        {
+            ViewData["Title"] = "Reporte de Mantenimiento";
+
+            var data = await _inventario.ObtenerHistorialMantenimientoAsync();
+
+            var vm = new MantenimientoIndexViewModel
+            {
+                Items = data.ToList()
+            };
+
+            return View(vm);
         }
 
         private async Task CargarCatalogosAsync(int? tipoIdSeleccionado = null, int? estadoIdSeleccionado = null)

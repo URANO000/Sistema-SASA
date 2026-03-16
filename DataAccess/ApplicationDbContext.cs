@@ -33,6 +33,7 @@ namespace DataAccess
         public DbSet<TipoActivoInventario> TipoActivoInventario { get; set; }
         public DbSet<EstadoActivoInventario> EstadoActivoInventario { get; set; }
         public DbSet<TipoLicenciaInventario> TipoLicenciaInventario { get; set; }
+        public DbSet<MantenimientoActivo> MantenimientosActivos { get; set; }
         public DbSet<ActivoTelefono> ActivoTelefono { get; set; }
         public DbSet<Notificacion> Notificaciones { get; set; }
         public DbSet<NotificacionSilencio> NotificacionSilencios { get; set; }
@@ -189,6 +190,29 @@ namespace DataAccess
                 entity.ToTable("TipoLicenciaInventario");
                 entity.HasKey(x => x.IdTipoLicencia);
                 entity.Property(x => x.Nombre).HasMaxLength(60).IsRequired();
+            });
+
+            modelBuilder.Entity<MantenimientoActivo>(entity =>
+            {
+                entity.ToTable("MantenimientoActivo");
+
+                entity.HasKey(x => x.IdMantenimiento);
+
+                entity.Property(x => x.TipoMantenimiento)
+                    .HasMaxLength(50)
+                    .IsRequired();
+
+                entity.Property(x => x.Estado)
+                    .HasMaxLength(50)
+                    .IsRequired();
+
+                entity.Property(x => x.Descripcion)
+                    .HasMaxLength(500);
+
+                entity.HasOne(x => x.Activo)
+                    .WithMany()
+                    .HasForeignKey(x => x.IdActivo)
+                    .OnDelete(DeleteBehavior.Cascade);
             });
 
             modelBuilder.Entity<IntentoInicioSesion>(entity =>

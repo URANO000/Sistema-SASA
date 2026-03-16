@@ -1,3 +1,5 @@
+@model SASA.ViewModels.Inventario.ReporteGeneralInventarioViewModel
+
 @{
     ViewData["Title"] = "Reporte General de Inventario";
 }
@@ -16,7 +18,7 @@
                     <div class="card text-center">
                         <div class="card-body">
                             <h6 class="text-muted">Total de Activos</h6>
-                            <h3 class="fw-bold">125</h3>
+                            <h3 class="fw-bold">@Model.TotalActivos</h3>
                         </div>
                     </div>
                 </div>
@@ -25,7 +27,7 @@
                     <div class="card text-center">
                         <div class="card-body">
                             <h6 class="text-muted">Activos Activos</h6>
-                            <h3 class="fw-bold text-success">98</h3>
+                            <h3 class="fw-bold text-success">@Model.ActivosActivos</h3>
                         </div>
                     </div>
                 </div>
@@ -34,7 +36,7 @@
                     <div class="card text-center">
                         <div class="card-body">
                             <h6 class="text-muted">En Mantenimiento</h6>
-                            <h3 class="fw-bold text-warning">27</h3>
+                            <h3 class="fw-bold text-warning">@Model.EnMantenimiento</h3>
                         </div>
                     </div>
                 </div>
@@ -51,18 +53,35 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <td>INV-001</td>
-                            <td>Laptop Dell</td>
-                            <td>Hardware</td>
-                            <td><span class="badge bg-success">Activo</span></td>
-                        </tr>
-                        <tr>
-                            <td>INV-002</td>
-                            <td>Servidor HP</td>
-                            <td>Hardware</td>
-                            <td><span class="badge bg-warning">Mantenimiento</span></td>
-                        </tr>
+                        @if (Model.Items != null && Model.Items.Any())
+                        {
+                            foreach (var item in Model.Items)
+                            {
+                                <tr>
+                                    <td>@item.NumeroActivo</td>
+                                    <td>@(string.IsNullOrWhiteSpace(item.NombreMaquina) ? "-" : item.NombreMaquina)</td>
+                                    <td>@(string.IsNullOrWhiteSpace(item.TipoActivoNombre) ? "-" : item.TipoActivoNombre)</td>
+                                    <td>
+                                        @if (!string.IsNullOrWhiteSpace(item.EstadoActivoNombre))
+                                        {
+                                            <span class="badge bg-secondary">@item.EstadoActivoNombre</span>
+                                        }
+                                        else
+                                        {
+                                            <span>-</span>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="4" class="text-center text-muted py-4">
+                                    No hay activos para mostrar.
+                                </td>
+                            </tr>
+                        }
                     </tbody>
                 </table>
             </div>
