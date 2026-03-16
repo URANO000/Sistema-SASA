@@ -86,6 +86,36 @@
     color: var(--danger-color);
 }
 
+.error-message {
+    font-size: 0.95rem;
+    color: #6c757d;
+}
+
+/* Scroll oculto reutilizable */
+.scroll-hidden {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+    .scroll-hidden::-webkit-scrollbar {
+        width: 0;
+        height: 0;
+    }
+
+/* Detalle modal body reutilizable */
+.detail-modal-content {
+    max-height: calc(100vh - 220px);
+    overflow-y: auto;
+    padding: 2rem;
+}
+
+/* Footer sticky reutilizable */
+.modal-footer-sticky {
+    position: sticky;
+    bottom: 0;
+    background: #fff;
+    z-index: 10;
+=======
 /*Then for alert modal*/
 #alertModal .alert-icon i {
     font-size: 3.5rem;

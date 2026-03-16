@@ -1,0 +1,332 @@
+@model SASA.ViewModels.InventarioTelefono.TelefonoIndexViewModel
+
+@{
+    ViewData["Title"] = "Activos Teléfono";
+
+    string BuildUrl(string sortBy, string sortDir, int pageNumber)
+        => Url.Action("Index", "InventoryPhone", new
+        {
+            q = Model.Q,
+            pageNumber = pageNumber,
+            pageSize = Model.PageSize,
+            sortBy = sortBy,
+            sortDir = sortDir
+        })!;
+}
+
+<div class="container-fluid">
+    <div class="card mb-3">
+        <div class="card-body">
+
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2 mb-3">
+                <div>
+                    <h4 class="mb-0 fw-bold">Gestión de Activos Teléfono</h4>
+                    <small class="text-muted">
+                        Administre y supervise los teléfonos registrados en el sistema.
+                    </small>
+                </div>
+
+                @if (User.IsInRole("Administrador"))
+                {
+                    <div class="d-flex gap-2">
+                        <a class="btn btn-custom" asp-controller="InventoryPhone" asp-action="Create">
+                            <i class="bi bi-plus-lg"></i>
+                            Nuevo Teléfono
+                        </a>
+                    </div>
+                }
+            </div>
+
+            <form method="get">
+                <input type="hidden" name="pageNumber" value="1" />
+                <input type="hidden" name="pageSize" value="@Model.PageSize" />
+                <input type="hidden" name="sortBy" value="@Model.SortBy" />
+                <input type="hidden" name="sortDir" value="@Model.SortDir" />
+
+                <div class="row g-2 mb-3">
+                    <div class="col-12 col-md-6">
+                        <input type="text"
+                               name="q"
+                               value="@Model.Q"
+                               class="form-control"
+                               placeholder="Buscar por colaborador o número..." />
+                    </div>
+
+                    <div class="col-12 col-md-2">
+                        <button class="btn btn-outline-secondary w-100" type="submit">
+                            <i class="bi bi-funnel"></i>
+                            Filtrar
+                        </button>
+                    </div>
+                </div>
+            </form>
+
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="text-center" style="width:140px;">Acciones</th>
+
+                            <th>
+                                <a class="text-decoration-none"
+                                   href="@BuildUrl("Nombre", Model.ToggleDir("Nombre"), 1)">
+                                    Colaborador @Model.SortIcon("Nombre")
+                                </a>
+                            </th>
+
+                            <th>Departamento</th>
+                            <th>Operador</th>
+                            <th>Número</th>
+                            <th>Modelo</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        @if (Model.Items != null && Model.Items.Any())
+                        {
+                            foreach (var a in Model.Items)
+                            {
+                                <tr>
+                                    <td class="text-center">
+                                        <button type="button"
+                                                class="btn btn-link p-0 me-2"
+                                                title="Ver detalle"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#phoneDetailModal"
+                                                data-id="@a.IdActivoTelefono">
+                                            <i class="bi bi-eye detail-btn"></i>
+                                        </button>
+
+                                        @if (User.IsInRole("Administrador"))
+                                        {
+                                            <button type="button"
+                                                    class="btn btn-link p-0 me-2"
+                                                    title="Editar"
+                                                    data-bs-toggle="modal"
+                                                    data-bs-target="#phoneEditModal"
+                                                    data-id="@a.IdActivoTelefono">
+                                                <i class="fa-regular fa-pen-to-square edit-btn"></i>
+                                            </button>
+                                        }
+                                    </td>
+
+                                    <td class="fw-semibold">@a.NombreColaborador</td>
+                                    <td>@(a.Departamento ?? "-")</td>
+                                    <td>@(a.Operador ?? "-")</td>
+                                    <td>@(a.NumeroCelular ?? "-")</td>
+                                    <td>@(a.Modelo ?? "-")</td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="6" class="text-center text-muted py-4">
+                                    No se encontraron teléfonos registrados.
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-center gap-2 mt-3">
+                <div class="text-muted small">
+                    Página <strong>@Model.PageNumber</strong> de <strong>@Model.TotalPages</strong>
+                </div>
+
+                <nav aria-label="Paginación">
+                    <ul class="pagination mb-0">
+                        <li class="page-item @(!Model.HasPrev ? "disabled" : "")">
+                            <a class="page-link"
+                               href="@(!Model.HasPrev ? "#" : BuildUrl(Model.SortBy, Model.SortDir, Model.PageNumber - 1))">
+                                Anterior
+                            </a>
+                        </li>
+
+                        <li class="page-item active">
+                            <span class="page-link">@Model.PageNumber</span>
+                        </li>
+
+                        <li class="page-item @(!Model.HasNext ? "disabled" : "")">
+                            <a class="page-link"
+                               href="@(!Model.HasNext ? "#" : BuildUrl(Model.SortBy, Model.SortDir, Model.PageNumber + 1))">
+                                Siguiente
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+
+            <div class="modal fade" id="phoneDetailModal" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog modal-lg modal-dialog-scrollable">
+                    <div class="modal-content" id="phoneDetailModalContent">
+                        <div class="modal-body text-center p-4 text-muted">
+                            Seleccione un teléfono...
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal fade" id="phoneEditModal" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog modal-lg modal-dialog-scrollable">
+                    <div class="modal-content" id="phoneEditModalContent">
+                        <div class="modal-body text-center p-4 text-muted">
+                            Seleccione un teléfono...
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal fade" id="phoneSuccessModal" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog modal-sm modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Cambios guardados</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="d-flex align-items-start gap-2">
+                                <i class="bi bi-check-circle-fill text-success fs-4"></i>
+                                <div>
+                                    <div class="fw-semibold">Éxito</div>
+                                    <div class="text-muted small">El teléfono se actualizó correctamente.</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-success w-100" data-bs-dismiss="modal">
+                                Aceptar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        const phoneDetailModal = document.getElementById('phoneDetailModal');
+        const phoneDetailContent = document.getElementById('phoneDetailModalContent');
+
+        phoneDetailModal.addEventListener('show.bs.modal', function (event) {
+            const button = event.relatedTarget;
+            const id = button.getAttribute('data-id');
+
+            phoneDetailContent.innerHTML = `<div class="modal-body text-center p-4 text-muted">Cargando...</div>`;
+
+            fetch(`/InventoryPhone/DetailModal?id=${id}`, { credentials: "same-origin" })
+                .then(r => {
+                    if (!r.ok) throw new Error("No se pudo cargar el detalle.");
+                    return r.text();
+                })
+                .then(html => {
+                    phoneDetailContent.innerHTML = html;
+                })
+                .catch(() => {
+                    phoneDetailContent.innerHTML = `
+                        <div class="modal-body p-4">
+                            <div class="alert alert-danger mb-0">
+                                Error cargando detalle.
+                            </div>
+                        </div>`;
+                });
+        });
+
+        phoneDetailModal.addEventListener('hidden.bs.modal', function () {
+            phoneDetailContent.innerHTML = `<div class="modal-body text-center p-4 text-muted">Seleccione un teléfono...</div>`;
+        });
+    </script>
+
+    <script>
+        const phoneEditModal = document.getElementById('phoneEditModal');
+        const phoneEditContent = document.getElementById('phoneEditModalContent');
+
+        function wirePhoneEditForm(id) {
+            if (window.jQuery && jQuery.validator && jQuery.validator.unobtrusive) {
+                jQuery.validator.unobtrusive.parse(phoneEditContent);
+            }
+
+            const form = document.getElementById("editPhoneForm");
+            if (!form) return;
+
+            form.addEventListener("submit", function (e) {
+                e.preventDefault();
+
+                const formData = new FormData(form);
+
+                fetch(`/InventoryPhone/EditModal?id=${id}`, {
+                    method: "POST",
+                    body: formData,
+                    headers: { "X-Requested-With": "XMLHttpRequest" },
+                    credentials: "same-origin"
+                })
+                .then(async r => {
+                    const ct = r.headers.get("content-type") || "";
+
+                    if (ct.includes("application/json")) {
+                        const data = await r.json();
+                        if (data.success) {
+                            bootstrap.Modal.getOrCreateInstance(phoneEditModal).hide();
+
+                            const successModalEl = document.getElementById('phoneSuccessModal');
+                            const successInstance = bootstrap.Modal.getOrCreateInstance(successModalEl);
+                            successInstance.show();
+
+                            successModalEl.addEventListener('hidden.bs.modal', function handler() {
+                                successModalEl.removeEventListener('hidden.bs.modal', handler);
+                                window.location.reload();
+                            });
+
+                            return;
+                        }
+                    }
+
+                    const html = await r.text();
+                    phoneEditContent.innerHTML = html;
+                    wirePhoneEditForm(id);
+                })
+                .catch(() => {
+                    phoneEditContent.innerHTML = `
+                        <div class="modal-body p-4">
+                            <div class="alert alert-danger mb-0">
+                                Error guardando cambios.
+                            </div>
+                        </div>`;
+                });
+            }, { once: true });
+        }
+
+        phoneEditModal.addEventListener('show.bs.modal', function (event) {
+            const button = event.relatedTarget;
+            const id = button.getAttribute('data-id');
+
+            phoneEditContent.innerHTML = `<div class="modal-body text-center p-4 text-muted">Cargando...</div>`;
+
+            fetch(`/InventoryPhone/EditModal?id=${id}`, { credentials: "same-origin" })
+                .then(r => {
+                    if (!r.ok) throw new Error("No se pudo cargar el formulario.");
+                    return r.text();
+                })
+                .then(html => {
+                    phoneEditContent.innerHTML = html;
+                    wirePhoneEditForm(id);
+                })
+                .catch(() => {
+                    phoneEditContent.innerHTML = `
+                        <div class="modal-body p-4">
+                            <div class="alert alert-danger mb-0">
+                                Error cargando formulario.
+                            </div>
+                        </div>`;
+                });
+        });
+
+        phoneEditModal.addEventListener('hidden.bs.modal', function () {
+            phoneEditContent.innerHTML = `<div class="modal-body text-center p-4 text-muted">Seleccione un teléfono...</div>`;
+        });
+    </script>
+}

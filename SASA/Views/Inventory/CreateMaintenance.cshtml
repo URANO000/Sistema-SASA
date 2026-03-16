@@ -1,3 +1,5 @@
+@model SASA.ViewModels.Inventario.CrearMantenimientoViewModel
+
 @{
     ViewData["Title"] = "Registrar Mantenimiento";
 }
@@ -11,47 +13,53 @@
                 Ingrese la información del mantenimiento realizado al activo.
             </p>
 
-            <form asp-controller="Inventory" asp-action="Maintenance">
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+            <form asp-controller="Inventory" asp-action="CreateMaintenance" method="post">
+                @Html.AntiForgeryToken()
 
                 <div class="row">
                     <div class="col-md-6 mb-3">
-                        <label class="form-label">Activo</label>
-                        <select class="form-select">
-                            <option selected disabled>Seleccione un activo</option>
-                            <option>INV-001 - Laptop Dell</option>
-                            <option>INV-002 - Servidor HP</option>
+                        <label asp-for="IdActivo" class="form-label">Activo</label>
+                        <select asp-for="IdActivo" asp-items="Model.Activos" class="form-select">
+                            <option value="">Seleccione un activo</option>
                         </select>
+                        <span asp-validation-for="IdActivo" class="text-danger"></span>
                     </div>
 
                     <div class="col-md-6 mb-3">
-                        <label class="form-label">Fecha de mantenimiento</label>
-                        <input type="date" class="form-control">
+                        <label asp-for="FechaMantenimiento" class="form-label">Fecha de mantenimiento</label>
+                        <input asp-for="FechaMantenimiento" type="date" class="form-control" />
+                        <span asp-validation-for="FechaMantenimiento" class="text-danger"></span>
                     </div>
                 </div>
 
                 <div class="row">
                     <div class="col-md-6 mb-3">
-                        <label class="form-label">Tipo de mantenimiento</label>
-                        <select class="form-select">
-                            <option selected disabled>Seleccione un tipo</option>
-                            <option>Preventivo</option>
-                            <option>Correctivo</option>
+                        <label asp-for="TipoMantenimiento" class="form-label">Tipo de mantenimiento</label>
+                        <select asp-for="TipoMantenimiento" class="form-select">
+                            <option value="">Seleccione un tipo</option>
+                            <option value="Preventivo">Preventivo</option>
+                            <option value="Correctivo">Correctivo</option>
                         </select>
+                        <span asp-validation-for="TipoMantenimiento" class="text-danger"></span>
                     </div>
 
                     <div class="col-md-6 mb-3">
-                        <label class="form-label">Estado</label>
-                        <select class="form-select">
-                            <option selected>Finalizado</option>
-                            <option>En proceso</option>
+                        <label asp-for="Estado" class="form-label">Estado</label>
+                        <select asp-for="Estado" class="form-select">
+                            <option value="Finalizado">Finalizado</option>
+                            <option value="En proceso">En proceso</option>
                         </select>
+                        <span asp-validation-for="Estado" class="text-danger"></span>
                     </div>
                 </div>
 
                 <div class="mb-3">
-                    <label class="form-label">Descripción</label>
-                    <textarea class="form-control" rows="3"
-                        placeholder="Cambio de disco duro y limpieza general del equipo"></textarea>
+                    <label asp-for="Descripcion" class="form-label">Descripción</label>
+                    <textarea asp-for="Descripcion" class="form-control" rows="3"
+                              placeholder="Detalle del mantenimiento realizado"></textarea>
+                    <span asp-validation-for="Descripcion" class="text-danger"></span>
                 </div>
 
                 <div class="d-flex justify-content-end">
@@ -64,9 +72,12 @@
                         Registrar Mantenimiento
                     </button>
                 </div>
-
             </form>
 
         </div>
     </div>
 </div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

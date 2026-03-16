@@ -1,0 +1,64 @@
+@model SASA.ViewModels.Inventario.CrearMantenimientoViewModel
+
+<div class="modal-header">
+    <h5 class="modal-title">Editar Mantenimiento</h5>
+    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+</div>
+
+<form id="editMaintenanceForm" method="post" class="form-container">
+    @Html.AntiForgeryToken()
+    <input type="hidden" asp-for="IdMantenimiento" />
+
+    <div class="modal-body form-content scroll-hidden">
+
+        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label asp-for="IdActivo" class="form-label">Activo</label>
+                <select asp-for="IdActivo" asp-items="Model.Activos" class="form-select">
+                    <option value="">Seleccione un activo</option>
+                </select>
+                <span asp-validation-for="IdActivo" class="text-danger"></span>
+            </div>
+
+            <div class="col-md-6 mb-3">
+                <label asp-for="FechaMantenimiento" class="form-label">Fecha de mantenimiento</label>
+                <input asp-for="FechaMantenimiento" type="date" class="form-control" />
+                <span asp-validation-for="FechaMantenimiento" class="text-danger"></span>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label asp-for="TipoMantenimiento" class="form-label">Tipo de mantenimiento</label>
+                <select asp-for="TipoMantenimiento" class="form-select">
+                    <option value="">Seleccione un tipo</option>
+                    <option value="Preventivo">Preventivo</option>
+                    <option value="Correctivo">Correctivo</option>
+                </select>
+                <span asp-validation-for="TipoMantenimiento" class="text-danger"></span>
+            </div>
+
+            <div class="col-md-6 mb-3">
+                <label asp-for="Estado" class="form-label">Estado</label>
+                <select asp-for="Estado" class="form-select">
+                    <option value="Finalizado">Finalizado</option>
+                    <option value="En proceso">En proceso</option>
+                </select>
+                <span asp-validation-for="Estado" class="text-danger"></span>
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Descripcion" class="form-label">Descripción</label>
+            <textarea asp-for="Descripcion" class="form-control" rows="3"></textarea>
+            <span asp-validation-for="Descripcion" class="text-danger"></span>
+        </div>
+    </div>
+
+    <div class="modal-footer modal-footer-custom modal-footer-sticky">
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button type="submit" class="btn btn-primary">Guardar cambios</button>
+    </div>
+</form>

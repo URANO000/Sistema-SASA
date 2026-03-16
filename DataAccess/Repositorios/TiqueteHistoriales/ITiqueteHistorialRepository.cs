@@ -1,4 +1,6 @@
 ﻿using DataAccess.Modelos.DTOs.TiqueteHistorial;
+using DataAccess.Modelos.DTOs.TiqueteHistorial.Filtros;
+using DataAccess.Modelos.DTOs.Wrappers;
 using DataAccess.Modelos.Entidades.ModTiquete;
 
 namespace DataAccess.Repositorios.TiqueteHistoriales
@@ -7,5 +9,6 @@ namespace DataAccess.Repositorios.TiqueteHistoriales
     {
         Task<TiqueteHistorial> AgregarTiqueteHistorialAsync(TiqueteHistorial tiquete);
         Task<List<TiqueteHistorialPorIdDto>> GetHistorialByTiqueteIdAsync(int idTiquete);
+        Task<PagedResult<ListaTiqueteHistorialDto>> ListarHistorialAsync(TiqueteHistorialFiltroDto filtro);
     }
 }

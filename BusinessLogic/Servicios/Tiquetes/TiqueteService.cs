@@ -1,6 +1,10 @@
 ﻿using BusinessLogic.Servicios.Avances;
+using BusinessLogic.Servicios.Helpers;
 using BusinessLogic.Servicios.TiqueteHistoriales;
+using DataAccess;
+using DataAccess.Identity;
 using DataAccess.Modelos.DTOs.Tiquete;
+using DataAccess.Modelos.DTOs.Tiquete.Colas;
 using DataAccess.Modelos.DTOs.Tiquete.Filtros;
 using DataAccess.Modelos.DTOs.Wrappers;
 using DataAccess.Modelos.Entidades.ModTiquete;
@@ -9,6 +13,7 @@ using DataAccess.Repositorios.Attachments;
 using DataAccess.Repositorios.Categorias;
 using DataAccess.Repositorios.Tiquetes;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 
 namespace BusinessLogic.Servicios.Tiquetes
 {
@@ -20,15 +25,23 @@ namespace BusinessLogic.Servicios.Tiquetes
         private readonly IAvanceService _avanceService;
         private readonly IAttachmentRepository _attachmentRepository;
         private readonly ITiqueteHistorialService _tiqueteHistorialService;
+        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly ApplicationDbContext _context;
+        private readonly IHelper _helper;
+
         public TiqueteService(ITiqueteRepository tiqueteRepository, ICategoriaRepository categoriaRepository,
             IAvanceService avanceService, IAttachmentRepository attachmentRepository,
-            ITiqueteHistorialService tiqueteHistorialService)
+            ITiqueteHistorialService tiqueteHistorialService, UserManager<ApplicationUser> userManager, ApplicationDbContext context,
+            IHelper helper)
         {
             _tiqueteRepository = tiqueteRepository;
             _categoriaRepository = categoriaRepository;
             _avanceService = avanceService;
             _attachmentRepository = attachmentRepository;
             _tiqueteHistorialService = tiqueteHistorialService;
+            _userManager = userManager;
+            _context = context;
+            _helper = helper;
         }
         //Implementación de los métodos para el servicio de Tiquete
 
@@ -56,7 +69,7 @@ namespace BusinessLogic.Servicios.Tiquetes
                     Categoria = tiquete.Categoria,
                     SubCategoria = tiquete.SubCategoria,
                     ReportedBy = tiquete.ReportedBy,
-                    Asignee = tiquete.Asignee,
+                    Assignee = tiquete.Assignee,
                     CreatedAt = tiquete.CreatedAt,
                     UpdatedAt = tiquete.UpdatedAt
                 });
@@ -91,12 +104,13 @@ namespace BusinessLogic.Servicios.Tiquetes
                 Estatus = dto.Estatus,
                 Categoria = dto.Categoria,
                 SubCategoria = dto.SubCategoria,
-                Asignee = dto.Asignee,
+                Assignee = dto.Assignee,
                 ReportedBy = dto.ReportedBy,
                 Departamento = dto.Departamento,
                 CreatedAt = dto.CreatedAt,
                 UpdatedAt = dto.UpdatedAt,
                 Prioridad = dto.Prioridad,
+                DuracionMinutos = dto.DuracionMinutos,
 
                 Avances = avances,
                 Attachments = attachments,
@@ -112,7 +126,8 @@ namespace BusinessLogic.Servicios.Tiquetes
         //--------------------Creación de tiquetes-----------------------------------
         public async Task<int> AgregarTiqueteAsync(CrearTiqueteDto dto, string currentUserId, bool esAdministrador)
         {
-            ValidarUsuarioActual(currentUserId);
+            await _helper.ValidarUsuarioEstado(currentUserId);
+            _helper.ValidarUsuarioActual(currentUserId);
             await ValidarCategoriaAsync(dto.IdCategoria);
 
             //Regla de autorización. Si es administrador entonces puede asignar tiquetes, si es empleado normal, no. 
@@ -151,9 +166,12 @@ namespace BusinessLogic.Servicios.Tiquetes
 
         public async Task ActualizarTiqueteAsync(EditarTiqueteDto dto, string currentUserId)
         {
+            //Validación 0:Validar que es usuario activo
+            await _helper.ValidarUsuarioEstado(currentUserId);
+
             //Validación 1: El usuario debe estar autenticado para actualizar un tiquete
             //Puede fallar si se prueba con http y no https por los cookies
-            ValidarUsuarioActual(currentUserId);
+            _helper.ValidarUsuarioActual(currentUserId);
 
             var tiqueteActual = await _tiqueteRepository.ObtenerEntidadPorIdAsync(dto.IdTiquete);
 
@@ -164,25 +182,38 @@ namespace BusinessLogic.Servicios.Tiquetes
                 throw new KeyNotFoundException("Tiquete no existe.");
             }
 
-            //Validación 3: Si el estatus del tiquete es cerrado, entonces no se puede actualizar el tiquete
+
+            //Validación 3: No se realizaron cambios
+            bool sinCambios =
+                   tiqueteActual.IdCategoria == dto.IdCategoria &&
+                   tiqueteActual.IdSubCategoria == dto.IdSubCategoria &&
+                   tiqueteActual.IdEstatus == dto.IdEstatus &&
+                   (tiqueteActual.Resolucion ?? "").Trim() == (dto.Resolucion ?? "").Trim();
+
+            if (sinCambios)
+            {
+                throw new InvalidOperationException("No se realizaron cambios en el tiquete.");
+            }
+
+            //Validación 4: Si el estatus del tiquete es cerrado, entonces no se puede actualizar el tiquete
             if (tiqueteActual.IdEstatus == (int)TiqueteEstatus.Cancelado)
             {
                 throw new InvalidOperationException("No se puede actualizar un tiquete cancelado.");
             }
 
-            //Validación 4: Si el estatus del tiquete se mueve a cerrado, entonces se debe validar que el campo de resolución no esté vacío
+            //Validación 5: Si el estatus del tiquete se mueve a cerrado, entonces se debe validar que el campo de resolución no esté vacío
             if (dto.IdEstatus == (int)TiqueteEstatus.Cancelado && string.IsNullOrWhiteSpace(dto.Resolucion))
             {
                 throw new ArgumentException("La resolución es requerida para cerrar un tiquete.");
             }
 
-            //Validación 5: Si el estatus del tiquete está resuelto, sólo se puede mover a en progreso
+            //Validación 6: Si el estatus del tiquete está resuelto, sólo se puede mover a en progreso
             if(tiqueteActual.IdEstatus == (int)TiqueteEstatus.Resuelto && dto.IdEstatus != (int)TiqueteEstatus.EnProceso)
             {
                 throw new InvalidOperationException("El estatus del tiquete sólo se puede pasar a 'En Proceso' una vez que este ha sido marcado como 'Resuelto'");
             }
 
-            //Validación 6: Si el estatus del tiquete está en proceso, entonces no se puede regresar a creado
+            //Validación 7: Si el estatus del tiquete está en proceso, entonces no se puede regresar a creado
             if (tiqueteActual.IdEstatus != (int)TiqueteEstatus.Creado && dto.IdEstatus == (int)TiqueteEstatus.Creado)
             {
                 throw new InvalidOperationException("El estatus del tiquete no se puede pasar de otro estado a 'Creado'.");
@@ -198,7 +229,7 @@ namespace BusinessLogic.Servicios.Tiquetes
             tiqueteActual.IdSubCategoria = dto.IdSubCategoria;
             tiqueteActual.IdEstatus = dto.IdEstatus;
             tiqueteActual.Resolucion = dto.Resolucion?.Trim(); //Puede no tener nada
-            tiqueteActual.UpdatedAt = DateTime.Now;
+            tiqueteActual.UpdatedAt = DateTime.UtcNow;
             tiqueteActual.UpdatedBy = currentUserId; //En el controller se debe pasar el id del usuario autenticado
 
             //Persistencia de datos -> Guardar cambios
@@ -244,52 +275,118 @@ namespace BusinessLogic.Servicios.Tiquetes
         //--------------------------ASIGNAR DE MANERA MASIVA-----------------------
         public async Task AsignarTiquetesAsync(AsignarTiqueteDto dto, string currentUserId, bool esAdministrador)
         {
-            ValidarUsuarioActual(currentUserId);
+            await _helper.ValidarUsuarioEstado(currentUserId);
+            _helper.ValidarUsuarioActual(currentUserId);
 
             if(!esAdministrador)
             {
                 throw new UnauthorizedAccessException("Solo administradores pueden asignar tiquetes.");
             }
-            
-            //Obtener todos los tiquetes por la lista de IDs
-            var tiquetes = await _tiqueteRepository.ObtenerTiquetesPorIdsAsync(dto.IdsTiquetes);
 
-            //Si no hay ninguno
-            if (!tiquetes.Any())
-            {
-                throw new KeyNotFoundException("No se encontraron tiquetes.");
-            }
+            //---------------------------------INICIA LA TRANSACCIÓN--------------------------------------------
+            //--------------------------------------------------------------------------------------------------
 
-            //Si todo bien, iterar por cada tiquete en la lista y asignar individualmente
-            foreach(var tiquete in tiquetes)
+            using var transaction = await _context.Database.BeginTransactionAsync();
+
+            try
             {
-                //Validación de no tocar un tiquete cancelado o resuelto
-                if(tiquete.IdEstatus == (int)TiqueteEstatus.Cancelado || tiquete.IdEstatus == (int)TiqueteEstatus.Resuelto)
+                //Obtener todos los tiquetes por la lista de IDs
+                var tiquetes = await _tiqueteRepository.ObtenerTiquetesPorIdsAsync(dto.IdsTiquetes);
+
+                //Si no hay ninguno
+                if (!tiquetes.Any())
                 {
-                    continue;
+                    throw new KeyNotFoundException("No se encontraron tiquetes.");
                 }
 
-                tiquete.IdAsignee = dto.IdAsignee;
-                tiquete.UpdatedAt = DateTime.Now;
-                tiquete.UpdatedBy = currentUserId;
+                var user = await _userManager.FindByIdAsync(dto.IdAssignee);
+                if (user == null)
+                {
+                    throw new KeyNotFoundException("El usuario asignado no existe.");
+                }
 
-                //Historial de tiquetes
-                await _tiqueteHistorialService.RegistrarAsignacionAsync(
-                    tiquete.IdTiquete,
-                    tiquete.IdAsignee,
-                    tiquete.UpdatedBy);
+                //Para historial de tiquetes, abajo
+                var correo = user.Email;
+
+                //Para colas
+                decimal siguienteOrden = 0;
+
+                if (dto.IdAssignee != null)
+                {
+                    siguienteOrden =
+                        await _tiqueteRepository.ObtenerSiguienteOrdenColaAsync(dto.IdAssignee);
+                }
+
+                //Si todo bien, iterar por cada tiquete en la lista y asignar individualmente
+                foreach (var tiquete in tiquetes)
+                {
+                    //Validación de no tocar un tiquete cancelado o resuelto
+                    if (tiquete.IdEstatus == (int)TiqueteEstatus.Cancelado || tiquete.IdEstatus == (int)TiqueteEstatus.Resuelto)
+                    {
+                        continue;
+                    }
+
+                    //Para historial y colas
+                    var asignadoAnterior = tiquete.IdAsignee;
+
+                    //Para colas nada más
+                    bool cambiaAssignee = asignadoAnterior != dto.IdAssignee;
+
+                    if (cambiaAssignee)
+                    {
+                        if(dto.IdAssignee == null)
+                        {
+                            tiquete.OrdenCola = null;
+                        }
+                        else
+                        {
+                            tiquete.OrdenCola = siguienteOrden;
+                            siguienteOrden += 1000m;
+                        }
+                    }
+
+                    //De la operación para reasignar
+                    tiquete.IdAsignee = dto.IdAssignee;
+                    tiquete.UpdatedAt = DateTime.UtcNow;
+                    tiquete.UpdatedBy = currentUserId;
+
+                    //Historial de tiquetes
+
+                    await _tiqueteHistorialService.RegistrarAsignacionAsync(
+                        tiquete.IdTiquete,
+                        asignadoAnterior ?? "Sin asignado anterior",
+                        correo ?? "Sin correo",
+                        tiquete.UpdatedBy);
+                }
+
+                await _tiqueteRepository.ActualizarAsignacionAsync(tiquetes);
+                await transaction.CommitAsync();
             }
+            catch
+            {
+                //Si algo falla, abortar la transacción
+                await transaction.RollbackAsync();
+                throw;
+            }
+        }
 
-            await _tiqueteRepository.ActualizarAsignacionAsync(tiquetes);
+
+        //---------------------------Zona de colas ---------------------------------------------
+        public async Task<List<ColaTiqueteDto>> GetColaPersonalAsync(string currentUserId)
+        {
+            //Primeramente, validar y asegurar que usuario es admin
+            _helper.ValidarUsuarioActual(currentUserId);
+
+            return await _tiqueteRepository.GetColaPersonalAsync(currentUserId);
+        }
+
+        public async Task<List<ColaPorAssigneeDto>> GetColasGlobalAsync()
+        {
+            return await _tiqueteRepository.GetColasGlobalAsync();
         }
 
 
         //----------------------------HELPERS (DRY)--------------------------------
-        private void ValidarUsuarioActual(string currentUserId)
-        {
-            if (string.IsNullOrWhiteSpace(currentUserId))
-                throw new UnauthorizedAccessException("Usuario no autenticado");
-        }
 
         private async Task ValidarCategoriaAsync(int idCategoria)
         {
@@ -307,6 +404,16 @@ namespace BusinessLogic.Servicios.Tiquetes
             string? idAsignee
         )
         {
+
+            //Un poco de lógica para colas---------------------------------
+            decimal? ordenCola = null;
+
+            //Si el tiquete es assignado, entonces debe de entrar a la cola del usuario asignado
+            if (!string.IsNullOrEmpty(idAsignee))
+            {
+                ordenCola = await _tiqueteRepository.ObtenerSiguienteOrdenColaAsync(idAsignee);
+            }
+
             var tiquete = new Tiquete
             {
                 Asunto = asunto.Trim(),
@@ -315,8 +422,9 @@ namespace BusinessLogic.Servicios.Tiquetes
                 IdSubCategoria = idSubCategoria,
                 IdReportedBy = reportedBy,
                 IdAsignee = idAsignee,
+                OrdenCola = ordenCola,
                 IdEstatus = (int)TiqueteEstatus.Creado,
-                CreatedAt = DateTime.Now
+                CreatedAt = DateTime.UtcNow
             };
 
             var creado = await _tiqueteRepository.AgregarTiqueteAsync(tiquete);
@@ -356,7 +464,7 @@ namespace BusinessLogic.Servicios.Tiquetes
                     File = memoryStream.ToArray(),
                     FileName = archivo.FileName,
                     UploadedBy = currentUserId,
-                    UploadedAt = DateTime.Now,
+                    UploadedAt = DateTime.UtcNow,
                     FileSize = archivo.Length
                 });
             }
@@ -364,5 +472,6 @@ namespace BusinessLogic.Servicios.Tiquetes
             if (attachments.Any())
                 await _attachmentRepository.AddRangeAsync(attachments);
         }
+
     }
 }

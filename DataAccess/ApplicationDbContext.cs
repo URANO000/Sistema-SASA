@@ -3,6 +3,7 @@ using DataAccess.Modelos.Entidades;
 using DataAccess.Modelos.Entidades.Autenticacion;
 using DataAccess.Modelos.Entidades.Integracion;
 using DataAccess.Modelos.Entidades.Inventario;
+using DataAccess.Modelos.Entidades.InventarioTelefono;
 using DataAccess.Modelos.Entidades.ModTiquete;
 using DataAccess.Modelos.Enums;
 using Microsoft.AspNetCore.Identity;
@@ -28,9 +29,12 @@ namespace DataAccess
         public DbSet<Attachment> Attachments { get; set; }
         public DbSet<Auditoria> Auditorias { get; set; }
         public DbSet<ActivoInventario> ActivoInventario { get; set; }
+        public DbSet<ActivoInventarioTiquete> ActivoInventarioTiquete { get; set; }
         public DbSet<TipoActivoInventario> TipoActivoInventario { get; set; }
         public DbSet<EstadoActivoInventario> EstadoActivoInventario { get; set; }
         public DbSet<TipoLicenciaInventario> TipoLicenciaInventario { get; set; }
+        public DbSet<MantenimientoActivo> MantenimientosActivos { get; set; }
+        public DbSet<ActivoTelefono> ActivoTelefono { get; set; }
         public DbSet<Notificacion> Notificaciones { get; set; }
         public DbSet<NotificacionSilencio> NotificacionSilencios { get; set; }
         public DbSet<IntegracionHistorial> IntegracionHistorial { get; set; }
@@ -79,7 +83,11 @@ namespace DataAccess
                     .WithMany(u => u.TiquetesReportados)
                     .HasForeignKey(t => t.IdReportedBy)
                     .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasIndex(t => new { t.IdAsignee, t.OrdenCola })
+                    .IsUnique();
             });
+
 
             //Para usuarios, por la auto-referencia con createdBy
             modelBuilder.Entity<ApplicationUser>()
@@ -159,11 +167,56 @@ namespace DataAccess
                 entity.Property(x => x.Nombre).HasMaxLength(40).IsRequired();
             });
 
+            modelBuilder.Entity<ActivoInventarioTiquete>(entity =>
+            {
+                entity.ToTable("ActivoInventarioTiquete");
+                entity.HasKey(x => x.IdActivoInventarioTiquete);
+
+                entity.Property(x => x.FechaAsociacion)
+                    .IsRequired();
+
+                entity.HasOne(x => x.Activo)
+                    .WithMany()
+                    .HasForeignKey(x => x.IdActivo)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(x => x.Tiquete)
+                    .WithMany()
+                    .HasForeignKey(x => x.IdTiquete)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasIndex(x => new { x.IdActivo, x.IdTiquete })
+                    .IsUnique();
+            });
+
             modelBuilder.Entity<TipoLicenciaInventario>(entity =>
             {
                 entity.ToTable("TipoLicenciaInventario");
                 entity.HasKey(x => x.IdTipoLicencia);
                 entity.Property(x => x.Nombre).HasMaxLength(60).IsRequired();
+            });
+
+            modelBuilder.Entity<MantenimientoActivo>(entity =>
+            {
+                entity.ToTable("MantenimientoActivo");
+
+                entity.HasKey(x => x.IdMantenimiento);
+
+                entity.Property(x => x.TipoMantenimiento)
+                    .HasMaxLength(50)
+                    .IsRequired();
+
+                entity.Property(x => x.Estado)
+                    .HasMaxLength(50)
+                    .IsRequired();
+
+                entity.Property(x => x.Descripcion)
+                    .HasMaxLength(500);
+
+                entity.HasOne(x => x.Activo)
+                    .WithMany()
+                    .HasForeignKey(x => x.IdActivo)
+                    .OnDelete(DeleteBehavior.Cascade);
             });
 
             modelBuilder.Entity<IntentoInicioSesion>(entity =>

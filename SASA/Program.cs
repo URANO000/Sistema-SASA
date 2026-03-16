@@ -3,7 +3,10 @@ using BusinessLogic.Servicios.Autenticacion;
 using BusinessLogic.Servicios.Avances;
 using BusinessLogic.Servicios.Categorias;
 using BusinessLogic.Servicios.Correo;
+using BusinessLogic.Servicios.Helpers;
 using BusinessLogic.Servicios.Integracion;
+using BusinessLogic.Servicios.Inventario;
+using BusinessLogic.Servicios.InventarioTelefono;
 using BusinessLogic.Servicios.Notificaciones;
 using BusinessLogic.Servicios.Prioridad;
 using BusinessLogic.Servicios.Rol;
@@ -19,6 +22,7 @@ using DataAccess.Repositorios.Avances;
 using DataAccess.Repositorios.Categorias;
 using DataAccess.Repositorios.Integracion;
 using DataAccess.Repositorios.Inventario;
+using DataAccess.Repositorios.InventarioTelefono;
 using DataAccess.Repositorios.Notificaciones;
 using DataAccess.Repositorios.Prioridad;
 using DataAccess.Repositorios.SubCategorias;
@@ -45,18 +49,14 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 builder.Services
     .AddIdentity<ApplicationUser, ApplicationRole>(options =>
     {
-        // Activación por correo
         options.SignIn.RequireConfirmedEmail = true;
 
-        // Bloqueo por intentos fallidos
         options.Lockout.AllowedForNewUsers = true;
         options.Lockout.MaxFailedAccessAttempts = 5;
         options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(10);
 
-        // Email único
         options.User.RequireUniqueEmail = true;
 
-        // Password
         options.Password.RequireDigit = true;
         options.Password.RequiredLength = 8;
         options.Password.RequireNonAlphanumeric = false;
@@ -66,16 +66,12 @@ builder.Services
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddDefaultTokenProviders();
 
-// Cookies (rutas)
+// Cookies
 builder.Services.ConfigureApplicationCookie(options =>
 {
     options.LoginPath = "/login";
     options.AccessDeniedPath = "/Account/AccessDenied";
-
-    // Esto ya NO es el "idle real", pero evita tickets eternos
     options.ExpireTimeSpan = TimeSpan.FromMinutes(30);
-
-    // Muy importante para que requests automáticos NO revivan sesión
     options.SlidingExpiration = false;
 
     options.Events = new Microsoft.AspNetCore.Authentication.Cookies.CookieAuthenticationEvents
@@ -91,7 +87,6 @@ builder.Services.ConfigureApplicationCookie(options =>
             var cache = context.HttpContext.RequestServices.GetRequiredService<IDistributedCache>();
             var lastStr = await cache.GetStringAsync($"last-activity:{userId}");
 
-            // Si no existe registro, lo inicializamos (primer request)
             if (!long.TryParse(lastStr, out var lastUnix))
             {
                 await cache.SetStringAsync(
@@ -102,7 +97,7 @@ builder.Services.ConfigureApplicationCookie(options =>
             }
 
             var last = DateTimeOffset.FromUnixTimeSeconds(lastUnix);
-            var idleTimeout = TimeSpan.FromMinutes(5); // <-- AQUÍ tu X (pruebas)
+            var idleTimeout = TimeSpan.FromMinutes(5);
 
             if (DateTimeOffset.UtcNow - last > idleTimeout)
             {
@@ -113,47 +108,68 @@ builder.Services.ConfigureApplicationCookie(options =>
     };
 });
 
-//Repositories y Servicios de negocio
+// Repositories y servicios de negocio
 builder.Services.AddScoped<ITiqueteRepository, TiqueteRepository>();
 builder.Services.AddScoped<ITiqueteService, TiqueteService>();
+
 builder.Services.AddScoped<ISubCategoriaRepository, SubCategoriaRepository>();
 builder.Services.AddScoped<ISubCategoriaService, SubCategoriaService>();
+
 builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
 builder.Services.AddScoped<IUsuarioService, UsuarioService>();
+
 builder.Services.AddScoped<IRolService, RolService>();
 
 builder.Services.AddScoped<ICategoriaRepository, CategoriaRepository>();
 builder.Services.AddScoped<ICategoriaService, CategoriaService>();
+
 builder.Services.AddScoped<IPrioridadRepository, PrioridadRepository>();
 builder.Services.AddScoped<IPrioridadService, PrioridadService>();
 
 builder.Services.AddScoped<INotificacionRepository, NotificacionRepository>();
 builder.Services.AddScoped<INotificacionService, NotificacionService>();
 
+//Todo lo necesario para el módulo de tiquetes y colas
 
 builder.Services.AddScoped<IAvanceRepository, AvanceRepository>();
 builder.Services.AddScoped<IAvanceService, AvanceService>();
+
 builder.Services.AddScoped<IAttachmentRepository, AttachmentRepository>();
 builder.Services.AddScoped<IAttachmentService, AttachmentService>();
+
 builder.Services.AddScoped<ITiqueteHistorialRepository, TiqueteHistorialRepository>();
 builder.Services.AddScoped<ITiqueteHistorialService, TiqueteHistorialService>();
 builder.Services.AddScoped<ISubCategoriaRepository, SubCategoriaRepository>();
 builder.Services.AddScoped<ISubCategoriaService, SubCategoriaService>();
 
-
+// Integración
 builder.Services.AddScoped<IIntegracionHistorialRepository, IntegracionHistorialRepository>();
-builder.Services.AddScoped<IActivoInventarioRepository, ActivoInventarioRepository>();
-builder.Services.AddScoped<ICatalogosInventarioRepository, CatalogosInventarioRepository>();
-
 builder.Services.AddScoped<IIntegracionService, IntegracionService>();
 
+// Inventario Equipos
+builder.Services.AddScoped<IInventarioService, InventarioService>();
+builder.Services.AddScoped<IActivoInventarioRepository, ActivoInventarioRepository>();
+builder.Services.AddScoped<IActivoInventarioTiqueteRepository, ActivoInventarioTiqueteRepository>();
+builder.Services.AddScoped<ICatalogosInventarioRepository, CatalogosInventarioRepository>();
+builder.Services.AddScoped<IMantenimientoActivoRepository, MantenimientoActivoRepository>();
+
+// Inventario Teléfonos
+builder.Services.AddScoped<IActivoTelefonoRepository, ActivoTelefonoRepository>();
+builder.Services.AddScoped<IActivoTelefonoService, ActivoTelefonoService>();
+
+// Autenticación
 builder.Services.AddScoped<ILoginAttemptRepository, LoginAttemptRepository>();
 builder.Services.AddScoped<ILoginAttemptService, LoginAttemptService>();
 
-// Configuración de correo (Microsoft Graph)
+// Correo
 builder.Services.AddScoped<ICorreoNotificacionesService, CorreoNotificacionesService>();
-builder.Services.AddScoped<IEmailService, EmailService>(); //Graph EmailService
+builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.Configure<ConfiguracionEmail>(builder.Configuration.GetSection("GraphEmail"));
+
+// Config general
+
+//Helpers
+builder.Services.AddScoped<IHelper, Helper>();
 
 // Configuración general de la aplicación para la dirección base, etc.
 builder.Services.Configure<AppSettings>(
@@ -173,10 +189,10 @@ builder.Services.AddDataProtection()
             Path.Combine(builder.Environment.ContentRootPath, "dp_keys")))
     .SetApplicationName("SASA");
 
-// Cache en memoria (para sesiones, etc.)
+// Cache
 builder.Services.AddDistributedMemoryCache();
 
-// MVC + Autorización global
+// MVC + autorización global
 builder.Services.AddControllersWithViews(options =>
 {
     var policy = new AuthorizationPolicyBuilder()
@@ -188,7 +204,7 @@ builder.Services.AddControllersWithViews(options =>
 
 var app = builder.Build();
 
-// Seeder (temporal)
+// Seeder
 if (app.Environment.IsDevelopment())
 {
     using var scope = app.Services.CreateScope();
@@ -200,7 +216,6 @@ if (app.Environment.IsDevelopment())
     const string adminEmail = "test@sasa.com";
     const string adminPassword = "Test123!";
 
-    // 1️ Crear rol si no existe
     var role = await roleManager.FindByNameAsync(adminRoleName);
 
     if (role is null)
@@ -222,7 +237,6 @@ if (app.Environment.IsDevelopment())
         }
     }
 
-    // 2️ Crear usuario si no existe
     var user = await userManager.FindByEmailAsync(adminEmail);
 
     if (user is null)
@@ -245,7 +259,6 @@ if (app.Environment.IsDevelopment())
         }
     }
 
-    // 3️ Asignar rol si no lo tiene
     if (!await userManager.IsInRoleAsync(user, adminRoleName))
     {
         var addRoleResult = await userManager.AddToRoleAsync(user, adminRoleName);
@@ -273,15 +286,11 @@ app.Use(async (ctx, next) =>
 {
     await next();
 
-    // Solo si está autenticado
     if (ctx.User?.Identity?.IsAuthenticated != true)
         return;
 
-    // Definición de "actividad humana":
-    // 1) Navegación normal (HTML)
     var isHtmlNavigation = ctx.Request.Headers.Accept.ToString().Contains("text/html");
 
-    // 2) O request explícito marcado por JS (para clicks/acciones sin navegación)
     var hasUserActivityHeader =
         ctx.Request.Headers.TryGetValue("X-User-Activity", out var v) && v == "1";
 

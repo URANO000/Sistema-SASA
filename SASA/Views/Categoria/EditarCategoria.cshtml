@@ -3,7 +3,9 @@
 @{
     ViewData["Title"] = "Editar Categoría";
 }
-
+<a onclick="history.back()" class="btn btn-link px-0">
+    <i class="bi bi-arrow-left"></i> Volver
+</a>
 <div class="container-fluid">
     <div class="card">
         <div class="card-body">
@@ -23,7 +25,6 @@
 
                 <div class="d-flex gap-2">
                     <button type="submit" class="btn btn-custom">Guardar cambios</button>
-                    <a asp-action="Index" class="btn btn-outline-secondary">Volver</a>
                 </div>
             </form>
         </div>

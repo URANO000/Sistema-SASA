@@ -348,18 +348,4 @@
 
 @section Scripts {
     <script src="~/js/formSubmits.js" asp-append-version="true"></script>
-
-    <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            const activeTab = "@Model.TabActiva";
-
-            if (activeTab === "subcategorias") {
-                const trigger = document.getElementById("subcategorias-tab");
-                if (trigger) {
-                    const tab = new bootstrap.Tab(trigger);
-                    tab.show();
-                }
-            }
-        });
-    </script>
 }
