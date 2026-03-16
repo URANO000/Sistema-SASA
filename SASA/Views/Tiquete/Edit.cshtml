@@ -11,14 +11,15 @@
     @Html.AntiForgeryToken()
     <input asp-for="IdTiquete" type="hidden" />
 
+    <a onclick="history.back()" class="btn btn-link px-0">
+        <i class="bi bi-arrow-left"></i> Volver
+    </a>
+
     <div class="card mb-3">
         <div class="card-body">
             <div class="ticket-header mb-4">
-                <a asp-area="" asp-controller="Tiquete" asp-action="Index" class="btn btn-link px-0">
-                    <i class="bi bi-arrow-left"></i> Volver al listado
-                </a>
                 <div class="d-flex justify-content-between align-items-center mt-2">
-                    <h4 class="mb-0 fw-bold">Editar Tiquete @Model.IdTiquete</h4>
+                    <h4 class="mb-0 fw-bold">Editar Tiquete #@Model.IdTiquete</h4>
                 </div>
             </div>
         </div>
@@ -29,15 +30,59 @@
             <h6 class="section-title mb-3">Información del Tiquete</h6>
 
             <div class="row g-3">
-                <div class="col-md-3">
+                <!-- Asunto readonly-->
+                <div class="col-md-4">
+                    <label asp-for="Asunto" class="form-label">Asunto</label>
+                    <input asp-for="Asunto" class="form-control" readonly />
+                </div>
+
+                <!-- Descripción readonly -->
+                <div class="col-md-8">
+                    <label asp-for="Descripcion" class="form-label">Descripción</label>
+                    <input asp-for="Descripcion" class="form-control" readonly />
+                </div>
+                <!-- Categorías -->
+                <div class="col-md-5">
                     <label asp-for="IdCategoria" class="form-label required-field">Categoría</label>
                     <select asp-for="IdCategoria"
                             asp-items="Model.Categorias"
+                            id="categoriaDropdown"
                             class="form-select">
                         <option value="" disabled>Seleccione una categoría</option>
                     </select>
                     <span asp-validation-for="IdCategoria" class="text-danger"></span>
                 </div>
+
+                <!-- Sub Categorías-->
+                <div class="col-md-4">
+                    <label asp-for="IdSubCategoria" class="form-label required-field">SubCategoría</label>
+                    <select asp-for="IdSubCategoria"
+                            id="subcategoriaDropdown"
+                            class="form-select">
+
+                        <option value="">Seleccione una subcategoría</option>
+
+                        @foreach (var sub in Model.SubCategorias)
+                        {
+                            <option value="@sub.IdSubCategoria"
+                                    data-prioridad="@sub.NombrePrioridad"
+                                    selected="@(sub.IdSubCategoria == Model.IdSubCategoria)">
+                                @sub.NombreSubCategoria
+                            </option>
+                        }
+
+                    </select>
+                    <span asp-validation-for="IdSubCategoria" class="text-danger"></span>
+                </div>
+
+                @if (User.IsInRole("Administrador"))
+                {
+                    <div class="col-md-3">
+                        <label class="form-label">Prioridad</label>
+                        <input id="prioridadInput" class="form-control" asp-for="NombrePrioridad"
+                               value="@Model.NombrePrioridad" readonly />
+                    </div>
+                }
                 <!-- Estado-->
                 <div class="col-md-6">
                     <label asp-for="IdEstatus" class="form-label">Estado</label>
@@ -68,9 +113,9 @@
 
 
 <!--Many sections, hard to look good on mobile-->
-@* @await Html.PartialAsync("_CancelConfirm") *@
 @await Html.PartialAsync("_SuccessModal")
 @await Html.PartialAsync("_ErrorModal")
+@await Html.PartialAsync("_Alert")
 
 @section Scripts {
     <script src="~/js/formSubmits.js" asp-append-version="true"></script>

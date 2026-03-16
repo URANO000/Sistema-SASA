@@ -1,4 +1,4 @@
-﻿using DataAccess.Modelos.DTOs.Common;
+using DataAccess.Modelos.DTOs.Common;
 using DataAccess.Modelos.DTOs.SubCategoria;
 using DataAccess.Repositorios.Categorias;
 using DataAccess.Repositorios.Prioridad;
@@ -11,21 +11,22 @@ namespace BusinessLogic.Servicios.SubCategorias
         private readonly ISubCategoriaRepository _repository;
         private readonly ICategoriaRepository _categoriaRepository;
         private readonly IPrioridadRepository _prioridadRepository;
-
-        public SubCategoriaService(
-            ISubCategoriaRepository repository,
-            ICategoriaRepository categoriaRepository,
-            IPrioridadRepository prioridadRepository)
+        public SubCategoriaService(ISubCategoriaRepository repository, ICategoriaRepository categoriaRepository, IPrioridadRepository prioridadRepository)
         {
             _repository = repository;
             _categoriaRepository = categoriaRepository;
             _prioridadRepository = prioridadRepository;
+        }
+        public async Task<IEnumerable<ListaSubCategoriaDto>> ObtenerSubCategoriasPorCategoria(int idCategoria)
+        {
+            return await _repository.ObtenerSubCategoriasPorCategoria(idCategoria);
         }
 
         public async Task<PagedResultDto<ListaSubCategoriaDto>> ObtenerSubCategoriasAsync(FiltroSubCategoriaDto filtro)
         {
             return await _repository.ObtenerSubCategoriasAsync(filtro);
         }
+
 
         public async Task<(bool Ok, string Mensaje)> CrearAsync(CrearSubCategoriaDto dto)
         {
@@ -47,10 +48,13 @@ namespace BusinessLogic.Servicios.SubCategorias
             return (true, "Subcategoría creada correctamente.");
         }
 
+
         public async Task<EditarSubCategoriaDto?> ObtenerParaEditarAsync(int idSubCategoria)
         {
             return await _repository.ObtenerParaEditarAsync(idSubCategoria);
         }
+
+
 
         public async Task<(bool Ok, string Mensaje)> EditarAsync(EditarSubCategoriaDto dto)
         {

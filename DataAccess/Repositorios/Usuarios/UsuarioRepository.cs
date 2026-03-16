@@ -174,7 +174,7 @@ namespace DataAccess.Repositorios.Usuarios
         {
             return await _context.Users
                 .AsNoTracking()
-                .Where(u => u.Departamento == "Tecnologías de Información")
+                .Where(u => u.Departamento == "Tecnologías de Información" && u.Estado != false)
                 .OrderBy(u => u.PrimerNombre)
                 .Select(u => new UsuarioTIDropdownDto
                 {

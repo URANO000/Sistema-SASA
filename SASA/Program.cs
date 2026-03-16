@@ -3,6 +3,7 @@ using BusinessLogic.Servicios.Autenticacion;
 using BusinessLogic.Servicios.Avances;
 using BusinessLogic.Servicios.Categorias;
 using BusinessLogic.Servicios.Correo;
+using BusinessLogic.Servicios.Helpers;
 using BusinessLogic.Servicios.Integracion;
 using BusinessLogic.Servicios.Inventario;
 using BusinessLogic.Servicios.InventarioTelefono;
@@ -128,6 +129,7 @@ builder.Services.AddScoped<IPrioridadService, PrioridadService>();
 builder.Services.AddScoped<INotificacionRepository, NotificacionRepository>();
 builder.Services.AddScoped<INotificacionService, NotificacionService>();
 
+//Todo lo necesario para el módulo de tiquetes y colas
 builder.Services.AddScoped<IAvanceRepository, AvanceRepository>();
 builder.Services.AddScoped<IAvanceService, AvanceService>();
 
@@ -136,6 +138,8 @@ builder.Services.AddScoped<IAttachmentService, AttachmentService>();
 
 builder.Services.AddScoped<ITiqueteHistorialRepository, TiqueteHistorialRepository>();
 builder.Services.AddScoped<ITiqueteHistorialService, TiqueteHistorialService>();
+builder.Services.AddScoped<ISubCategoriaRepository, SubCategoriaRepository>();
+builder.Services.AddScoped<ISubCategoriaService, SubCategoriaService>();
 
 // Integración
 builder.Services.AddScoped<IIntegracionHistorialRepository, IntegracionHistorialRepository>();
@@ -161,7 +165,10 @@ builder.Services.AddScoped<ICorreoNotificacionesService, CorreoNotificacionesSer
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.Configure<ConfiguracionEmail>(builder.Configuration.GetSection("GraphEmail"));
 
-// Config general
+//Helpers
+builder.Services.AddScoped<IHelper, Helper>();
+
+// Configuración general de la aplicación para la dirección base, etc.
 builder.Services.Configure<AppSettings>(
     builder.Configuration.GetSection("AppSettings"));
 
@@ -261,11 +268,8 @@ if (app.Environment.IsDevelopment())
     }
 }
 
-if (!app.Environment.IsDevelopment())
-{
-    app.UseExceptionHandler("/Home/Error");
-    app.UseHsts();
-}
+app.UseExceptionHandler("/Home/Error");
+app.UseHsts();
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();

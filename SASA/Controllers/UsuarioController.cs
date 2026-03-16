@@ -254,7 +254,9 @@ namespace SASA.Controllers
                     Rol = model.Rol
                 };
 
-                await _usuarioService.ActualizarUsuarioAsync(dto);
+                var currentUserId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+                await _usuarioService.ActualizarUsuarioAsync(dto, currentUserId);
                 return Json(new
                 {
                     success = true
@@ -285,7 +287,8 @@ namespace SASA.Controllers
 
             try
             {
-                await _usuarioService.DesactivarUsuarioAsync(id);
+                var currentUserId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                await _usuarioService.DesactivarUsuarioAsync(id, currentUserId);
                 return RedirectToAction(nameof(Index));
             }
             catch (InvalidOperationException ex)
@@ -304,7 +307,8 @@ namespace SASA.Controllers
             }
             try
             {
-                await _usuarioService.ActivarUsuarioAsync(id);
+                var currentUserId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                await _usuarioService.ActivarUsuarioAsync(id, currentUserId);
                 return RedirectToAction(nameof(Index));
             }
             catch (InvalidOperationException ex)

@@ -8,6 +8,7 @@
         public string? NombreCategoria { get; set; }
         public int? IdPrioridad { get; set; }
         public string? NombrePrioridad { get; set; }
+
         public int? DuracionMinutos { get; set; }
     }
 }

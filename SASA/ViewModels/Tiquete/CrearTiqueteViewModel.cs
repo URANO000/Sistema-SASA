@@ -14,6 +14,9 @@ namespace SASA.ViewModels.Tiquete
         [Required(ErrorMessage = "La categoría es obligatoria.")]
         public required int Categoria { get; set; }
 
+        [Required(ErrorMessage = "La subcategoría es obligatoria.")]
+        public required int IdSubCategoria { get; set; }
+
         //Relevante sólo para admin
         public string? IdAsignee { get; set; }
 

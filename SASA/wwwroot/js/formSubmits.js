@@ -211,6 +211,43 @@ $(function () {
     });
 });
 
+//-------CARGAR SUB-CATEGORÍAS DINÁMICAMENTE -----------------
+$("#categoriaDropdown").on('change', function () {
+
+    var categoriaId = $(this).val();
+    var subDropdown = $("#subcategoriaDropdown");
+
+    subDropdown.empty(); 
+
+    subDropdown.append('<option value="">Seleccione una subcategoría</option>');
+
+    if (!categoriaId)
+        return;
+
+    $.get("/Tiquete/ObtenerSubCategorias", { idCategoria: categoriaId }, function (data) {
+
+        $.each(data, function (index, sub) {
+
+            subDropdown.append(
+                $('<option>', {
+                    value: sub.idSubCategoria,
+                    text: sub.nombreSubCategoria,
+                    "data-prioridad": sub.nombrePrioridad
+                })
+            );
+
+        });
+
+    });
+});
+
+$("#subcategoriaDropdown").on('change', function () {
+
+    var selectedOption = $(this).find(":selected");
+    var prioridad = selectedOption.data("prioridad");
+
+    $("#prioridadInput").val(prioridad);
+});
 
 //--TIQUETE EDITAR SUBMIT------------               
 $(function () {
@@ -246,7 +283,8 @@ $(function () {
                     //Mostrar errores
                     $.each(response.errors, function (key, messages) {
                         if (key === "_form") {
-                            alert(messages[0]);
+                            $("#alertModal").modal("show")
+                            $("#mensaje").text(messages[0])
                             return;
                         }
 
