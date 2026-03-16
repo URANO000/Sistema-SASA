@@ -3,6 +3,7 @@ using BusinessLogic.Servicios.Autenticacion;
 using BusinessLogic.Servicios.Avances;
 using BusinessLogic.Servicios.Categorias;
 using BusinessLogic.Servicios.Correo;
+using BusinessLogic.Servicios.Helpers;
 using BusinessLogic.Servicios.Integracion;
 using BusinessLogic.Servicios.Notificaciones;
 using BusinessLogic.Servicios.Prioridad;
@@ -130,7 +131,7 @@ builder.Services.AddScoped<IPrioridadService, PrioridadService>();
 builder.Services.AddScoped<INotificacionRepository, NotificacionRepository>();
 builder.Services.AddScoped<INotificacionService, NotificacionService>();
 
-
+//Todo lo necesario para el módulo de tiquetes y colas
 builder.Services.AddScoped<IAvanceRepository, AvanceRepository>();
 builder.Services.AddScoped<IAvanceService, AvanceService>();
 builder.Services.AddScoped<IAttachmentRepository, AttachmentRepository>();
@@ -154,6 +155,9 @@ builder.Services.AddScoped<ILoginAttemptService, LoginAttemptService>();
 builder.Services.AddScoped<ICorreoNotificacionesService, CorreoNotificacionesService>();
 builder.Services.AddScoped<IEmailService, EmailService>(); //Graph EmailService
 builder.Services.Configure<ConfiguracionEmail>(builder.Configuration.GetSection("GraphEmail"));
+
+//Helpers
+builder.Services.AddScoped<IHelper, Helper>();
 
 // Configuración general de la aplicación para la dirección base, etc.
 builder.Services.Configure<AppSettings>(

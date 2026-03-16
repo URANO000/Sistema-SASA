@@ -1,4 +1,5 @@
 ﻿using DataAccess.Modelos.DTOs.Tiquete;
+using DataAccess.Modelos.DTOs.Tiquete.Colas;
 using DataAccess.Modelos.DTOs.Tiquete.Filtros;
 using DataAccess.Modelos.DTOs.Wrappers;
 using DataAccess.Modelos.Entidades.ModTiquete;
@@ -35,7 +36,9 @@ namespace DataAccess.Repositorios.Tiquetes
             {
                 query = query.Where(t =>
                     t.Asunto.Contains(filtro.Search) ||
-                    t.Descripcion.Contains(filtro.Search));
+                    t.Descripcion.Contains(filtro.Search) ||
+                    t.Asignee.CorreoEmpresa.Contains(filtro.Search)
+                    );
             }
 
             //Si el filtro de estatus no es vacío
@@ -81,7 +84,7 @@ namespace DataAccess.Repositorios.Tiquetes
                     Categoria = t.Categoria != null ? t.Categoria.NombreCategoria : "Sin categoría",
                     ReportedBy = t.ReportedBy.CorreoEmpresa,
                     Departamento = t.ReportedBy.Departamento,
-                    Asignee = t.Asignee != null ? t.Asignee.CorreoEmpresa : "Sin asignar",
+                    Assignee = t.Asignee != null ? t.Asignee.CorreoEmpresa : "Sin asignar",
                     CreatedAt = t.CreatedAt,
                     UpdatedAt = t.UpdatedAt
                 })
@@ -113,7 +116,7 @@ namespace DataAccess.Repositorios.Tiquetes
                     SubCategoria = t.SubCategoria != null ? t.SubCategoria.NombreSubCategoria : "Sin subcategoría",
 
                     ReportedBy = t.ReportedBy != null ? t.ReportedBy.CorreoEmpresa : "Desconocido",
-                    Asignee = t.Asignee != null ? t.Asignee.CorreoEmpresa : "Sin asignar",
+                    Assignee = t.Asignee != null ? t.Asignee.CorreoEmpresa : "Sin asignar",
 
                     CreatedAt = t.CreatedAt,
                     UpdatedAt = t.UpdatedAt
@@ -142,10 +145,11 @@ namespace DataAccess.Repositorios.Tiquetes
                         : "Sin SubCategoria",
                     ReportedBy = t.ReportedBy.CorreoEmpresa,
                     Departamento = t.ReportedBy.Departamento,
-                    Asignee = t.Asignee != null ? t.Asignee.CorreoEmpresa : "Sin asignar",
+                    Assignee = t.Asignee != null ? t.Asignee.CorreoEmpresa : "Sin asignar",
                     CreatedAt = t.CreatedAt,
                     UpdatedAt = t.UpdatedAt,
-                    Prioridad = t.SubCategoria.Prioridad.NombrePrioridad
+                    Prioridad = t.SubCategoria.Prioridad.NombrePrioridad,
+                    DuracionMinutos = t.SubCategoria.Prioridad.DuracionMinutos
 
                 })
                 .FirstOrDefaultAsync();
@@ -215,6 +219,106 @@ namespace DataAccess.Repositorios.Tiquetes
             await _context.SaveChangesAsync();
         }
 
+
+
+
+        //-----------------------------------------------------------------------------------------------------
+        //---------------------------LÓGICA DE COLAS - Orden de colas y por asignado --------------------------
+
+        //Get All para cola personal
+        public async Task<List<ColaTiqueteDto>> GetColaPersonalAsync(string currentUserId)
+        {
+            var cola = await _context.Tiquetes
+                    .AsNoTracking()
+                    .Where(t => t.IdAsignee == currentUserId)
+                    .OrderBy(t => t.OrdenCola)
+                    .Select(t => new ColaTiqueteDto
+                    {
+                        IdTiquete = t.IdTiquete,
+                        Asignee = t.Asignee.CorreoEmpresa,
+                        Asunto = t.Asunto,
+                        OrdenCola = t.OrdenCola,
+                        Categoria = t.Categoria.NombreCategoria,
+                        SubCategoria = t.SubCategoria.NombreSubCategoria,
+                        Prioridad = t.SubCategoria.Prioridad.NombrePrioridad,
+                        Estatus = t.Estatus.NombreEstatus,
+                        CreatedAt = t.CreatedAt
+                    })
+                    .ToListAsync();
+
+            int posicion = 1; //Para el UI
+
+            foreach (var t in cola)
+            {
+                t.PosicionCola = posicion++;
+            }
+
+            return cola;
+        }
+
+        //Get All de todos los de TI - Global
+        public async Task<List<ColaPorAssigneeDto>> GetColasGlobalAsync()
+        {
+            var tiquetes = await _context.Tiquetes
+                .AsNoTracking()
+                .Where(t => t.IdAsignee != null)
+                .OrderBy(t => t.IdAsignee)
+                .ThenBy(t => t.OrdenCola)
+                .Select(t => new {
+                    t.IdAsignee,
+                    AssigneeCorreo = t.Asignee.CorreoEmpresa,
+
+                    Tiquete = new ColaTiqueteDto
+                    {
+                        IdTiquete = t.IdTiquete,
+                        Asunto = t.Asunto,
+                        OrdenCola = t.OrdenCola,
+                        Categoria = t.Categoria.NombreCategoria,
+                        SubCategoria = t.SubCategoria.NombreSubCategoria,
+                        Prioridad = t.SubCategoria.Prioridad.NombrePrioridad
+                    }
+                })
+                .ToListAsync();
+
+            var resultado = tiquetes
+                .GroupBy(t => new { t.IdAsignee, t.AssigneeCorreo })
+                .Select(g =>
+                {
+                    int posicion = 1; //Para UI
+
+                    var lista = g.Select(x =>
+                    {
+                        x.Tiquete.PosicionCola = posicion++;
+                        return x.Tiquete;
+                    }).ToList();
+
+                    return new ColaPorAssigneeDto
+                    {
+                        AssigneeId = g.Key.IdAsignee,
+                        AssigneeCorreo = g.Key.AssigneeCorreo,
+                        Colas = lista
+                    };
+                })
+                .ToList();
+
+            return resultado;
+        }
+
+        //Get número que sigue en la cola
+        public async Task<decimal> ObtenerSiguienteOrdenColaAsync(string idAssignee)
+        {
+            var maxOrden = await _context.Tiquetes
+                .Where(t => t.IdAsignee == idAssignee && t.OrdenCola != null)
+                .MaxAsync(t => (decimal?)t.OrdenCola);
+
+            return (maxOrden ?? 0) + 1000m;
+        }
+
+        //Posible para drag & drop
+        public decimal CalcularOrdenEntre(decimal ordenAnterior, decimal ordenSiguiente)
+        {
+            return (ordenAnterior + ordenSiguiente) / 2m;
+        }
 
     }
 }

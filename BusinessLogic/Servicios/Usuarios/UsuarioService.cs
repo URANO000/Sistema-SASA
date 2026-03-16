@@ -1,3 +1,4 @@
+using BusinessLogic.Servicios.Helpers;
 using DataAccess.Identity;
 using DataAccess.Modelos.DTOs.Usuarios;
 using DataAccess.Modelos.DTOs.Usuarios.Filtros;
@@ -13,10 +14,12 @@ namespace BusinessLogic.Servicios.Usuarios
     {
         private readonly IUsuarioRepository _usuarioRepository;
         private readonly UserManager<ApplicationUser> _userManager;
-        public UsuarioService(IUsuarioRepository usuarioRepository, UserManager<ApplicationUser> userManager)
+        private readonly IHelper _helper;
+        public UsuarioService(IUsuarioRepository usuarioRepository, UserManager<ApplicationUser> userManager, IHelper helper)
         {
             _usuarioRepository = usuarioRepository;
             _userManager = userManager;
+            _helper = helper;
         }
 
         //Implementación de los métodos para el servicio de Usuario
@@ -105,6 +108,8 @@ namespace BusinessLogic.Servicios.Usuarios
         //Creación de usuarios
         public async Task<ResultadoCreacionUsuarioDto> AgregarUsuarioAsync(CrearUsuarioDto dto, string currentUserId)
         {
+            await _helper.ValidarUsuarioEstado(currentUserId);
+
             var usuario = new ApplicationUser
             {
                 UserName = dto.CorreoEmpresa,
@@ -162,8 +167,9 @@ namespace BusinessLogic.Servicios.Usuarios
         }
 
 
-        public async Task ActualizarUsuarioAsync(EditarUsuarioDto dto)
+        public async Task ActualizarUsuarioAsync(EditarUsuarioDto dto, string currentUserId)
         {
+            await _helper.ValidarUsuarioEstado(currentUserId);
             var usuario = await _userManager.FindByIdAsync(dto.Id);
 
             //Validar que el usuario exista
@@ -244,8 +250,9 @@ namespace BusinessLogic.Servicios.Usuarios
 
         }
 
-        public async Task DesactivarUsuarioAsync(string id)
+        public async Task DesactivarUsuarioAsync(string id, string currentUserId)
         {
+            await _helper.ValidarUsuarioEstado(currentUserId);
 
             if (string.IsNullOrWhiteSpace(id))
             {
@@ -262,8 +269,10 @@ namespace BusinessLogic.Servicios.Usuarios
             await _usuarioRepository.DesactivarUsuario(id);
         }
 
-        public async Task ActivarUsuarioAsync(string id)
+        public async Task ActivarUsuarioAsync(string id, string currentUserId)
         {
+            await _helper.ValidarUsuarioEstado(currentUserId);
+
             if (string.IsNullOrWhiteSpace(id))
             {
                 throw new ArgumentException("Id inválido", nameof(id));
