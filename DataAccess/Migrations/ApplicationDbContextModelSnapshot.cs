@@ -255,6 +255,98 @@ namespace DataAccess.Migrations
                     b.ToTable("Auditoria");
                 });
 
+            modelBuilder.Entity("DataAccess.Modelos.Entidades.Autenticacion.IntentoInicioSesion", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("EmailIngresado")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<bool>("Exitoso")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime>("FechaUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("IpAddress")
+                        .HasMaxLength(45)
+                        .HasColumnType("nvarchar(45)");
+
+                    b.Property<string>("MotivoFallo")
+                        .HasMaxLength(80)
+                        .HasColumnType("nvarchar(80)");
+
+                    b.Property<string>("UserAgent")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("IntentoInicioSesion", (string)null);
+                });
+
+            modelBuilder.Entity("DataAccess.Modelos.Entidades.Integracion.IntegracionHistorial", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("DetalleError")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Estado")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("Fecha")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("FilasConError")
+                        .HasColumnType("int");
+
+                    b.Property<int>("FilasValidas")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Modulo")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("NombreArchivo")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("RutaArchivo")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("TipoProceso")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("TotalFilas")
+                        .HasColumnType("int");
+
+                    b.Property<string>("UsuarioEjecutorId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("IntegracionHistorial");
+                });
+
             modelBuilder.Entity("DataAccess.Modelos.Entidades.Inventario.ActivoInventario", b =>
                 {
                     b.Property<int>("IdActivo")
@@ -324,6 +416,33 @@ namespace DataAccess.Migrations
                     b.ToTable("ActivoInventario", (string)null);
                 });
 
+            modelBuilder.Entity("DataAccess.Modelos.Entidades.Inventario.ActivoInventarioTiquete", b =>
+                {
+                    b.Property<int>("IdActivoInventarioTiquete")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("IdActivoInventarioTiquete"));
+
+                    b.Property<DateTime>("FechaAsociacion")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("IdActivo")
+                        .HasColumnType("int");
+
+                    b.Property<int>("IdTiquete")
+                        .HasColumnType("int");
+
+                    b.HasKey("IdActivoInventarioTiquete");
+
+                    b.HasIndex("IdTiquete");
+
+                    b.HasIndex("IdActivo", "IdTiquete")
+                        .IsUnique();
+
+                    b.ToTable("ActivoInventarioTiquete", (string)null);
+                });
+
             modelBuilder.Entity("DataAccess.Modelos.Entidades.Inventario.EstadoActivoInventario", b =>
                 {
                     b.Property<int>("IdEstadoActivo")
@@ -340,6 +459,44 @@ namespace DataAccess.Migrations
                     b.HasKey("IdEstadoActivo");
 
                     b.ToTable("EstadoActivoInventario", (string)null);
+                });
+
+            modelBuilder.Entity("DataAccess.Modelos.Entidades.Inventario.MantenimientoActivo", b =>
+                {
+                    b.Property<int>("IdMantenimiento")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("IdMantenimiento"));
+
+                    b.Property<string>("Descripcion")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("Estado")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<DateTime>("FechaCreacion")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("FechaMantenimiento")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("IdActivo")
+                        .HasColumnType("int");
+
+                    b.Property<string>("TipoMantenimiento")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.HasKey("IdMantenimiento");
+
+                    b.HasIndex("IdActivo");
+
+                    b.ToTable("MantenimientoActivo", (string)null);
                 });
 
             modelBuilder.Entity("DataAccess.Modelos.Entidades.Inventario.TipoActivoInventario", b =>
@@ -378,6 +535,61 @@ namespace DataAccess.Migrations
                     b.ToTable("TipoLicenciaInventario", (string)null);
                 });
 
+            modelBuilder.Entity("DataAccess.Modelos.Entidades.InventarioTelefono.ActivoTelefono", b =>
+                {
+                    b.Property<int>("IdActivoTelefono")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasColumnName("IdTelefono");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("IdActivoTelefono"));
+
+                    b.Property<bool>("Auriculares")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("Cargador")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("CorreoSistemasAnaliticos")
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
+
+                    b.Property<string>("Departamento")
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
+
+                    b.Property<DateTime?>("FechaActualizacion")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("FechaCreacion")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("IMEI")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("Modelo")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("NombreColaborador")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
+
+                    b.Property<string>("NumeroCelular")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<string>("Operador")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.HasKey("IdActivoTelefono");
+
+                    b.ToTable("ActivoTelefono");
+                });
+
             modelBuilder.Entity("DataAccess.Modelos.Entidades.ModTiquete.Attachment", b =>
                 {
                     b.Property<int>("IdAttachment")
@@ -395,8 +607,8 @@ namespace DataAccess.Migrations
                         .HasColumnType("nvarchar(max)")
                         .HasColumnName("fileName");
 
-                    b.Property<double>("FileSize")
-                        .HasColumnType("float")
+                    b.Property<long>("FileSize")
+                        .HasColumnType("bigint")
                         .HasColumnName("fileSize");
 
                     b.Property<int>("IdTiquete")
@@ -454,7 +666,12 @@ namespace DataAccess.Migrations
 
                     b.HasIndex("IdTiquete");
 
-                    b.ToTable("Avance");
+                    b.ToTable("Avance", t =>
+                        {
+                            t.HasTrigger("TR_Avance_Insert_Notificacion");
+                        });
+
+                    b.HasAnnotation("SqlServer:UseSqlOutputClause", false);
                 });
 
             modelBuilder.Entity("DataAccess.Modelos.Entidades.ModTiquete.Categoria", b =>
@@ -473,7 +690,7 @@ namespace DataAccess.Migrations
 
                     b.HasKey("IdCategoria");
 
-                    b.ToTable("CATEGORIA");
+                    b.ToTable("Categoria");
                 });
 
             modelBuilder.Entity("DataAccess.Modelos.Entidades.ModTiquete.Estatus", b =>
@@ -539,7 +756,7 @@ namespace DataAccess.Migrations
 
                     b.HasKey("IdPrioridad");
 
-                    b.ToTable("PRIORIDAD");
+                    b.ToTable("Prioridad");
                 });
 
             modelBuilder.Entity("DataAccess.Modelos.Entidades.ModTiquete.SubCategoria", b =>
@@ -551,11 +768,11 @@ namespace DataAccess.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("IdSubCategoria"));
 
-                    b.Property<int>("IdCategoria")
+                    b.Property<int?>("IdCategoria")
                         .HasColumnType("int")
                         .HasColumnName("idCategoria");
 
-                    b.Property<int>("IdPrioridad")
+                    b.Property<int?>("IdPrioridad")
                         .HasColumnType("int")
                         .HasColumnName("idPrioridad");
 
@@ -647,6 +864,8 @@ namespace DataAccess.Migrations
                     b.ToTable("Tiquete", t =>
                         {
                             t.HasTrigger("TR_Tiquete_Insert_Notificacion");
+
+                            t.HasTrigger("TR_Tiquete_Update_Notificacion");
                         });
 
                     b.HasAnnotation("SqlServer:UseSqlOutputClause", false);
@@ -883,6 +1102,16 @@ namespace DataAccess.Migrations
                     b.Navigation("CreatedByUser");
                 });
 
+            modelBuilder.Entity("DataAccess.Modelos.Entidades.Autenticacion.IntentoInicioSesion", b =>
+                {
+                    b.HasOne("DataAccess.Identity.ApplicationUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("DataAccess.Modelos.Entidades.Inventario.ActivoInventario", b =>
                 {
                     b.HasOne("DataAccess.Modelos.Entidades.Inventario.EstadoActivoInventario", "EstadoActivo")
@@ -906,6 +1135,36 @@ namespace DataAccess.Migrations
                     b.Navigation("TipoActivo");
 
                     b.Navigation("TipoLicencia");
+                });
+
+            modelBuilder.Entity("DataAccess.Modelos.Entidades.Inventario.ActivoInventarioTiquete", b =>
+                {
+                    b.HasOne("DataAccess.Modelos.Entidades.Inventario.ActivoInventario", "Activo")
+                        .WithMany()
+                        .HasForeignKey("IdActivo")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("DataAccess.Modelos.Entidades.ModTiquete.Tiquete", "Tiquete")
+                        .WithMany()
+                        .HasForeignKey("IdTiquete")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Activo");
+
+                    b.Navigation("Tiquete");
+                });
+
+            modelBuilder.Entity("DataAccess.Modelos.Entidades.Inventario.MantenimientoActivo", b =>
+                {
+                    b.HasOne("DataAccess.Modelos.Entidades.Inventario.ActivoInventario", "Activo")
+                        .WithMany()
+                        .HasForeignKey("IdActivo")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Activo");
                 });
 
             modelBuilder.Entity("DataAccess.Modelos.Entidades.ModTiquete.Attachment", b =>
@@ -950,15 +1209,11 @@ namespace DataAccess.Migrations
                 {
                     b.HasOne("DataAccess.Modelos.Entidades.ModTiquete.Categoria", "Categoria")
                         .WithMany("SubCategorias")
-                        .HasForeignKey("IdCategoria")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("IdCategoria");
 
                     b.HasOne("DataAccess.Modelos.Entidades.ModTiquete.Prioridad", "Prioridad")
                         .WithMany("SubCategorias")
-                        .HasForeignKey("IdPrioridad")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("IdPrioridad");
 
                     b.Navigation("Categoria");
 

@@ -1,81 +1,77 @@
-using DataAccess;
-using DataAccess.Modelos.Entidades.Inventario;
+using BusinessLogic.Servicios.Inventario;
+using BusinessLogic.Servicios.Tiquetes;
+using DataAccess.Modelos.DTOs.Inventario;
+using DataAccess.Repositorios.Inventario;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
+using SASA.Filters;
 using SASA.ViewModels.Inventario;
 
 namespace SASA.Controllers
 {
+    [RequireAuth]
+    [Authorize(Roles = "Administrador")]
     public class InventoryController : Controller
     {
-        private readonly ApplicationDbContext _db;
+        private readonly IInventarioService _inventario;
+        private readonly ICatalogosInventarioRepository _catRepo;
+        private readonly ITiqueteService _tiqueteService;
 
-        public InventoryController(ApplicationDbContext db)
+        public InventoryController(
+            IInventarioService inventario,
+            ICatalogosInventarioRepository catRepo,
+            ITiqueteService tiqueteService)
         {
-            _db = db;
+            _inventario = inventario;
+            _catRepo = catRepo;
+            _tiqueteService = tiqueteService;
         }
 
-        // =========================
-        // Gestión de Activos (HU #52 - RQFINV-06)
-        // =========================
         [HttpGet]
-        public async Task<IActionResult> Index(string? q, int? estadoId, int? tipoId)
+        public async Task<IActionResult> Index(string? q, int? estadoId, int? tipoId, int pageNumber = 1, int pageSize = 10, string sortBy = "Codigo", string sortDir = "desc")
         {
-            ViewData["Title"] = "Gestión de Activos";
+            ViewData["Title"] = "Gestión de Activos de Equipos";
 
-            // Dropdown Estado
-            ViewBag.Estados = new SelectList(
-                await _db.EstadoActivoInventario
-                    .OrderBy(e => e.Nombre)
-                    .ToListAsync(),
-                "IdEstadoActivo",
-                "Nombre",
-                estadoId
-            );
+            if (pageNumber < 1) pageNumber = 1;
+            if (pageSize < 5) pageSize = 5;
+            if (pageSize > 50) pageSize = 50;
 
-            // Dropdown Tipo
-            ViewBag.Tipos = new SelectList(
-                await _db.TipoActivoInventario
-                    .OrderBy(t => t.Nombre)
-                    .ToListAsync(),
-                "IdTipoActivo",
-                "Nombre",
-                tipoId
-            );
+            var estados = (await _catRepo.ObtenerEstadosAsync()).OrderBy(e => e.Nombre);
+            var tipos = (await _catRepo.ObtenerTiposAsync()).OrderBy(t => t.Nombre);
 
-            var query = _db.ActivoInventario
-                .Include(a => a.EstadoActivo)
-                .Include(a => a.TipoActivo)
-                .AsQueryable();
-
-            // Búsqueda por texto (Número / Nombre máquina / Serie)
-            if (!string.IsNullOrWhiteSpace(q))
+            var filtros = new ActivoInventarioFiltroDto
             {
-                query = query.Where(a =>
-                    a.NumeroActivo.Contains(q) ||
-                    (a.NombreMaquina != null && a.NombreMaquina.Contains(q)) ||
-                    (a.SerieServicio != null && a.SerieServicio.Contains(q)));
-            }
+                Texto = q,
+                IdEstadoActivo = estadoId,
+                IdTipoActivo = tipoId,
+                Page = pageNumber,
+                PageSize = pageSize,
+                SortBy = sortBy,
+                SortDir = sortDir
+            };
 
-            // Filtro por Estado
-            if (estadoId.HasValue)
-                query = query.Where(a => a.IdEstadoActivo == estadoId.Value);
+            var result = await _inventario.ListarPaginadoAsync(filtros);
 
-            // Filtro por Tipo
-            if (tipoId.HasValue)
-                query = query.Where(a => a.IdTipoActivo == tipoId.Value);
+            var vm = new InventarioIndexViewModel
+            {
+                Items = result.Items?.ToList() ?? new List<ActivoTelefonoInventarioListItemDto>(),
+                PageNumber = result.PageNumber,
+                PageSize = result.PageSize,
+                TotalPages = result.TotalPages,
+                TotalRecords = result.TotalRecords,
+                Q = q,
+                EstadoId = estadoId,
+                TipoId = tipoId,
+                SortBy = sortBy,
+                SortDir = sortDir,
+                Estados = new SelectList(estados, "IdEstadoActivo", "Nombre", estadoId),
+                Tipos = new SelectList(tipos, "IdTipoActivo", "Nombre", tipoId)
+            };
 
-            var data = await query
-                .OrderByDescending(a => a.FechaCreacion)
-                .ToListAsync();
-
-            return View(data);
+            return View(vm);
         }
 
-        // =========================
-        // Crear Activo (HU #47 + parte de HU #49: unicidad)
-        // =========================
         [HttpGet]
         public async Task<IActionResult> Create()
         {
@@ -92,173 +88,406 @@ namespace SASA.Controllers
 
             if (!ModelState.IsValid)
             {
-                await CargarCatalogosAsync(model.IdTipoActivo, model.IdEstadoActivo, model.IdTipoLicencia);
+                await CargarCatalogosAsync(model.IdTipoActivo, model.IdEstadoActivo);
                 return View(model);
             }
 
-            // HU #49 (parte 1): código único
-            var existe = await _db.ActivoInventario.AnyAsync(a => a.NumeroActivo == model.NumeroActivo);
-            if (existe)
+            var dto = new ActivoInventarioCreateDto
             {
-                ModelState.AddModelError(nameof(model.NumeroActivo), "Ya existe un activo con este código.");
-                await CargarCatalogosAsync(model.IdTipoActivo, model.IdEstadoActivo, model.IdTipoLicencia);
-                return View(model);
-            }
-
-            var activo = new ActivoInventario
-            {
-                NumeroActivo = model.NumeroActivo.Trim(),
-                NombreMaquina = model.NombreMaquina.Trim(),
-
+                NumeroActivo = model.NumeroActivo,
+                NombreMaquina = model.NombreMaquina,
+                IdTipoActivo = model.IdTipoActivo,
+                IdEstadoActivo = model.IdEstadoActivo,
                 Marca = model.Marca,
                 Modelo = model.Modelo,
                 SerieServicio = model.SerieServicio,
                 DireccionMAC = model.DireccionMAC,
                 SistemaOperativo = model.SistemaOperativo,
-
-                IdTipoActivo = model.IdTipoActivo,
-                IdEstadoActivo = model.IdEstadoActivo,
                 IdTipoLicencia = model.IdTipoLicencia,
-                ClaveLicencia = model.ClaveLicencia,
-
-                FechaCreacion = DateTime.UtcNow
+                ClaveLicencia = model.ClaveLicencia
             };
 
-            _db.ActivoInventario.Add(activo);
-            await _db.SaveChangesAsync();
+            var (ok, error) = await _inventario.CrearAsync(dto);
+
+            if (!ok)
+            {
+                ModelState.AddModelError(string.Empty, error ?? "No se pudo crear el activo.");
+                await CargarCatalogosAsync(model.IdTipoActivo, model.IdEstadoActivo);
+                return View(model);
+            }
 
             return RedirectToAction(nameof(Index));
         }
 
-        private async Task CargarCatalogosAsync(int? tipoSel = null, int? estadoSel = null, int? licenciaSel = null)
-        {
-            ViewBag.Tipos = new SelectList(
-                await _db.TipoActivoInventario.AsNoTracking().OrderBy(t => t.Nombre).ToListAsync(),
-                "IdTipoActivo", "Nombre", tipoSel);
-
-            ViewBag.Estados = new SelectList(
-                await _db.EstadoActivoInventario.AsNoTracking().OrderBy(e => e.Nombre).ToListAsync(),
-                "IdEstadoActivo", "Nombre", estadoSel);
-
-            ViewBag.Licencias = new SelectList(
-                await _db.TipoLicenciaInventario.AsNoTracking().OrderBy(l => l.Nombre).ToListAsync(),
-                "IdTipoLicencia", "Nombre", licenciaSel);
-        }
-
-        // =========================
-        // Detalle del Activo (lo usamos luego para HU #49 con QR)
-        // =========================
-        [HttpGet]
-        public async Task<IActionResult> Detail(int id)
-        {
-            ViewData["Title"] = "Detalle del Activo";
-
-            var activo = await _db.ActivoInventario
-                .Include(a => a.TipoActivo)
-                .Include(a => a.EstadoActivo)
-                .FirstOrDefaultAsync(a => a.IdActivo == id);
-
-            if (activo == null)
-                return NotFound(); // o RedirectToAction(nameof(Index))
-
-            return View(activo);
-        }
-
-        // =========================
-        // Editar Activo (HU #53 se hace luego)
-        // =========================
-        // =========================
-        // Editar Activo (HU #53 - Actualizar estado)
-        // =========================
         [HttpGet]
         public async Task<IActionResult> Edit(int id)
         {
             ViewData["Title"] = "Editar Activo";
 
-            var activo = await _db.ActivoInventario
-                .AsNoTracking()
-                .FirstOrDefaultAsync(a => a.IdActivo == id);
+            var detalle = await _inventario.ObtenerDetalleAsync(id);
+            if (detalle == null) return NotFound();
 
-            if (activo == null)
-                return NotFound();
+            await CargarCatalogosAsync(detalle.IdTipoActivo, detalle.IdEstadoActivo);
 
-            // Catálogos para dropdowns
-            ViewBag.Tipos = new SelectList(
-                await _db.TipoActivoInventario.AsNoTracking().OrderBy(t => t.Nombre).ToListAsync(),
-                "IdTipoActivo", "Nombre", activo.IdTipoActivo);
+            var vm = new CrearActivoViewModel
+            {
+                NumeroActivo = detalle.NumeroActivo ?? "",
+                NombreMaquina = detalle.NombreMaquina ?? "",
+                SerieServicio = detalle.SerieServicio,
+                IdTipoActivo = detalle.IdTipoActivo,
+                IdEstadoActivo = detalle.IdEstadoActivo,
+                Marca = detalle.Marca,
+                Modelo = detalle.Modelo,
+                DireccionMAC = detalle.DireccionMAC,
+                SistemaOperativo = detalle.SistemaOperativo,
+                IdTipoLicencia = detalle.IdTipoLicencia,
+                ClaveLicencia = detalle.ClaveLicencia
+            };
 
-            ViewBag.Estados = new SelectList(
-                await _db.EstadoActivoInventario.AsNoTracking().OrderBy(e => e.Nombre).ToListAsync(),
-                "IdEstadoActivo", "Nombre", activo.IdEstadoActivo);
-
-            return View(activo);
+            return View(vm);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, ActivoInventario model)
+        public async Task<IActionResult> Edit(int id, CrearActivoViewModel model)
         {
-            if (id != model.IdActivo)
-                return BadRequest();
+            ViewData["Title"] = "Editar Activo";
 
-            var activo = await _db.ActivoInventario.FirstOrDefaultAsync(a => a.IdActivo == id);
-            if (activo == null)
-                return NotFound();
+            if (!ModelState.IsValid)
+            {
+                await CargarCatalogosAsync(model.IdTipoActivo, model.IdEstadoActivo);
+                return View(model);
+            }
 
-            // ✅ HU #53: actualizar estado
-            activo.IdEstadoActivo = model.IdEstadoActivo;
+            var dto = new ActivoInventarioEditDto
+            {
+                NumeroActivo = model.NumeroActivo,
+                NombreMaquina = model.NombreMaquina,
+                SerieServicio = model.SerieServicio,
+                IdTipoActivo = model.IdTipoActivo,
+                IdEstadoActivo = model.IdEstadoActivo,
+                Marca = model.Marca,
+                Modelo = model.Modelo,
+                DireccionMAC = model.DireccionMAC,
+                SistemaOperativo = model.SistemaOperativo,
+                IdTipoLicencia = model.IdTipoLicencia,
+                ClaveLicencia = model.ClaveLicencia
+            };
 
-            // Opcional Sprint 1 (si lo quieren permitir)
-            activo.IdTipoActivo = model.IdTipoActivo;
-            activo.NombreMaquina = model.NombreMaquina;
-            activo.Marca = model.Marca;
-            activo.Modelo = model.Modelo;
-            activo.SerieServicio = model.SerieServicio;
-            activo.DireccionMAC = model.DireccionMAC;
-            activo.SistemaOperativo = model.SistemaOperativo;
-            activo.IdTipoLicencia = model.IdTipoLicencia;
-            activo.ClaveLicencia = model.ClaveLicencia;
+            var (ok, error) = await _inventario.ActualizarAsync(id, dto);
 
-            activo.FechaActualizacion = DateTime.UtcNow;
+            if (!ok)
+            {
+                ModelState.AddModelError(string.Empty, error ?? "No se pudo actualizar el activo.");
+                await CargarCatalogosAsync(model.IdTipoActivo, model.IdEstadoActivo);
+                return View(model);
+            }
 
-            await _db.SaveChangesAsync();
-
-            return RedirectToAction(nameof(Detail), new { id = activo.IdActivo });
+            return RedirectToAction(nameof(Index));
         }
 
-        // =========================
-        // Equipos (Sprint 2)
-        // =========================
         [HttpGet]
-        public IActionResult Equipment()
+        public async Task<IActionResult> DetailModal(int id)
         {
-            ViewData["Title"] = "Equipos";
-            return View();
+            var detalle = await _inventario.ObtenerDetalleAsync(id);
+            if (detalle == null) return NotFound();
+
+            return PartialView("_DetailModal", detalle);
         }
 
-        // =========================
-        // Historial y Mantenimiento (Sprint 2)
-        // =========================
         [HttpGet]
-        public IActionResult Maintenance()
+        public async Task<IActionResult> EditModal(int id)
         {
-            ViewData["Title"] = "Historial de Mantenimiento";
-            return View();
+            var detalle = await _inventario.ObtenerDetalleAsync(id);
+            if (detalle == null) return NotFound();
+
+            await CargarCatalogosAsync(detalle.IdTipoActivo, detalle.IdEstadoActivo);
+
+            var vm = new CrearActivoViewModel
+            {
+                NumeroActivo = detalle.NumeroActivo ?? "",
+                NombreMaquina = detalle.NombreMaquina ?? "",
+                IdTipoActivo = detalle.IdTipoActivo,
+                IdEstadoActivo = detalle.IdEstadoActivo,
+                Marca = detalle.Marca,
+                Modelo = detalle.Modelo,
+                SerieServicio = detalle.SerieServicio,
+                DireccionMAC = detalle.DireccionMAC,
+                SistemaOperativo = detalle.SistemaOperativo,
+                IdTipoLicencia = detalle.IdTipoLicencia,
+                ClaveLicencia = detalle.ClaveLicencia
+            };
+
+            return PartialView("_EditModal", vm);
         }
 
-        // =========================
-        // Asociación Activos - Tiquetes (Sprint 2)
-        // =========================
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EditModal(int id, CrearActivoViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                await CargarCatalogosAsync(model.IdTipoActivo, model.IdEstadoActivo);
+                return PartialView("_EditModal", model);
+            }
+
+            var dto = new ActivoInventarioEditDto
+            {
+                NumeroActivo = model.NumeroActivo,
+                NombreMaquina = model.NombreMaquina,
+                IdTipoActivo = model.IdTipoActivo,
+                IdEstadoActivo = model.IdEstadoActivo,
+                Marca = model.Marca,
+                Modelo = model.Modelo,
+                SerieServicio = model.SerieServicio,
+                DireccionMAC = model.DireccionMAC,
+                SistemaOperativo = model.SistemaOperativo,
+                IdTipoLicencia = model.IdTipoLicencia,
+                ClaveLicencia = model.ClaveLicencia
+            };
+
+            var (ok, error) = await _inventario.ActualizarAsync(id, dto);
+
+            if (!ok)
+            {
+                ModelState.AddModelError(string.Empty, error ?? "No se pudo actualizar el activo.");
+                await CargarCatalogosAsync(model.IdTipoActivo, model.IdEstadoActivo);
+                return PartialView("_EditModal", model);
+            }
+
+            return Json(new { success = true });
+        }
+
         [HttpGet]
-        public IActionResult TicketAssociation()
+        public async Task<IActionResult> TicketAssociation()
         {
             ViewData["Title"] = "Asociación de Activos con Tiquetes";
-            return View();
+
+            var vm = new AsociacionActivoTiqueteViewModel();
+
+            var activos = await _inventario.ObtenerActivosParaAsociacionAsync();
+            var tiquetes = await _tiqueteService.ObtenerTiquetesReporteAsync();
+
+            vm.Activos = activos
+                .Select(a => new SelectListItem
+                {
+                    Value = a.IdActivo.ToString(),
+                    Text = $"{a.NumeroActivo} - {a.NombreMaquina}"
+                }).ToList();
+
+            vm.Tiquetes = tiquetes
+                .Select(t => new SelectListItem
+                {
+                    Value = t.IdTiquete.ToString(),
+                    Text = $"TCK-{t.IdTiquete} - {t.Asunto}"
+                }).ToList();
+
+            return View(vm);
         }
 
-        // =========================
-        // Reportes (Sprint 3)
-        // =========================
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> TicketAssociation(AsociacionActivoTiqueteViewModel model)
+        {
+            ViewData["Title"] = "Asociación de Activos con Tiquetes";
+
+            var activos = await _inventario.ObtenerActivosParaAsociacionAsync();
+            var tiquetes = await _tiqueteService.ObtenerTiquetesReporteAsync();
+
+            model.Activos = activos.Select(a => new SelectListItem
+            {
+                Value = a.IdActivo.ToString(),
+                Text = $"{a.NumeroActivo} - {a.NombreMaquina}"
+            }).ToList();
+
+            model.Tiquetes = tiquetes.Select(t => new SelectListItem
+            {
+                Value = t.IdTiquete.ToString(),
+                Text = $"TCK-{t.IdTiquete} - {t.Asunto}"
+            }).ToList();
+
+            if (!ModelState.IsValid)
+                return View(model);
+
+            var dto = new ActivoTiqueteAsociacionDto
+            {
+                IdActivo = model.IdActivo!.Value,
+                IdTiquete = model.IdTiquete!.Value
+            };
+
+            var (ok, error) = await _inventario.AsociarActivoConTiqueteAsync(dto);
+
+            if (!ok)
+            {
+                ModelState.AddModelError(string.Empty, error ?? "No se pudo realizar la asociación.");
+                return View(model);
+            }
+
+            TempData["Success"] = "El activo fue asociado correctamente al tiquete.";
+            return RedirectToAction(nameof(TicketAssociation));
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Maintenance()
+        {
+            ViewData["Title"] = "Historial de Mantenimiento";
+
+            var data = await _inventario.ObtenerHistorialMantenimientoAsync();
+
+            var vm = new MantenimientoIndexViewModel
+            {
+                Items = data.ToList()
+            };
+
+            return View(vm);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> CreateMaintenance()
+        {
+            ViewData["Title"] = "Registrar Mantenimiento";
+
+            var activos = await _inventario.ObtenerActivosParaAsociacionAsync();
+
+            var vm = new CrearMantenimientoViewModel
+            {
+                FechaMantenimiento = DateTime.Today,
+                Activos = new SelectList(
+                    activos.Select(a => new
+                    {
+                        a.IdActivo,
+                        Texto = $"{a.NumeroActivo} - {a.NombreMaquina}"
+                    }),
+                    "IdActivo",
+                    "Texto")
+            };
+
+            return View(vm);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CreateMaintenance(CrearMantenimientoViewModel model)
+        {
+            ViewData["Title"] = "Registrar Mantenimiento";
+
+            if (!ModelState.IsValid)
+            {
+                var activosError = await _inventario.ObtenerActivosParaAsociacionAsync();
+                model.Activos = new SelectList(
+                    activosError.Select(a => new
+                    {
+                        a.IdActivo,
+                        Texto = $"{a.NumeroActivo} - {a.NombreMaquina}"
+                    }),
+                    "IdActivo",
+                    "Texto",
+                    model.IdActivo);
+
+                return View(model);
+            }
+
+            var dto = new CrearMantenimientoActivoDto
+            {
+                IdActivo = model.IdActivo,
+                FechaMantenimiento = model.FechaMantenimiento,
+                TipoMantenimiento = model.TipoMantenimiento,
+                Estado = model.Estado,
+                Descripcion = model.Descripcion
+            };
+
+            var (ok, error) = await _inventario.RegistrarMantenimientoAsync(dto);
+
+            if (!ok)
+            {
+                ModelState.AddModelError(string.Empty, error ?? "No se pudo registrar el mantenimiento.");
+
+                var activosError = await _inventario.ObtenerActivosParaAsociacionAsync();
+                model.Activos = new SelectList(
+                    activosError.Select(a => new
+                    {
+                        a.IdActivo,
+                        Texto = $"{a.NumeroActivo} - {a.NombreMaquina}"
+                    }),
+                    "IdActivo",
+                    "Texto",
+                    model.IdActivo);
+
+                return View(model);
+            }
+
+            TempData["Success"] = "El mantenimiento fue registrado correctamente.";
+            return RedirectToAction(nameof(Maintenance));
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> EditMaintenanceModal(int id)
+        {
+            var data = await _inventario.ObtenerMantenimientoPorIdAsync(id);
+            if (data == null) return NotFound();
+
+            var activos = await _inventario.ObtenerActivosParaAsociacionAsync();
+
+            var vm = new CrearMantenimientoViewModel
+            {
+                IdMantenimiento = data.IdMantenimiento,
+                IdActivo = data.IdActivo,
+                FechaMantenimiento = data.FechaMantenimiento,
+                TipoMantenimiento = data.TipoMantenimiento,
+                Estado = data.Estado,
+                Descripcion = data.Descripcion,
+                Activos = new SelectList(
+                    activos.Select(a => new
+                    {
+                        a.IdActivo,
+                        Texto = $"{a.NumeroActivo} - {a.NombreMaquina}"
+                    }),
+                    "IdActivo",
+                    "Texto",
+                    data.IdActivo)
+            };
+
+            return PartialView("_EditMaintenanceModal", vm);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EditMaintenanceModal(int id, CrearMantenimientoViewModel model)
+        {
+            var activos = await _inventario.ObtenerActivosParaAsociacionAsync();
+            model.Activos = new SelectList(
+                activos.Select(a => new
+                {
+                    a.IdActivo,
+                    Texto = $"{a.NumeroActivo} - {a.NombreMaquina}"
+                }),
+                "IdActivo",
+                "Texto",
+                model.IdActivo);
+
+            if (!ModelState.IsValid)
+                return PartialView("_EditMaintenanceModal", model);
+
+            var dto = new CrearMantenimientoActivoDto
+            {
+                IdActivo = model.IdActivo,
+                FechaMantenimiento = model.FechaMantenimiento,
+                TipoMantenimiento = model.TipoMantenimiento,
+                Estado = model.Estado,
+                Descripcion = model.Descripcion
+            };
+
+            var (ok, error) = await _inventario.ActualizarMantenimientoAsync(id, dto);
+
+            if (!ok)
+            {
+                ModelState.AddModelError(string.Empty, error ?? "No se pudo actualizar el mantenimiento.");
+                return PartialView("_EditMaintenanceModal", model);
+            }
+
+            return Json(new { success = true });
+        }
+
         [HttpGet]
         public IActionResult Reports()
         {
@@ -267,21 +496,66 @@ namespace SASA.Controllers
         }
 
         [HttpGet]
-        public IActionResult CreateEquipment() => View();
+        public async Task<IActionResult> GeneralReport()
+        {
+            ViewData["Title"] = "Reporte General de Inventario";
+
+            var items = (await _inventario.ObtenerActivosReporteGeneralAsync()).ToList();
+
+            var vm = new ReporteGeneralInventarioViewModel
+            {
+                TotalActivos = items.Count,
+                ActivosActivos = items.Count(x =>
+                    string.Equals(x.EstadoActivoNombre, "Activo", StringComparison.OrdinalIgnoreCase) ||
+                    string.Equals(x.EstadoActivoNombre, "Operativo", StringComparison.OrdinalIgnoreCase)),
+                EnMantenimiento = items.Count(x =>
+                    string.Equals(x.EstadoActivoNombre, "Mantenimiento", StringComparison.OrdinalIgnoreCase) ||
+                    string.Equals(x.EstadoActivoNombre, "En Mantenimiento", StringComparison.OrdinalIgnoreCase)),
+                Items = items
+            };
+
+            return View(vm);
+        }
 
         [HttpGet]
-        public IActionResult CreateMaintenance() => View();
+        public async Task<IActionResult> StatusReport()
+        {
+            ViewData["Title"] = "Reporte por Estado";
+
+            var resumen = await _inventario.ObtenerResumenPorEstadoAsync();
+
+            var vm = new ReporteEstadoInventarioViewModel
+            {
+                Estados = resumen
+            };
+
+            return View(vm);
+        }
 
         [HttpGet]
-        public IActionResult GeneralReport() => View();
+        public async Task<IActionResult> MaintenanceReport()
+        {
+            ViewData["Title"] = "Reporte de Mantenimiento";
 
-        [HttpPost]
-        public IActionResult AssociateTicket() => View("AssociationResult");
+            var data = await _inventario.ObtenerHistorialMantenimientoAsync();
 
-        [HttpGet]
-        public IActionResult MaintenanceReport() => View();
+            var vm = new MantenimientoIndexViewModel
+            {
+                Items = data.ToList()
+            };
 
-        [HttpGet]
-        public IActionResult StatusReport() => View();
+            return View(vm);
+        }
+
+        private async Task CargarCatalogosAsync(int? tipoIdSeleccionado = null, int? estadoIdSeleccionado = null)
+        {
+            ViewBag.Estados = new SelectList(
+                (await _catRepo.ObtenerEstadosAsync()).OrderBy(e => e.Nombre),
+                "IdEstadoActivo", "Nombre", estadoIdSeleccionado);
+
+            ViewBag.Tipos = new SelectList(
+                (await _catRepo.ObtenerTiposAsync()).OrderBy(t => t.Nombre),
+                "IdTipoActivo", "Nombre", tipoIdSeleccionado);
+        }
     }
 }
