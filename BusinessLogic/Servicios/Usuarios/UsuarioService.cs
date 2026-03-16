@@ -93,6 +93,23 @@ namespace BusinessLogic.Servicios.Usuarios
                 Roles = roles is IReadOnlyCollection<string> readOnlyRoles ? readOnlyRoles : roles.ToList()
             };
         }
+        public async Task<PerfilUsuarioDto?> ObtenerPerfilAsync(string id)
+        {
+            var dto = await _usuarioRepository.ObtenerPerfilPorIdAsync(id);
+
+            if (dto == null)
+                return null;
+
+            var user = await _userManager.FindByIdAsync(id);
+
+            if (user != null)
+            {
+                var roles = await _userManager.GetRolesAsync(user);
+                dto.Rol = roles.FirstOrDefault() ?? "Sin rol";
+            }
+
+            return dto;
+        }
 
         //Obtener usuarios por departamento TI
         public async Task<IEnumerable<UsuarioTIDropdownDto?>> ObtenerUsuariosTIAsync()

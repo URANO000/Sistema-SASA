@@ -1,0 +1,65 @@
+﻿@model SASA.ViewModels.Perfil.PerfilViewModel
+
+@{
+    ViewData["Title"] = "Mi Perfil";
+}
+
+<div class="card mb-4">
+    <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h4 class="mb-1 fw-bold">Mi Perfil</h4>
+                <p class="text-muted mb-0">Información general de tu cuenta en el sistema.</p>
+            </div>
+
+            @if (Model.Estado == "Activo")
+            {
+                <span class="badge bg-success">Activo</span>
+            }
+            else
+            {
+                <span class="badge bg-secondary">@Model.Estado</span>
+            }
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-6">
+        <div class="card h-100">
+            <div class="card-body">
+                <h6 class="section-title">Información de Cuenta</h6>
+
+                <dl class="row mb-0">
+                    <dt class="col-sm-4">Nombre</dt>
+                    <dd class="col-sm-8">@(string.IsNullOrWhiteSpace(Model.NombreCompleto) ? "-" : Model.NombreCompleto)</dd>
+
+                    <dt class="col-sm-4">Correo</dt>
+                    <dd class="col-sm-8">@(string.IsNullOrWhiteSpace(Model.CorreoEmpresa) ? "-" : Model.CorreoEmpresa)</dd>
+
+                    <dt class="col-sm-4">Rol</dt>
+                    <dd class="col-sm-8">@(string.IsNullOrWhiteSpace(Model.Rol) ? "-" : Model.Rol)</dd>
+
+                    <dt class="col-sm-4">Estado</dt>
+                    <dd class="col-sm-8">@(string.IsNullOrWhiteSpace(Model.Estado) ? "-" : Model.Estado)</dd>
+                </dl>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-6">
+        <div class="card h-100">
+            <div class="card-body">
+                <h6 class="section-title">Información Organizacional</h6>
+
+                <dl class="row mb-0">
+                    <dt class="col-sm-4">Departamento</dt>
+                    <dd class="col-sm-8">@(string.IsNullOrWhiteSpace(Model.Departamento) ? "-" : Model.Departamento)</dd>
+
+                    <dt class="col-sm-4">Puesto</dt>
+                    <dd class="col-sm-8">@(string.IsNullOrWhiteSpace(Model.Puesto) ? "-" : Model.Puesto)</dd>
+                </dl>
+            </div>
+        </div>
+    </div>
+</div>
