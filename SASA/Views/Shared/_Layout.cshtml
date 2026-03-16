@@ -3,7 +3,7 @@
 @using System.Security.Claims
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 
 <head>
     <meta charset="utf-8" />
@@ -33,10 +33,12 @@
 </head>
 
 <body>
-    <!--Global modal, for now at least-->
-    @await Html.PartialAsync("_SuccessModal")
-    @await Html.PartialAsync("_ErrorModal")
-    <!---------------------------------->
+
+<!--Global modal, for now at least-->
+@await Html.PartialAsync("_SuccessModal")
+@await Html.PartialAsync("_ErrorModal")
+@await Html.PartialAsync("_Alert")
+<!---------------------------------->
 
     @if (User?.Identity?.IsAuthenticated == true)
     {
@@ -126,6 +128,36 @@
                             Módulo Administrativo
                             <i class="bi bi-chevron-down ms-auto"></i>
                         </button>
+                    @* <!-- Dropdown items --> *@
+                    <div class="submenu">
+                        <a asp-area="" asp-controller="Usuario" asp-action="Index" class="submenu-link">
+                            <i class=""></i>
+                            Gestión de Usuarios
+                        </a>
+                        <a asp-area="" asp-controller="Categoria" asp-action="Index" class="submenu-link">
+                            <i class=""></i>
+                            Gestión de Categorías
+                        </a>
+                        <a asp-area="" asp-controller="Tiquete" asp-action="Index" class="submenu-link">
+                            <i class=""></i>
+                            Gestión de Tiquetes
+                        </a>
+                        <a asp-area="" asp-controller="TiqueteHistorial" asp-action="Index" class="submenu-link">
+                            <i class=""></i>
+                            Gestión Historial de Tiquetes
+                        </a>
+                        <a asp-area="" asp-controller="Cola" asp-action="Index" class="submenu-link">
+                            <i class=""></i>
+                            Gestión de Colas
+                        </a>
+                    </div>
+                </div>
+                <div class="nav-section">
+                    <button class="nav-link dropdown-toggle-btn" type="button">
+                        <i class="bi bi-archive"></i>
+                        Módulo de Inventario
+                        <i class="bi bi-chevron-down ms-auto"></i>
+                    </button>
 
                         <div class="submenu">
                             <a asp-area="" asp-controller="Usuario" asp-action="Index" class="submenu-link">

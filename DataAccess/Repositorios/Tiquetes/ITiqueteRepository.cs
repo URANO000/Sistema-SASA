@@ -1,4 +1,5 @@
 ﻿using DataAccess.Modelos.DTOs.Tiquete;
+using DataAccess.Modelos.DTOs.Tiquete.Colas;
 using DataAccess.Modelos.DTOs.Tiquete.Filtros;
 using DataAccess.Modelos.DTOs.Wrappers;
 using DataAccess.Modelos.Entidades.ModTiquete;
@@ -16,5 +17,14 @@ namespace DataAccess.Repositorios.Tiquetes
         Task<TiquetePorIdDto?> ObtenerTiquetePorIdAsync(int id);
 
         Task<bool> ExisteTiquete(int id);
+        Task<List<Tiquete>> ObtenerTiquetesPorIdsAsync(List<int> ids);
+        Task ActualizarAsignacionAsync(List<Tiquete> tiquetes);
+
+
+
+        //------------------------------Zona de colas------------------------------------------
+        Task<List<ColaTiqueteDto>> GetColaPersonalAsync(string currentUserId);
+        Task<List<ColaPorAssigneeDto>> GetColasGlobalAsync();
+        Task<decimal> ObtenerSiguienteOrdenColaAsync(string idAssignee);
     }
 }

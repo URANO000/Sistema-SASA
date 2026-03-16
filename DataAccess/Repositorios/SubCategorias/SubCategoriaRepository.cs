@@ -1,4 +1,4 @@
-﻿using DataAccess.Modelos.DTOs.Common;
+using DataAccess.Modelos.DTOs.Common;
 using DataAccess.Modelos.DTOs.SubCategoria;
 using DataAccess.Modelos.Entidades.ModTiquete;
 using Microsoft.EntityFrameworkCore;
@@ -12,6 +12,22 @@ namespace DataAccess.Repositorios.SubCategorias
         public SubCategoriaRepository(ApplicationDbContext context)
         {
             _context = context;
+        }
+        public async Task<IEnumerable<ListaSubCategoriaDto>> ObtenerSubCategoriasPorCategoria(int idCategoria)
+        {
+            return await _context.SubCategorias
+                .AsNoTracking()
+                .Where(s => s.IdCategoria == idCategoria)
+                .Select(s => new ListaSubCategoriaDto
+                {
+                    IdSubCategoria = s.IdSubCategoria,
+                    NombreSubCategoria = s.NombreSubCategoria,
+                    IdPrioridad = s.IdPrioridad,
+                    NombrePrioridad = s.Prioridad.NombrePrioridad
+                })
+                .ToListAsync();
+
+            
         }
 
         public async Task<PagedResultDto<ListaSubCategoriaDto>> ObtenerSubCategoriasAsync(FiltroSubCategoriaDto filtro)

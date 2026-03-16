@@ -1,4 +1,6 @@
 ﻿using DataAccess.Modelos.DTOs.TiqueteHistorial;
+using DataAccess.Modelos.DTOs.TiqueteHistorial.Filtros;
+using DataAccess.Modelos.DTOs.Wrappers;
 using DataAccess.Modelos.Entidades.ModTiquete;
 using DataAccess.Modelos.Enums;
 using DataAccess.Repositorios.TiqueteHistoriales;
@@ -72,6 +74,7 @@ namespace BusinessLogic.Servicios.TiqueteHistoriales
         //Registrar cuando se ha asignado (externamente) el tiquete 
         public async Task RegistrarAsignacionAsync(
             int idTiquete,
+            string asignadoAnterior,
             string usuarioAsignado,
             string performedBy)
         {
@@ -79,7 +82,7 @@ namespace BusinessLogic.Servicios.TiqueteHistoriales
                 idTiquete,
                 TipoEventoTiquete.Asignado,
                 "IdAsignee",
-                null,
+                asignadoAnterior,
                 usuarioAsignado,
                 $"Tiquete asignado a {usuarioAsignado}",
                 performedBy);
@@ -121,6 +124,11 @@ namespace BusinessLogic.Servicios.TiqueteHistoriales
         public async Task<List<TiqueteHistorialPorIdDto>> GetByTiqueteIdAsync(int idTiquete)
         {
             return await _repository.GetHistorialByTiqueteIdAsync(idTiquete);
+        }
+
+        public async Task<PagedResult<ListaTiqueteHistorialDto>> ListarHistorialAsync(TiqueteHistorialFiltroDto filtro)
+        {
+            return await _repository.ListarHistorialAsync(filtro);
         }
     }
 }

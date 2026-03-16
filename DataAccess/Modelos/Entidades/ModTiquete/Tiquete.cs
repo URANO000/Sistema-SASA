@@ -26,8 +26,11 @@ namespace DataAccess.Modelos.Entidades.ModTiquete
         [Column("idCategoria")]
         public required int IdCategoria { get; set; }
 
+        [Column("idSubCategoria")]
+        public int IdSubCategoria { get; set; }
+
         [Column("ordenCola")]
-        public int OrdenCola { get; set; }
+        public decimal? OrdenCola { get; set; }
 
         [Column("idAsignee")]
         public string? IdAsignee { get; set; }
@@ -53,6 +56,9 @@ namespace DataAccess.Modelos.Entidades.ModTiquete
 
         [ForeignKey(nameof(IdCategoria))]
         public Categoria Categoria { get; set; } = null!;
+
+        [ForeignKey(nameof(IdSubCategoria))]
+        public SubCategoria SubCategoria { get; set; } = null!;
 
         [ForeignKey(nameof(IdAsignee))]
         public ApplicationUser? Asignee { get; set; }

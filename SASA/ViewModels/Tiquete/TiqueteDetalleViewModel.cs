@@ -14,13 +14,21 @@ namespace SASA.ViewModels.Tiquete
         //Nombres de cada uno (no todo el obj)
         public required string Estatus { get; init; }
         public string Categoria { get; init; }
+        public string SubCategoria { get; init; }
 
         public string? ReportedBy { get; init; }
         public string? Departamento { get; init; }
-        public string? Asignee { get; init; }
+        public string? Assignee { get; init; }
 
         public DateTime CreatedAt { get; set; }
         public DateTime? UpdatedAt { get; set; }
+
+        //Para SLA
+        public string Prioridad { get; init; }
+        public int? DuracionMinutos { get; init; }
+        public string? TiempoRestante { get; set; }
+        public string? TiempoExcedido { get; set; }
+        public bool EstaAtrasado { get; set; }
 
 
         //Para el avance
