@@ -1,6 +1,7 @@
 using BusinessLogic.Servicios.Attachments;
 using BusinessLogic.Servicios.Avances;
 using BusinessLogic.Servicios.Categorias;
+using BusinessLogic.Servicios.Helpers;
 using BusinessLogic.Servicios.Prioridad;
 using BusinessLogic.Servicios.SubCategorias;
 using BusinessLogic.Servicios.Tiquetes;
@@ -36,6 +37,7 @@ namespace SASA.Controllers
         private readonly IAvanceService _avanceService;
         private readonly IAttachmentService _attachmentService;
         private readonly ISubCategoriaService _subCategoriasService;
+        private readonly IHelper _helper;
 
         private readonly BusinessLogic.Servicios.Correo.ICorreoNotificacionesService _correoNotificaciones;
         private readonly AppSettings _appSettings;
@@ -48,6 +50,7 @@ namespace SASA.Controllers
             IAvanceService avanceService,
             IAttachmentService attachmentService,
             ISubCategoriaService subCategoriaService,
+            IHelper helper,
             BusinessLogic.Servicios.Correo.ICorreoNotificacionesService correoNotificaciones,
             IOptions<AppSettings> appSettings)
 
@@ -59,6 +62,7 @@ namespace SASA.Controllers
             _avanceService = avanceService;
             _attachmentService = attachmentService;
             _subCategoriasService = subCategoriaService;
+            _helper = helper;
             _correoNotificaciones = correoNotificaciones;
             _appSettings = appSettings.Value;
         }
@@ -100,8 +104,10 @@ namespace SASA.Controllers
                     ReportedBy = u.ReportedBy,
                     Departamento = u.Departamento,
                     Assignee = u.Assignee,
-                    CreatedAt = u.CreatedAt,
-                    UpdatedAt = u.UpdatedAt
+                    CreatedAt = _helper.FormatearCRTime(u.CreatedAt),
+                    UpdatedAt = u.UpdatedAt.HasValue
+                        ? _helper.FormatearCRTime(u.UpdatedAt.Value)
+                        : null
                 }).ToList(),
 
                 Filtro = new TiqueteFiltroViewModel
@@ -432,8 +438,10 @@ namespace SASA.Controllers
                 Departamento = tiquete.Departamento,
                 Assignee = tiquete.Assignee,
 
-                CreatedAt = tiquete.CreatedAt,
-                UpdatedAt = tiquete.UpdatedAt,
+                CreatedAt = _helper.FormatearCRTime(tiquete.CreatedAt),
+                UpdatedAt = tiquete.UpdatedAt.HasValue
+                        ? _helper.FormatearCRTime(tiquete.UpdatedAt.Value)
+                        : null,
 
                 Prioridad = tiquete.Prioridad,
 

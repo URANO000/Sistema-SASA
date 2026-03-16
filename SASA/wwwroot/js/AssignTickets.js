@@ -91,14 +91,18 @@ $("#assignTicketsBtn").click(function () {
 
                 setTimeout(function () {
                     location.reload();
-                }, 1200);
+                }, 900);
             }
             else {
-                mostrarError(response.message);
+                setTimeout(function () {
+                    mostrarAlerta(response.message);
+                });
             }
         },
         error: function () {
-            mostrarError("Error inesperado asignando los tiquetes.");
+            setTimeout(function () {
+                mostrarError("Error inesperado asignando los tiquetes.");
+            }, 900);
         }
     });
 
