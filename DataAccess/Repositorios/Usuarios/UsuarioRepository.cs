@@ -143,6 +143,27 @@ namespace DataAccess.Repositorios.Usuarios
                 .FirstOrDefaultAsync();
         }
 
+        //Obtener perfil de usuario por id, para mostrar en el perfil del usuario
+        public async Task<PerfilUsuarioDto?> ObtenerPerfilPorIdAsync(string id)
+        {
+            return await _context.Users
+                .AsNoTracking()
+                .Where(u => u.Id == id)
+                .Select(u => new PerfilUsuarioDto
+                {
+                    Id = u.Id,
+                    PrimerNombre = u.PrimerNombre,
+                    SegundoNombre = u.SegundoNombre,
+                    PrimerApellido = u.PrimerApellido,
+                    SegundoApellido = u.SegundoApellido,
+                    CorreoEmpresa = u.CorreoEmpresa,
+                    Departamento = u.Departamento,
+                    Puesto = u.Puesto,
+                    Estado = u.Estado
+                })
+                .FirstOrDefaultAsync();
+        }
+
         public async Task ActualizarUsuarioAsync(ApplicationUser usuario)
         {
             _context.Users.Update(usuario);
