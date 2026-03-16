@@ -17,6 +17,7 @@ namespace DataAccess.Modelos.DTOs.Tiquete
         public string Categoria { get; set; }
         public string? SubCategoria { get; set; }
         public string Prioridad { get; set; }
+        public int? DuracionMinutos { get; set; }
 
         public required string ReportedBy { get; set; }
         public string? Departamento { get; set; }

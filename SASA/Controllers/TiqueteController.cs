@@ -424,6 +424,29 @@ namespace SASA.Controllers
                 return NotFound();
             }
 
+            //Esto es para el tiempo de prioridad
+            var elapsed = DateTime.UtcNow - tiquete.CreatedAt;
+
+            string? tiempoRestante = null;
+            string? tiempoExcedido = null;
+            bool atrasado = false;
+
+            if (tiquete.DuracionMinutos.HasValue)
+            {
+                var sla = TimeSpan.FromMinutes(tiquete.DuracionMinutos.Value);
+                var remaining = sla - elapsed;
+
+                if (remaining > TimeSpan.Zero)
+                {
+                    tiempoRestante = FormatTiempo(remaining);
+                }
+                else
+                {
+                    atrasado = true;
+                    tiempoExcedido = FormatTiempo(remaining.Duration());
+                }
+            }
+
             //Si el servicio retorna un tiquete, entonces mapear a viewModel
             var model = new TiqueteDetalleViewModel
             {
@@ -444,6 +467,10 @@ namespace SASA.Controllers
                         : null,
 
                 Prioridad = tiquete.Prioridad,
+                DuracionMinutos = tiquete.DuracionMinutos,
+                TiempoRestante = tiempoRestante,
+                TiempoExcedido = tiempoExcedido,
+                EstaAtrasado = atrasado,
 
                 Avances = tiquete.Avances
                     .Select(a => new AvanceDetalleViewModel
@@ -622,6 +649,16 @@ namespace SASA.Controllers
                 Text = e.ToString(),
                 Selected = e.ToString() == model.Estatus
             });
+        }
+
+        private string FormatTiempo(TimeSpan span)
+        {
+            if (span.TotalDays >= 1)
+            {
+                return $"{(int)span.TotalDays}d {span.Hours}h {span.Minutes}m";
+            }
+
+            return $"{(int)span.TotalHours}h {span.Minutes}m";
         }
 
     }

@@ -148,7 +148,8 @@ namespace DataAccess.Repositorios.Tiquetes
                     Assignee = t.Asignee != null ? t.Asignee.CorreoEmpresa : "Sin asignar",
                     CreatedAt = t.CreatedAt,
                     UpdatedAt = t.UpdatedAt,
-                    Prioridad = t.SubCategoria.Prioridad.NombrePrioridad
+                    Prioridad = t.SubCategoria.Prioridad.NombrePrioridad,
+                    DuracionMinutos = t.SubCategoria.Prioridad.DuracionMinutos
 
                 })
                 .FirstOrDefaultAsync();

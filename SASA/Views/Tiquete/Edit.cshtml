@@ -11,12 +11,13 @@
     @Html.AntiForgeryToken()
     <input asp-for="IdTiquete" type="hidden" />
 
+    <a onclick="history.back()" class="btn btn-link px-0">
+        <i class="bi bi-arrow-left"></i> Volver
+    </a>
+
     <div class="card mb-3">
         <div class="card-body">
             <div class="ticket-header mb-4">
-                <a asp-area="" asp-controller="Tiquete" asp-action="Index" class="btn btn-link px-0">
-                    <i class="bi bi-arrow-left"></i> Volver al listado
-                </a>
                 <div class="d-flex justify-content-between align-items-center mt-2">
                     <h4 class="mb-0 fw-bold">Editar Tiquete #@Model.IdTiquete</h4>
                 </div>

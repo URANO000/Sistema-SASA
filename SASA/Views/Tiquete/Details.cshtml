@@ -37,7 +37,18 @@
                         {
                             <span class="badge bg-danger">Prioridad: @Model.Prioridad</span>
                         }
-                        <span class="badge bg-dark">SLA: 2h restantes</span>
+                        @if (!Model.EstaAtrasado)
+                        {
+                            <span class="badge bg-success">
+                                Tiempo restante: @Model.TiempoRestante
+                            </span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-danger">
+                                Atrasado: @Model.TiempoExcedido
+                            </span>
+                        }
                     </div>
                 </div>
               

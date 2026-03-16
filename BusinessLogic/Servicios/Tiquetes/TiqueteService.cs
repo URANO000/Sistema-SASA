@@ -110,6 +110,7 @@ namespace BusinessLogic.Servicios.Tiquetes
                 CreatedAt = dto.CreatedAt,
                 UpdatedAt = dto.UpdatedAt,
                 Prioridad = dto.Prioridad,
+                DuracionMinutos = dto.DuracionMinutos,
 
                 Avances = avances,
                 Attachments = attachments,
