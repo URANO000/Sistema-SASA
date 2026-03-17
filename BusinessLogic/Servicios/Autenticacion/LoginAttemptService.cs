@@ -27,6 +27,11 @@ namespace BusinessLogic.Servicios.Autenticacion
                 _logger.LogWarning(ex, "No se pudo registrar IntentoInicioSesion (best-effort).");
             }
         }
+        public async Task<LoginAttemptPagedResultDto> ObtenerIntentosAsync(LoginAttemptFiltroDto filtro)
+        {
+            return await _repo.ObtenerIntentosAsync(filtro);
+        }
+
 
         public Task<IReadOnlyList<LoginAttemptItemDto>> ObtenerUltimosPorUsuarioAsync(string userId, int take)
             => _repo.ObtenerUltimosPorUsuarioAsync(userId, take);

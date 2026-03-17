@@ -49,5 +49,65 @@ namespace DataAccess.Repositorios.Autenticacion
                 })
                 .ToListAsync();
         }
+        public async Task<LoginAttemptPagedResultDto> ObtenerIntentosAsync(LoginAttemptFiltroDto filtro)
+        {
+            filtro ??= new LoginAttemptFiltroDto();
+
+            var page = filtro.Page <= 0 ? 1 : filtro.Page;
+            var pageSize = filtro.PageSize <= 0 ? 15 : filtro.PageSize;
+
+            var query = _db.IntentosInicioSesion
+                .AsNoTracking()
+                .AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(filtro.EmailIngresado))
+            {
+                var emailFiltro = filtro.EmailIngresado.Trim();
+                query = query.Where(x => x.EmailIngresado.Contains(emailFiltro));
+            }
+
+            if (filtro.Exitoso.HasValue)
+            {
+                query = query.Where(x => x.Exitoso == filtro.Exitoso.Value);
+            }
+
+            if (filtro.FechaDesde.HasValue)
+            {
+                var fechaDesdeUtc = filtro.FechaDesde.Value.Date;
+                query = query.Where(x => x.FechaUtc >= fechaDesdeUtc);
+            }
+
+            if (filtro.FechaHasta.HasValue)
+            {
+                var fechaHastaUtcExclusiva = filtro.FechaHasta.Value.Date.AddDays(1);
+                query = query.Where(x => x.FechaUtc < fechaHastaUtcExclusiva);
+            }
+
+            var totalCount = await query.CountAsync();
+
+            var items = await query
+                .OrderByDescending(x => x.FechaUtc)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .Select(x => new LoginAttemptItemDto
+                {
+                    Id = x.Id,
+                    FechaUtc = x.FechaUtc,
+                    EmailIngresado = x.EmailIngresado,
+                    UserId = x.UserId,
+                    Exitoso = x.Exitoso,
+                    MotivoFallo = x.MotivoFallo,
+                    IpAddress = x.IpAddress,
+                    UserAgent = x.UserAgent
+                })
+                .ToListAsync();
+
+            return new LoginAttemptPagedResultDto
+            {
+                Items = items,
+                TotalCount = totalCount
+            };
+        }
+
     }
 }
