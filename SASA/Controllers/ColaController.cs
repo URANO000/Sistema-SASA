@@ -37,6 +37,7 @@ namespace SASA.Controllers
                     IdTiquete = t.IdTiquete,
                     Asunto = t.Asunto,
                     PosicionCola = t.PosicionCola,
+                    OrdenCola = t.OrdenCola,
                     Estatus = t.Estatus,
                     Categoria = t.Categoria,
                     SubCategoria = t.SubCategoria,

@@ -6,7 +6,7 @@
         public int IdCategoria { get; init; }
         public int IdSubCategoria { get; init; }
         public int IdEstatus { get; init; }
-        //public string? IdAsignee { get; init; }
+        public decimal OrdenCola { get; init; }
         public string? Resolucion { get; init; }
     }
 }

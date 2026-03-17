@@ -230,7 +230,7 @@ namespace DataAccess.Repositorios.Tiquetes
         {
             var cola = await _context.Tiquetes
                     .AsNoTracking()
-                    .Where(t => t.IdAsignee == currentUserId)
+                    .Where(t => t.IdAsignee == currentUserId && t.OrdenCola != null)
                     .OrderBy(t => t.OrdenCola)
                     .Select(t => new ColaTiqueteDto
                     {
@@ -261,7 +261,7 @@ namespace DataAccess.Repositorios.Tiquetes
         {
             var tiquetes = await _context.Tiquetes
                 .AsNoTracking()
-                .Where(t => t.IdAsignee != null)
+                .Where(t => t.IdAsignee != null && t.OrdenCola != null)
                 .OrderBy(t => t.IdAsignee)
                 .ThenBy(t => t.OrdenCola)
                 .Select(t => new {
@@ -319,6 +319,57 @@ namespace DataAccess.Repositorios.Tiquetes
         {
             return (ordenAnterior + ordenSiguiente) / 2m;
         }
+
+
+
+        //--------------------------------------Para dashboard-------------------------------------
+        public async Task<int> ContarTiquetesAsync()
+        {
+            return await _context.Tiquetes.CountAsync();
+        }
+
+        public async Task<List<TiquetesPorEstadoDto>> ObtenerTiquetesPorEstadoAsync()
+        {
+            return await _context.Tiquetes
+                .AsNoTracking()
+                .GroupBy(t => t.Estatus.NombreEstatus)
+                .Select(g => new TiquetesPorEstadoDto
+                {
+                    Estado = g.Key,
+                    Cantidad = g.Count()
+                })
+                .ToListAsync();
+        }
+
+        public async Task<List<TiquetesPorDiaDto>> ObtenerTiquetesUltimos7DiasAsync()
+        {
+            var fechaInicio = DateTime.UtcNow.Date.AddDays(-6);
+
+            return await _context.Tiquetes
+                .AsNoTracking()
+                .Where(t => t.CreatedAt >= fechaInicio)
+                .GroupBy(t => t.CreatedAt.Date)
+                .Select(g => new TiquetesPorDiaDto
+                {
+                    Fecha = g.Key,
+                    Cantidad = g.Count()
+                })
+                .OrderBy(x => x.Fecha)
+                .ToListAsync();
+        }
+
+        public async Task<double> PromedioResolucion()
+        {
+            var promedio = await _context.Tiquetes
+                .AsNoTracking()
+                .Where(t => t.UpdatedAt != null)
+                .AverageAsync(t =>
+                    EF.Functions.DateDiffMinute(t.CreatedAt, t.UpdatedAt));
+            
+            return promedio ?? 0.0;
+        }
+
+
 
     }
 }

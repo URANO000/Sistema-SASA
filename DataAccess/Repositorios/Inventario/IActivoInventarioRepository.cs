@@ -34,5 +34,8 @@ namespace DataAccess.Repositorios.Inventario
 
         // Unit of Work
         Task GuardarAsync();
+
+        //------------------------Dashboard---------------------------
+        Task<int> ContarInventarioAsync();
     }
 }

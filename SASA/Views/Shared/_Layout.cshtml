@@ -50,10 +50,19 @@
                 </button>
 
                 <div class="logo-sasa">
-                    <a class="btn btn-link icon-btn" asp-area="" asp-controller="Home" asp-action="Index">
+                        @if (User.IsInRole("Administrador"))
+                        {
+                        <a class="btn btn-link icon-btn" asp-area="" asp-controller="Home" asp-action="AdminDashboard">
                         <img src="/img/logo-blanco-custom.png" alt="logo-sasa" />
-                    </a>
-                </div>
+                        </a>
+                        }
+                        else
+                        {
+                         <a class="btn btn-link icon-btn" asp-area="" asp-controller="Home" asp-action="Index">
+                        <img src="/img/logo-blanco-custom.png" alt="logo-sasa" />
+                         </a>
+                        }
+                    </div>
             </div>
 
             <div class="topbar-actions">
@@ -112,7 +121,7 @@
                 <!--Sections of the navbar-->
                 <div class="nav-section">
                     <span class="section-title">General</span>
-                    <a asp-controller="Admin" asp-action="Dashboard" class="nav-link">
+                    <a asp-controller="Home" asp-action="AdminDashboard" class="nav-link">
                         <i class="bi bi-bar-chart"></i>
                         Dashboard
                     </a>

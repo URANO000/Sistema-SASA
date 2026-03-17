@@ -43,7 +43,9 @@
 
                             @foreach (var c in Model.Personal)
                             {
-                                <div class="notif-item notif-unread">
+                                <div class="notif-item notif-unread"
+                                    data-id="@c.IdTiquete"
+                                    data-orden="@c.OrdenCola">
                                     <div class="notif-left">
                                         <div class="notif-icon info">
                                             #@c.PosicionCola
