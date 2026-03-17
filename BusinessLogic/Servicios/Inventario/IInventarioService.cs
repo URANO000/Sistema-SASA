@@ -20,5 +20,7 @@ namespace BusinessLogic.Servicios.Inventario
 
         Task<IReadOnlyList<ActivoTelefonoInventarioListItemDto>> ObtenerActivosReporteGeneralAsync();
         Task<Dictionary<string, int>> ObtenerResumenPorEstadoAsync();
+
+        Task<int> ContarInventarioAsync();
     }
 }

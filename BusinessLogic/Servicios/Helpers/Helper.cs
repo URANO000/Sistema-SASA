@@ -43,5 +43,42 @@ namespace BusinessLogic.Servicios.Helpers
                 throw new UnauthorizedAccessException("Un usuario inactivo no puede realizar ninguna operación.");
             }
         }
+
+        //Para formatear prioridades
+        public (string? restante, string? excedido, bool atrasado) Calcular(
+               DateTime createdAt,
+               int duracionMinutos)
+        {
+            var elapsed = DateTime.UtcNow - createdAt;
+            var sla = TimeSpan.FromMinutes(duracionMinutos);
+            var remaining = sla - elapsed;
+
+            if (remaining > TimeSpan.Zero)
+            {
+                return (
+                    FormatTiempo(remaining),
+                    null,
+                    false
+                );
+            }
+
+            var overdue = remaining.Duration();
+
+            return (
+                null,
+                FormatTiempo(overdue),
+                true
+            );
+        }
+
+        private string FormatTiempo(TimeSpan span)
+        {
+            if (span.TotalDays >= 1)
+            {
+                return $"{(int)span.TotalDays}d {span.Hours}h {span.Minutes}m";
+            }
+
+            return $"{(int)span.TotalHours}h {span.Minutes}m";
+        }
     }
 }

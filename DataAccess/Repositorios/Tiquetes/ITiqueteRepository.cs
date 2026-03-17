@@ -26,5 +26,11 @@ namespace DataAccess.Repositorios.Tiquetes
         Task<List<ColaTiqueteDto>> GetColaPersonalAsync(string currentUserId);
         Task<List<ColaPorAssigneeDto>> GetColasGlobalAsync();
         Task<decimal> ObtenerSiguienteOrdenColaAsync(string idAssignee);
+
+        //-----------------------------Zona Dashboard------------------------------------------
+        Task<int> ContarTiquetesAsync();
+        Task<List<TiquetesPorEstadoDto>> ObtenerTiquetesPorEstadoAsync();
+        Task<List<TiquetesPorDiaDto>> ObtenerTiquetesUltimos7DiasAsync();
+        Task<double> PromedioResolucion();
     }
 }

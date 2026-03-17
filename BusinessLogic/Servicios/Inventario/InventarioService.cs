@@ -376,5 +376,11 @@ namespace BusinessLogic.Servicios.Inventario
                 }
             }
         }
+
+        //-----------------------------Para Dashboard--------------------------------------
+        public async Task<int> ContarInventarioAsync()
+        {
+            return await _repo.ContarInventarioAsync();
+        }
     }
 }

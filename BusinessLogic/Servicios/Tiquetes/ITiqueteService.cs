@@ -28,5 +28,11 @@ namespace BusinessLogic.Servicios.Tiquetes
         Task<List<ColaTiqueteDto>> GetColaPersonalAsync(string currentUserId);
         Task<List<ColaPorAssigneeDto>> GetColasGlobalAsync();
 
+        //Para dashboard-----------------------------------------------------------------------------------------
+        Task<int> ContarTiquetesAsync();
+        Task<List<TiquetesPorEstadoDto>> ObtenerTiquetesPorEstadoAsync();
+        Task<List<TiquetesPorDiaDto>> ObtenerTiquetesUltimos7DiasAsync();
+        Task<double> PromedioResolucion();
+
     }
 }

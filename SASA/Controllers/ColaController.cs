@@ -1,5 +1,7 @@
-﻿using BusinessLogic.Servicios.Tiquetes;
+﻿using BusinessLogic.Servicios.Helpers;
+using BusinessLogic.Servicios.Tiquetes;
 using DataAccess.Identity;
+using DataAccess.Modelos.Entidades.ModTiquete;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -15,11 +17,14 @@ namespace SASA.Controllers
         //La separación de controladores es una decisión meramente personal, pero está sujeto a cambios de ser necesario
         private readonly ITiqueteService _service;
         private readonly UserManager<ApplicationUser> _userManager;
-        public ColaController(ITiqueteService service, UserManager<ApplicationUser> userManager)
+        private readonly IHelper _helper;
+        public ColaController(ITiqueteService service, UserManager<ApplicationUser> userManager, IHelper helper)
         {
             _service = service;
             _userManager = userManager;
+            _helper = helper;
         }
+
         [HttpGet]
         [Authorize (Roles = "Administrador")]
         public async Task<IActionResult> Index(string tab = "Cola Personal")
@@ -29,20 +34,35 @@ namespace SASA.Controllers
             var colaDto = await _service.GetColaPersonalAsync(currentUser.Id);
             var colaAssigneeDto = await _service.GetColasGlobalAsync();
 
+
             var viewModel = new ColaIndexViewModel
             {
                 TabActiva = tab,
-                Personal = colaDto.Select(t => new ColaPersonalViewModel
+                Personal = colaDto.Select(t =>
                 {
-                    IdTiquete = t.IdTiquete,
-                    Asunto = t.Asunto,
-                    PosicionCola = t.PosicionCola,
-                    Estatus = t.Estatus,
-                    Categoria = t.Categoria,
-                    SubCategoria = t.SubCategoria,
-                    Prioridad = t.Prioridad,
-                    Asignee = t.Asignee,
-                    CreatedAt = t.CreatedAt
+                    (string? restante, string? excedido, bool atrasado) =
+                        t.DuracionMinutos.HasValue
+                            ? _helper.Calcular(t.CreatedAt, t.DuracionMinutos.Value)
+                            : (null, null, false);
+
+                    return new ColaPersonalViewModel
+                    {
+                        IdTiquete = t.IdTiquete,
+                        Asunto = t.Asunto,
+                        PosicionCola = t.PosicionCola,
+                        OrdenCola = t.OrdenCola,
+                        Estatus = t.Estatus,
+                        Categoria = t.Categoria,
+                        SubCategoria = t.SubCategoria,
+                        Prioridad = t.Prioridad,
+                        DuracionMinutos = t.DuracionMinutos,
+                        Asignee = t.Asignee,
+                        CreatedAt = t.CreatedAt,
+
+                        TiempoRestante = restante,
+                        TiempoExcedido = excedido,
+                        EstaAtrasado = atrasado
+                    };
                 }).ToList(),
 
                 Global = colaAssigneeDto.Select(g => new ColaGlobalViewModel
@@ -50,14 +70,28 @@ namespace SASA.Controllers
                     AssigneeId = g.AssigneeId,
                     AssigneeCorreo = g.AssigneeCorreo,
 
-                    Colas = g.Colas.Select(t => new ColaPersonalViewModel
+                    Colas = g.Colas.Select(t =>
                     {
-                        IdTiquete = t.IdTiquete,
-                        Asunto = t.Asunto,
-                        PosicionCola = t.PosicionCola,
-                        Categoria = t.Categoria,
-                        SubCategoria = t.SubCategoria,
-                        Prioridad = t.Prioridad
+                        (string? restante, string? excedido, bool atrasado) =
+                            t.DuracionMinutos.HasValue
+                                ? _helper.Calcular(t.CreatedAt, t.DuracionMinutos.Value)
+                                : (null, null, false);
+
+                        return new ColaPersonalViewModel
+                        {
+                            IdTiquete = t.IdTiquete,
+                            Asunto = t.Asunto,
+                            PosicionCola = t.PosicionCola,
+                            Categoria = t.Categoria,
+                            SubCategoria = t.SubCategoria,
+                            Prioridad = t.Prioridad,
+                            DuracionMinutos = t.DuracionMinutos,
+                            CreatedAt = t.CreatedAt,
+
+                            TiempoRestante = restante,
+                            TiempoExcedido = excedido,
+                            EstaAtrasado = atrasado
+                        };
                     }).ToList()
                 }).ToList()
             };

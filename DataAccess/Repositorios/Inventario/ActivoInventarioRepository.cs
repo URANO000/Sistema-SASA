@@ -134,5 +134,11 @@ namespace DataAccess.Repositorios.Inventario
             await _db.ActivoInventario.AddRangeAsync(entities);
 
         public Task GuardarAsync() => _db.SaveChangesAsync();
+
+        //--------------------------------Para Dashboard-------------------------------------------
+        public async Task<int> ContarInventarioAsync()
+        {
+            return await _db.ActivoInventario.CountAsync();
+        }
     }
 }
