@@ -1,3 +1,5 @@
+@model SASA.ViewModels.Inventario.MantenimientoIndexViewModel
+
 @{
     ViewData["Title"] = "Reporte de Mantenimiento";
 }
@@ -19,21 +21,43 @@
                             <th>Fecha</th>
                             <th>Tipo</th>
                             <th>Estado</th>
+                            <th>Descripción</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <td>INV-001 - Laptop Dell</td>
-                            <td>15/03/2025</td>
-                            <td>Preventivo</td>
-                            <td><span class="badge bg-success">Finalizado</span></td>
-                        </tr>
-                        <tr>
-                            <td>INV-002 - Servidor HP</td>
-                            <td>22/03/2025</td>
-                            <td>Correctivo</td>
-                            <td><span class="badge bg-warning">En proceso</span></td>
-                        </tr>
+                        @if (Model.Items != null && Model.Items.Any())
+                        {
+                            foreach (var item in Model.Items)
+                            {
+                                <tr>
+                                    <td>
+                                        <div class="fw-semibold">@item.NumeroActivo</div>
+                                        <div class="text-muted small">@item.NombreMaquina</div>
+                                    </td>
+                                    <td>@item.FechaMantenimiento.ToString("dd/MM/yyyy")</td>
+                                    <td>@item.TipoMantenimiento</td>
+                                    <td>
+                                        @if (item.Estado == "Finalizado")
+                                        {
+                                            <span class="badge bg-success">Finalizado</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-warning text-dark">En proceso</span>
+                                        }
+                                    </td>
+                                    <td>@(string.IsNullOrWhiteSpace(item.Descripcion) ? "-" : item.Descripcion)</td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="5" class="text-center text-muted py-4">
+                                    No hay datos de mantenimiento para mostrar.
+                                </td>
+                            </tr>
+                        }
                     </tbody>
                 </table>
             </div>

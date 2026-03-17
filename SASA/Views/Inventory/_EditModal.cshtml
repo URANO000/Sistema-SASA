@@ -1,0 +1,97 @@
+@model SASA.ViewModels.Inventario.CrearActivoViewModel
+
+<div class="modal-header">
+    <h5 class="modal-title">
+        Editar Activo — <span class="fw-semibold">@Model.NumeroActivo</span>
+    </h5>
+    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+</div>
+
+<form id="editActivoForm" method="post" class="form-container">
+    @Html.AntiForgeryToken()
+
+    <input type="hidden" asp-for="NumeroActivo" />
+
+    <div class="modal-body form-content scroll-hidden">
+
+        @if (!ViewData.ModelState.IsValid)
+        {
+            <div class="alert alert-danger">
+                Revisá los campos marcados.
+            </div>
+        }
+
+        <div class="mb-3">
+            <label class="form-label">Código del activo</label>
+            <input class="form-control" value="@Model.NumeroActivo" disabled />
+            <div class="form-text">* El código no se puede modificar.</div>
+        </div>
+
+        <div class="row g-3">
+
+            <div class="col-md-6">
+                <label class="form-label">Nombre del activo</label>
+                <input asp-for="NombreMaquina" class="form-control" />
+                <span asp-validation-for="NombreMaquina" class="text-danger"></span>
+            </div>
+
+            <div class="col-md-6">
+                <label class="form-label">Serie / Service Tag</label>
+                <input asp-for="SerieServicio" class="form-control" />
+                <span asp-validation-for="SerieServicio" class="text-danger"></span>
+            </div>
+
+            <div class="col-md-6">
+                <label class="form-label">Tipo</label>
+                <select asp-for="IdTipoActivo" class="form-select" asp-items="ViewBag.Tipos">
+                    <option value="">Seleccione</option>
+                </select>
+                <span asp-validation-for="IdTipoActivo" class="text-danger"></span>
+            </div>
+
+            <div class="col-md-6">
+                <label class="form-label">Estado</label>
+                <select asp-for="IdEstadoActivo" class="form-select" asp-items="ViewBag.Estados">
+                    <option value="">Seleccione</option>
+                </select>
+                <span asp-validation-for="IdEstadoActivo" class="text-danger"></span>
+            </div>
+
+            <div class="col-md-6">
+                <label class="form-label">Marca</label>
+                <input asp-for="Marca" class="form-control" />
+            </div>
+
+            <div class="col-md-6">
+                <label class="form-label">Modelo</label>
+                <input asp-for="Modelo" class="form-control" />
+            </div>
+
+            <div class="col-md-6">
+                <label class="form-label">MAC</label>
+                <input asp-for="DireccionMAC" class="form-control" />
+            </div>
+
+            <div class="col-md-6">
+                <label class="form-label">Sistema Operativo</label>
+                <input asp-for="SistemaOperativo" class="form-control" />
+            </div>
+
+            <div class="col-md-6">
+                <label class="form-label">Id Tipo Licencia</label>
+                <input asp-for="IdTipoLicencia" class="form-control" placeholder="(Opcional)" />
+            </div>
+
+            <div class="col-md-6">
+                <label class="form-label">Clave Licencia</label>
+                <input asp-for="ClaveLicencia" class="form-control" />
+            </div>
+
+        </div>
+    </div>
+
+    <div class="modal-footer modal-footer-custom modal-footer-sticky">
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button type="submit" class="btn btn-primary">Guardar cambios</button>
+    </div>
+</form>

@@ -13,11 +13,11 @@ namespace BusinessLogic.Servicios.Usuarios
         Task<ListaUsuarioDto?> ObtenerUsuarioPorIdAsync(string id);
         Task<PerfilUsuarioDto?> ObtenerPerfilAsync(string id);
         Task<ResultadoCreacionUsuarioDto> AgregarUsuarioAsync(CrearUsuarioDto usuario, string currentUserId);
-        Task ActualizarUsuarioAsync(EditarUsuarioDto usuario);
+        Task ActualizarUsuarioAsync(EditarUsuarioDto usuario, string currenUserId);
 
-        Task DesactivarUsuarioAsync(string id);
+        Task DesactivarUsuarioAsync(string id, string currenUserId);
 
-        Task ActivarUsuarioAsync(string id);
+        Task ActivarUsuarioAsync(string id, string currentUserId);
 
         Task<IEnumerable<UsuarioTIDropdownDto?>> ObtenerUsuariosTIAsync();
     }

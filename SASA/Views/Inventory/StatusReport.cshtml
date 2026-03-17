@@ -1,3 +1,5 @@
+@model SASA.ViewModels.Inventario.ReporteEstadoInventarioViewModel
+
 @{
     ViewData["Title"] = "Reporte por Estado";
 }
@@ -14,18 +16,22 @@
             <div class="row">
                 <div class="col-md-6">
                     <ul class="list-group">
-                        <li class="list-group-item d-flex justify-content-between">
-                            Activos Activos
-                            <span class="badge bg-success">98</span>
-                        </li>
-                        <li class="list-group-item d-flex justify-content-between">
-                            En Mantenimiento
-                            <span class="badge bg-warning">27</span>
-                        </li>
-                        <li class="list-group-item d-flex justify-content-between">
-                            Inactivos
-                            <span class="badge bg-secondary">12</span>
-                        </li>
+                        @if (Model.Estados != null && Model.Estados.Any())
+                        {
+                            foreach (var estado in Model.Estados)
+                            {
+                                <li class="list-group-item d-flex justify-content-between">
+                                    @estado.Key
+                                    <span class="badge bg-secondary">@estado.Value</span>
+                                </li>
+                            }
+                        }
+                        else
+                        {
+                            <li class="list-group-item text-muted">
+                                No hay datos de estados para mostrar.
+                            </li>
+                        }
                     </ul>
                 </div>
             </div>

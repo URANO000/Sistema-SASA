@@ -1,3 +1,5 @@
+@model SASA.ViewModels.Inventario.AsociacionActivoTiqueteViewModel
+
 @{
     ViewData["Title"] = "Asociación de Activos con Tiquetes";
 }
@@ -10,29 +12,46 @@
             Vincule activos del inventario con tiquetes de soporte.
         </p>
 
-        <div class="row">
-            <div class="col-md-6 mb-3">
-                <label class="form-label">Activo</label>
-                <select class="form-select">
-                    <option selected>Seleccione un activo</option>
-                    <option>INV-001 - Laptop Dell</option>
-                </select>
+        @if (TempData["Success"] != null)
+        {
+            <div class="alert alert-success">
+                @TempData["Success"]
+            </div>
+        }
+
+        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+        <form asp-action="TicketAssociation" method="post">
+            @Html.AntiForgeryToken()
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label asp-for="IdActivo" class="form-label">Activo</label>
+                    <select asp-for="IdActivo" asp-items="Model.Activos" class="form-select">
+                        <option value="">Seleccione un activo</option>
+                    </select>
+                    <span asp-validation-for="IdActivo" class="text-danger"></span>
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label asp-for="IdTiquete" class="form-label">Tiquete</label>
+                    <select asp-for="IdTiquete" asp-items="Model.Tiquetes" class="form-select">
+                        <option value="">Seleccione un tiquete</option>
+                    </select>
+                    <span asp-validation-for="IdTiquete" class="text-danger"></span>
+                </div>
             </div>
 
-            <div class="col-md-6 mb-3">
-                <label class="form-label">Tiquete</label>
-                <select class="form-select">
-                    <option selected>Seleccione un tiquete</option>
-                    <option>TCK-101 - Error de sistema</option>
-                </select>
+            <div class="d-flex justify-content-end">
+                <button type="submit" class="btn btn-custom">
+                    <i class="bi bi-link-45deg me-1"></i>
+                    Asociar
+                </button>
             </div>
-        </div>
-
-        <div class="d-flex justify-content-end">
-            <a asp-action="TicketAssociation" class="btn btn-custom">
-                <i class="bi bi-link-45deg me-1"></i>
-                Asociar
-            </a>
-        </div>
+        </form>
     </div>
 </div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

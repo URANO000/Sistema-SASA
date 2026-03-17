@@ -24,7 +24,7 @@
                         <input type="text" name="Filtro.Search" asp-for="Filtro.Search"
                                value="@Model.Filtro.Search"
                                class="form-control"
-                               placeholder="Asunto/Descripción"/>
+                               placeholder="Asunto/Descripción/Asignado"/>
                     </div>
                     <div class="col-md-2">
                         <label class="form-label">Estado</label>
@@ -183,7 +183,7 @@
                                 <td>@t.ReportedBy</td>
                                 <td>@t.Departamento</td>
                                 <td>@t.CreatedAt</td>
-                                <td>@t.Asignee</td>
+                                <td>@t.Assignee</td>
                                 <td>@t.UpdatedAt</td>
                             </tr>
                         }

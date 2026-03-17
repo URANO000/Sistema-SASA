@@ -1,6 +1,7 @@
 using BusinessLogic.Servicios.Attachments;
 using BusinessLogic.Servicios.Avances;
 using BusinessLogic.Servicios.Categorias;
+using BusinessLogic.Servicios.Helpers;
 using BusinessLogic.Servicios.Prioridad;
 using BusinessLogic.Servicios.SubCategorias;
 using BusinessLogic.Servicios.Tiquetes;
@@ -36,6 +37,7 @@ namespace SASA.Controllers
         private readonly IAvanceService _avanceService;
         private readonly IAttachmentService _attachmentService;
         private readonly ISubCategoriaService _subCategoriasService;
+        private readonly IHelper _helper;
 
         private readonly BusinessLogic.Servicios.Correo.ICorreoNotificacionesService _correoNotificaciones;
         private readonly AppSettings _appSettings;
@@ -48,6 +50,7 @@ namespace SASA.Controllers
             IAvanceService avanceService,
             IAttachmentService attachmentService,
             ISubCategoriaService subCategoriaService,
+            IHelper helper,
             BusinessLogic.Servicios.Correo.ICorreoNotificacionesService correoNotificaciones,
             IOptions<AppSettings> appSettings)
 
@@ -59,6 +62,7 @@ namespace SASA.Controllers
             _avanceService = avanceService;
             _attachmentService = attachmentService;
             _subCategoriasService = subCategoriaService;
+            _helper = helper;
             _correoNotificaciones = correoNotificaciones;
             _appSettings = appSettings.Value;
         }
@@ -99,9 +103,11 @@ namespace SASA.Controllers
                     Categoria = u.Categoria,
                     ReportedBy = u.ReportedBy,
                     Departamento = u.Departamento,
-                    Asignee = u.Asignee,
-                    CreatedAt = u.CreatedAt,
-                    UpdatedAt = u.UpdatedAt
+                    Assignee = u.Assignee,
+                    CreatedAt = _helper.FormatearCRTime(u.CreatedAt),
+                    UpdatedAt = u.UpdatedAt.HasValue
+                        ? _helper.FormatearCRTime(u.UpdatedAt.Value)
+                        : null
                 }).ToList(),
 
                 Filtro = new TiqueteFiltroViewModel
@@ -418,6 +424,29 @@ namespace SASA.Controllers
                 return NotFound();
             }
 
+            //Esto es para el tiempo de prioridad
+            var elapsed = DateTime.UtcNow - tiquete.CreatedAt;
+
+            string? tiempoRestante = null;
+            string? tiempoExcedido = null;
+            bool atrasado = false;
+
+            if (tiquete.DuracionMinutos.HasValue)
+            {
+                var sla = TimeSpan.FromMinutes(tiquete.DuracionMinutos.Value);
+                var remaining = sla - elapsed;
+
+                if (remaining > TimeSpan.Zero)
+                {
+                    tiempoRestante = FormatTiempo(remaining);
+                }
+                else
+                {
+                    atrasado = true;
+                    tiempoExcedido = FormatTiempo(remaining.Duration());
+                }
+            }
+
             //Si el servicio retorna un tiquete, entonces mapear a viewModel
             var model = new TiqueteDetalleViewModel
             {
@@ -430,12 +459,18 @@ namespace SASA.Controllers
                 SubCategoria = tiquete.SubCategoria,
                 ReportedBy = tiquete.ReportedBy,
                 Departamento = tiquete.Departamento,
-                Asignee = tiquete.Asignee,
+                Assignee = tiquete.Assignee,
 
-                CreatedAt = tiquete.CreatedAt,
-                UpdatedAt = tiquete.UpdatedAt,
+                CreatedAt = _helper.FormatearCRTime(tiquete.CreatedAt),
+                UpdatedAt = tiquete.UpdatedAt.HasValue
+                        ? _helper.FormatearCRTime(tiquete.UpdatedAt.Value)
+                        : null,
 
                 Prioridad = tiquete.Prioridad,
+                DuracionMinutos = tiquete.DuracionMinutos,
+                TiempoRestante = tiempoRestante,
+                TiempoExcedido = tiempoExcedido,
+                EstaAtrasado = atrasado,
 
                 Avances = tiquete.Avances
                     .Select(a => new AvanceDetalleViewModel
@@ -614,6 +649,16 @@ namespace SASA.Controllers
                 Text = e.ToString(),
                 Selected = e.ToString() == model.Estatus
             });
+        }
+
+        private string FormatTiempo(TimeSpan span)
+        {
+            if (span.TotalDays >= 1)
+            {
+                return $"{(int)span.TotalDays}d {span.Hours}h {span.Minutes}m";
+            }
+
+            return $"{(int)span.TotalHours}h {span.Minutes}m";
         }
 
     }

@@ -30,7 +30,7 @@ namespace DataAccess.Modelos.Entidades.ModTiquete
         public int IdSubCategoria { get; set; }
 
         [Column("ordenCola")]
-        public int OrdenCola { get; set; }
+        public decimal? OrdenCola { get; set; }
 
         [Column("idAsignee")]
         public string? IdAsignee { get; set; }

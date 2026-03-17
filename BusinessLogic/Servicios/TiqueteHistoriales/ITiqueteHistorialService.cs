@@ -1,4 +1,6 @@
 ﻿using DataAccess.Modelos.DTOs.TiqueteHistorial;
+using DataAccess.Modelos.DTOs.TiqueteHistorial.Filtros;
+using DataAccess.Modelos.DTOs.Wrappers;
 using DataAccess.Modelos.Entidades.ModTiquete;
 
 namespace BusinessLogic.Servicios.TiqueteHistoriales
@@ -16,6 +18,7 @@ namespace BusinessLogic.Servicios.TiqueteHistoriales
 
         Task RegistrarAsignacionAsync(
             int idTiquete,
+            string asignadoAnterior,
             string usuarioAsignado,
             string performedBy);
 
@@ -30,6 +33,7 @@ namespace BusinessLogic.Servicios.TiqueteHistoriales
             string descripcionAvance,
             string performedBy);
         Task<List<TiqueteHistorialPorIdDto>> GetByTiqueteIdAsync(int idTiquete);
-        //Este servicio es para mostrar el historial por Id de tiquete (para detalle de tiquete)
+
+        Task<PagedResult<ListaTiqueteHistorialDto>> ListarHistorialAsync(TiqueteHistorialFiltroDto filtro);
     }
 }
