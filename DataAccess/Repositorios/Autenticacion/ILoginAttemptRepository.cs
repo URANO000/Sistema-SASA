@@ -6,5 +6,7 @@ namespace DataAccess.Repositorios.Autenticacion
     {
         Task AddAsync(string emailIngresado, string? userId, bool exitoso, string? motivoFallo, string? ip, string? userAgent);
         Task<IReadOnlyList<LoginAttemptItemDto>> ObtenerUltimosPorUsuarioAsync(string userId, int take);
+        Task<LoginAttemptPagedResultDto> ObtenerIntentosAsync(LoginAttemptFiltroDto filtro);
+
     }
 }

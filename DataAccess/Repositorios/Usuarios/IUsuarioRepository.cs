@@ -11,6 +11,7 @@ namespace DataAccess.Repositorios.Usuarios
         Task<PagedResult<ListaUsuarioDto>> ObtenerUsuariosAsync(UsuarioFiltroDto filtro); //Listar
         Task<IReadOnlyList<ListaUsuarioDto>> ObtenerUsuariosReporteAsync(); //Lista de todos los usuarios in pg
         Task<ListaUsuarioDto?> ObtenerUsuarioPorIdAsync(string id); //Detalle
+        Task<PerfilUsuarioDto?> ObtenerPerfilPorIdAsync(string id); //Obtener perfil de usuario por id, para mostrar en el perfil del usuario
         Task ActualizarUsuarioAsync(ApplicationUser usuario); //Actualizar
         Task DesactivarUsuario(string id); //Desactivar. Nunca eliminar
         Task ActivarUsuario(string id); //Activar usuario desactivado
