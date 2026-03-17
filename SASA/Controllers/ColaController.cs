@@ -1,7 +1,6 @@
 ﻿using BusinessLogic.Servicios.Helpers;
 using BusinessLogic.Servicios.Tiquetes;
 using DataAccess.Identity;
-using DataAccess.Modelos.Entidades.ModTiquete;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
