@@ -35,7 +35,41 @@
                         }
                         @if(User.IsInRole("Administrador"))
                         {
-                            <span class="badge bg-danger">Prioridad: @Model.Prioridad</span>
+                            @switch (Model.Prioridad)
+                            {
+                                case "Baja":
+                                    <span class="badge bg-secondary">
+                                        Prioridad: @Model.Prioridad
+
+                                    </span>
+                                    break;
+
+                                case "Media":
+
+                                    <span class="badge bg-primary">
+                                        Prioridad: @Model.Prioridad
+
+                                    </span>
+
+                                    break;
+
+                                case "Alta":
+
+                                    <span class="badge bg-warning">
+                                        Prioridad: @Model.Prioridad
+
+                                    </span>
+
+                                    break;
+
+                                default:
+
+                                    <span class="badge bg-danger">
+                                        Prioridad: @Model.Prioridad
+
+                                    </span>
+                                    break;
+                            }
                         }
                         @if (!Model.EstaAtrasado)
                         {

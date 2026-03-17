@@ -59,21 +59,83 @@
                                                     <ul class="list-unstyled">
                                                         <li>@FormatearTiempo(c.CreatedAt)</li>
                                                         <li>Categoría: @c.Categoria </li>
-                                                        <li>Prioridad: @c.Prioridad</li>
+                                                        <li>
+                                                            @switch (c.Prioridad)
+                                                            {
+                                                                case "Baja":
+                                                                    <span class="badge bg-secondary">
+                                                                        Prioridad: @c.Prioridad
+
+                                                                    </span>
+                                                                    break;
+
+                                                                case "Media":
+
+                                                                    <span class="badge bg-primary">
+                                                                        Prioridad: @c.Prioridad
+
+                                                                    </span>
+
+                                                                    break;
+
+                                                                case "Alta":
+
+                                                                    <span class="badge bg-warning">
+                                                                        Prioridad: @c.Prioridad
+
+                                                                    </span>
+
+                                                                    break;
+
+                                                                default:
+
+                                                                    <span class="badge bg-danger">
+                                                                        Prioridad: @c.Prioridad
+
+                                                                    </span>
+                                                                    break;
+                                                            }
+                                                        </li>
+                                                        <li>
+                                                            @if (!c.EstaAtrasado)
+                                                            {
+                                                                <span class="badge bg-success">
+                                                                    Tiempo restante: @c.TiempoRestante
+                                                                </span>
+                                                            }
+                                                            else
+                                                            {
+                                                                <span class="badge bg-danger">
+                                                                    Atrasado: @c.TiempoExcedido
+                                                                </span>
+                                                            }
+                                                        </li>
                                                     </ul>
                                                 </div>
                                             </div>
 
                                             <div class="notif-controls">
                                                 <a asp-route-id="@c.IdTiquete" 
-                                                class="btn btn-sm btn-primary notif-btn"
+                                                class="btn btn-sm btn-success notif-btn"
                                                 asp-action="Details" 
                                                 asp-controller="Tiquete"
                                                 title="Ver detalle">
 
                                                     <i class="bi bi-eye"></i>
                                                 </a>
+
+                                                <a asp-route-id="@c.IdTiquete"
+                                                       class="btn btn-sm btn-primary notif-btn"
+                                                       asp-action="Edit"
+                                                       asp-controller="Tiquete"
+                                                       title="Editar tiquete">
+
+                                                    <i class="bi bi-pencil-square"></i>
+                                                </a>
+
                                             </div>
+
+
                                        </div>
                                     </div>
                                 </div>

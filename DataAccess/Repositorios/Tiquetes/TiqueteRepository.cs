@@ -53,8 +53,9 @@ namespace DataAccess.Repositorios.Tiquetes
             if (filtro.Fecha.HasValue)
             {
                 var fecha = filtro.Fecha.Value.Date;
+                var fechaSiguiente = fecha.AddDays(1);
 
-                query = query.Where(t => t.CreatedAt == fecha);
+                query = query.Where(t => t.CreatedAt >= fecha && t.CreatedAt < fechaSiguiente);
             }
             else if (filtro.FechaInicio.HasValue && filtro.FechaFinal.HasValue)
             {
@@ -241,6 +242,7 @@ namespace DataAccess.Repositorios.Tiquetes
                         Categoria = t.Categoria.NombreCategoria,
                         SubCategoria = t.SubCategoria.NombreSubCategoria,
                         Prioridad = t.SubCategoria.Prioridad.NombrePrioridad,
+                        DuracionMinutos = t.SubCategoria.Prioridad.DuracionMinutos,
                         Estatus = t.Estatus.NombreEstatus,
                         CreatedAt = t.CreatedAt
                     })
@@ -275,7 +277,8 @@ namespace DataAccess.Repositorios.Tiquetes
                         OrdenCola = t.OrdenCola,
                         Categoria = t.Categoria.NombreCategoria,
                         SubCategoria = t.SubCategoria.NombreSubCategoria,
-                        Prioridad = t.SubCategoria.Prioridad.NombrePrioridad
+                        Prioridad = t.SubCategoria.Prioridad.NombrePrioridad,
+                        DuracionMinutos = t.SubCategoria.Prioridad.DuracionMinutos
                     }
                 })
                 .ToListAsync();

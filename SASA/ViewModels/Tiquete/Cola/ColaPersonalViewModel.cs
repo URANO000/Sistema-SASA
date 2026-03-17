@@ -11,6 +11,10 @@
         public string? Categoria { get; init; }
         public string? SubCategoria { get; init; }
         public string? Prioridad { get; init; }
+        public int? DuracionMinutos { get; init; }
+        public string? TiempoRestante { get; set; }
+        public string? TiempoExcedido { get; set; }
+        public bool EstaAtrasado { get; set; }
         public string? Asignee { get; init; }
 
         public DateTime CreatedAt { get; init; }
