@@ -28,20 +28,63 @@ namespace BusinessLogic.Servicios.Helpers
                 throw new UnauthorizedAccessException("Usuario no autenticado.");
         }
 
+        //Para verificar que un usuario existe
+        public void ValidarUsuarioExiste(ApplicationUser? user)
+        {
+            if (user == null)
+            {
+                throw new KeyNotFoundException("El usuario no existe.");
+            }
+        }
+
         //Para verificar que un usuario es activo
         public async Task ValidarUsuarioEstado(string currentUserId)
         {
             var user = await _userManager.FindByIdAsync(currentUserId);
 
-            if (user == null)
-            {
-                throw new KeyNotFoundException("El usuario no existe.");
-            }
+            ValidarUsuarioExiste(user);
 
             if (user.Estado == false)
             {
                 throw new UnauthorizedAccessException("Un usuario inactivo no puede realizar ninguna operación.");
             }
+        }
+
+        //Para formatear prioridades
+        public (string? restante, string? excedido, bool atrasado) Calcular(
+               DateTime createdAt,
+               int duracionMinutos)
+        {
+            var elapsed = DateTime.UtcNow - createdAt;
+            var sla = TimeSpan.FromMinutes(duracionMinutos);
+            var remaining = sla - elapsed;
+
+            if (remaining > TimeSpan.Zero)
+            {
+                return (
+                    FormatTiempo(remaining),
+                    null,
+                    false
+                );
+            }
+
+            var overdue = remaining.Duration();
+
+            return (
+                null,
+                FormatTiempo(overdue),
+                true
+            );
+        }
+
+        private string FormatTiempo(TimeSpan span)
+        {
+            if (span.TotalDays >= 1)
+            {
+                return $"{(int)span.TotalDays}d {span.Hours}h {span.Minutes}m";
+            }
+
+            return $"{(int)span.TotalHours}h {span.Minutes}m";
         }
     }
 }

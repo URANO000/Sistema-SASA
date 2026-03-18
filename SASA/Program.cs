@@ -130,6 +130,7 @@ builder.Services.AddScoped<INotificacionRepository, NotificacionRepository>();
 builder.Services.AddScoped<INotificacionService, NotificacionService>();
 
 //Todo lo necesario para el módulo de tiquetes y colas
+
 builder.Services.AddScoped<IAvanceRepository, AvanceRepository>();
 builder.Services.AddScoped<IAvanceService, AvanceService>();
 
@@ -164,6 +165,8 @@ builder.Services.AddScoped<ILoginAttemptService, LoginAttemptService>();
 builder.Services.AddScoped<ICorreoNotificacionesService, CorreoNotificacionesService>();
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.Configure<ConfiguracionEmail>(builder.Configuration.GetSection("GraphEmail"));
+
+// Config general
 
 //Helpers
 builder.Services.AddScoped<IHelper, Helper>();

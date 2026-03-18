@@ -196,6 +196,19 @@ $(function () {
                 else {
                     $("#addTicket .modal-content").html(response);
                     $.validator.unobtrusive.parse("#crearTiqueteForm");
+
+                    $.each(response.errors, function (key, messages) {
+                        if (key === "_form") {
+                            $("#alertModal").modal("show")
+                            $("#mensaje").text(messages[0])
+                            return;
+                        }
+
+                        const span = form.find(`[data-valmsg-for="${key}"]`);
+                        if (span.length) {
+                            span.text(messages.join(", "));
+                        }
+                    });
                 }
             },
 

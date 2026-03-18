@@ -9,6 +9,8 @@
         public string? CorreoEmpresa { get; init; }
         public string Estado { get; init; } = default!;
 
+        public DateTime? CreatedAt { get; init; } = default!;
+
         //Rol de usuario
         public string? Rol { get; set; }
     }

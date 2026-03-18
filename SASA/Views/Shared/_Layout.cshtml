@@ -33,6 +33,7 @@
 </head>
 
 <body>
+
 <!--Global modal, for now at least-->
 @await Html.PartialAsync("_SuccessModal")
 @await Html.PartialAsync("_ErrorModal")
@@ -48,10 +49,19 @@
                     <i class="bi bi-list fs-3"></i>
                 </button>
 
-                <div class="logo-sasa">
-                    <a class="btn btn-link icon-btn" asp-area="" asp-controller="Home" asp-action="Index">
+                 <div class="logo-sasa">
+                        @if (User.IsInRole("Administrador"))
+                        {
+                        <a class="btn btn-link icon-btn" asp-area="" asp-controller="Home" asp-action="AdminDashboard">
                         <img src="/img/logo-blanco-custom.png" alt="logo-sasa" />
-                    </a>
+                        </a>
+                        }
+                        else
+                        {
+                         <a class="btn btn-link icon-btn" asp-area="" asp-controller="Home" asp-action="Index">
+                        <img src="/img/logo-blanco-custom.png" alt="logo-sasa" />
+                         </a>
+                        }
                 </div>
             </div>
 
@@ -66,73 +76,83 @@
                     </span>
                 </a>
 
-                <!--User menu-->
                 <div class="dropdown">
-                    <!-- Al dar click en el ícono, abre el menú -->
-                    <button class="btn btn-link text-white p-0" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        <i class="bi bi-person-circle fs-4"></i>
-                    </button>
+                <button class="btn btn-link text-white p-0" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="bi bi-person-circle fs-4"></i>
+                </button>
 
-                    <ul class="dropdown-menu dropdown-menu-end user-menu" style="z-index:2000;">
-                        <li class="px-3 py-2">
-                            @await Component.InvokeAsync("MenuUsuario")
-                        </li>
+                <ul class="dropdown-menu dropdown-menu-end user-menu" style="z-index:2000;">
+                     <li class="px-3 py-2">
+                        @await Component.InvokeAsync("MenuUsuario")
+                    </li>
 
-                        <li><hr class="dropdown-divider"></li>
+                    <li><hr class="dropdown-divider"></li>
 
-                        <li><a class="dropdown-item dp-item" href="#"><i class="bi bi-person me-2"></i>Perfil</a></li>
-                        <li><a class="dropdown-item dp-item" href="#"><i class="bi bi-gear me-2"></i>Ajustes</a></li>
+                    <li>
+                        <a class="dropdown-item dp-item" asp-controller="Perfil" asp-action="Index">
+                            <i class="bi bi-person me-2"></i>Perfil
+                        </a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item dp-item" href="#">
+                            <i class="bi bi-gear me-2"></i>Ajustes
+                        </a>
+                    </li>
 
-                        <li><hr class="dropdown-divider"></li>
+                    <li><hr class="dropdown-divider"></li>
 
-                        <li>
-                            <form method="post" action="/logout" class="d-inline">
-                                @Html.AntiForgeryToken()
-                                <button type="submit" class="dropdown-item text-danger dp-item">
-                                    <i class="bi bi-box-arrow-right me-2"></i>Salir
-                                </button>
-                            </form>
-                        </li>
-                    </ul>
-                </div>
+                    <li>
+                        <form method="post" action="/logout" class="d-inline">
+                            @Html.AntiForgeryToken()
+                            <button type="submit" class="dropdown-item text-danger dp-item">
+                                <i class="bi bi-box-arrow-right me-2"></i>Salir
+                            </button>
+                        </form>
+                    </li>
+
+                </ul>
+            </div>
             </div>
 
         </header>
 
-        <!--SIDEBAR LAYOUT-->
-        <aside class="sidebar-custom" id="sidebar">
-            <div class="sidebar-header">
-                <img src="/img/logo-blanco.png" alt="logo-sasa" class="sidebar-logo" />
-                <button class="btn btn-link icon-btn" id="sidebarClose">
-                    <i class="bi bi-x-lg custom-icon"></i>
-                </button>
-            </div>
-            <nav class="sidebar-nav">
-                <!--Sections of the navbar-->
+    <!--SIDEBAR LAYOUT-->
+    <aside class="sidebar-custom" id="sidebar">
+        <div class="sidebar-header">
+            <img src="/img/logo-blanco.png" alt="logo-sasa" class="sidebar-logo" />
+            <button class="btn btn-link icon-btn" id="sidebarClose">
+                <i class="bi bi-x-lg custom-icon"></i>
+            </button>
+        </div>
+        <nav class="sidebar-nav">
+            <!--Sections of the navbar-->
                 <div class="nav-section">
                     <span class="section-title">General</span>
-                    <a asp-controller="Admin" asp-action="Dashboard" class="nav-link">
+                    <a asp-controller="Home" asp-action="AdminDashboard" class="nav-link">
                         <i class="bi bi-bar-chart"></i>
                         Dashboard
                     </a>
                 </div>
 
-                @if (User.IsInRole("Administrador"))
-                {
-                    <div class="nav-section">
-                        <span class="section-title">Administración</span>
+            @if (User.IsInRole("Administrador"))
+            {
+                <div class="nav-section">
+                    <span class="section-title">Administración</span>
 
-                        <button class="nav-link dropdown-toggle-btn" type="button">
-                            <i class="bi bi-shield-lock"></i>
-                            Módulo Administrativo
-                            <i class="bi bi-chevron-down ms-auto"></i>
-                        </button>
+                    <button class="nav-link dropdown-toggle-btn" type="button">
+                        <i class="bi bi-shield-lock"></i>
+                        Módulo Administrativo
+                        <i class="bi bi-chevron-down ms-auto"></i>
+                    </button>
 
-                    @* <!-- Dropdown items --> *@
                     <div class="submenu">
                         <a asp-area="" asp-controller="Usuario" asp-action="Index" class="submenu-link">
                             <i class=""></i>
                             Gestión de Usuarios
+                        </a>
+                        <a asp-area="" asp-controller="LoginAttempt" asp-action="Index" class="submenu-link">
+                            <i class=""></i>
+                            Intentos de inicio de sesión
                         </a>
                         <a asp-area="" asp-controller="Categoria" asp-action="Index" class="submenu-link">
                             <i class=""></i>
@@ -152,12 +172,12 @@
                         </a>
                     </div>
                 </div>
-                <div class="nav-section">
-                    <button class="nav-link dropdown-toggle-btn" type="button">
-                        <i class="bi bi-archive"></i>
-                        Módulo de Inventario
-                        <i class="bi bi-chevron-down ms-auto"></i>
-                    </button>
+                    <div class="nav-section">
+                        <button class="nav-link dropdown-toggle-btn" type="button">
+                            <i class="bi bi-archive"></i>
+                            Módulo de Inventario
+                            <i class="bi bi-chevron-down ms-auto"></i>
+                        </button>
 
                         <div class="submenu">
                             <a asp-controller="Inventory" asp-action="Index" class="submenu-link">
@@ -182,78 +202,79 @@
                         </div>
                     </div>
 
-                    <div class="nav-section">
-                        <span class="section-title">Integración</span>
-                        <button class="nav-link dropdown-toggle-btn" type="button">
-                            <i class="bi bi-plug"></i>
-                            Módulo de Integración
-                            <i class="bi bi-chevron-down ms-auto"></i>
-                        </button>
+                <div class="nav-section">
+                    <span class="section-title">Integración</span>
+                    <button class="nav-link dropdown-toggle-btn" type="button">
+                        <i class="bi bi-plug"></i>
+                        Módulo de Integración
+                        <i class="bi bi-chevron-down ms-auto"></i>
+                    </button>
 
-                        <div class="submenu">
-                            <a asp-controller="Integration" asp-action="Index" class="submenu-link">
-                                Vista General
-                            </a>
+                    <div class="submenu">
+                        <a asp-controller="Integration" asp-action="Index" class="submenu-link">
+                            Vista General
+                        </a>
 
-                            <a asp-controller="Integration" asp-action="Upload" class="submenu-link">
-                                Carga de Archivos
-                            </a>
+                        <a asp-controller="Integration" asp-action="Upload" class="submenu-link">
+                            Carga de Archivos
+                        </a>
 
-                            <a asp-controller="Integration" asp-action="History" class="submenu-link">
-                                Historial de Integraciones
-                            </a>
-                        </div>
+                        <a asp-controller="Integration" asp-action="History" class="submenu-link">
+                            Historial de Integraciones
+                        </a>
                     </div>
-                }
+                </div>
+            }
 
-                @if (User.IsInRole("Empleado Normal"))
-                {
-                    <div class="nav-section">
-                        <span class="section-title">Usuarios</span>
-                        <button class="nav-link dropdown-toggle-btn" type="button">
-                            <i class="bi bi-ticket-perforated"></i>
-                            Módulo de Tiquetes
-                            <i class="bi bi-chevron-down ms-auto"></i>
-                        </button>
+            @if (User.IsInRole("Empleado Normal"))
+            {
+                <div class="nav-section">
+                    <span class="section-title">Usuarios</span>
+                    <button class="nav-link dropdown-toggle-btn" type="button">
+                        <i class="bi bi-ticket-perforated"></i>
+                        Módulo de Tiquetes
+                        <i class="bi bi-chevron-down ms-auto"></i>
+                    </button>
 
-                        <div class="submenu">
-                            <a asp-area="" asp-controller="Tiquete" asp-action="Index" class="submenu-link">
-                                <i class=""></i>
-                                Gestión de Tiquetes
-                            </a>
-                        </div>
+                    <div class="submenu">
+                        <a asp-area="" asp-controller="Tiquete" asp-action="Index" class="submenu-link">
+                            <i class=""></i>
+                            Gestión de Tiquetes
+                        </a>
                     </div>
-                }
-            </nav>
-        </aside>
-
-        <!-- BREADCRUMBS -->
-        <nav class="sasa-breadcrumb" aria-label="breadcrumb">
-            <ol class="breadcrumb">
-                <li class="breadcrumb-item">
-                    <a asp-controller="Home" asp-action="Index">
-                        <i class="bi bi-house-door me-1"></i>Inicio
-                    </a>
-                </li>
-
-                <li class="breadcrumb-item active" aria-current="page">
-                    @ViewData["Title"]
-                </li>
-            </ol>
+                </div>
+            }
         </nav>
+    </aside>
 
-        <!--MAIN CONTENT-->
-        <div class="content">
-            <main role="main" class="pb-3">
-                @RenderBody()
-            </main>
-        </div>
-    }
-    else
-    {
-        <main role="main">
+    <!-- BREADCRUMBS -->
+    <nav class="sasa-breadcrumb" aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item">
+                <a asp-controller="Home" asp-action="Index">
+                    <i class="bi bi-house-door me-1"></i>Inicio
+                </a>
+            </li>
+
+            <li class="breadcrumb-item active" aria-current="page">
+                @ViewData["Title"]
+            </li>
+        </ol>
+    </nav>
+
+    <!--MAIN CONTENT-->
+    <div class="content">
+        <main role="main" class="pb-3">
             @RenderBody()
         </main>
+    </div>
+}
+else
+{
+    <main role="main">
+        @RenderBody()
+    </main>
+}
     }
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"

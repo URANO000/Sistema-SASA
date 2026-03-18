@@ -37,7 +37,8 @@ namespace DataAccess.Repositorios.Tiquetes
                 query = query.Where(t =>
                     t.Asunto.Contains(filtro.Search) ||
                     t.Descripcion.Contains(filtro.Search) ||
-                    t.Asignee.CorreoEmpresa.Contains(filtro.Search)
+                    t.Asignee.PrimerNombre.Contains(filtro.Search) ||
+                    t.Asignee.PrimerApellido.Contains(filtro.Search)
                     );
             }
 
@@ -53,8 +54,9 @@ namespace DataAccess.Repositorios.Tiquetes
             if (filtro.Fecha.HasValue)
             {
                 var fecha = filtro.Fecha.Value.Date;
+                var fechaSiguiente = fecha.AddDays(1);
 
-                query = query.Where(t => t.CreatedAt == fecha);
+                query = query.Where(t => t.CreatedAt >= fecha && t.CreatedAt < fechaSiguiente);
             }
             else if (filtro.FechaInicio.HasValue && filtro.FechaFinal.HasValue)
             {
@@ -82,9 +84,9 @@ namespace DataAccess.Repositorios.Tiquetes
                     Resolucion = t.Resolucion ?? "Sin Resolución",
                     Estatus = t.Estatus != null ? t.Estatus.NombreEstatus : "Sin estatus",
                     Categoria = t.Categoria != null ? t.Categoria.NombreCategoria : "Sin categoría",
-                    ReportedBy = t.ReportedBy.CorreoEmpresa,
+                    ReportedBy = t.ReportedBy != null ? t.ReportedBy.PrimerNombre + " " + t.ReportedBy.PrimerApellido : "Desconocido",
                     Departamento = t.ReportedBy.Departamento,
-                    Assignee = t.Asignee != null ? t.Asignee.CorreoEmpresa : "Sin asignar",
+                    Assignee = t.Asignee != null ? t.Asignee.PrimerNombre + " " + t.Asignee.PrimerApellido : "Sin Asignar",
                     CreatedAt = t.CreatedAt,
                     UpdatedAt = t.UpdatedAt
                 })
@@ -143,9 +145,9 @@ namespace DataAccess.Repositorios.Tiquetes
                     SubCategoria = t.SubCategoria != null
                         ? t.SubCategoria.NombreSubCategoria
                         : "Sin SubCategoria",
-                    ReportedBy = t.ReportedBy.CorreoEmpresa,
+                    ReportedBy = t.ReportedBy.PrimerNombre + " " + t.ReportedBy.PrimerApellido,
                     Departamento = t.ReportedBy.Departamento,
-                    Assignee = t.Asignee != null ? t.Asignee.CorreoEmpresa : "Sin asignar",
+                    Assignee = t.Asignee != null ? t.Asignee.PrimerNombre + " " + t.Asignee.PrimerApellido : "Sin asignar",
                     CreatedAt = t.CreatedAt,
                     UpdatedAt = t.UpdatedAt,
                     Prioridad = t.SubCategoria.Prioridad.NombrePrioridad,
@@ -179,7 +181,7 @@ namespace DataAccess.Repositorios.Tiquetes
             IdEstatus = t.IdEstatus,
             IdAsignee = t.IdAsignee,
             Resolucion = t.Resolucion,
-            ReportedByEmail = t.ReportedBy.CorreoEmpresa,
+            ReportedByEmail = t.ReportedBy.PrimerNombre + t.ReportedBy.PrimerApellido,
             ReportedByNombre = (t.ReportedBy.PrimerNombre ?? "") + " " + (t.ReportedBy.PrimerApellido ?? ""),
             EstatusNombre = t.Estatus.NombreEstatus
         })
@@ -230,17 +232,18 @@ namespace DataAccess.Repositorios.Tiquetes
         {
             var cola = await _context.Tiquetes
                     .AsNoTracking()
-                    .Where(t => t.IdAsignee == currentUserId)
+                    .Where(t => t.IdAsignee == currentUserId && t.OrdenCola != null)
                     .OrderBy(t => t.OrdenCola)
                     .Select(t => new ColaTiqueteDto
                     {
                         IdTiquete = t.IdTiquete,
-                        Asignee = t.Asignee.CorreoEmpresa,
+                        Asignee = t.Asignee.PrimerNombre + " " + t.Asignee.PrimerApellido,
                         Asunto = t.Asunto,
                         OrdenCola = t.OrdenCola,
                         Categoria = t.Categoria.NombreCategoria,
                         SubCategoria = t.SubCategoria.NombreSubCategoria,
                         Prioridad = t.SubCategoria.Prioridad.NombrePrioridad,
+                        DuracionMinutos = t.SubCategoria.Prioridad.DuracionMinutos,
                         Estatus = t.Estatus.NombreEstatus,
                         CreatedAt = t.CreatedAt
                     })
@@ -261,12 +264,12 @@ namespace DataAccess.Repositorios.Tiquetes
         {
             var tiquetes = await _context.Tiquetes
                 .AsNoTracking()
-                .Where(t => t.IdAsignee != null)
+                .Where(t => t.IdAsignee != null && t.OrdenCola != null)
                 .OrderBy(t => t.IdAsignee)
                 .ThenBy(t => t.OrdenCola)
                 .Select(t => new {
                     t.IdAsignee,
-                    AssigneeCorreo = t.Asignee.CorreoEmpresa,
+                    AssigneeNombre = t.Asignee.PrimerNombre + " " + t.Asignee.PrimerApellido,
 
                     Tiquete = new ColaTiqueteDto
                     {
@@ -275,13 +278,14 @@ namespace DataAccess.Repositorios.Tiquetes
                         OrdenCola = t.OrdenCola,
                         Categoria = t.Categoria.NombreCategoria,
                         SubCategoria = t.SubCategoria.NombreSubCategoria,
-                        Prioridad = t.SubCategoria.Prioridad.NombrePrioridad
+                        Prioridad = t.SubCategoria.Prioridad.NombrePrioridad,
+                        DuracionMinutos = t.SubCategoria.Prioridad.DuracionMinutos
                     }
                 })
                 .ToListAsync();
 
             var resultado = tiquetes
-                .GroupBy(t => new { t.IdAsignee, t.AssigneeCorreo })
+                .GroupBy(t => new { t.IdAsignee, t.AssigneeNombre })
                 .Select(g =>
                 {
                     int posicion = 1; //Para UI
@@ -295,7 +299,7 @@ namespace DataAccess.Repositorios.Tiquetes
                     return new ColaPorAssigneeDto
                     {
                         AssigneeId = g.Key.IdAsignee,
-                        AssigneeCorreo = g.Key.AssigneeCorreo,
+                        AssigneeNombre = g.Key.AssigneeNombre,
                         Colas = lista
                     };
                 })
@@ -319,6 +323,57 @@ namespace DataAccess.Repositorios.Tiquetes
         {
             return (ordenAnterior + ordenSiguiente) / 2m;
         }
+
+
+
+        //--------------------------------------Para dashboard-------------------------------------
+        public async Task<int> ContarTiquetesAsync()
+        {
+            return await _context.Tiquetes.CountAsync();
+        }
+
+        public async Task<List<TiquetesPorEstadoDto>> ObtenerTiquetesPorEstadoAsync()
+        {
+            return await _context.Tiquetes
+                .AsNoTracking()
+                .GroupBy(t => t.Estatus.NombreEstatus)
+                .Select(g => new TiquetesPorEstadoDto
+                {
+                    Estado = g.Key,
+                    Cantidad = g.Count()
+                })
+                .ToListAsync();
+        }
+
+        public async Task<List<TiquetesPorDiaDto>> ObtenerTiquetesUltimos7DiasAsync()
+        {
+            var fechaInicio = DateTime.UtcNow.Date.AddDays(-6);
+
+            return await _context.Tiquetes
+                .AsNoTracking()
+                .Where(t => t.CreatedAt >= fechaInicio)
+                .GroupBy(t => t.CreatedAt.Date)
+                .Select(g => new TiquetesPorDiaDto
+                {
+                    Fecha = g.Key,
+                    Cantidad = g.Count()
+                })
+                .OrderBy(x => x.Fecha)
+                .ToListAsync();
+        }
+
+        public async Task<double> PromedioResolucion()
+        {
+            var promedio = await _context.Tiquetes
+                .AsNoTracking()
+                .Where(t => t.UpdatedAt != null)
+                .AverageAsync(t =>
+                    EF.Functions.DateDiffMinute(t.CreatedAt, t.UpdatedAt));
+            
+            return promedio ?? 0.0;
+        }
+
+
 
     }
 }

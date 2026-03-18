@@ -12,6 +12,7 @@
         public string? Categoria { get; set; }
         public string? SubCategoria { get; set; }
         public string? Prioridad { get; set; }
+        public int? DuracionMinutos { get; set; }
         public string? ReportedBy { get; set; }
         public string? Departamento { get; set; }
         public string? Asignee { get; set; }

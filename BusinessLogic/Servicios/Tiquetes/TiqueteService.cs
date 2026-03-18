@@ -176,7 +176,6 @@ namespace BusinessLogic.Servicios.Tiquetes
             var tiqueteActual = await _tiqueteRepository.ObtenerEntidadPorIdAsync(dto.IdTiquete);
 
             //Validación 2: El tiquete debe existir para ser actualizado
-            //Si el tiquete no existe, se lanza una excepción
             if (tiqueteActual == null)
             {
                 throw new KeyNotFoundException("Tiquete no existe.");
@@ -218,21 +217,44 @@ namespace BusinessLogic.Servicios.Tiquetes
             {
                 throw new InvalidOperationException("El estatus del tiquete no se puede pasar de otro estado a 'Creado'.");
             }
+
             //Antes de actualizar, se guarda el historial 
-            //Capturar valores previos
             var categoriaAnterior = tiqueteActual.IdCategoria;
             var estatusAnterior = tiqueteActual.IdEstatus;
 
+            //Validación 8: Si el tiquete cambia de resuelto a en proceso, reinsertar a cola
+            bool entraACola =
+                (estatusAnterior == (int)TiqueteEstatus.Resuelto)
+                &&
+                dto.IdEstatus == (int)TiqueteEstatus.EnProceso;
+
+            if (entraACola && tiqueteActual.IdAsignee != null)
+            {
+                var siguienteOrden = await _tiqueteRepository
+                    .ObtenerSiguienteOrdenColaAsync(tiqueteActual.IdAsignee);
+
+                tiqueteActual.OrdenCola = siguienteOrden;
+            }
 
             //Si el tiquete existe, se actualizan los campos
             tiqueteActual.IdCategoria = dto.IdCategoria;
             tiqueteActual.IdSubCategoria = dto.IdSubCategoria;
             tiqueteActual.IdEstatus = dto.IdEstatus;
-            tiqueteActual.Resolucion = dto.Resolucion?.Trim(); //Puede no tener nada
+            tiqueteActual.Resolucion = dto.Resolucion?.Trim();
             tiqueteActual.UpdatedAt = DateTime.UtcNow;
-            tiqueteActual.UpdatedBy = currentUserId; //En el controller se debe pasar el id del usuario autenticado
+            tiqueteActual.UpdatedBy = currentUserId;
 
-            //Persistencia de datos -> Guardar cambios
+            //Validación 9: Tiquete sale de cola si el estado cambia a cancelado o resuelto
+            bool saleDeCola =
+                dto.IdEstatus == (int)TiqueteEstatus.Cancelado ||
+                dto.IdEstatus == (int)TiqueteEstatus.Resuelto;
+
+            if (saleDeCola && tiqueteActual.OrdenCola != null)
+            {
+                tiqueteActual.OrdenCola = null;
+            }
+
+            //Guardar cambios
             await _tiqueteRepository.ActualizarTiqueteAsync(tiqueteActual);
 
             //Si algo cambió, entonces registrar en el historial
@@ -300,13 +322,11 @@ namespace BusinessLogic.Servicios.Tiquetes
                 }
 
                 var user = await _userManager.FindByIdAsync(dto.IdAssignee);
-                if (user == null)
-                {
-                    throw new KeyNotFoundException("El usuario asignado no existe.");
-                }
+                _helper.ValidarUsuarioExiste(user);
+                
 
                 //Para historial de tiquetes, abajo
-                var correo = user.Email;
+                var nombreCompleto = user.PrimerNombre + " " + user.PrimerApellido;
 
                 //Para colas
                 decimal siguienteOrden = 0;
@@ -328,6 +348,10 @@ namespace BusinessLogic.Servicios.Tiquetes
 
                     //Para historial y colas
                     var asignadoAnterior = tiquete.IdAsignee;
+                    var usuarioAnterior = await _userManager.FindByIdAsync(asignadoAnterior);
+                    _helper.ValidarUsuarioExiste(usuarioAnterior);
+
+                    var nombreAnterior = usuarioAnterior.PrimerNombre + " " + usuarioAnterior.PrimerApellido;
 
                     //Para colas nada más
                     bool cambiaAssignee = asignadoAnterior != dto.IdAssignee;
@@ -354,8 +378,8 @@ namespace BusinessLogic.Servicios.Tiquetes
 
                     await _tiqueteHistorialService.RegistrarAsignacionAsync(
                         tiquete.IdTiquete,
-                        asignadoAnterior ?? "Sin asignado anterior",
-                        correo ?? "Sin correo",
+                        nombreAnterior ?? "Sin asignado anterior",
+                        nombreCompleto ?? "Sin nombre asignado",
                         tiquete.UpdatedBy);
                 }
 
@@ -385,8 +409,29 @@ namespace BusinessLogic.Servicios.Tiquetes
             return await _tiqueteRepository.GetColasGlobalAsync();
         }
 
+        //---------------------------Dashboard--------------------------------------------------
+        public async Task<int> ContarTiquetesAsync()
+        {
+            return await _tiqueteRepository.ContarTiquetesAsync();
+        }
 
-        //----------------------------HELPERS (DRY)--------------------------------
+        public async Task<List<TiquetesPorEstadoDto>> ObtenerTiquetesPorEstadoAsync()
+        {
+            return await _tiqueteRepository.ObtenerTiquetesPorEstadoAsync();
+        }
+
+        public async Task<List<TiquetesPorDiaDto>> ObtenerTiquetesUltimos7DiasAsync()
+        {
+            return await _tiqueteRepository.ObtenerTiquetesUltimos7DiasAsync();
+        }
+
+        public async Task<double> PromedioResolucion()
+        {
+            return await _tiqueteRepository.PromedioResolucion();
+        }
+
+
+        //----------------------------HELPERS (DRY)---------------------------------------------
 
         private async Task ValidarCategoriaAsync(int idCategoria)
         {
@@ -445,8 +490,8 @@ namespace BusinessLogic.Servicios.Tiquetes
                     continue;
 
                 //Validar size
-                if (archivo.Length > 5 * 1024 * 1024)
-                    throw new ArgumentException("Archivo supera 5MB.");
+                if (archivo.Length > 2 * 1024 * 1024)
+                    throw new ArgumentException("Archivo supera 2MB.");
 
                 //Validar extensión
                 var extension = Path.GetExtension(archivo.FileName).ToLower();

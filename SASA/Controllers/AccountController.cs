@@ -166,7 +166,7 @@ namespace SASA.Controllers
             // Enviar correo con Graph (si falla, NO rompe)
             _ = await _correoNotificaciones.EnviarRecuperacionContrasenaAsync(user.Email!, toName, resetLink);
 
-            TempData["Success"] = genericMsg;
+            TempData["Success"] = "Si el correo existe, se enviará un enlace de recuperación.";
             return RedirectToAction(nameof(Login));
         }
 

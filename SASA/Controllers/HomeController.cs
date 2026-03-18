@@ -1,10 +1,15 @@
-using System.Diagnostics;
+using BusinessLogic.Servicios.Inventario;
+using BusinessLogic.Servicios.Tiquetes;
+using DataAccess;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System.Linq;
-using SASA.Models;
 using SASA.Filters;
-using Microsoft.AspNetCore.Authorization;
+using SASA.Models;
+using SASA.ViewModels.Home;
+using SASA.ViewModels.Tiquete.Extras;
+using System.Diagnostics;
+
 
 
 namespace SASA.Controllers
@@ -14,19 +19,23 @@ namespace SASA.Controllers
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
-        private readonly DataAccess.ApplicationDbContext _db;
-        private readonly BusinessLogic.Servicios.Tiquetes.ITiqueteService _tiqueteService;
+        private readonly ApplicationDbContext _db;
+        private readonly ITiqueteService _tiqueteService;
+        private readonly IInventarioService _inventarioService;
 
-        public HomeController(ILogger<HomeController> logger, DataAccess.ApplicationDbContext db, BusinessLogic.Servicios.Tiquetes.ITiqueteService tiqueteService)
+
+        public HomeController(ILogger<HomeController> logger, ApplicationDbContext db, ITiqueteService tiqueteService, IInventarioService inventarioService)
         {
             _logger = logger;
             _db = db;
             _tiqueteService = tiqueteService;
+            _inventarioService = inventarioService;
         }
 
         [HttpGet]
         public IActionResult GetDashboardJson()
         {
+
             var role = User?.Identity != null && User.Identity.IsAuthenticated
                 ? User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value
                 : null;
@@ -36,7 +45,7 @@ namespace SASA.Controllers
                 .Select(g => new { Status = g.Key, Count = g.Count() })
                 .ToList();
 
-            var vm = new SASA.ViewModels.Home.DashboardViewModel
+            var vm = new DashboardViewModel
             {
                 Abiertos = counts.FirstOrDefault(x => x.Status == (int)DataAccess.Modelos.Enums.TiqueteEstatus.Creado)?.Count ?? 0,
                 EnProgreso = counts.FirstOrDefault(x => x.Status == (int)DataAccess.Modelos.Enums.TiqueteEstatus.EnProceso)?.Count ?? 0,
@@ -100,6 +109,16 @@ namespace SASA.Controllers
 
         public IActionResult Index()
         {
+
+            if (!User.Identity?.IsAuthenticated ?? true)
+            {
+                return Redirect("/login");
+            }
+
+            if (User.IsInRole("Administrador"))
+            {
+                return RedirectToAction("Index", "Cola");
+            }
             var role = User?.Identity != null && User.Identity.IsAuthenticated
                 ? User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value
                 : null;
@@ -109,7 +128,7 @@ namespace SASA.Controllers
                 .Select(g => new { Status = g.Key, Count = g.Count() })
                 .ToList();
 
-            var vm = new SASA.ViewModels.Home.DashboardViewModel
+            var vm = new DashboardViewModel
             {
                 Abiertos = counts.FirstOrDefault(x => x.Status == (int)DataAccess.Modelos.Enums.TiqueteEstatus.Creado)?.Count ?? 0,
                 EnProgreso = counts.FirstOrDefault(x => x.Status == (int)DataAccess.Modelos.Enums.TiqueteEstatus.EnProceso)?.Count ?? 0,
@@ -170,15 +189,43 @@ namespace SASA.Controllers
             return View(vm);
         }
 
-        public IActionResult Privacy()
-        {
-            return View();
-        }
-
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
+
+
+        [HttpGet]
+        [Authorize(Roles = "Administrador")]
+        public async Task<IActionResult> AdminDashboard()
+        {
+            var porEstadoDto = await _tiqueteService.ObtenerTiquetesPorEstadoAsync();
+            var ultimos7dias = await _tiqueteService.ObtenerTiquetesUltimos7DiasAsync();
+            var viewModel = new DashboardAdminViewModel
+            {
+                TotalTiquetes = await _tiqueteService.ContarTiquetesAsync(),
+                TotalInventario = await _inventarioService.ContarInventarioAsync(),
+                PromedioResolucion = await _tiqueteService.PromedioResolucion(),
+                PorEstado = porEstadoDto
+                    .Select(p => new TiquetesPorEstadoViewModel
+                    {
+                        Estado = p.Estado,
+                        Cantidad = p.Cantidad
+                    })
+                    .ToList(),
+                Ultimos7Dias = ultimos7dias
+                    .Select(d => new TiquetesPorDiaViewModel
+                    {
+                        Cantidad = d.Cantidad,
+                        Fecha = d.Fecha
+                    })
+                    .ToList()
+            };
+
+
+            return View(viewModel);
+        }
+
     }
 }

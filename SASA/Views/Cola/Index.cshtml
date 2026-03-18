@@ -7,6 +7,7 @@
 }
 
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+
 <div class="container-fluid">
     <div class="card mb-3">
         <div class="card-body">
@@ -39,11 +40,13 @@
 
                 <div class="tab-content" id="colaTabsContent">
                     <div class="tab-pane fade @(tabColaPersonalActiva ? "show active" : "")" id="personal-pane" role="tabpanel">
-                        <div id="ticketQueue" class="notif-list">
+                        <div id="ticketQueue" class="notif-list queue-container" style="max-height: 700px; overflow-y: auto;">
 
                             @foreach (var c in Model.Personal)
                             {
-                                <div class="notif-item notif-unread">
+                                <div class="notif-item notif-unread"
+                                    data-id="@c.IdTiquete"
+                                    data-orden="@c.OrdenCola">
                                     <div class="notif-left">
                                         <div class="notif-icon info">
                                             #@c.PosicionCola
@@ -55,23 +58,73 @@
                                                 <div class="notif-title">@c.Asunto</div>
                                                 <div class="notif-meta">
                                                     <ul class="list-unstyled">
-                                                        <li>@FormatearTiempo(c.CreatedAt)</li>
-                                                        <li>Categoría: @c.Categoria </li>
-                                                        <li>Prioridad: @c.Prioridad</li>
+                                                        <div>
+
+                                                            <div class="text-muted small">
+                                                                Categoría : @c.Categoria
+                                                            </div>
+
+                                                            <div class="mt-2 d-flex gap-2 flex-wrap">
+
+                                                                <!-- PRIORITY -->
+                                                                @switch (c.Prioridad)
+                                                                {
+                                                                    case "Baja":
+                                                                        <span class="badge bg-secondary">Baja</span>
+                                                                        break;
+                                                                    case "Media":
+                                                                        <span class="badge bg-primary">Media</span>
+                                                                        break;
+                                                                    case "Alta":
+                                                                        <span class="badge bg-warning text-dark">Alta</span>
+                                                                        break;
+                                                                    default:
+                                                                        <span class="badge bg-danger">Crítica</span>
+                                                                        break;
+                                                                }
+
+                                                                <!-- TIME -->
+                                                                @if (!c.EstaAtrasado)
+                                                                {
+                                                                    <span class="badge bg-success">
+                                                                        @c.TiempoRestante
+                                                                    </span>
+                                                                }
+                                                                else
+                                                                {
+                                                                    <span class="badge bg-danger">
+                                                                        +@c.TiempoExcedido
+                                                                    </span>
+                                                                }
+
+                                                            </div>
+                                                        </div>
                                                     </ul>
                                                 </div>
                                             </div>
 
                                             <div class="notif-controls">
                                                 <a asp-route-id="@c.IdTiquete" 
-                                                class="btn btn-sm btn-primary notif-btn"
+                                                class="btn btn-sm btn-success notif-btn"
                                                 asp-action="Details" 
                                                 asp-controller="Tiquete"
                                                 title="Ver detalle">
 
                                                     <i class="bi bi-eye"></i>
                                                 </a>
+
+                                                <a asp-route-id="@c.IdTiquete"
+                                                       class="btn btn-sm btn-primary notif-btn"
+                                                       asp-action="Edit"
+                                                       asp-controller="Tiquete"
+                                                       title="Editar tiquete">
+
+                                                    <i class="bi bi-pencil-square"></i>
+                                                </a>
+
                                             </div>
+
+
                                        </div>
                                     </div>
                                 </div>
@@ -81,72 +134,60 @@
                     </div>
 
                     <div class="tab-pane fade @(tabColaGlobalActiva ? "show active" : "")" id="global-pane" role="tabpanel">
-                        <div id="ticketQueue" class="notif-list">
+
+                        <!-- Kanban Board Container -->
+                        <div class="kanban-board d-flex gap-3 p-2">
+
                             @foreach (var assignee in Model.Global)
                             {
-                                <div class="mb-4">
+                                <div class="kanban-column card shadow-sm">
 
-                                    <!-- Assignee Header -->
-                                    <div class="d-flex align-items-center mb-2">
-                                        <h5 class="fw-bold me-2">@assignee.AssigneeCorreo</h5>
+                                    <!-- Column Header -->
+                                    <div class="card-header d-flex justify-content-between align-items-center">
+                                        <span class="fw-bold">@assignee.AssigneeNombre</span>
 
-                                            @if(assignee.Colas.Count > 1)
-                                            {
-                                            <span class="badge bg-secondary">
-                                                @assignee.Colas.Count tiquetes
-                                             </span>
-                                            }
-                                        else
-                                        {
-                                            <span class="badge bg-secondary">
-                                                @assignee.Colas.Count tiquete
-                                            </span>
-                                        }
+                                        <small class="badge-ticket-num">
+                                            @assignee.Colas.Count @(assignee.Colas.Count == 1 ? "tiquete" : "tiquetes")
+                                        </small>
                                     </div>
 
-                                    <div class="notif-list">
+                                    <!-- Column Body (Scrollable) -->
+                                    <div class="kanban-body">
 
                                         @foreach (var c in assignee.Colas)
                                         {
-                                            <div class="notif-item notif-unread">
-                                                <div class="notif-left">
-                                                    <div class="notif-icon info">
-                                                        #@c.PosicionCola
-                                                    </div>
+                                            <div class="kanban-card">
+
+                                                <div class="kanban-card-header">
+                                                    <span class="badge bg-secondary">#@c.PosicionCola</span>
                                                 </div>
 
-                                                <div class="notif-body">
-                                                    <div class="notif-row">
+                                                <div class="kanban-card-body">
+                                                    <div class="fw-semibold">@c.Asunto</div>
 
-                                                        <div>
-                                                            <div class="notif-title">@c.Asunto</div>
+                                                    <small class="text-muted d-block">
+                                                         @c.Categoria
+                                                    </small>
 
-                                                            <div class="notif-meta">
-                                                                <ul class="list-unstyled">
-                                                                    <li>Categoría: @c.Categoria</li>
-                                                                    <li>Prioridad: @c.Prioridad</li>
-                                                                </ul>
-                                                            </div>
-                                                        </div>
+                                                    <small class="text-muted d-block mb-2">
+                                                        Prioridad: @c.Prioridad
+                                                    </small>
 
-                                                        <div class="notif-controls">
-                                                            <a asp-route-id="@c.IdTiquete"
-                                                                   class="btn btn-sm btn-primary notif-btn"
-                                                                   asp-action="Details"
-                                                                   asp-controller="Tiquete">
-
-                                                                <i class="bi bi-eye"></i>
-                                                            </a>
-                                                        </div>
-
-                                                    </div>
+                                                    <a asp-route-id="@c.IdTiquete"
+                                                           class="btn btn-sm btn-custom w-100"
+                                                           asp-action="Details"
+                                                           asp-controller="Tiquete">
+                                                        Ver
+                                                    </a>
                                                 </div>
+
                                             </div>
                                         }
 
                                     </div>
                                 </div>
                             }
+
                         </div>
                     </div>
                 </div>
@@ -177,3 +218,4 @@
 @section Scripts {
     <script src="~/js/Queue.js" asp-append-version="true"></script>
 }
+
