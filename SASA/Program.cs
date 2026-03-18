@@ -71,8 +71,8 @@ builder.Services.ConfigureApplicationCookie(options =>
 {
     options.LoginPath = "/login";
     options.AccessDeniedPath = "/Account/AccessDenied";
-    options.ExpireTimeSpan = TimeSpan.FromMinutes(30);
-    options.SlidingExpiration = false;
+    options.ExpireTimeSpan = TimeSpan.FromMinutes(15);
+    options.SlidingExpiration = true;
 
     options.Events = new Microsoft.AspNetCore.Authentication.Cookies.CookieAuthenticationEvents
     {
@@ -97,7 +97,7 @@ builder.Services.ConfigureApplicationCookie(options =>
             }
 
             var last = DateTimeOffset.FromUnixTimeSeconds(lastUnix);
-            var idleTimeout = TimeSpan.FromMinutes(5);
+            var idleTimeout = TimeSpan.FromMinutes(15);
 
             if (DateTimeOffset.UtcNow - last > idleTimeout)
             {
