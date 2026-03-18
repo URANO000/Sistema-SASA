@@ -1,7 +1,6 @@
 ﻿using BusinessLogic.Servicios.Helpers;
 using BusinessLogic.Servicios.Tiquetes;
 using DataAccess.Identity;
-using DataAccess.Modelos.Entidades.ModTiquete;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -68,7 +67,7 @@ namespace SASA.Controllers
                 Global = colaAssigneeDto.Select(g => new ColaGlobalViewModel
                 {
                     AssigneeId = g.AssigneeId,
-                    AssigneeCorreo = g.AssigneeCorreo,
+                    AssigneeNombre = g.AssigneeNombre,
 
                     Colas = g.Colas.Select(t =>
                     {
