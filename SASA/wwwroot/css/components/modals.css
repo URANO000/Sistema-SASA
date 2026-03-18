@@ -115,7 +115,7 @@
     bottom: 0;
     background: #fff;
     z-index: 10;
-=======
+}
 /*Then for alert modal*/
 #alertModal .alert-icon i {
     font-size: 3.5rem;

@@ -45,7 +45,7 @@ namespace SASA.Controllers
                 .Select(g => new { Status = g.Key, Count = g.Count() })
                 .ToList();
 
-            var vm = new SASA.ViewModels.Home.DashboardViewModel
+            var vm = new DashboardViewModel
             {
                 Abiertos = counts.FirstOrDefault(x => x.Status == (int)DataAccess.Modelos.Enums.TiqueteEstatus.Creado)?.Count ?? 0,
                 EnProgreso = counts.FirstOrDefault(x => x.Status == (int)DataAccess.Modelos.Enums.TiqueteEstatus.EnProceso)?.Count ?? 0,
@@ -117,7 +117,7 @@ namespace SASA.Controllers
 
             if (User.IsInRole("Administrador"))
             {
-                return RedirectToAction("AdminDashboard");
+                return RedirectToAction("Index", "Cola");
             }
             var role = User?.Identity != null && User.Identity.IsAuthenticated
                 ? User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value
@@ -128,7 +128,7 @@ namespace SASA.Controllers
                 .Select(g => new { Status = g.Key, Count = g.Count() })
                 .ToList();
 
-            var vm = new SASA.ViewModels.Home.DashboardViewModel
+            var vm = new DashboardViewModel
             {
                 Abiertos = counts.FirstOrDefault(x => x.Status == (int)DataAccess.Modelos.Enums.TiqueteEstatus.Creado)?.Count ?? 0,
                 EnProgreso = counts.FirstOrDefault(x => x.Status == (int)DataAccess.Modelos.Enums.TiqueteEstatus.EnProceso)?.Count ?? 0,
