@@ -488,8 +488,8 @@ namespace BusinessLogic.Servicios.Tiquetes
                     continue;
 
                 //Validar size
-                if (archivo.Length > 5 * 1024 * 1024)
-                    throw new ArgumentException("Archivo supera 5MB.");
+                if (archivo.Length > 2 * 1024 * 1024)
+                    throw new ArgumentException("Archivo supera 2MB.");
 
                 //Validar extensión
                 var extension = Path.GetExtension(archivo.FileName).ToLower();

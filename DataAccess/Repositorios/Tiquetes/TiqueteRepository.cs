@@ -37,7 +37,8 @@ namespace DataAccess.Repositorios.Tiquetes
                 query = query.Where(t =>
                     t.Asunto.Contains(filtro.Search) ||
                     t.Descripcion.Contains(filtro.Search) ||
-                    t.Asignee.CorreoEmpresa.Contains(filtro.Search)
+                    t.Asignee.PrimerNombre.Contains(filtro.Search) ||
+                    t.Asignee.PrimerApellido.Contains(filtro.Search)
                     );
             }
 
@@ -85,7 +86,7 @@ namespace DataAccess.Repositorios.Tiquetes
                     Categoria = t.Categoria != null ? t.Categoria.NombreCategoria : "Sin categoría",
                     ReportedBy = t.ReportedBy.CorreoEmpresa,
                     Departamento = t.ReportedBy.Departamento,
-                    Assignee = t.Asignee != null ? t.Asignee.CorreoEmpresa : "Sin asignar",
+                    Assignee = t.Asignee != null ? t.Asignee.PrimerNombre + t.Asignee.PrimerApellido : "Sin Asignar",
                     CreatedAt = t.CreatedAt,
                     UpdatedAt = t.UpdatedAt
                 })
@@ -146,7 +147,7 @@ namespace DataAccess.Repositorios.Tiquetes
                         : "Sin SubCategoria",
                     ReportedBy = t.ReportedBy.CorreoEmpresa,
                     Departamento = t.ReportedBy.Departamento,
-                    Assignee = t.Asignee != null ? t.Asignee.CorreoEmpresa : "Sin asignar",
+                    Assignee = t.Asignee != null ? t.Asignee.PrimerNombre + t.Asignee.PrimerApellido : "Sin asignar",
                     CreatedAt = t.CreatedAt,
                     UpdatedAt = t.UpdatedAt,
                     Prioridad = t.SubCategoria.Prioridad.NombrePrioridad,
@@ -180,7 +181,7 @@ namespace DataAccess.Repositorios.Tiquetes
             IdEstatus = t.IdEstatus,
             IdAsignee = t.IdAsignee,
             Resolucion = t.Resolucion,
-            ReportedByEmail = t.ReportedBy.CorreoEmpresa,
+            ReportedByEmail = t.ReportedBy.PrimerNombre + t.ReportedBy.PrimerApellido,
             ReportedByNombre = (t.ReportedBy.PrimerNombre ?? "") + " " + (t.ReportedBy.PrimerApellido ?? ""),
             EstatusNombre = t.Estatus.NombreEstatus
         })
