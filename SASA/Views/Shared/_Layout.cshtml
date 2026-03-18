@@ -295,18 +295,6 @@ else
 
     @await RenderSectionAsync("Scripts", required: false)
 
-    <script>
-        // Evita mostrar duplicados en el menú de usuario (si hay más de un elemento con mismas clases)
-        document.addEventListener('DOMContentLoaded', function () {
-            document.querySelectorAll('.user-menu').forEach(function (menu) {
-                var names = menu.querySelectorAll('.user-name');
-                names.forEach(function (el, i) { if (i > 0) el.remove(); });
-                var roles = menu.querySelectorAll('.user-role');
-                roles.forEach(function (el, i) { if (i > 0) el.remove(); });
-            });
-        });
-    </script>
-
     <div class="modal fade" id="sessionTimeoutModal" tabindex="-1" aria-hidden="true"
          data-bs-backdrop="static" data-bs-keyboard="false">
         <div class="modal-dialog modal-dialog-centered">

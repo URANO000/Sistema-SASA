@@ -71,8 +71,8 @@ builder.Services.ConfigureApplicationCookie(options =>
 {
     options.LoginPath = "/login";
     options.AccessDeniedPath = "/Account/AccessDenied";
-    options.ExpireTimeSpan = TimeSpan.FromMinutes(30);
-    options.SlidingExpiration = false;
+    options.ExpireTimeSpan = TimeSpan.FromMinutes(15);
+    options.SlidingExpiration = true;
 
     options.Events = new Microsoft.AspNetCore.Authentication.Cookies.CookieAuthenticationEvents
     {
@@ -97,7 +97,7 @@ builder.Services.ConfigureApplicationCookie(options =>
             }
 
             var last = DateTimeOffset.FromUnixTimeSeconds(lastUnix);
-            var idleTimeout = TimeSpan.FromMinutes(5);
+            var idleTimeout = TimeSpan.FromMinutes(15);
 
             if (DateTimeOffset.UtcNow - last > idleTimeout)
             {
@@ -106,6 +106,12 @@ builder.Services.ConfigureApplicationCookie(options =>
             }
         }
     };
+});
+
+// Security Stamp
+builder.Services.Configure<SecurityStampValidatorOptions>(options =>
+{
+    options.ValidationInterval = TimeSpan.FromMinutes(5);
 });
 
 // Repositories y servicios de negocio
@@ -289,14 +295,16 @@ app.Use(async (ctx, next) =>
     if (ctx.User?.Identity?.IsAuthenticated != true)
         return;
 
-    var isHtmlNavigation = ctx.Request.Headers.Accept.ToString().Contains("text/html");
+    var path = ctx.Request.Path.Value?.ToLowerInvariant() ?? string.Empty;
 
-    var hasUserActivityHeader =
-        ctx.Request.Headers.TryGetValue("X-User-Activity", out var v) && v == "1";
+    var shouldIgnore =
+        path.StartsWith("/login") ||
+        path.StartsWith("/forgot-password") ||
+        path.StartsWith("/reset-password") ||
+        path.StartsWith("/set-password") ||
+        path.StartsWith("/logout");
 
-    var shouldCountAsActivity = isHtmlNavigation || hasUserActivityHeader;
-
-    if (!shouldCountAsActivity)
+    if (shouldIgnore)
         return;
 
     var userId = ctx.User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
