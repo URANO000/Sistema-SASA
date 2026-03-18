@@ -67,7 +67,7 @@ namespace SASA.Controllers
                 Global = colaAssigneeDto.Select(g => new ColaGlobalViewModel
                 {
                     AssigneeId = g.AssigneeId,
-                    AssigneeCorreo = g.AssigneeCorreo,
+                    AssigneeNombre = g.AssigneeNombre,
 
                     Colas = g.Colas.Select(t =>
                     {

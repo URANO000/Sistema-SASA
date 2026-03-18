@@ -84,9 +84,9 @@ namespace DataAccess.Repositorios.Tiquetes
                     Resolucion = t.Resolucion ?? "Sin Resolución",
                     Estatus = t.Estatus != null ? t.Estatus.NombreEstatus : "Sin estatus",
                     Categoria = t.Categoria != null ? t.Categoria.NombreCategoria : "Sin categoría",
-                    ReportedBy = t.ReportedBy.CorreoEmpresa,
+                    ReportedBy = t.ReportedBy != null ? t.ReportedBy.PrimerNombre + " " + t.ReportedBy.PrimerApellido : "Desconocido",
                     Departamento = t.ReportedBy.Departamento,
-                    Assignee = t.Asignee != null ? t.Asignee.PrimerNombre + t.Asignee.PrimerApellido : "Sin Asignar",
+                    Assignee = t.Asignee != null ? t.Asignee.PrimerNombre + " " + t.Asignee.PrimerApellido : "Sin Asignar",
                     CreatedAt = t.CreatedAt,
                     UpdatedAt = t.UpdatedAt
                 })
@@ -145,9 +145,9 @@ namespace DataAccess.Repositorios.Tiquetes
                     SubCategoria = t.SubCategoria != null
                         ? t.SubCategoria.NombreSubCategoria
                         : "Sin SubCategoria",
-                    ReportedBy = t.ReportedBy.CorreoEmpresa,
+                    ReportedBy = t.ReportedBy.PrimerNombre + " " + t.ReportedBy.PrimerApellido,
                     Departamento = t.ReportedBy.Departamento,
-                    Assignee = t.Asignee != null ? t.Asignee.PrimerNombre + t.Asignee.PrimerApellido : "Sin asignar",
+                    Assignee = t.Asignee != null ? t.Asignee.PrimerNombre + " " + t.Asignee.PrimerApellido : "Sin asignar",
                     CreatedAt = t.CreatedAt,
                     UpdatedAt = t.UpdatedAt,
                     Prioridad = t.SubCategoria.Prioridad.NombrePrioridad,
@@ -237,7 +237,7 @@ namespace DataAccess.Repositorios.Tiquetes
                     .Select(t => new ColaTiqueteDto
                     {
                         IdTiquete = t.IdTiquete,
-                        Asignee = t.Asignee.CorreoEmpresa,
+                        Asignee = t.Asignee.PrimerNombre + " " + t.Asignee.PrimerApellido,
                         Asunto = t.Asunto,
                         OrdenCola = t.OrdenCola,
                         Categoria = t.Categoria.NombreCategoria,
@@ -269,7 +269,7 @@ namespace DataAccess.Repositorios.Tiquetes
                 .ThenBy(t => t.OrdenCola)
                 .Select(t => new {
                     t.IdAsignee,
-                    AssigneeCorreo = t.Asignee.CorreoEmpresa,
+                    AssigneeNombre = t.Asignee.PrimerNombre + " " + t.Asignee.PrimerApellido,
 
                     Tiquete = new ColaTiqueteDto
                     {
@@ -285,7 +285,7 @@ namespace DataAccess.Repositorios.Tiquetes
                 .ToListAsync();
 
             var resultado = tiquetes
-                .GroupBy(t => new { t.IdAsignee, t.AssigneeCorreo })
+                .GroupBy(t => new { t.IdAsignee, t.AssigneeNombre })
                 .Select(g =>
                 {
                     int posicion = 1; //Para UI
@@ -299,7 +299,7 @@ namespace DataAccess.Repositorios.Tiquetes
                     return new ColaPorAssigneeDto
                     {
                         AssigneeId = g.Key.IdAsignee,
-                        AssigneeCorreo = g.Key.AssigneeCorreo,
+                        AssigneeNombre = g.Key.AssigneeNombre,
                         Colas = lista
                     };
                 })

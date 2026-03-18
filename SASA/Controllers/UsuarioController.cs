@@ -1,5 +1,6 @@
 ﻿using BusinessLogic.Servicios.Autenticacion;
 using BusinessLogic.Servicios.Correo;
+using BusinessLogic.Servicios.Helpers;
 using BusinessLogic.Servicios.Rol;
 using BusinessLogic.Servicios.Usuarios;
 using DataAccess.Modelos.DTOs.Usuarios;
@@ -29,14 +30,18 @@ namespace SASA.Controllers
         private readonly ICorreoNotificacionesService _correoNotificaciones;
         private readonly AppSettings _appSettings;
         private readonly ILoginAttemptService _loginAttemptService;
+        private readonly IHelper _helper;
 
-        public UsuarioController(IUsuarioService usuarioService, IRolService rolService, ICorreoNotificacionesService correoNotificaciones, IOptions<AppSettings> appOptions, ILoginAttemptService loginAttemptService)
+        public UsuarioController(IUsuarioService usuarioService, IRolService rolService,
+            ICorreoNotificacionesService correoNotificaciones, IOptions<AppSettings> appOptions,
+            ILoginAttemptService loginAttemptService, IHelper helper)
         {
             _usuarioService = usuarioService;
             _rolService = rolService;
             _correoNotificaciones = correoNotificaciones;
             _appSettings = appOptions.Value;
             _loginAttemptService = loginAttemptService;
+            _helper = helper;
         }
 
 
@@ -68,9 +73,11 @@ namespace SASA.Controllers
                     CorreoEmpresa = u.CorreoEmpresa,
                     Estado = u.Estado ? "Activo" : "Inactivo",
                     Rol = u.Roles != null && u.Roles.Count > 0
-            ? string.Join(", ", u.Roles)
-            : "SIN ROL" //Por si no tiene rol, no dejarlo en nulo
-
+                        ? string.Join(", ", u.Roles)
+                        : "SIN ROL", //Por si no tiene rol, no dejarlo en nulo
+                    CreatedAt = u.CreatedAt.HasValue 
+                    ? _helper.FormatearCRTime(u.CreatedAt.Value) 
+                    : null
                 }).ToList(),
 
                 Filtro = new UsuarioFiltroViewModel
