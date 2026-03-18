@@ -250,7 +250,6 @@ namespace BusinessLogic.Servicios.Usuarios
                     string.Join(", ", resultado.Errors.Select(e => e.Description)));
             }
 
-            //Finalmente, se maneja el rol, similar al método de agregar usuario
             var rolesActuales = await _userManager.GetRolesAsync(usuario);
 
             if (!rolesActuales.Contains(dto.Rol))
@@ -261,6 +260,12 @@ namespace BusinessLogic.Servicios.Usuarios
                 if (!resultadoRol.Succeeded)
                 {
                     throw new InvalidOperationException("Error actualizando el rol del usuario.");
+                }
+
+                var stampResult = await _userManager.UpdateSecurityStampAsync(usuario);
+                if (!stampResult.Succeeded)
+                {
+                    throw new InvalidOperationException("Error invalidando sesiones del usuario tras cambio de rol.");
                 }
             }
 
@@ -276,14 +281,23 @@ namespace BusinessLogic.Servicios.Usuarios
                 throw new ArgumentException("Id inválido", nameof(id));
             }
 
-            var usuario = await _usuarioRepository.ObtenerUsuarioPorIdAsync(id);
-            if (usuario == null)
+            var usuarioDto = await _usuarioRepository.ObtenerUsuarioPorIdAsync(id);
+            if (usuarioDto == null)
             {
                 throw new InvalidOperationException("Usuario no encontrado.");
-
             }
 
             await _usuarioRepository.DesactivarUsuario(id);
+
+            var usuario = await _userManager.FindByIdAsync(id);
+            if (usuario != null)
+            {
+                var stampResult = await _userManager.UpdateSecurityStampAsync(usuario);
+                if (!stampResult.Succeeded)
+                {
+                    throw new InvalidOperationException("Error invalidando sesiones del usuario desactivado.");
+                }
+            }
         }
 
         public async Task ActivarUsuarioAsync(string id, string currentUserId)
@@ -295,14 +309,23 @@ namespace BusinessLogic.Servicios.Usuarios
                 throw new ArgumentException("Id inválido", nameof(id));
             }
 
-            var usuario = await _usuarioRepository.ObtenerUsuarioPorIdAsync(id);
-            if (usuario == null)
+            var usuarioDto = await _usuarioRepository.ObtenerUsuarioPorIdAsync(id);
+            if (usuarioDto == null)
             {
                 throw new InvalidOperationException("Usuario no encontrado.");
-
             }
 
             await _usuarioRepository.ActivarUsuario(id);
+
+            var usuario = await _userManager.FindByIdAsync(id);
+            if (usuario != null)
+            {
+                var stampResult = await _userManager.UpdateSecurityStampAsync(usuario);
+                if (!stampResult.Succeeded)
+                {
+                    throw new InvalidOperationException("Error actualizando seguridad del usuario activado.");
+                }
+            }
         }
     }
 }

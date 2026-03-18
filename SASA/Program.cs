@@ -108,6 +108,12 @@ builder.Services.ConfigureApplicationCookie(options =>
     };
 });
 
+// Security Stamp
+builder.Services.Configure<SecurityStampValidatorOptions>(options =>
+{
+    options.ValidationInterval = TimeSpan.FromMinutes(5);
+});
+
 // Repositories y servicios de negocio
 builder.Services.AddScoped<ITiqueteRepository, TiqueteRepository>();
 builder.Services.AddScoped<ITiqueteService, TiqueteService>();

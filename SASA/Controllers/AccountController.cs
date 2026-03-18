@@ -223,9 +223,14 @@ namespace SASA.Controllers
 
             if (!result.Succeeded)
             {
-                // Escenario 3: link expirado / usado / token inválido
-                // (Identity suele devolver InvalidToken o similares)
                 ModelState.AddModelError(string.Empty, "No se pudo restablecer la contraseña. Es posible que el enlace haya expirado o ya fue utilizado. Solicita uno nuevo.");
+                return View(vm);
+            }
+
+            var stampResult = await _userManager.UpdateSecurityStampAsync(user);
+            if (!stampResult.Succeeded)
+            {
+                ModelState.AddModelError(string.Empty, "La contraseña fue cambiada, pero ocurrió un problema actualizando la seguridad de la cuenta.");
                 return View(vm);
             }
 
@@ -384,6 +389,13 @@ namespace SASA.Controllers
                 return View(vm);
             }
 
+            var stampResult = await _userManager.UpdateSecurityStampAsync(user);
+            if (!stampResult.Succeeded)
+            {
+                ModelState.AddModelError(string.Empty, "La contraseña fue creada, pero ocurrió un problema actualizando la seguridad de la cuenta.");
+                return View(vm);
+            }
+
             TempData["Success"] = "Contraseña creada. Ahora puedes iniciar sesión.";
             return RedirectToAction(nameof(Login));
         }
@@ -392,7 +404,7 @@ namespace SASA.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult KeepAlive()
         {
-            // No hace nada: el middleware ve el header X-User-Activity y actualiza last-activity
+            // Endpoint utilizado por el frontend para mantener activa la sesión del usuario autenticado.
             return NoContent();
         }
     }
