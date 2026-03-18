@@ -322,13 +322,11 @@ namespace BusinessLogic.Servicios.Tiquetes
                 }
 
                 var user = await _userManager.FindByIdAsync(dto.IdAssignee);
-                if (user == null)
-                {
-                    throw new KeyNotFoundException("El usuario asignado no existe.");
-                }
+                _helper.ValidarUsuarioExiste(user);
+                
 
                 //Para historial de tiquetes, abajo
-                var correo = user.Email;
+                var nombreCompleto = user.PrimerNombre + " " + user.PrimerApellido;
 
                 //Para colas
                 decimal siguienteOrden = 0;
@@ -350,6 +348,10 @@ namespace BusinessLogic.Servicios.Tiquetes
 
                     //Para historial y colas
                     var asignadoAnterior = tiquete.IdAsignee;
+                    var usuarioAnterior = await _userManager.FindByIdAsync(asignadoAnterior);
+                    _helper.ValidarUsuarioExiste(usuarioAnterior);
+
+                    var nombreAnterior = usuarioAnterior.PrimerNombre + " " + usuarioAnterior.PrimerApellido;
 
                     //Para colas nada más
                     bool cambiaAssignee = asignadoAnterior != dto.IdAssignee;
@@ -376,8 +378,8 @@ namespace BusinessLogic.Servicios.Tiquetes
 
                     await _tiqueteHistorialService.RegistrarAsignacionAsync(
                         tiquete.IdTiquete,
-                        asignadoAnterior ?? "Sin asignado anterior",
-                        correo ?? "Sin correo",
+                        nombreAnterior ?? "Sin asignado anterior",
+                        nombreCompleto ?? "Sin nombre asignado",
                         tiquete.UpdatedBy);
                 }
 

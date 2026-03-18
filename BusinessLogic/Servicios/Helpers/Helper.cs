@@ -28,15 +28,21 @@ namespace BusinessLogic.Servicios.Helpers
                 throw new UnauthorizedAccessException("Usuario no autenticado.");
         }
 
+        //Para verificar que un usuario existe
+        public void ValidarUsuarioExiste(ApplicationUser? user)
+        {
+            if (user == null)
+            {
+                throw new KeyNotFoundException("El usuario no existe.");
+            }
+        }
+
         //Para verificar que un usuario es activo
         public async Task ValidarUsuarioEstado(string currentUserId)
         {
             var user = await _userManager.FindByIdAsync(currentUserId);
 
-            if (user == null)
-            {
-                throw new KeyNotFoundException("El usuario no existe.");
-            }
+            ValidarUsuarioExiste(user);
 
             if (user.Estado == false)
             {
