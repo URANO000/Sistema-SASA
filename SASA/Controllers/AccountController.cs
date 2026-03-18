@@ -388,7 +388,8 @@ namespace SASA.Controllers
             return RedirectToAction(nameof(Login));
         }
 
-        [HttpGet]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
         public IActionResult KeepAlive()
         {
             // No hace nada: el middleware ve el header X-User-Activity y actualiza last-activity
