@@ -64,7 +64,7 @@ namespace DataAccess.Repositorios.Notificaciones
                     TipoEvento = n.TipoEvento,
                     Mensaje = n.Mensaje,
                     Leida = n.Leida,
-                    FechaCreacion = n.FechaCreacion
+                    FechaCreacion = DateTime.SpecifyKind(n.FechaCreacion, DateTimeKind.Local)
                 })
                 .ToListAsync();
 
@@ -89,7 +89,7 @@ namespace DataAccess.Repositorios.Notificaciones
                     TipoEvento = n.TipoEvento,
                     Mensaje = n.Mensaje,
                     Leida = n.Leida,
-                    FechaCreacion = n.FechaCreacion
+                    FechaCreacion = DateTime.SpecifyKind(n.FechaCreacion, DateTimeKind.Local)
                 })
                 .FirstOrDefaultAsync();
         }
@@ -150,7 +150,7 @@ namespace DataAccess.Repositorios.Notificaciones
 
             if (responsableId == autorUserId) return;
 
-            var ahora = DateTime.Now;
+            var ahora = DateTime.UtcNow;
 
             var estaSilenciado = await _db.NotificacionSilencios
                 .AsNoTracking()
@@ -186,7 +186,7 @@ namespace DataAccess.Repositorios.Notificaciones
 
         public async Task<DateTime?> ObtenerSilencioActivoAsync(string userId, int idTiquete)
         {
-            var ahora = DateTime.Now;
+            var ahora = DateTime.UtcNow;
 
             return await _db.NotificacionSilencios
                 .AsNoTracking()
@@ -202,7 +202,7 @@ namespace DataAccess.Repositorios.Notificaciones
         {
             if (horas <= 0) horas = 1;
 
-            var ahora = DateTime.Now;
+            var ahora = DateTime.UtcNow;
             var hasta = ahora.AddHours(horas);
 
             var activos = await _db.NotificacionSilencios
@@ -227,7 +227,7 @@ namespace DataAccess.Repositorios.Notificaciones
 
         public async Task ReactivarSilencioAsync(string userId, int idTiquete)
         {
-            var ahora = DateTime.Now;
+            var ahora = DateTime.UtcNow;
 
             var activos = await _db.NotificacionSilencios
                 .Where(s => s.UserId == userId
@@ -289,7 +289,7 @@ namespace DataAccess.Repositorios.Notificaciones
                 .Select(n => new DataAccess.Modelos.DTOs.Notificaciones.NotificacionAuditoriaItemDTO
                 {
                     IdNotificacion = n.IdNotificacion,
-                    FechaCreacion = n.FechaCreacion,
+                    FechaCreacion = DateTime.SpecifyKind(n.FechaCreacion, DateTimeKind.Local),
                     TipoEvento = n.TipoEvento,
                     IdTiquete = n.IdTiquete,
                     Destinatario = _db.Users
@@ -322,7 +322,7 @@ namespace DataAccess.Repositorios.Notificaciones
                     TipoEvento = n.TipoEvento,
                     Mensaje = n.Mensaje,
                     Leida = n.Leida,
-                    FechaCreacion = n.FechaCreacion
+                    FechaCreacion = DateTime.SpecifyKind(n.FechaCreacion, DateTimeKind.Utc)
                 })
                 .FirstOrDefaultAsync();
         }

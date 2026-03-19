@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using SASA.ViewModels.Notificaciones;
+using SASA.Helpers;
 using BusinessLogic.Servicios.Tiquetes;
 using System.Security.Claims;
 
@@ -108,7 +109,7 @@ namespace SASA.Controllers
 
             var n = await _service.ObtenerPorIdAsync(id, userId);
             if (n == null) return NotFound();
-
+            // No alterar FechaCreacion aquí; la vista mostrará la hora apropiada.
             if (!n.Leida)
                 await _service.MarcarComoLeidaAsync(id, userId);
 
@@ -135,6 +136,7 @@ namespace SASA.Controllers
                 vm.Estatus = t.Estatus ?? "—";
                 vm.Categoria = t.Categoria ?? "—";
                 vm.AsignadoA = !string.IsNullOrWhiteSpace(t.Assignee) ? t.Assignee : null;
+                vm.Prioridad = t.Prioridad ?? "—";
                 vm.ReportadoPor = !string.IsNullOrWhiteSpace(t.ReportedBy) ? t.ReportedBy : null;
 
                 vm.DescripcionPreview = Shorten(t.Descripcion, 220);
@@ -227,6 +229,8 @@ namespace SASA.Controllers
             var n = await _service.ObtenerPorIdParaAuditoriaAsync(id);
             if (n == null) return NotFound();
 
+            
+
             static string Shorten(string? text, int max)
             {
                 if (string.IsNullOrWhiteSpace(text)) return "—";
@@ -252,6 +256,7 @@ namespace SASA.Controllers
                 vm.Estatus = t.Estatus ?? "—";
                 vm.Categoria = t.Categoria ?? "—";
                 vm.AsignadoA = t.Assignee ?? "—";
+                vm.Prioridad = t.Prioridad ?? "—";
                 vm.ReportadoPor = t.ReportedBy ?? "—";
 
                 vm.DescripcionPreview = Shorten(t.Descripcion, 220);

@@ -3,7 +3,7 @@
 <div class="modal fade" id="addCategoriaModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
-            <form asp-controller="Categoria" asp-action="CrearCategoria" method="post">
+            <form id="crearCategoriaForm" asp-controller="Categoria" asp-action="CrearCategoria" method="post">
                 @Html.AntiForgeryToken()
 
                 <div class="modal-header">

@@ -50,6 +50,108 @@ $(function () {
             }
         });
     });
+
+//--CATEGORIA SUBMIT via AJAX------------
+$(function () {
+
+    $(document).on("submit", "#crearCategoriaForm", function (e) {
+
+        e.preventDefault();
+
+        const form = $(this);
+
+        if (!form.valid()) {
+            return;
+        }
+
+        $.ajax({
+            url: form.attr("action"),
+            type: "POST",
+            data: form.serialize(),
+
+            success: function (response) {
+
+                if (response.success) {
+                    $("#addCategoriaModal").modal("hide");
+                    $("#successModal").modal("show");
+
+                    setTimeout(() => {
+                        window.location.href = "/Categoria?tab=categorias";
+                    }, 900);
+                }
+                else {
+                    $("#addCategoriaModal").modal("hide");
+                    $("#errorModal").modal("show");
+
+                    setTimeout(() => {
+                        window.location.href = "/Categoria";
+                    }, 900);
+                }
+            },
+
+            error: function () {
+                $("#addCategoriaModal").modal("hide");
+                $("#errorModal").modal("show");
+
+                setTimeout(() => {
+                    window.location.href = "/Categoria";
+                }, 900);
+            }
+        });
+    });
+
+});
+
+//--SUBCATEGORIA SUBMIT via AJAX------------
+$(function () {
+
+    $(document).on("submit", "#crearSubCategoriaForm", function (e) {
+
+        e.preventDefault();
+
+        const form = $(this);
+
+        if (!form.valid()) {
+            return;
+        }
+
+        $.ajax({
+            url: form.attr("action"),
+            type: "POST",
+            data: form.serialize(),
+
+            success: function (response) {
+
+                if (response.success) {
+                    $("#addSubCategoriaModal").modal("hide");
+                    $("#successModal").modal("show");
+
+                    setTimeout(() => {
+                        window.location.href = "/Categoria?tab=subcategorias";
+                    }, 900);
+                }
+                else {
+                    $("#addSubCategoriaModal").modal("hide");
+                    $("#errorModal").modal("show");
+
+                    setTimeout(() => {
+                        window.location.href = "/Categoria";
+                    }, 900);
+                }
+            },
+
+            error: function () {
+                $("#addSubCategoriaModal").modal("hide");
+                $("#errorModal").modal("show");
+
+                setTimeout(() => {
+                    window.location.href = "/Categoria";
+                }, 900);
+            }
+        });
+    });
+
+});
 });
 
 //--------------------------------------------------------------------
