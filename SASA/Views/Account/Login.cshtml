@@ -13,8 +13,6 @@
                         <h1 class="h4 auth-title text-center">Iniciar Sesión</h1>
                         <p class="auth-subtitle text-center">Ingresa a tu cuenta para continuar</p>
 
-                        @await Html.PartialAsync("_TempDataAlerts")
-
                         <form method="post" action="/login" novalidate>
                             @Html.AntiForgeryToken()
 
