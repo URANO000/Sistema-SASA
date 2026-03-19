@@ -77,13 +77,7 @@
                             </button>
                         </div>
 
-                        <div class="col-md-3 d-flex align-items-end">
-                            <a asp-action="Index"
-                               asp-route-tab="categorias"
-                               class="btn btn-outline-dark w-100">
-                                Limpiar
-                            </a>
-                        </div>
+                        
                     </form>
 
                     <div class="table-responsive">
@@ -180,8 +174,9 @@
                     <form method="get" asp-action="Index" class="row g-3 mb-4">
                         <input type="hidden" name="tab" value="subcategorias" />
                         <input type="hidden" name="categoriaBuscar" value="@Model.CategoriaBuscar" />
+                        <input type="hidden" name="categoriaPagina" value="@Model.CategoriaPagina" />
 
-                        <div class="col-md-4">
+                        <div class="col-md-6">
                             <label class="form-label">Buscar</label>
                             <input type="text"
                                    name="subCategoriaBuscar"
@@ -190,7 +185,7 @@
                                    placeholder="Nombre de subcategoría" />
                         </div>
 
-                        <div class="col-md-3">
+                        <div class="col-md-2">
                             <label class="form-label">Categoría</label>
                             <select name="subCategoriaFiltroIdCategoria" class="form-select">
                                 <option value="">Todas</option>
@@ -208,7 +203,7 @@
                             </select>
                         </div>
 
-                        <div class="col-md-3">
+                        <div class="col-md-2">
                             <label class="form-label">Prioridad</label>
                             <select name="subCategoriaFiltroIdPrioridad" class="form-select">
                                 <option value="">Todas</option>
@@ -226,19 +221,13 @@
                             </select>
                         </div>
 
-                        <div class="col-md-1 d-flex align-items-end">
+                        <div class="col-md-2 d-flex align-items-end">
                             <button type="submit" class="btn btn-outline-secondary w-100">
-                                <i class="bi bi-funnel"></i>
+                                <i class="bi bi-funnel"></i> Filtrar
                             </button>
                         </div>
 
-                        <div class="col-md-1 d-flex align-items-end">
-                            <a asp-action="Index"
-                               asp-route-tab="subcategorias"
-                               class="btn btn-outline-dark w-100">
-                                X
-                            </a>
-                        </div>
+                        
                     </form>
 
                     <div class="table-responsive">
@@ -271,7 +260,7 @@
                                             <td>@item.NombreSubCategoria</td>
                                             <td>@item.NombreCategoria</td>
                                             <td>@item.NombrePrioridad</td>
-                                            <td>@(item.DuracionMinutos.HasValue ? $"{item.DuracionMinutos} min" : "—")</td>
+                                            <td>@item.DuracionDisplay</td>
                                         </tr>
                                     }
                                 }

@@ -10,5 +10,7 @@
         public string? NombrePrioridad { get; set; }
 
         public int? DuracionMinutos { get; set; }
+        // Propiedad para mostrar la duración formateada en la vista
+        public string? DuracionDisplay { get; set; }
     }
 }

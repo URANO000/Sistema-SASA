@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using SASA.Filters;
+using BusinessLogic.Servicios.Helpers;
 using SASA.ViewModels.Categoria;
 
 namespace SASA.Controllers
@@ -18,15 +19,18 @@ namespace SASA.Controllers
         private readonly ICategoriaService _categoriaService;
         private readonly ISubCategoriaService _subCategoriaService;
         private readonly IPrioridadService _prioridadService;
+        private readonly IHelper _helper;
 
         public CategoriaController(
             ICategoriaService categoriaService,
             ISubCategoriaService subCategoriaService,
-            IPrioridadService prioridadService)
+            IPrioridadService prioridadService,
+            IHelper helper)
         {
             _categoriaService = categoriaService;
             _subCategoriaService = subCategoriaService;
             _prioridadService = prioridadService;
+            _helper = helper;
         }
 
         [HttpGet]
@@ -248,6 +252,12 @@ namespace SASA.Controllers
                     Value = p.IdPrioridad.ToString(),
                     Text = p.NombrePrioridad
                 }).ToList();
+
+            // Set DuracionDisplay for each subcategory item using helper
+            foreach (var item in subCategoriasPaginadas.Items)
+            {
+                item.DuracionDisplay = _helper.FormatearDuracionDesdeMinutos(item.DuracionMinutos);
+            }
 
             return new CategoriaGestionViewModel
             {

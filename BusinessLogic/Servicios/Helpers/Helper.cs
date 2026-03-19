@@ -11,6 +11,57 @@ namespace BusinessLogic.Servicios.Helpers
             _userManager = userManager;
         }
 
+        public string FormatearDuracionDesdeMinutos(int? duracionMinutos)
+        {
+            if (!duracionMinutos.HasValue)
+                return "—";
+
+            var span = TimeSpan.FromMinutes(duracionMinutos.Value);
+            // Weeks (7-day periods)
+            if (span.TotalDays >= 7)
+            {
+                var weeks = span.Days / 7;
+                var daysRem = span.Days % 7;
+
+                var weeksPart = weeks == 1 ? "1 semana" : $"{weeks} semanas";
+
+                if (daysRem > 0)
+                {
+                    var daysPart = daysRem == 1 ? "1 día" : $"{daysRem} días";
+                    return $"{weeksPart} {daysPart}";
+                }
+
+                return weeksPart;
+            }
+
+            // Days and hours
+            if (span.TotalDays >= 1)
+            {
+                var days = span.Days;
+                var hours = span.Hours;
+
+                var daysPart = days == 1 ? "1 día" : $"{days} días";
+                if (hours > 0)
+                {
+                    var hoursPart = hours == 1 ? "1 hora" : $"{hours} horas";
+                    return $"{daysPart} {hoursPart}";
+                }
+
+                return daysPart;
+            }
+
+            // Hours (omit minutes)
+            if (span.TotalHours >= 1)
+            {
+                var hours = (int)span.TotalHours;
+                return hours == 1 ? "1 hora" : $"{hours} horas";
+            }
+
+            // Less than 1 hour -> show minutes
+            var minutes = span.Minutes;
+            return minutes == 1 ? "1 minuto" : $"{minutes} minutos";
+        }
+
         //Para la fecha UTC a CR time para los listados, etc
         public DateTime FormatearCRTime(DateTime dateTime)
         {
