@@ -4,11 +4,6 @@ using DataAccess.Modelos.DTOs.Wrappers;
 using DataAccess.Modelos.Entidades.ModTiquete;
 using DataAccess.Modelos.Enums;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DataAccess.Repositorios.TiqueteHistoriales
 {
@@ -21,10 +16,11 @@ namespace DataAccess.Repositorios.TiqueteHistoriales
         }
 
         //Agregar tiquete historial para el servicio de tiquetes
-        public async Task<TiqueteHistorial> AgregarTiqueteHistorialAsync(TiqueteHistorial tiquete)
+        public async Task<TiqueteHistorial> AgregarTiqueteHistorialAsync(TiqueteHistorial tiquete, bool autoSave = true)
         {
             _context.TiqueteHistoriales.Add(tiquete);
-            await _context.SaveChangesAsync();
+            if (autoSave)
+                await _context.SaveChangesAsync();
             return tiquete;
         }
 
@@ -45,7 +41,7 @@ namespace DataAccess.Repositorios.TiqueteHistoriales
                     ValorNuevo = t.ValorNuevo,
                     DescripcionEvento = t.DescripcionEvento,
                     PerformedAt = t.PerformedAt,
-                    PerformedBy = t.User.CorreoEmpresa
+                    PerformedBy = t.User.PrimerNombre + " " + t.User.PrimerApellido
                 })
                 .ToListAsync();
         }
@@ -115,7 +111,7 @@ namespace DataAccess.Repositorios.TiqueteHistoriales
                     ValorNuevo = t.ValorNuevo ?? "Sin valor nuevo",
                     DescripcionEvento = t.DescripcionEvento,
                     PerformedAt = t.PerformedAt,
-                    PerformedBy = t.User.CorreoEmpresa
+                    PerformedBy = t.User.PrimerNombre + " " + t.User.PrimerApellido
                 })
                 .ToListAsync();
             return new PagedResult<ListaTiqueteHistorialDto>

@@ -191,7 +191,6 @@ namespace DataAccess.Repositorios.Tiquetes
         public async Task<Tiquete> AgregarTiqueteAsync(Tiquete tiquete)
         {
             _context.Tiquetes.Add(tiquete);
-            await _context.SaveChangesAsync();
             return tiquete;
         }
 

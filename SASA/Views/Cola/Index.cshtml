@@ -40,7 +40,7 @@
 
                 <div class="tab-content" id="colaTabsContent">
                     <div class="tab-pane fade @(tabColaPersonalActiva ? "show active" : "")" id="personal-pane" role="tabpanel">
-                        <div id="ticketQueue" class="notif-list queue-container" style="max-height: 700px; overflow-y: auto;">
+                        <div id="ticketQueue" class="notif-list queue-container" style="max-height: 700px; overflow-y: auto; overflow-x: auto;">
 
                             @foreach (var c in Model.Personal)
                             {
@@ -58,13 +58,12 @@
                                                 <div class="notif-title">@c.Asunto</div>
                                                 <div class="notif-meta">
                                                     <ul class="list-unstyled">
-                                                        <div>
 
-                                                            <div class="text-muted small">
+                                                            <li class="text-muted small">
                                                                 Categoría : @c.Categoria
-                                                            </div>
+                                                            </li>
 
-                                                            <div class="mt-2 d-flex gap-2 flex-wrap">
+                                                            <li class="mt-2 d-flex gap-2 flex-wrap">
 
                                                                 <!-- PRIORITY -->
                                                                 @switch (c.Prioridad)
@@ -97,8 +96,7 @@
                                                                     </span>
                                                                 }
 
-                                                            </div>
-                                                        </div>
+                                                            </li>
                                                     </ul>
                                                 </div>
                                             </div>
