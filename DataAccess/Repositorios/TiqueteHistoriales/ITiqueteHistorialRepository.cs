@@ -7,7 +7,7 @@ namespace DataAccess.Repositorios.TiqueteHistoriales
 {
     public interface ITiqueteHistorialRepository
     {
-        Task<TiqueteHistorial> AgregarTiqueteHistorialAsync(TiqueteHistorial tiquete);
+        Task<TiqueteHistorial> AgregarTiqueteHistorialAsync(TiqueteHistorial tiquete, bool autoSave);
         Task<List<TiqueteHistorialPorIdDto>> GetHistorialByTiqueteIdAsync(int idTiquete);
         Task<PagedResult<ListaTiqueteHistorialDto>> ListarHistorialAsync(TiqueteHistorialFiltroDto filtro);
     }
