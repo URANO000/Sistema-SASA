@@ -32,7 +32,10 @@ namespace BusinessLogic.Servicios.Tiquetes
         Task<int> ContarTiquetesAsync();
         Task<List<TiquetesPorEstadoDto>> ObtenerTiquetesPorEstadoAsync();
         Task<List<TiquetesPorDiaDto>> ObtenerTiquetesUltimos7DiasAsync();
-        Task<double> PromedioResolucion();
+        Task<double> PromedioResolucionAsync();
+        Task<List<TiquetesPorEstadoDto>> ObtenerTiquetesVencidosPorEstadoAsync();
+
+        Task<decimal> ReordenarAsync(int idTiquete, decimal? ordenAnterior, decimal? ordenSiguiente);
 
     }
 }

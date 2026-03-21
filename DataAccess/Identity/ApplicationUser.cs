@@ -76,5 +76,11 @@ namespace DataAccess.Identity
         public ICollection<Avance>? Avances { get; set; }
         public ICollection<Attachment>? Attachments { get; set; }
         public ICollection<TiqueteHistorial>? TiqueteHistoriales { get; set; }
+
+
+        //Extra
+        public string nombreCompleto =>
+        string.Join(" ", new[] { PrimerNombre, SegundoNombre, PrimerApellido, SegundoApellido }
+        .Where(x => !string.IsNullOrWhiteSpace(x)));
     }
 }
