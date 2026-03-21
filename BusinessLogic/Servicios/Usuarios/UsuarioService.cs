@@ -3,8 +3,12 @@ using DataAccess.Identity;
 using DataAccess.Modelos.DTOs.Usuarios;
 using DataAccess.Modelos.DTOs.Usuarios.Filtros;
 using DataAccess.Modelos.DTOs.Wrappers;
+using DataAccess.Modelos.Entidades;
+using DataAccess.Repositorios.Auditorias;
 using DataAccess.Repositorios.Usuarios;
+using DocumentFormat.OpenXml.Spreadsheet;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.IdentityModel.Tokens;
 
 
 namespace BusinessLogic.Servicios.Usuarios
@@ -15,11 +19,13 @@ namespace BusinessLogic.Servicios.Usuarios
         private readonly IUsuarioRepository _usuarioRepository;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IHelper _helper;
-        public UsuarioService(IUsuarioRepository usuarioRepository, UserManager<ApplicationUser> userManager, IHelper helper)
+        private readonly IAuditoriaRepository _audit;
+        public UsuarioService(IUsuarioRepository usuarioRepository, UserManager<ApplicationUser> userManager, IHelper helper,IAuditoriaRepository audit)
         {
             _usuarioRepository = usuarioRepository;
             _userManager = userManager;
             _helper = helper;
+            _audit = audit;
         }
 
         //Implementación de los métodos para el servicio de Usuario
@@ -171,6 +177,19 @@ namespace BusinessLogic.Servicios.Usuarios
                 }
             }
 
+            //Auditoria
+
+            var auditoria = new Auditoria
+            {
+                Fecha = _helper.ObtenerFechaHoyCR(),
+                Hora = _helper.ObtenerHoraCR(),
+                Usuario = usuario.nombreCompleto,
+                Tabla = "Usuario",
+                Accion = "Nuevo Registro"
+            };
+
+            await _audit.AgregarAuditoria(auditoria);
+
             // Token de confirmación de correo (historia #15)
             var token = await _userManager.GenerateEmailConfirmationTokenAsync(usuario);
 
@@ -264,6 +283,17 @@ namespace BusinessLogic.Servicios.Usuarios
                 }
             }
 
+            //Auditoria
+            var auditoria = new Auditoria
+            {
+                Fecha = _helper.ObtenerFechaHoyCR(),
+                Hora = _helper.ObtenerHoraCR(),
+                Usuario = usuario.nombreCompleto,
+                Tabla = "Usuario",
+                Accion = "Edición del registro, del empleado " + usuario.PrimerNombre + " " + usuario.PrimerApellido
+            };
+
+            await _audit.AgregarAuditoria(auditoria);
 
         }
 
@@ -284,6 +314,20 @@ namespace BusinessLogic.Servicios.Usuarios
             }
 
             await _usuarioRepository.DesactivarUsuario(id);
+
+            var user = await _userManager.FindByIdAsync(usuario.Id);
+
+            //Auditoria
+            var auditoria = new Auditoria
+            {
+                Fecha = _helper.ObtenerFechaHoyCR(),
+                Hora = _helper.ObtenerHoraCR(),
+                Usuario = user.nombreCompleto,
+                Tabla = "Usuario",
+                Accion = "Cambio de Estado de " + usuario.PrimerNombre + " " + usuario.PrimerApellido
+            };
+
+            await _audit.AgregarAuditoria(auditoria);
         }
 
         public async Task ActivarUsuarioAsync(string id, string currentUserId)
@@ -303,6 +347,20 @@ namespace BusinessLogic.Servicios.Usuarios
             }
 
             await _usuarioRepository.ActivarUsuario(id);
+
+            var user = await _userManager.FindByIdAsync(usuario.Id);
+
+            //Auditoria
+            var auditoria = new Auditoria
+            {
+                Fecha = _helper.ObtenerFechaHoyCR(),
+                Hora = _helper.ObtenerHoraCR(),
+                Usuario = user.nombreCompleto,
+                Tabla = "Usuario",
+                Accion = "Cambio de Estado de " + user.PrimerNombre + " " + user.PrimerApellido
+            };
+
+            await _audit.AgregarAuditoria(auditoria);
         }
     }
 }

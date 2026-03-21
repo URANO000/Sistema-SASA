@@ -3,6 +3,7 @@ using DataAccess.Modelos.DTOs.Tiquete.Colas;
 using DataAccess.Modelos.DTOs.Tiquete.Filtros;
 using DataAccess.Modelos.DTOs.Wrappers;
 using DataAccess.Modelos.Entidades.ModTiquete;
+using DataAccess.Modelos.Enums;
 using Microsoft.EntityFrameworkCore;
 
 namespace DataAccess.Repositorios.Tiquetes
@@ -263,7 +264,7 @@ namespace DataAccess.Repositorios.Tiquetes
         {
             var tiquetes = await _context.Tiquetes
                 .AsNoTracking()
-                .Where(t => t.IdAsignee != null && t.OrdenCola != null)
+                .Where(t => t.IdAsignee != null && t.OrdenCola != null && t.Asignee.Estado != false)
                 .OrderBy(t => t.IdAsignee)
                 .ThenBy(t => t.OrdenCola)
                 .Select(t => new {
@@ -361,18 +362,39 @@ namespace DataAccess.Repositorios.Tiquetes
                 .ToListAsync();
         }
 
-        public async Task<double> PromedioResolucion()
+        public async Task<double> PromedioResolucionAsync()
         {
-            var promedio = await _context.Tiquetes
+            var query = _context.Tiquetes
                 .AsNoTracking()
-                .Where(t => t.UpdatedAt != null)
-                .AverageAsync(t =>
-                    EF.Functions.DateDiffMinute(t.CreatedAt, t.UpdatedAt));
-            
-            return promedio ?? 0.0;
+                .Where(t => t.UpdatedAt != null && t.IdEstatus == (int)TiqueteEstatus.Resuelto);
+
+            if (!await query.AnyAsync())
+                return 0;
+
+            return await query.AverageAsync(t =>
+                EF.Functions.DateDiffMinute(t.CreatedAt, t.UpdatedAt!.Value));
         }
 
+        public async Task<List<TiquetesPorEstadoDto>> ObtenerTiquetesVencidosPorEstadoAsync()
+        {
+            var now = DateTime.UtcNow;
 
+            return await _context.Tiquetes
+                .AsNoTracking()
+                .Where(t =>
+                    EF.Functions.DateDiffMinute(
+                        t.CreatedAt,
+                        t.UpdatedAt ?? now
+                    ) > t.SubCategoria.Prioridad.DuracionMinutos
+                )
+                .GroupBy(t => t.Estatus.NombreEstatus)
+                .Select(g => new TiquetesPorEstadoDto
+                {
+                    Estado = g.Key,
+                    Cantidad = g.Count()
+                })
+                .ToListAsync();
+        }
 
     }
 }

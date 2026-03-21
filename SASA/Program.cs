@@ -17,6 +17,7 @@ using BusinessLogic.Servicios.Usuarios;
 using DataAccess;
 using DataAccess.Identity;
 using DataAccess.Repositorios.Attachments;
+using DataAccess.Repositorios.Auditorias;
 using DataAccess.Repositorios.Autenticacion;
 using DataAccess.Repositorios.Avances;
 using DataAccess.Repositorios.Categorias;
@@ -117,6 +118,7 @@ builder.Services.AddScoped<ISubCategoriaService, SubCategoriaService>();
 
 builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
 builder.Services.AddScoped<IUsuarioService, UsuarioService>();
+builder.Services.AddScoped<IAuditoriaRepository, AuditoriaRepository>();
 
 builder.Services.AddScoped<IRolService, RolService>();
 

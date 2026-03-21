@@ -128,11 +128,21 @@
             <!--Sections of the navbar-->
                 <div class="nav-section">
                     <span class="section-title">General</span>
-                    <a asp-controller="Home" asp-action="AdminDashboard" class="nav-link">
+                        @if (User.IsInRole("Administrador"))
+                        {
+                        <a asp-controller="Home" asp-action="AdminDashboard" class="nav-link">
                         <i class="bi bi-bar-chart"></i>
                         Dashboard
-                    </a>
-                </div>
+                        </a>
+                        }
+                        else
+                        {
+                        <a asp-controller="Home" asp-action="Index" class="nav-link">
+                        <i class="bi bi-bar-chart"></i>
+                        Dashboard
+                        </a>
+                        }
+                    </div>
 
             @if (User.IsInRole("Administrador"))
             {

@@ -1,3 +1,4 @@
+using BusinessLogic.Servicios.Helpers;
 using BusinessLogic.Servicios.Inventario;
 using BusinessLogic.Servicios.Tiquetes;
 using DataAccess;
@@ -22,14 +23,17 @@ namespace SASA.Controllers
         private readonly ApplicationDbContext _db;
         private readonly ITiqueteService _tiqueteService;
         private readonly IInventarioService _inventarioService;
+        private readonly IHelper _helper;
 
 
-        public HomeController(ILogger<HomeController> logger, ApplicationDbContext db, ITiqueteService tiqueteService, IInventarioService inventarioService)
+        public HomeController(ILogger<HomeController> logger, ApplicationDbContext db, ITiqueteService tiqueteService, IInventarioService inventarioService,
+            IHelper helper)
         {
             _logger = logger;
             _db = db;
             _tiqueteService = tiqueteService;
             _inventarioService = inventarioService;
+            _helper = helper;
         }
 
         [HttpGet]
@@ -202,11 +206,17 @@ namespace SASA.Controllers
         {
             var porEstadoDto = await _tiqueteService.ObtenerTiquetesPorEstadoAsync();
             var ultimos7dias = await _tiqueteService.ObtenerTiquetesUltimos7DiasAsync();
+            var tiquetesVencidosPorEstado = await _tiqueteService.ObtenerTiquetesVencidosPorEstadoAsync();
+            var promedio = await _tiqueteService.PromedioResolucionAsync();
+            if (double.IsNaN(promedio))
+                promedio = 0;
             var viewModel = new DashboardAdminViewModel
             {
                 TotalTiquetes = await _tiqueteService.ContarTiquetesAsync(),
                 TotalInventario = await _inventarioService.ContarInventarioAsync(),
-                PromedioResolucion = await _tiqueteService.PromedioResolucion(),
+                PromedioResolucion = promedio,
+                PromedioResolucionFormateado = _helper.FormatTiempo(
+                TimeSpan.FromMinutes(promedio)),
                 PorEstado = porEstadoDto
                     .Select(p => new TiquetesPorEstadoViewModel
                     {
@@ -220,7 +230,15 @@ namespace SASA.Controllers
                         Cantidad = d.Cantidad,
                         Fecha = d.Fecha
                     })
+                    .ToList(),
+                TiquetesVencidosPorEstado = tiquetesVencidosPorEstado
+                    .Select(v => new TiquetesPorEstadoViewModel
+                    {
+                        Estado = v.Estado,
+                        Cantidad = v.Cantidad
+                    })
                     .ToList()
+                
             };
 
 

@@ -72,37 +72,40 @@ document.addEventListener("DOMContentLoaded", function () {
 
     const switchInput = document.getElementById("dateRangeSwitch");
 
-    const singleContainer = document.getElementById("singleDateContainer");
-    const rangeContainer = document.getElementById("rangeDateContainer");
+    const singleWrapper = document.getElementById("single-wrapper");
+    const rangeWrapper = document.getElementById("range-wrapper");
 
     const singleDate = document.getElementById("filter-date-single");
-
     const dateFrom = document.getElementById("filter-date-from");
     const dateTo = document.getElementById("filter-date-to");
+
+    const mainLabel = document.getElementById("main-label");
 
     function updateMode() {
 
         if (switchInput.checked) {
 
-            singleDate.classList.add("d-none");
+            // UI
+            singleWrapper.classList.add("d-none");
+            rangeWrapper.classList.remove("d-none");
+
+            // Enable/disable
             singleDate.disabled = true;
-
-            dateFrom.classList.remove("d-none");
-            dateTo.classList.remove("d-none");
-
             dateFrom.disabled = false;
             dateTo.disabled = false;
 
+            mainLabel.textContent = "Rango de Fechas";
+
         } else {
 
-            singleDate.classList.remove("d-none");
+            singleWrapper.classList.remove("d-none");
+            rangeWrapper.classList.add("d-none");
+
             singleDate.disabled = false;
-
-            dateFrom.classList.add("d-none");
-            dateTo.classList.add("d-none");
-
             dateFrom.disabled = true;
             dateTo.disabled = true;
+
+            mainLabel.textContent = "Fecha";
         }
     }
 

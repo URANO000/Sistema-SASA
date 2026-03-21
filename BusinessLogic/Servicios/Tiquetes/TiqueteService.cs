@@ -431,6 +431,37 @@ namespace BusinessLogic.Servicios.Tiquetes
             return await _tiqueteRepository.GetColasGlobalAsync();
         }
 
+        public async Task<decimal> ReordenarAsync(int idTiquete, decimal? ordenAnterior, decimal? ordenSiguiente)
+        {
+            decimal nuevoOrden;
+
+            if (ordenAnterior == null && ordenSiguiente == null)
+                throw new Exception("Lista vacía");
+
+            if (ordenAnterior == null)
+            {
+                //Mover arriba
+                nuevoOrden = ordenSiguiente.Value / 2m;
+            }
+            else if (ordenSiguiente == null)
+            {
+                //Mover abajo
+                nuevoOrden = ordenAnterior.Value + 1000m;
+            }
+            else
+            {
+                // Between two items
+                nuevoOrden = _tiqueteRepository.CalcularOrdenEntre(ordenAnterior.Value, ordenSiguiente.Value);
+            }
+
+            var tiquete = await _context.Tiquetes.FindAsync(idTiquete);
+            tiquete.OrdenCola = nuevoOrden;
+
+            await _context.SaveChangesAsync();
+
+            return nuevoOrden;
+        }
+
         //---------------------------Dashboard--------------------------------------------------
         public async Task<int> ContarTiquetesAsync()
         {
@@ -447,9 +478,14 @@ namespace BusinessLogic.Servicios.Tiquetes
             return await _tiqueteRepository.ObtenerTiquetesUltimos7DiasAsync();
         }
 
-        public async Task<double> PromedioResolucion()
+        public async Task<double> PromedioResolucionAsync()
         {
-            return await _tiqueteRepository.PromedioResolucion();
+            return await _tiqueteRepository.PromedioResolucionAsync();
+        }
+
+        public async Task<List<TiquetesPorEstadoDto>> ObtenerTiquetesVencidosPorEstadoAsync()
+        {
+            return await _tiqueteRepository.ObtenerTiquetesVencidosPorEstadoAsync();
         }
 
 
