@@ -4,119 +4,158 @@
 
     const idleMs = IDLE_MINUTES * 60 * 1000;
     const warningMs = idleMs - (WARNING_SECONDS * 1000);
+    const activityPingThrottleMs = 60 * 1000;
 
-    let warnTimer = null;
+    let warningTimer = null;
     let logoutTimer = null;
     let countdownInterval = null;
-
     let modalInstance = null;
-    let lastPingAt = 0; // para no spamear keepalive
-    let warningVisible = false; // NUEVO: si el modal está visible
+    let warningVisible = false;
+    let lastKeepAliveAt = 0;
 
-    const getCsrf = () => {
-        const el = document.querySelector('meta[name="csrf-token"]');
-        return el ? el.getAttribute('content') : '';
+    const getCsrfToken = () => {
+        const tokenElement = document.querySelector('meta[name="csrf-token"]');
+        return tokenElement ? tokenElement.getAttribute('content') : '';
     };
 
-    const ensureModal = () => {
-        const el = document.getElementById('sessionTimeoutModal');
-        if (!el) return null;
-        if (!modalInstance) modalInstance = new bootstrap.Modal(el, { backdrop: 'static', keyboard: false });
+    const getModalInstance = () => {
+        const modalElement = document.getElementById('sessionTimeoutModal');
+        if (!modalElement) {
+            return null;
+        }
+
+        if (!modalInstance) {
+            modalInstance = new bootstrap.Modal(modalElement, {
+                backdrop: 'static',
+                keyboard: false
+            });
+        }
+
         return modalInstance;
     };
 
     const stopCountdown = () => {
-        if (countdownInterval) clearInterval(countdownInterval);
-        countdownInterval = null;
+        if (countdownInterval) {
+            clearInterval(countdownInterval);
+            countdownInterval = null;
+        }
     };
 
     const hideWarning = () => {
         stopCountdown();
         warningVisible = false;
-        const m = ensureModal();
-        if (m) m.hide();
+
+        const modal = getModalInstance();
+        if (modal) {
+            modal.hide();
+        }
     };
 
     const showWarning = () => {
-        const m = ensureModal();
-        if (!m) return;
+        const modal = getModalInstance();
+        if (!modal) {
+            return;
+        }
 
         warningVisible = true;
 
-        let remaining = WARNING_SECONDS;
-        const label = document.getElementById('sessionTimeoutCountdown');
-        if (label) label.textContent = String(remaining);
+        let remainingSeconds = WARNING_SECONDS;
+        const countdownElement = document.getElementById('sessionTimeoutCountdown');
 
-        m.show();
+        if (countdownElement) {
+            countdownElement.textContent = String(remainingSeconds);
+        }
+
+        modal.show();
 
         stopCountdown();
         countdownInterval = setInterval(() => {
-            remaining -= 1;
-            if (label) label.textContent = String(Math.max(0, remaining));
-            if (remaining <= 0) stopCountdown();
+            remainingSeconds -= 1;
+
+            if (countdownElement) {
+                countdownElement.textContent = String(Math.max(0, remainingSeconds));
+            }
+
+            if (remainingSeconds <= 0) {
+                stopCountdown();
+            }
         }, 1000);
+    };
+
+    const postKeepAlive = async () => {
+        const now = Date.now();
+
+        if (now - lastKeepAliveAt < activityPingThrottleMs) {
+            return;
+        }
+
+        try {
+            const response = await fetch('/Account/KeepAlive', {
+                method: 'POST',
+                headers: {
+                    'RequestVerificationToken': getCsrfToken()
+                },
+                cache: 'no-store'
+            });
+
+            if (response.ok) {
+                lastKeepAliveAt = now;
+            }
+        } catch {
+        }
     };
 
     const logoutNow = async () => {
         try {
             await fetch('/logout', {
                 method: 'POST',
-                headers: { 'RequestVerificationToken': getCsrf() }
+                headers: {
+                    'RequestVerificationToken': getCsrfToken()
+                },
+                cache: 'no-store'
             });
-        } catch { }
+        } catch {
+        }
 
         window.location.href = '/login?reason=timeout';
     };
 
-    const pingActivity = async () => {
-        // solo si hubo interacción; throttle 60s
-        const now = Date.now();
-        if (now - lastPingAt < 60_000) return;
-        lastPingAt = now;
-
-        try {
-            await fetch('/Account/KeepAlive', {
-                method: 'GET',
-                headers: { 'X-User-Activity': '1' },
-                cache: 'no-store'
-            });
-        } catch { }
-    };
-
-    // Arranca/reinicia timers SIN tocar el modal
-    const startTimers = () => {
-        clearTimeout(warnTimer);
+    const resetTimers = () => {
+        clearTimeout(warningTimer);
         clearTimeout(logoutTimer);
 
-        warnTimer = setTimeout(showWarning, warningMs);
+        warningTimer = setTimeout(showWarning, warningMs);
         logoutTimer = setTimeout(logoutNow, idleMs);
     };
 
     const onUserActivity = () => {
-        if (warningVisible) return;
-        startTimers();
-        pingActivity();
+        if (warningVisible) {
+            return;
+        }
+
+        resetTimers();
+        postKeepAlive();
     };
 
     const stayConnected = async () => {
-        // SOLO el botón revive sesión
-        await pingActivity();
+        lastKeepAliveAt = 0;
+        await postKeepAlive();
         hideWarning();
-        startTimers();
+        resetTimers();
     };
 
-    document.addEventListener('click', (e) => {
-        const target = e.target;
+    document.addEventListener('click', (event) => {
+        const target = event.target;
+
         if (target && target.id === 'btnStayConnected') {
-            e.preventDefault();
+            event.preventDefault();
             stayConnected();
         }
     });
 
-    ['mousemove', 'mousedown', 'keydown', 'scroll', 'touchstart'].forEach(ev => {
-        document.addEventListener(ev, onUserActivity, { passive: true });
+    ['mousemove', 'mousedown', 'keydown', 'scroll', 'touchstart'].forEach((eventName) => {
+        document.addEventListener(eventName, onUserActivity, { passive: true });
     });
 
-    // inicio
-    startTimers();
+    resetTimers();
 })();

@@ -174,15 +174,14 @@ namespace SASA.Controllers
         [HttpGet("/reset-password/{token}")]
         public async Task<IActionResult> ResetPassword(string token)
         {
-            //para evitar que se muestre el nav bar si el usuario ya está logueado y accede a este link
             await _signInManager.SignOutAsync();
 
             _antiforgery.GetAndStoreTokens(HttpContext);
 
-            var decoded = DecodeTokenPayload(token);
-            if (!decoded.ok)
+            var validation = await ValidateResetPasswordTokenAsync(token);
+            if (!validation.ok)
             {
-                TempData["Error"] = "El enlace de recuperación es inválido o ya expiró. Solicita uno nuevo.";
+                TempData["Error"] = validation.errorMessage;
                 return RedirectToAction(nameof(ForgotPassword));
             }
 
@@ -192,44 +191,40 @@ namespace SASA.Controllers
         [AllowAnonymous]
         [HttpPost("/reset-password/{token}")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> ResetPassword(string token, ResetPasswordViewModel vm)
+        public async Task<IActionResult> ResetPassword(string token, ResetPasswordViewModel model)
         {
-            vm.Token = token;
+            if (token != model.Token)
+                return BadRequest();
 
-            if (!ModelState.IsValid) return View(vm);
+            if (!ModelState.IsValid)
+                return View(model);
 
-            // Si tu ViewModel ya tiene [Compare], esto es opcional.
-            if (vm.NewPassword != vm.ConfirmPassword)
+            var validation = await ValidateResetPasswordTokenAsync(model.Token);
+            if (!validation.ok || validation.user is null)
             {
-                ModelState.AddModelError(string.Empty, "Las contraseñas no coinciden.");
-                return View(vm);
+                TempData["Error"] = validation.errorMessage;
+                return RedirectToAction(nameof(ForgotPassword));
             }
 
-            var decoded = DecodeTokenPayload(token);
+            var decoded = DecodeTokenPayload(model.Token);
             if (!decoded.ok)
             {
-                ModelState.AddModelError(string.Empty, "El enlace de recuperación es inválido o ya expiró. Solicita uno nuevo.");
-                return View(vm);
+                TempData["Error"] = "El enlace de recuperación es inválido, ya fue utilizado o expiró. Solicita uno nuevo.";
+                return RedirectToAction(nameof(ForgotPassword));
             }
 
-            var user = await _userManager.FindByIdAsync(decoded.userId);
-            if (user is null)
+            var resetResult = await _userManager.ResetPasswordAsync(validation.user, decoded.identityToken, model.NewPassword!);
+            if (!resetResult.Succeeded)
             {
-                TempData["Success"] = "Contraseña actualizada. Ahora puedes iniciar sesión.";
-                return RedirectToAction(nameof(Login));
+                foreach (var e in resetResult.Errors)
+                    ModelState.AddModelError(string.Empty, e.Description);
+
+                return View(model);
             }
 
-            var result = await _userManager.ResetPasswordAsync(user, decoded.identityToken, vm.NewPassword!);
+            await _userManager.UpdateSecurityStampAsync(validation.user);
 
-            if (!result.Succeeded)
-            {
-                // Escenario 3: link expirado / usado / token inválido
-                // (Identity suele devolver InvalidToken o similares)
-                ModelState.AddModelError(string.Empty, "No se pudo restablecer la contraseña. Es posible que el enlace haya expirado o ya fue utilizado. Solicita uno nuevo.");
-                return View(vm);
-            }
-
-            TempData["Success"] = "Contraseña actualizada. Ahora puedes iniciar sesión.";
+            TempData["Success"] = "Tu contraseña fue restablecida correctamente.";
             return RedirectToAction(nameof(Login));
         }
 
@@ -294,6 +289,35 @@ namespace SASA.Controllers
                 return (false, "", "");
             }
         }
+
+        private async Task<(bool ok, ApplicationUser? user, string errorMessage)> ValidateResetPasswordTokenAsync(string payload)
+        {
+            var decoded = DecodeTokenPayload(payload);
+            if (!decoded.ok)
+            {
+                return (false, null, "El enlace de recuperación es inválido o mal formado.");
+            }
+
+            var user = await _userManager.FindByIdAsync(decoded.userId);
+            if (user is null || !user.Estado)
+            {
+                return (false, null, "El enlace de recuperación es inválido o ya no está disponible.");
+            }
+
+            var isValid = await _userManager.VerifyUserTokenAsync(
+                user,
+                _userManager.Options.Tokens.PasswordResetTokenProvider,
+                "ResetPassword",
+                decoded.identityToken);
+
+            if (!isValid)
+            {
+                return (false, null, "El enlace de recuperación es inválido, ya fue utilizado o expiró. Solicita uno nuevo.");
+            }
+
+            return (true, user, string.Empty);
+        }
+
 
         [AllowAnonymous]
         [HttpGet("/set-password/{token}")]
@@ -384,14 +408,22 @@ namespace SASA.Controllers
                 return View(vm);
             }
 
+            var stampResult = await _userManager.UpdateSecurityStampAsync(user);
+            if (!stampResult.Succeeded)
+            {
+                ModelState.AddModelError(string.Empty, "La contraseña fue creada, pero ocurrió un problema actualizando la seguridad de la cuenta.");
+                return View(vm);
+            }
+
             TempData["Success"] = "Contraseña creada. Ahora puedes iniciar sesión.";
             return RedirectToAction(nameof(Login));
         }
 
-        [HttpGet]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
         public IActionResult KeepAlive()
         {
-            // No hace nada: el middleware ve el header X-User-Activity y actualiza last-activity
+            // Endpoint utilizado por el frontend para mantener activa la sesión del usuario autenticado.
             return NoContent();
         }
     }

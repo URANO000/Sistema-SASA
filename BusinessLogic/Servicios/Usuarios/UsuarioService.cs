@@ -269,7 +269,6 @@ namespace BusinessLogic.Servicios.Usuarios
                     string.Join(", ", resultado.Errors.Select(e => e.Description)));
             }
 
-            //Finalmente, se maneja el rol, similar al método de agregar usuario
             var rolesActuales = await _userManager.GetRolesAsync(usuario);
 
             if (!rolesActuales.Contains(dto.Rol))
@@ -280,6 +279,12 @@ namespace BusinessLogic.Servicios.Usuarios
                 if (!resultadoRol.Succeeded)
                 {
                     throw new InvalidOperationException("Error actualizando el rol del usuario.");
+                }
+
+                var stampResult = await _userManager.UpdateSecurityStampAsync(usuario);
+                if (!stampResult.Succeeded)
+                {
+                    throw new InvalidOperationException("Error invalidando sesiones del usuario tras cambio de rol.");
                 }
             }
 
@@ -306,11 +311,10 @@ namespace BusinessLogic.Servicios.Usuarios
                 throw new ArgumentException("Id inválido", nameof(id));
             }
 
-            var usuario = await _usuarioRepository.ObtenerUsuarioPorIdAsync(id);
-            if (usuario == null)
+            var usuarioDto = await _usuarioRepository.ObtenerUsuarioPorIdAsync(id);
+            if (usuarioDto == null)
             {
                 throw new InvalidOperationException("Usuario no encontrado.");
-
             }
 
             await _usuarioRepository.DesactivarUsuario(id);
@@ -339,11 +343,10 @@ namespace BusinessLogic.Servicios.Usuarios
                 throw new ArgumentException("Id inválido", nameof(id));
             }
 
-            var usuario = await _usuarioRepository.ObtenerUsuarioPorIdAsync(id);
-            if (usuario == null)
+            var usuarioDto = await _usuarioRepository.ObtenerUsuarioPorIdAsync(id);
+            if (usuarioDto == null)
             {
                 throw new InvalidOperationException("Usuario no encontrado.");
-
             }
 
             await _usuarioRepository.ActivarUsuario(id);
