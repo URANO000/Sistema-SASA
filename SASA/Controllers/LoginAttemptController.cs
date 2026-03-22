@@ -1,5 +1,4 @@
 ﻿using BusinessLogic.Servicios.Autenticacion;
-using DataAccess.Modelos.DTOs.Autenticacion;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SASA.ViewModels.Auth;
@@ -23,10 +22,11 @@ namespace SASA.Controllers
             {
                 EmailIngresado = filtros.EmailIngresado,
                 Exitoso = filtros.Exitoso,
+                Fecha = filtros.Fecha,
                 FechaDesde = filtros.FechaDesde,
                 FechaHasta = filtros.FechaHasta,
                 Page = filtros.Page <= 0 ? 1 : filtros.Page,
-                PageSize = filtros.PageSize <= 0 ? 15 : filtros.PageSize
+                PageSize = filtros.PageSize <= 0 ? 10 : filtros.PageSize
             };
 
             var resultado = await _loginAttemptService.ObtenerIntentosAsync(filtroDto);
