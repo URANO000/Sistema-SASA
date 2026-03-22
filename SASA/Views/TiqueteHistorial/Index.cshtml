@@ -1,0 +1,170 @@
+﻿@using SASA.ViewModels.TiqueteHistoriales;
+@model TiqueteHistorialIndexViewModel
+
+@{
+    ViewData["Title"] = "Listado de Historial de Tiquetes";
+}
+
+<div class="container-fluid">
+    <!-- Header -->
+
+    <div class="card mb-3">
+        <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h2 class="mb-0 fw-bold">Listado de Historial de Tiquetes</h2>
+            </div>
+
+        </div>
+
+        <!-- Filters -->
+        <form method="get">
+            <div class="row g-3 align-items-end mb-3">
+                <div class="col-md-4">
+                    <label class="form-label">Buscar</label>
+                    <input type="text" asp-for="Filtro.Search"
+                        value="@Model.Filtro.Search"
+                        class="form-control"
+                        placeholder="Asunto de tiquete/Correo de usuario responsable"/>
+                </div>
+
+                <div class="col-md-2">
+                    <label class="form-label">Tipo de Evento</label>
+                    <select asp-for="Filtro.TipoEvento"
+                        asp-items="Model.Filtro.TipoEventoOptions"
+                            class="form-select">
+                        <option value="">Todos</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                        <label class="form-label mb-0" id="main-label">Fecha</label>
+
+                        <div class="form-check form-switch m-0">
+                            <input class="form-check-input" type="checkbox" id="dateRangeSwitch">
+                            <label class="form-check-label small ms-1">Rango</label>
+                        </div>
+                    </div>
+
+                    <!-- Single -->
+                    <div id="single-wrapper">
+                        <input type="date"
+                               class="form-control"
+                               name="Filtro.Fecha"
+                               id="filter-date-single">
+                    </div>
+
+                    <!-- Range -->
+                    <div class="row g-2 d-none" id="range-wrapper">
+                        <div class="col-6">
+                            <label class="form-label mb-1 small">Fecha Inicio</label>
+                            <input type="date"
+                                   class="form-control"
+                                   name="Filtro.FechaInicio"
+                                   id="filter-date-from"
+                                   disabled>
+                        </div>
+
+                        <div class="col-6">
+                            <label class="form-label mb-1 small">Fecha Fin</label>
+                            <input type="date"
+                                   class="form-control"
+                                   name="Filtro.FechaFinal"
+                                   id="filter-date-to"
+                                   disabled>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-outline-secondary w-100">
+                        <i class="bi bi-funnel"></i>
+                        Filtrar
+                    </button>
+                </div>
+
+            </div>
+        </form>
+
+        <!-- Table -->
+        <div class="table-responsive">
+            <table class="table table-hover align-middle sasa-table">
+                <thead class="">
+                    <tr>
+                        <th>Tiquete</th>
+                        <th>Tipo de Evento</th>
+                        <th>Campo Afectado</th>
+                        <th>Valor Anterior</th>
+                        <th>Valor Nuevo</th>
+                        <th>Registrado en</th>
+                        <th>Usuario Responsable</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var t in Model.TiqueteHistorial)
+                    {
+                        <tr>
+                            <td>
+                                <a asp-action="Details"
+                                asp-controller="Tiquete"
+                                asp-route-id="@t.IdTiquete"
+                                class="text-decoration-none">
+                                    <i class="bi bi-eye detail-btn"></i>
+                            </a></td>
+                            <td>@t.TipoEvento</td>
+                            <td>@t.CampoAfectado</td>
+                            <td>@t.ValorAnterior</td>
+                            <td>@t.ValorNuevo</td>
+                            <td>@t.PerformedAt</td>
+                            <td>@t.PerformedBy</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+
+            <nav aria-label="Paginación" class="align-content-center justify-content-center">
+                <ul class="pagination pagination-sm mb-0 justify-content-center">
+
+                    <!-- Previous -->
+                    <li class="page-item @(Model.Filtro.TieneAnterior ? "" : "disabled")">
+                        <a class="page-link"
+                               asp-action="Index"
+                               asp-route-PageNumber="@(Model.Filtro.PageNumber - 1)"
+                               asp-route-PageSize="@Model.Filtro.PageSize"
+                               asp-route-Search="@Model.Filtro.Search"
+                               asp-route-Estatus="@Model.Filtro.TipoEvento"
+                               asp-route-Fecha="@Model.Filtro.Fecha"
+                               asp-route-FechaInicio="@Model.Filtro.FechaInicio"
+                               asp-route-FechaFinal="@Model.Filtro.FechaFinal">
+                            Anterior
+                        </a>
+                    </li>
+
+                    <!-- Info -->
+                    <li class="page-item disabled">
+                        <span class="page-link">
+                            Página @Model.Filtro.PageNumber de @Model.Filtro.TotalPages
+                        </span>
+                    </li>
+
+                    <!-- Next -->
+                    <li class="page-item @(Model.Filtro.TieneSiguiente ? "" : "disabled")">
+                        <a class="page-link"
+                               asp-action="Index"
+                               asp-route-PageNumber="@(Model.Filtro.PageNumber + 1)"
+                               asp-route-PageSize="@Model.Filtro.PageSize"
+                               asp-route-Search="@Model.Filtro.Search"
+                               asp-route-Estatus="@Model.Filtro.TipoEvento"
+                               asp-route-Fecha="@Model.Filtro.Fecha"
+                               asp-route-FechaInicio="@Model.Filtro.FechaInicio"
+                               asp-route-FechaFinal="@Model.Filtro.FechaFinal">
+                            Siguiente
+                        </a>
+                    </li>
+
+                </ul>
+            </nav>
+        </div>
+
+    </div>
+</div>

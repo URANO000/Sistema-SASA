@@ -1,0 +1,66 @@
+﻿.queue-container {
+    max-height: 65vh;
+    overflow-y: auto;
+    padding-right: 4px;
+}
+
+    .queue-container::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    .queue-container::-webkit-scrollbar-thumb {
+        background-color: #ccc;
+        border-radius: 5px;
+    }
+
+
+.ticket-card {
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+    .ticket-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 14px rgba(0,0,0,0.08);
+    }
+
+/* Horizontal board */
+.kanban-board {
+    overflow-x: auto;
+    overflow-y: hidden;
+    white-space: nowrap;
+}
+
+/* Each column */
+.kanban-column {
+    min-width: 420px;
+    max-width: 421px;
+    height: 500px;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Scrollable ticket area */
+.kanban-body {
+    overflow-y: auto;
+    padding: 10px;
+    flex-grow: 1;
+}
+
+/* Ticket card */
+.kanban-card {
+    background: #fff;
+    border-radius: 10px;
+    padding: 10px;
+    margin-bottom: 10px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+    transition: transform 0.1s ease;
+}
+
+.kanban-card:hover {
+    transform: translateY(-2px);
+}
+
+/* Header inside card */
+.kanban-card-header {
+    margin-bottom: 5px;
+}

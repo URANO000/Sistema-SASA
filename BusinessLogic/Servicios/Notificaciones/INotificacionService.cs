@@ -1,0 +1,23 @@
+﻿using DataAccess.Modelos.DTOs.Notificaciones;
+
+namespace BusinessLogic.Servicios.Notificaciones
+{
+    public interface INotificacionService
+    {
+        Task<ResultadoPaginadoDTO<NotificacionDTO>> ObtenerPorUsuarioAsync(string userId, string? q, string? tipo, string? estado, DateTime? fecha, int pagina, int tamanoPagina);
+        Task<NotificacionDTO?> ObtenerPorIdAsync(long idNotificacion, string userId);
+        Task NotificarNuevoComentarioAsync(int idTiquete, string autorUserId, string mensaje);
+        Task MarcarComoLeidaAsync(long idNotificacion, string userId);
+        Task AlternarLeidaAsync(long idNotificacion, string userId);
+        Task MarcarTodasComoLeidasAsync(string userId);
+        Task<int> ContarNoLeidasAsync(string userId);
+        Task<DateTime?> ObtenerSilencioActivoAsync(string userId, int idTiquete);
+        Task SilenciarTiqueteAsync(string userId, int idTiquete, int horas);
+        Task ReactivarSilencioAsync(string userId, int idTiquete);
+        Task<ResultadoPaginadoDTO<DataAccess.Modelos.DTOs.Notificaciones.NotificacionAuditoriaItemDTO>> ObtenerAuditoriaAsync(string? q, string? tipo, string? estado, DateTime? fecha, int pagina, int tamanoPagina);
+        Task<DataAccess.Modelos.DTOs.Notificaciones.NotificacionDTO?> ObtenerPorIdParaAuditoriaAsync(long idNotificacion);
+
+
+
+    }
+}

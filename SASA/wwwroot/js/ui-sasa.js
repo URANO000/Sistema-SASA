@@ -27,12 +27,15 @@
             if (dot) dot.classList.add("d-none");
             if (btnIcon) btnIcon.className = "bi bi-envelope";
         }
+
         updateBadge();
     };
 
     document.querySelectorAll(".notif-item .toggle-read").forEach(btn => {
         btn.addEventListener("click", (e) => {
             const item = e.currentTarget.closest(".notif-item");
+            if (!item) return;
+
             const isUnread = item.classList.contains("notif-unread");
             setItemReadState(item, !isUnread);
         });
@@ -51,7 +54,24 @@
     });
 
     updateBadge();
+
+    document.querySelectorAll(".user-menu").forEach(menu => {
+        const names = menu.querySelectorAll(".user-name");
+        names.forEach((el, i) => {
+            if (i > 0) {
+                el.remove();
+            }
+        });
+
+        const roles = menu.querySelectorAll(".user-role");
+        roles.forEach((el, i) => {
+            if (i > 0) {
+                el.remove();
+            }
+        });
+    });
 });
+
 (() => {
     const getKey = (ticketId) => `sasa_silence_ticket_${ticketId}`;
 
@@ -68,6 +88,8 @@
         const untilEl = document.getElementById("silenceUntil");
         const badge = document.getElementById("silenceBadge");
         const btnUnsilence = document.getElementById("btnUnsilence");
+
+        if (!status || !untilEl || !badge || !btnUnsilence) return;
 
         const raw = localStorage.getItem(getKey(ticketId));
         if (!raw) {
@@ -91,6 +113,7 @@
 
         status.textContent = "Silenciadas";
         untilEl.textContent = `Silenciado hasta: ${formatUntil(until)}`;
+        badge.classList.remove("active");
         badge.classList.add("silenced");
         badge.innerHTML = `<i class="bi bi-bell-slash"></i>`;
         btnUnsilence.classList.remove("d-none");
@@ -99,12 +122,15 @@
     const silenceCard = document.getElementById("silenceCard");
     if (silenceCard) {
         const ticketId = silenceCard.getAttribute("data-ticket-id");
+        if (!ticketId) return;
+
         applySilenceUI(ticketId);
 
         document.querySelectorAll(".silence-option").forEach(btn => {
             btn.addEventListener("click", () => {
                 const hours = parseInt(btn.getAttribute("data-hours"), 10);
                 const tid = btn.getAttribute("data-ticket");
+                if (!tid || Number.isNaN(hours)) return;
 
                 const until = new Date();
                 until.setHours(until.getHours() + hours);
@@ -145,4 +171,3 @@
         });
     }
 })();
-

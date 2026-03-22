@@ -1,4 +1,7 @@
-﻿@{
+﻿@using SASA.ViewModels.Tiquete;
+@model TiqueteIndexViewModel
+
+@{
     ViewData["Title"] = "Gestión de Tiquetes";
 }
 <div class="container-fluid">
@@ -7,106 +10,250 @@
         <div class="card-body">
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <h2 class="mb-0 fw-bold">Gestión de Tiquetes</h2>
-                <button class="btn btn-custom" data-bs-toggle="modal" data-bs-target="#addTicketModal">
-                    <i class="bi bi-plus-lg"></i>
-                    Nuevo Tiquete
-                </button>
+                    <button class="btn btn-custom" data-bs-toggle="modal" data-bs-target="#addTicket">
+                        <i class="bi bi-plus-lg"></i>
+                        Nuevo Tiquete
+                    </button>
+
             </div>
             <!-- Filters -->
-            <div class="row g-2 align-items-end mb-3">
-                <div class="col-md-4">
-                    <label class="form-label">Buscar</label>
-                    <input type="text" class="form-control" placeholder="Código o asunto">
+            <form method="get">
+                <div class="row g-3 align-items-end mb-3">
+                    <div class="col-md-4">
+                        <label class="form-label">Buscar</label>
+                        <input type="text" name="Filtro.Search" asp-for="Filtro.Search"
+                               value="@Model.Filtro.Search"
+                               class="form-control"
+                               placeholder="Asunto/Descripción/Asignado"/>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label">Estado</label>
+                        <select asp-for="Filtro.Estatus"
+                                asp-items="Model.Filtro.Estatuses"
+                                class="form-select">
+                            <option value="">Todos</option>
+                        </select>
+
+                    </div>
+                    <div class="col-md-4">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <label class="form-label mb-0" id="main-label">Fecha</label>
+
+                            <div class="form-check form-switch m-0">
+                                <input class="form-check-input" type="checkbox" id="dateRangeSwitch">
+                                <label class="form-check-label small ms-1">Rango</label>
+                            </div>
+                        </div>
+
+                        <!-- Single -->
+                        <div id="single-wrapper">
+                            <input type="date"
+                                   class="form-control"
+                                   name="Filtro.Fecha"
+                                   id="filter-date-single">
+                        </div>
+
+                        <!-- Range -->
+                        <div class="row g-2 d-none" id="range-wrapper">
+                            <div class="col-6">
+                                <label class="form-label mb-1 small">Fecha Inicio</label>
+                                <input type="date"
+                                       class="form-control"
+                                       name="Filtro.FechaInicio"
+                                       id="filter-date-from"
+                                       disabled>
+                            </div>
+
+                            <div class="col-6">
+                                <label class="form-label mb-1 small">Fecha Fin</label>
+                                <input type="date"
+                                       class="form-control"
+                                       name="Filtro.FechaFinal"
+                                       id="filter-date-to"
+                                       disabled>
+                            </div>
+                        </div>
+                    </div>
+  
+                    <div class="col-md-2">
+                        <button type="submit" class="btn btn-outline-secondary w-100">
+                            <i class="bi bi-funnel"></i>
+                            Filtrar
+                        </button>
+                    </div>
                 </div>
-                <div class="col-md-2">
-                    <label class="form-label">Estado</label>
-                    <select class="form-select">
-                        <option value="">Todos</option>
-                        <option>Abierto</option>
-                        <option>En Progreso</option>
-                        <option>Cerrado</option>
+            </form>
+            @if (User.IsInRole("Administrador"))
+            {
+                <div class="d-flex gap-2 mb-3">
+
+                    <select id="assigneeSelect" class="form-select w-auto">
+                        <option value="">Seleccionar usuario</option>
+
+                        @foreach (var u in Model.Asignees)
+                        {
+                            <option value="@u.Value">@u.Text</option>
+                        }
+
                     </select>
-                </div>
-                <div class="col-md-2">
-                    <label class="form-label">Prioridad</label>
-                    <select class="form-select">
-                        <option value="">Todas</option>
-                        <option>Alta</option>
-                        <option>Media</option>
-                        <option>Baja</option>
-                    </select>
-                </div>
-                <div class="col-md-2">
-                    <label class="form-label">Fecha</label>
-                    <input type="date" class="form-control">
-                </div>
-                <div class="col-md-2">
-                    <button class="btn btn-outline-secondary w-100">
-                        <i class="bi bi-funnel"></i>
-                        Filtrar
+
+                    <button class="btn btn-primary" id="assignTicketsBtn" disabled>
+                        Asignar seleccionados
                     </button>
+
+                    <span id="selectedCount" class="text-muted small"></span>
+
                 </div>
-            </div>
+            }
             <!-- Table -->
             <div class="table-responsive">
                 <table class="table table-hover align-middle sasa-table">
                     <thead class="">
                         <tr>
+                            @if (User.IsInRole("Administrador"))
+                            {
+                                <th>
+                                    <input type="checkbox" id="selectAllTickets" />
+                                </th>
+                            }
                             <th>Acciones</th>
-                            <th>Código</th>
-                            <th>Descripción</th>
-                            <th>Estado</th>
-                            <th>Prioridad</th>
-                            <th>Creado</th>
-                            <th>Actualizado</th>
+                            <th>Asunto</th>
+                            <th>Estatus</th>
+                            <th>Categoría</th>
+                            <th>Creado Por</th>
+                            <th>Departamento</th>
+                            <th>Fecha de Creación</th>
+                            <th>Asignado</th>
+                            <th>Fecha de Edición</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <td>
-                                <a class="btn btn-link icon-btn" asp-area="" asp-controller="Tiquete" asp-action="Details">
-                                    <i class="bi bi-eye detail-btn"></i>
-                                </a>
-                                <a class="btn btn-link icon-btn" asp-area="" asp-controller="Tiquete" asp-action="Edit">
-                                    <i class="fa-regular fa-pen-to-square edit-btn"></i>
-                                </a>
-                            </td>
-                            <td>TQ-001</td>
-                            <td>Error en acceso al sistema</td>
-                            <td>
-                                <span class="badge bg-warning text-white">En Progreso</span>
-                            </td>
-                            <td>
-                                <span class="badge bg-danger">Alta</span>
-                            </td>
-                            <td>10/03/2025</td>
-                            <td>12/03/2025</td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <button class="btn btn-link">
-                                    <i class="bi bi-eye detail-btn"></i>
-                                </button>
-                                <button class="btn btn-link">
-                                    <i class="fa-regular fa-pen-to-square edit-btn"></i>
-                                </button>
-                            </td>
-                            <td>TQ-002</td>
-                            <td>Solicitud de equipo nuevo</td>
-                            <td>
-                                <span class="badge bg-success">Cerrado</span>
-                            </td>
-                            <td>
-                                <span class="badge bg-secondary">Media</span>
-                            </td>
-                            <td>08/03/2025</td>
-                            <td>09/03/2025</td>
-                        </tr>
+                        @foreach (var t in Model.Tiquetes)
+                        {
+                            <tr>
+                                @if (User.IsInRole("Administrador"))
+                                {
+                                    <td>
+                                        <input type="checkbox"
+                                               class="ticket-checkbox"
+                                               value="@t.IdTiquete"
+                                        @(t.Estatus == "Cancelado" || t.Estatus == "Resuelto" ? "disabled" : "") />
+                                    </td>
+                                }
+                                <td>
+                                    <a class="btn btn-link icon-btn" asp-area=""
+                                       asp-controller="Tiquete"
+                                       asp-action="Details"
+                                       asp-route-id="@t.IdTiquete">
+                                        <i class="bi bi-eye detail-btn"></i>
+                                    </a>
+                                    @if (User.IsInRole("Administrador"))
+                                    {
+                                        <a class="btn btn-link icon-btn" asp-area=""
+                                           asp-controller="Tiquete"
+                                           asp-action="Edit"
+                                           asp-route-id="@t.IdTiquete">
+                                            <i class="fa-regular fa-pen-to-square edit-btn"></i>
+                                        </a>
+                                    }
+                                </td>
+                                <td>@t.Asunto</td>
+                                @switch (t.Estatus)
+                                {
+                                    case "Creado":
+                                        <td>
+                                            <span class="badge bg-primary">@t.Estatus</span>
+                                        </td>
+                                        break;
+                                    case "En Proceso":
+                                        <td>
+                                            <span class="badge bg-warning">@t.Estatus</span>
+                                        </td>
+                                        break;
+                                    case "Cancelado":
+                                        <td>
+                                            <span class="badge bg-danger">@t.Estatus</span>
+                                        </td>
+                                        break;
+                                    case "Resuelto":
+                                        <td>
+                                            <span class="badge bg-success"> @t.Estatus </span>
+                                        </td>
+                                        break;
+                                    default:
+                                        <td>
+                                            <span class="badge bg-secondary"> @t.Estatus </span>
+                                        </td>
+                                        break;
+                                }
+
+                                <td>@t.Categoria</td>
+                                <td>@t.ReportedBy</td>
+                                <td>@t.Departamento</td>
+                                <td>@t.CreatedAt</td>
+                                <td>@t.Assignee</td>
+                                <td>@t.UpdatedAt</td>
+                            </tr>
+                        }
+
                     </tbody>
                 </table>
+                <nav aria-label="Paginación" class="align-content-center justify-content-center">
+                    <ul class="pagination pagination-sm mb-0 justify-content-center">
+
+                        <!-- Previous -->
+                        <li class="page-item @(Model.Filtro.TieneAnterior ? "" : "disabled")">
+                            <a class="page-link"
+                               asp-action="Index"
+                               asp-route-PageNumber="@(Model.Filtro.PageNumber - 1)"
+                               asp-route-PageSize="@Model.Filtro.PageSize"
+                               asp-route-Search="@Model.Filtro.Search"
+                               asp-route-Estatus="@Model.Filtro.Estatus"
+                               asp-route-Fecha="@Model.Filtro.Fecha"
+                               asp-route-FechaInicio="@Model.Filtro.FechaInicio"
+                               asp-route-FechaFinal="@Model.Filtro.FechaFinal">
+                                Anterior
+                            </a>
+                        </li>
+
+                        <!-- Info -->
+                        <li class="page-item disabled">
+                            <span class="page-link">
+                                Página @Model.Filtro.PageNumber de @Model.Filtro.TotalPages
+                            </span>
+                        </li>
+
+                        <!-- Next -->
+                        <li class="page-item @(Model.Filtro.TieneSiguiente ? "" : "disabled")">
+                            <a class="page-link"
+                               asp-action="Index"
+                               asp-route-PageNumber="@(Model.Filtro.PageNumber + 1)"
+                               asp-route-PageSize="@Model.Filtro.PageSize"
+                               asp-route-Search="@Model.Filtro.Search"
+                               asp-route-Estatus="@Model.Filtro.Estatus"
+                               asp-route-Fecha="@Model.Filtro.Fecha"
+                               asp-route-FechaInicio="@Model.Filtro.FechaInicio"
+                               asp-route-FechaFinal="@Model.Filtro.FechaFinal">
+                                Siguiente
+                            </a>
+                        </li>
+
+                    </ul>
+                </nav>
             </div>
         </div>
     </div>
 </div>
-<!-- Specifically for the modal-->
-@await Html.PartialAsync("_AddModal")
+<div id="modalContainer"></div>
+
+@await Html.PartialAsync("_SuccessModal")
+@await Html.PartialAsync("_ErrorModal")
+@await Html.PartialAsync("_Alert")
+@await Html.PartialAsync("_AddModal", Model.CrearTiquete)
+
+
+
+@section Scripts {
+    <script src="~/js/formSubmits.js" asp-append-version="true"></script>
+    <script src="~/js/AssignTickets.js" asp-append-version="true"></script>
+}

@@ -1,0 +1,24 @@
+﻿using DataAccess.Modelos.DTOs.Avances;
+
+namespace DataAccess.Modelos.DTOs.Tiquete
+{
+    public class ListaTiqueteDTO
+    {
+        public int IdTiquete { get; init; }
+        public required string Asunto { get; init; }
+        public required string Descripcion { get; set; }
+        public string? Resolucion { get; set; }
+
+        public required string Estatus { get; set; }
+        public string Categoria { get; set; }
+        public string? SubCategoria { get; set; }
+
+        public required string ReportedBy { get; set; }
+        public string? Departamento { get; set; }
+        public string? Assignee { get; set; }
+
+        public DateTime CreatedAt { get; set; }
+        public DateTime? UpdatedAt { get; set; }
+
+    }
+}

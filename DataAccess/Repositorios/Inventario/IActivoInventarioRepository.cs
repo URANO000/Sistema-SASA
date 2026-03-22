@@ -1,0 +1,41 @@
+﻿using DataAccess.Modelos.Entidades.Inventario;
+
+namespace DataAccess.Repositorios.Inventario
+{
+    public interface IActivoInventarioRepository
+    {
+        // Lecturas
+        Task<ActivoInventario?> ObtenerPorIdAsync(int id);
+        Task<ActivoInventario?> ObtenerDetalleAsync(int id); // includes (si aplica)
+        Task<List<ActivoInventario>> ListarAsync(string? q, int? estadoId, int? tipoId);
+
+        Task<int> ContarAsync(string? q, int? estadoId, int? tipoId);
+
+        // ✅ Agregado sortBy/sortDir
+        Task<List<ActivoInventario>> ListarPaginadoAsync(
+            string? q,
+            int? estadoId,
+            int? tipoId,
+            int skip,
+            int take,
+            string sortBy,
+            string sortDir);
+
+        // Validaciones / soporte Integración
+        Task<bool> ExisteNumeroActivoAsync(string numeroActivo);
+        Task<List<string>> ObtenerNumerosExistentesAsync(IEnumerable<string> numeros);
+
+        // Escrituras
+        Task CrearAsync(ActivoInventario entity);
+        Task ActualizarAsync(ActivoInventario entity);
+
+        // Soporte Integración
+        Task AgregarRangoAsync(IEnumerable<ActivoInventario> entities);
+
+        // Unit of Work
+        Task GuardarAsync();
+
+        //------------------------Dashboard---------------------------
+        Task<int> ContarInventarioAsync();
+    }
+}

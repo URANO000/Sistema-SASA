@@ -1,8 +1,14 @@
-﻿@{
+﻿@model SASA.ViewModels.Home.DashboardViewModel
+
+@{
     ViewData["Title"] = "Inicio";
 }
 
 <div>
+    <style>
+        .dashboard-card { min-width: 200px; padding: 0.5rem; }
+        .dashboard-card .card-body h3 { font-size: 1.9rem; }
+    </style>
     <!-- Header -->
     <div class="card mb-3">
         <div class="card-body">
@@ -11,43 +17,52 @@
             </div>
         </div>
     </div>
-    <div class="row g-3 mb-4">
-        <div class="col-md-3">
-            <div class="card text-center">
+    <div class="row g-3 mb-4 justify-content-center align-items-center">
+        <div class="col-auto">
+            <div class="card text-center dashboard-card">
                 <div class="card-body">
                     <h6 class="text-muted">Abiertos</h6>
-                    <h3 class="fw-bold text-primary">18</h3>
+                    <h3 id="cardAbiertos" class="fw-bold text-primary">@Model.Abiertos</h3>
                 </div>
             </div>
         </div>
 
-        <div class="col-md-3">
-            <div class="card text-center">
+        <div class="col-auto">
+            <div class="card text-center dashboard-card">
                 <div class="card-body">
                     <h6 class="text-muted">En Proceso</h6>
-                    <h3 class="fw-bold text-warning">7</h3>
+                    <h3 id="cardEnProgreso" class="fw-bold text-warning">@Model.EnProgreso</h3>
                 </div>
             </div>
         </div>
 
-        <div class="col-md-3">
-            <div class="card text-center">
+        <div class="col-auto">
+            <div class="card text-center dashboard-card">
                 <div class="card-body">
-                    <h6 class="text-muted">Cerrados</h6>
-                    <h3 class="fw-bold text-success">42</h3>
+                    <h6 class="text-muted">Resueltos</h6>
+                    <h3 id="cardResueltos" class="fw-bold text-success">@Model.Resueltos</h3>
                 </div>
             </div>
         </div>
 
-        <div class="col-md-3">
-            <div class="card text-center">
+        <div class="col-auto">
+            <div class="card text-center dashboard-card">
                 <div class="card-body">
                     <h6 class="text-muted">Cancelados</h6>
-                    <h3 class="fw-bold text-danger">3</h3>
+                    <h3 id="cardCancelados" class="fw-bold text-danger">@Model.Cancelados</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-auto">
+            <div class="card text-center dashboard-card">
+                <div class="card-body">
+                    <h6 class="text-muted">En Espera</h6>
+                    <h3 id="cardEnEspera" class="fw-bold text-secondary">@Model.EnEsperaDelUsuario</h3>
                 </div>
             </div>
         </div>
     </div>
+
 
     <!--Charts start coming in here, using the chart.js cdn located in Layout-->
     <div class="row mb-4">
@@ -79,62 +94,24 @@
         </div>
     </div>
 </div>
-
-
-<script>
-    //Now, this is only here for demo purposes, not real implementation. In any case, the js would be found in its own file
-        new Chart(document.getElementById('estadoChart'), {
-        type: 'doughnut',
-        data: {
-            labels: ['Abiertos', 'En Progreso', 'Cerrados'],
-            datasets: [{
-                data: [18, 7, 42],
-                backgroundColor: ['#012473', '#0347b8', '#d4a147']
-            }]
-        },
-        options: {
-            plugins: {
-                legend: { position: 'bottom' }
-            }
-        }
-    });
-
-            new Chart(document.getElementById('prioridadChart'), {
-            type: 'bar',
-            data: {
-                labels: ['Alta', 'Media', 'Baja'],
-                datasets: [{
-                    data: [12, 30, 25],
-                    backgroundColor: '#0347b8'
-                }]
-            },
-            options: {
-                plugins: { legend: { display: false } }
-            }
-        });
-
-            new Chart(document.getElementById('trendChart'), {
-        type: 'line',
-        data: {
-            labels: ['Lun', 'Mar', 'Mié', 'Jue', 'Vie'],
-            datasets: [
-                {
-                    label: 'Creados',
-                    data: [5, 8, 6, 9, 4],
-                    borderColor: '#0d6efd'
-                },
-                {
-                    label: 'Cerrados',
-                    data: [3, 6, 7, 5, 8],
-                    borderColor: '#d4a147'
-                },
-                {
-                    label: 'Cancelados',
-                    data: [2, 3, 1, 2, 2],
-                    borderColor: '#da0c00'
-                }
-            ]
-        }
-    });
-
-</script>
+    <script>
+        //
+        window.__dashboardInit = {
+            Abiertos: @Model.Abiertos,
+            EnProgreso: @Model.EnProgreso,
+            Resueltos: @Model.Resueltos,
+            Cancelados: @Model.Cancelados,
+            EnEsperaDelUsuario: @Model.EnEsperaDelUsuario,
+            PriorityLabels: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.PriorityLabels)),
+            PriorityCounts: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.PriorityCounts)),
+            PriorityDisplayLabels: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.PriorityDisplayLabels)),
+            PriorityTicketCounts: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.PriorityTicketCounts)),
+            TrendLabels: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.TrendLabels)),
+            TrendCreados: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.TrendCreados)),
+            TrendEspera: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.TrendEspera)),
+            TrendCancelados: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.TrendCancelados)),
+            TrendResueltos: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.TrendResueltos)),
+            TrendEnProgreso: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.TrendEnProgreso))
+        };
+    </script>
+    <script src="~/js/dashboard.js"></script>

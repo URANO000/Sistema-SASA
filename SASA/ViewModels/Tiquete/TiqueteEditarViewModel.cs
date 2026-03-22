@@ -1,0 +1,31 @@
+﻿using SASA.ViewModels.Avances;
+using SASA.ViewModels.Tiquete.Extras;
+using System.ComponentModel.DataAnnotations;
+
+namespace SASA.ViewModels.Tiquete
+{
+    public class TiqueteEditarViewModel : TiqueteFormViewModel
+    {
+        //Va a estar hidden en la vista, pero es necesario para identificar el tiquete a editar
+        [Required]
+        public int IdTiquete { get; set; }
+
+        public string? Asunto { get; set; }
+        public string? Descripcion { get; set; }
+
+        [Required(ErrorMessage = "La categoría es obligatoria.")]
+        public required int IdCategoria { get; set; }
+
+        [Required(ErrorMessage = "La subcategoría es obligatoria.")]
+        public required int IdSubCategoria { get; set; }
+
+        //Para ver
+        public string NombrePrioridad { get; set; }
+
+
+        [Required(ErrorMessage = "El estatus es obligatorio.")]
+        public required int IdEstatus { get; set; }
+        public string? Resolucion { get; set; }
+
+    }
+}

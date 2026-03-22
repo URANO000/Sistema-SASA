@@ -1,78 +1,103 @@
-﻿<!DOCTYPE html>
-<html lang="en">
+﻿@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Antiforgery
+@using System.Linq
+@using System.Security.Claims
+
+<!DOCTYPE html>
+<html lang="es">
 
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Sistema de gestion SASA"] Sistema de gestión SASA</title>
+    <title>@ViewData["Title"] - Sistema de gestión SASA</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/css/common.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/SASA.styles.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/site.css" />
 
     <!-- This is for the extra things we need like fonts, icons, etc-->
     <!-- Font Montserrat -->
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap"
-        rel="stylesheet">
+          rel="stylesheet">
     <!-- FontAwesome -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600&display=swap" rel="stylesheet">
-    <!-- UI SASA -->
-    <link rel="stylesheet" href="~/css/sasa-ui.css" />
     <!--Bootstrap icons-->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
     <!--Chart js CDN-->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    @{
+        var tokens = Antiforgery.GetAndStoreTokens(Context);
+    }
+    <meta name="csrf-token" content="@tokens.RequestToken" />
+
 </head>
+
+<body>
 
 <!--Global modal, for now at least-->
 @await Html.PartialAsync("_SuccessModal")
 @await Html.PartialAsync("_ErrorModal")
+@await Html.PartialAsync("_Alert")
 <!---------------------------------->
 
-<body>
-    <!--TOPBAR LAYOUT-->
-    <header class="topbar-custom">
-        <div class="topbar-left">
-            <button class="btn btn-link text-white icon-btn" id="sidebarToggle">
-                <i class="bi bi-list fs-3"></i>
-            </button>
+    @if (User?.Identity?.IsAuthenticated == true)
+    {
+        <!--TOPBAR LAYOUT-->
+        <header class="topbar-custom">
+            <div class="topbar-left">
+                <button class="btn btn-link text-white icon-btn" id="sidebarToggle">
+                    <i class="bi bi-list fs-3"></i>
+                </button>
 
-            <div class="logo-sasa">
-                <a class="btn btn-link icon-btn" asp-area="" asp-controller="Home" asp-action="Index">
-                    <img src="/img/logo-blanco-custom.png" alt="logo-sasa" />
-                </a>
-                @*                 <h1>Sistema de Gestión SASA</h1> *@
+                 <div class="logo-sasa">
+                        @if (User.IsInRole("Administrador"))
+                        {
+                        <a class="btn btn-link icon-btn" asp-area="" asp-controller="Home" asp-action="AdminDashboard">
+                        <img src="/img/logo-blanco-custom.png" alt="logo-sasa" />
+                        </a>
+                        }
+                        else
+                        {
+                         <a class="btn btn-link icon-btn" asp-area="" asp-controller="Home" asp-action="Index">
+                        <img src="/img/logo-blanco-custom.png" alt="logo-sasa" />
+                         </a>
+                        }
+                </div>
             </div>
-        </div>
 
-        <div class="topbar-actions">
-            <!--Notification icon-->
-            <a asp-controller="Notificaciones" asp-action="Index" class="btn btn-link text-white position-relative">
-                <i class="bi bi-bell fs-4"></i>
-                <span class="notification-badge">3</span>
-            </a>
+            <div class="topbar-actions">
+                <!--Notification icon-->
+                <a href="/Notificaciones" class="position-relative" id="notifBell">
+                    <i class="bi bi-bell fs-5"></i>
 
+                    <span id="notifBadge"
+                          class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger d-none"
+                          style="z-index:1000;">
+                    </span>
+                </a>
 
-
-            <!--User menu-->
-            <div class="dropdown">
-                <!-- Al dar click en el ícono, abre el menú -->
+                <div class="dropdown">
                 <button class="btn btn-link text-white p-0" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                     <i class="bi bi-person-circle fs-4"></i>
                 </button>
 
-                <ul class="dropdown-menu dropdown-menu-end user-menu">
-                    <li class="px-3 py-2">
-                        <div class="fw-semibold text-black user-name">Admin SASA</div>
-                        <div class="small text-muted user-role">Administrador</div>
+                <ul class="dropdown-menu dropdown-menu-end user-menu" style="z-index:2000;">
+                     <li class="px-3 py-2">
+                        @await Component.InvokeAsync("MenuUsuario")
                     </li>
 
                     <li><hr class="dropdown-divider"></li>
 
-                    <li><a class="dropdown-item dp-item" href="#"><i class="bi bi-person me-2"></i>Perfil</a></li>
-                    <li><a class="dropdown-item dp-item" href="#"><i class="bi bi-gear me-2"></i>Ajustes</a></li>
+                    <li>
+                        <a class="dropdown-item dp-item" asp-controller="Perfil" asp-action="Index">
+                            <i class="bi bi-person me-2"></i>Perfil
+                        </a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item dp-item" href="#">
+                            <i class="bi bi-gear me-2"></i>Ajustes
+                        </a>
+                    </li>
 
                     <li><hr class="dropdown-divider"></li>
 
@@ -84,9 +109,12 @@
                             </button>
                         </form>
                     </li>
-                </ul>
 
-    </header>
+                </ul>
+            </div>
+            </div>
+
+        </header>
 
     <!--SIDEBAR LAYOUT-->
     <aside class="sidebar-custom" id="sidebar">
@@ -98,117 +126,134 @@
         </div>
         <nav class="sidebar-nav">
             <!--Sections of the navbar-->
-            <div class="nav-section">
-                <span class="section-title">General</span>
-                <a asp-controller="Admin" asp-action="Dashboard" class="nav-link">
-                    <i class="bi bi-bar-chart"></i>
-                    Dashboard
-                </a>
+                <div class="nav-section">
+                    <span class="section-title">General</span>
+                        @if (User.IsInRole("Administrador"))
+                        {
+                        <a asp-controller="Home" asp-action="AdminDashboard" class="nav-link">
+                        <i class="bi bi-bar-chart"></i>
+                        Dashboard
+                        </a>
+                        }
+                        else
+                        {
+                        <a asp-controller="Home" asp-action="Index" class="nav-link">
+                        <i class="bi bi-bar-chart"></i>
+                        Dashboard
+                        </a>
+                        }
+                    </div>
 
-            </div>
-            <div class="nav-section">
-                <span class="section-title">Administración</span>
+            @if (User.IsInRole("Administrador"))
+            {
+                <div class="nav-section">
+                    <span class="section-title">Administración</span>
 
-                <!-- Dropdown trigger -->
-                <button class="nav-link dropdown-toggle-btn" type="button">
-                    <i class="bi bi-shield-lock"></i>
-                    Módulo Administrativo
-                    <i class="bi bi-chevron-down ms-auto"></i>
-                </button>
+                    <button class="nav-link dropdown-toggle-btn" type="button">
+                        <i class="bi bi-shield-lock"></i>
+                        Módulo Administrativo
+                        <i class="bi bi-chevron-down ms-auto"></i>
+                    </button>
 
-                <!-- Dropdown items -->
-                <div class="submenu">
-                    <a asp-area="" asp-controller="Usuario" asp-action="Index" class="submenu-link">
-                        <i class=""></i>
-                        Gestión de Usuarios
-                    </a>
-                    <a asp-area="" asp-controller="Formulario" asp-action="Index" class="submenu-link">
-                        <i class=""></i>
-                        Gestión de Formularios
-                    </a>
-                    <a asp-area="" asp-controller="Tiquete" asp-action="Index" class="submenu-link">
-                        <i class=""></i>
-                        Gestión de Tiquetes
-                    </a>
-                    <a asp-area="" asp-controller="Cola" asp-action="Index" class="submenu-link">
-                        <i class=""></i>
-                        Gestión de Colas
-                    </a>
+                    <div class="submenu">
+                        <a asp-area="" asp-controller="Usuario" asp-action="Index" class="submenu-link">
+                            <i class=""></i>
+                            Gestión de Usuarios
+                        </a>
+                        <a asp-area="" asp-controller="LoginAttempt" asp-action="Index" class="submenu-link">
+                            <i class=""></i>
+                            Intentos de inicio de sesión
+                        </a>
+                        <a asp-area="" asp-controller="Categoria" asp-action="Index" class="submenu-link">
+                            <i class=""></i>
+                            Gestión de Categorías
+                        </a>
+                        <a asp-area="" asp-controller="Tiquete" asp-action="Index" class="submenu-link">
+                            <i class=""></i>
+                            Gestión de Tiquetes
+                        </a>
+                        <a asp-area="" asp-controller="TiqueteHistorial" asp-action="Index" class="submenu-link">
+                            <i class=""></i>
+                            Gestión Historial de Tiquetes
+                        </a>
+                        <a asp-area="" asp-controller="Cola" asp-action="Index" class="submenu-link">
+                            <i class=""></i>
+                            Gestión de Colas
+                        </a>
+                    </div>
                 </div>
-            </div>
-            <div class="nav-section">
-                <button class="nav-link dropdown-toggle-btn" type="button">
-                    <i class="bi bi-archive"></i>
-                    Módulo de Inventario
-                    <i class="bi bi-chevron-down ms-auto"></i>
-                </button>
+                    <div class="nav-section">
+                        <button class="nav-link dropdown-toggle-btn" type="button">
+                            <i class="bi bi-archive"></i>
+                            Módulo de Inventario
+                            <i class="bi bi-chevron-down ms-auto"></i>
+                        </button>
 
-                <div class="submenu">
-                    <a asp-controller="Inventory" asp-action="Index" class="submenu-link">
-                        Gestión de Activos
-                    </a>
+                        <div class="submenu">
+                            <a asp-controller="Inventory" asp-action="Index" class="submenu-link">
+                                Gestión de Activos de Equipos
+                            </a>
 
-                    <a asp-controller="Inventory" asp-action="Equipment" class="submenu-link">
-                        Equipos
-                    </a>
+                            <a asp-controller="InventoryPhone" asp-action="Index" class="submenu-link">
+                                Gestión de Activos de Teléfonos
+                            </a>
 
-                    <a asp-controller="Inventory" asp-action="Maintenance" class="submenu-link">
-                        Historial y Mantenimiento
-                    </a>
+                            <a asp-controller="Inventory" asp-action="Maintenance" class="submenu-link">
+                                Historial y Mantenimiento
+                            </a>
 
-                    <a asp-controller="Inventory" asp-action="TicketAssociation" class="submenu-link">
-                        Asociación Activos - Tiquetes
-                    </a>
+                            <a asp-controller="Inventory" asp-action="TicketAssociation" class="submenu-link">
+                                Asociación Activos - Tiquetes
+                            </a>
 
-                    <a asp-controller="Inventory" asp-action="Reports" class="submenu-link">
-                        Reportes
-                    </a>
+                            <a asp-controller="Inventory" asp-action="Reports" class="submenu-link">
+                                Reportes
+                            </a>
+                        </div>
+                    </div>
+
+                <div class="nav-section">
+                    <span class="section-title">Integración</span>
+                    <button class="nav-link dropdown-toggle-btn" type="button">
+                        <i class="bi bi-plug"></i>
+                        Módulo de Integración
+                        <i class="bi bi-chevron-down ms-auto"></i>
+                    </button>
+
+                    <div class="submenu">
+                        <a asp-controller="Integration" asp-action="Index" class="submenu-link">
+                            Vista General
+                        </a>
+
+                        <a asp-controller="Integration" asp-action="Upload" class="submenu-link">
+                            Carga de Archivos
+                        </a>
+
+                        <a asp-controller="Integration" asp-action="History" class="submenu-link">
+                            Historial de Integraciones
+                        </a>
+                    </div>
                 </div>
-            </div>
-            <div class="nav-section">
-                <span class="section-title">Usuarios</span>
-                <!-- Dropdown trigger -->
-                <button class="nav-link dropdown-toggle-btn" type="button">
-                    <i class="bi bi-ticket-perforated"></i>
-                    Módulo de Tiquetes
-                    <i class="bi bi-chevron-down ms-auto"></i>
-                </button>
+            }
 
-                <!--Dropdown items-->
-                <div class="submenu">
-                    <a asp-area="" asp-controller="Tiquete" asp-action="Index" class="submenu-link">
-                        <i class=""></i>
-                        Gestión de Tiquetes
-                    </a>
+            @if (User.IsInRole("Empleado Normal"))
+            {
+                <div class="nav-section">
+                    <span class="section-title">Usuarios</span>
+                    <button class="nav-link dropdown-toggle-btn" type="button">
+                        <i class="bi bi-ticket-perforated"></i>
+                        Módulo de Tiquetes
+                        <i class="bi bi-chevron-down ms-auto"></i>
+                    </button>
 
+                    <div class="submenu">
+                        <a asp-area="" asp-controller="Tiquete" asp-action="Index" class="submenu-link">
+                            <i class=""></i>
+                            Gestión de Tiquetes
+                        </a>
+                    </div>
                 </div>
-            </div>
-            <div class="nav-section">
-                <span class="section-title">Integración</span>
-                <button class="nav-link dropdown-toggle-btn" type="button">
-                    <i class="bi bi-plug"></i>
-                    Módulo de Integración
-                    <i class="bi bi-chevron-down ms-auto"></i>
-                </button>
-
-                <div class="submenu">
-                    <a asp-controller="Integration" asp-action="Index" class="submenu-link">
-                        Vista General
-                    </a>
-
-                    <a asp-controller="Integration" asp-action="Upload" class="submenu-link">
-                        Carga de Archivos
-                    </a>
-
-                    <a asp-controller="Integration" asp-action="Validation" class="submenu-link">
-                        Validación de Datos
-                    </a>
-
-                    <a asp-controller="Integration" asp-action="History" class="submenu-link">
-                        Historial de Integraciones
-                    </a>
-                </div>
-            </div>
+            }
         </nav>
     </aside>
 
@@ -227,28 +272,63 @@
         </ol>
     </nav>
 
-
-
     <!--MAIN CONTENT-->
     <div class="content">
         <main role="main" class="pb-3">
             @RenderBody()
         </main>
     </div>
+}
+else
+{
+    <main role="main">
+        @RenderBody()
+    </main>
+}
+    }
 
-    @*     <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2025 - SASA - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-        </div>
-    </footer> *@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"
-        integrity="sha512-fD9DI5bZwQxOi7MhYWnnNPlvXdp/2Pj3XSTRrFs5FQa4mizyGLnJcN6tuvUS6LbmgN1ut+XGSABKvjN0H6Aoow=="
-        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+            integrity="sha512-fD9DI5bZwQxOi7MhYWnnNPlvXdp/2Pj3XSTRrFs5FQa4mizyGLnJcN6tuvUS6LbmgN1ut+XGSABKvjN0H6Aoow=="
+            crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+    <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
+
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     <script src="~/js/ui-sasa.js" asp-append-version="true"></script>
+
+    @if (User?.Identity?.IsAuthenticated == true)
+    {
+        <script src="~/js/idle-timeout.js" asp-append-version="true"></script>
+    }
+
     @await RenderSectionAsync("Scripts", required: false)
+
+    <div class="modal fade" id="sessionTimeoutModal" tabindex="-1" aria-hidden="true"
+         data-bs-backdrop="static" data-bs-keyboard="false">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Tu sesión está por expirar</h5>
+                </div>
+                <div class="modal-body">
+                    <p class="mb-2">
+                        Por seguridad, tu sesión se cerrará por inactividad en:
+                        <strong><span id="sessionTimeoutCountdown">60</span>s</strong>
+                    </p>
+                    <p class="mb-0 text-muted">
+                        Haz clic en “Seguir conectado” para mantener la sesión activa.
+                    </p>
+                </div>
+                <div class="modal-footer justify-content-center">
+                    <button type="button" class="btn btn-custom" id="btnStayConnected">
+                        Seguir conectado
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 </body>
 
 </html>

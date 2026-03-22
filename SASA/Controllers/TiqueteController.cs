@@ -1,31 +1,643 @@
-ï»¿using Microsoft.AspNetCore.Http;
+using BusinessLogic.Servicios.Attachments;
+using BusinessLogic.Servicios.Avances;
+using BusinessLogic.Servicios.Categorias;
+using BusinessLogic.Servicios.Helpers;
+using BusinessLogic.Servicios.Prioridad;
+using BusinessLogic.Servicios.SubCategorias;
+using BusinessLogic.Servicios.Tiquetes;
+using BusinessLogic.Servicios.Usuarios;
+using DataAccess.Modelos.DTOs.Avances;
+using DataAccess.Modelos.DTOs.Tiquete;
+using DataAccess.Modelos.DTOs.Tiquete.Filtros;
+using DataAccess.Modelos.Enums;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.Extensions.Options;
+using SASA.Configuration;
 using SASA.Filters;
+using SASA.ViewModels.Attachments;
+using SASA.ViewModels.Avances;
+using SASA.ViewModels.Tiquete;
+using SASA.ViewModels.Tiquete.Extras;
+using SASA.ViewModels.Tiquete.Filtro;
+using SASA.ViewModels.TiqueteHistoriales;
+using System.Security.Claims;
 
 namespace SASA.Controllers
 {
     [RequireAuth]
     public class TiqueteController : Controller
     {
+        private readonly ITiqueteService _tiqueteService;
+        //Para dropdowns y autocomplete
+        private readonly IUsuarioService _usuarioService;
+        private readonly ICategoriaService _categoriaService;
+        private readonly IPrioridadService _prioridadService;
+        private readonly IAvanceService _avanceService;
+        private readonly IAttachmentService _attachmentService;
+        private readonly ISubCategoriaService _subCategoriasService;
+        private readonly IHelper _helper;
+
+        private readonly BusinessLogic.Servicios.Correo.ICorreoNotificacionesService _correoNotificaciones;
+        private readonly AppSettings _appSettings;
+
+        public TiqueteController(
+            ITiqueteService tiqueteService,
+            IUsuarioService usuarioService,
+            ICategoriaService categoriaService,
+            IPrioridadService prioridadService,
+            IAvanceService avanceService,
+            IAttachmentService attachmentService,
+            ISubCategoriaService subCategoriaService,
+            IHelper helper,
+            BusinessLogic.Servicios.Correo.ICorreoNotificacionesService correoNotificaciones,
+            IOptions<AppSettings> appSettings)
+
+        {
+            _tiqueteService = tiqueteService;
+            _usuarioService = usuarioService;
+            _categoriaService = categoriaService;
+            _prioridadService = prioridadService;
+            _avanceService = avanceService;
+            _attachmentService = attachmentService;
+            _subCategoriasService = subCategoriaService;
+            _helper = helper;
+            _correoNotificaciones = correoNotificaciones;
+            _appSettings = appSettings.Value;
+        }
         //GET: TiqueteController
-        public ActionResult Index()
+        [Authorize(Roles = "Administrador, Empleado Normal")]
+        [HttpGet]
+        public async Task<IActionResult> Index(TiqueteFiltroViewModel filtro)
         {
-            return View();
+            //Primero, mapear viewmodel a dto para BLL
+            var filtroDto = new TiqueteFiltroDto
+            {
+                Search = filtro.Search,
+                Estatus = filtro.Estatus,
+                Fecha = filtro.Fecha,
+                FechaInicio = filtro.FechaInicio,
+                FechaFinal = filtro.FechaFinal,
+                PageNumber = filtro.PageNumber <= 0 ? 1 : filtro.PageNumber,
+                PageSize = filtro.PageSize <= 0 ? 10 : filtro.PageSize
+            };
+
+            //Condicional, depende de qué rol, van a ver una lista diferente de tiquetes
+            var userId = User.IsInRole("Administrador")
+                ? null
+                : User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            var result = await _tiqueteService.ObtenerTiquetesAsync(filtroDto, userId);
+
+            //Mapeo de resultado a ViewModel para tabla (con filtros)
+            var viewModel = new TiqueteIndexViewModel
+            {
+                Tiquetes = result.Items.Select(u => new TiqueteListaViewModel
+                {
+                    IdTiquete = u.IdTiquete,
+                    Asunto = u.Asunto,
+                    Descripcion = u.Descripcion,
+                    Resolucion = u.Resolucion,
+                    Estatus = u.Estatus,
+                    Categoria = u.Categoria,
+                    ReportedBy = u.ReportedBy,
+                    Departamento = u.Departamento,
+                    Assignee = u.Assignee,
+                    CreatedAt = _helper.FormatearCRTime(u.CreatedAt),
+                    UpdatedAt = u.UpdatedAt.HasValue
+                        ? _helper.FormatearCRTime(u.UpdatedAt.Value)
+                        : null
+                }).ToList(),
+
+                Filtro = new TiqueteFiltroViewModel
+                {
+                    Search = filtro.Search,
+                    Estatus = filtro.Estatus,
+                    Fecha = filtro.Fecha,
+                    FechaInicio = filtro.FechaInicio,
+                    FechaFinal = filtro.FechaFinal,
+                    PageNumber = filtro.PageNumber,
+                    PageSize = filtro.PageSize,
+                    TotalPages = result.TotalPages
+                },
+            };
+
+            //Cargo los valores para los dropdowns
+            await CargarFiltrosAsync(viewModel.Filtro);
+
+            //Cargar para asignar
+            await CargarDropdownsAsync(viewModel);
+
+            //Cargo los dropdowns de el add modal
+            viewModel.CrearTiquete = new CrearTiqueteViewModel
+            {
+                Asunto = string.Empty,
+                Descripcion = string.Empty,
+                Categoria = 0,
+                IdSubCategoria = 0
+            };
+
+            await CargarDropdownsAsync(viewModel.CrearTiquete);
+
+            //Una vez que todo está listo, retornamos vm
+            return View(viewModel);
+
         }
 
-        public IActionResult Details()
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Administrador, Empleado Normal")]
+        public async Task<IActionResult> Add(CrearTiqueteViewModel model)
         {
-            return View();
+            if (!ModelState.IsValid)
+            {
+                // Reload dropdowns
+                await CargarDropdownsAsync(model);
+
+                return BadRequest();
+            }
+            try
+            {
+                //Guardar el usuario actual
+                var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+                //Mapear viewmodel a dto
+                var dto = new CrearTiqueteDto
+                {
+                    Asunto = model.Asunto,
+                    Descripcion = model.Descripcion,
+                    IdCategoria = model.Categoria,
+                    IdSubCategoria = model.IdSubCategoria,
+                    IdAsignee = model.IdAsignee,
+
+                    ArchivoAdjunto = model.ArchivosAdjuntos
+                };
+
+                //Una vez que está mapeado entonces verificar si el usuario es administrador
+                var esAdmin = User.IsInRole("Administrador"); //Retorna true o false
+
+                var idTiquete = await _tiqueteService.AgregarTiqueteAsync(dto, currentUserId, esAdmin);
+
+                try
+                {
+                    var usuario = await _usuarioService.ObtenerUsuarioPorIdAsync(currentUserId);
+                    if (usuario != null && !string.IsNullOrWhiteSpace(usuario.CorreoEmpresa))
+                    {
+                        var nombre = $"{usuario.PrimerNombre} {usuario.PrimerApellido}".Trim();
+                        var baseUrl = (_appSettings.BaseUrl ?? "").TrimEnd('/');
+                        var detalleLink = string.IsNullOrWhiteSpace(baseUrl)
+                            ? $"/Tiquete/Details/{idTiquete}"
+                            : $"{baseUrl}/Tiquete/Details/{idTiquete}";
+
+                        await _correoNotificaciones.EnviarTiqueteCreadoAsync(
+                            usuario.CorreoEmpresa,
+                            nombre,
+                            idTiquete,
+                            dto.Asunto,
+                            detalleLink);
+
+                        await _correoNotificaciones.EnviarTiqueteCreadoAdminsAsync(
+                            new List<string> { "spti@sistemasanaliticos.cr" },
+                            idTiquete,
+                            dto.Asunto,
+                            nombre,
+                            usuario.CorreoEmpresa,
+                            detalleLink);
+                    }
+                }
+                catch
+                {
+                    // No romper el flujo si falla el correo
+                }
+
+                return Ok(new
+                {
+                    success = true,
+                    idTiquete
+                });
+
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new
+                {
+                    success = false,
+                    message = ex.Message
+                });
+            }
         }
 
-        public IActionResult Edit()
+        [Authorize(Roles = "Administrador")]
+        [HttpGet]
+        public async Task<IActionResult> Edit(int id)
         {
-            return View();
+            var tiquete = await _tiqueteService.ObtenerTiquetePorIdAsync(id);
+
+            if (tiquete == null)
+            {
+                return NotFound();
+            }
+
+            //Mapear a viewmodel
+            var model = new TiqueteEditarViewModel
+            {
+                IdTiquete = tiquete.IdTiquete,
+                Asunto = tiquete.Asunto,
+                Descripcion = tiquete.Descripcion,
+                IdCategoria = tiquete.IdCategoria,
+                IdSubCategoria = tiquete.IdSubCategoria,
+                NombrePrioridad = tiquete.NombrePrioridad,
+                IdEstatus = tiquete.IdEstatus,
+                Resolucion = tiquete.Resolucion,
+
+            };
+
+            await CargarDropdownsAsync(model);
+
+            model.SubCategorias = await _subCategoriasService
+                    .ObtenerSubCategoriasPorCategoria(model.IdCategoria);
+            return View(model);
+        }
+
+        [Authorize(Roles = "Administrador")]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(TiqueteEditarViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                await CargarDropdownsAsync(model);
+                foreach (var error in ModelState)
+                {
+                    Console.WriteLine($"KEY: {error.Key}");
+                    foreach (var e in error.Value.Errors)
+                        Console.WriteLine($"ERROR: {e.ErrorMessage}");
+                }
+                return Json(new
+                {
+                    success = false,
+                    errors = ModelState
+                                 .Where(x => x.Value!.Errors.Any())
+                                 .ToDictionary(
+                                     k => k.Key,
+                                     v => v.Value!.Errors.Select(e => e.ErrorMessage).ToArray()
+                                 )
+                });
+            }
+
+            try
+            {
+                var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+                var tiqueteActual = await _tiqueteService.ObtenerTiquetePorIdAsync(model.IdTiquete);
+
+                var dto = new EditarTiqueteDto
+                {
+                    IdTiquete = model.IdTiquete,
+                    IdCategoria = model.IdCategoria,
+                    IdSubCategoria = model.IdSubCategoria,
+                    IdEstatus = model.IdEstatus,
+                    Resolucion = model.Resolucion
+                };
+                await _tiqueteService.ActualizarTiqueteAsync(dto, currentUserId);
+
+                if (tiqueteActual != null)
+                {
+                    var estadoAnterior = tiqueteActual.IdEstatus;
+                    var estadoNuevo = model.IdEstatus;
+
+                    var cambioEstado = estadoAnterior != estadoNuevo;
+
+                    var esResuelto = estadoNuevo == (int)TiqueteEstatus.Resuelto;
+                    var esCancelado = estadoNuevo == (int)TiqueteEstatus.Cancelado;
+
+                    if (cambioEstado &&
+                        (esResuelto || esCancelado) &&
+                        !string.IsNullOrWhiteSpace(tiqueteActual.ReportedByEmail))
+                    {
+                        var baseUrl = (_appSettings.BaseUrl ?? "").TrimEnd('/');
+
+                        var detalleLink = string.IsNullOrWhiteSpace(baseUrl)
+                            ? $"/Tiquete/Details/{model.IdTiquete}"
+                            : $"{baseUrl}/Tiquete/Details/{model.IdTiquete}";
+
+                        var nombreUsuario = string.IsNullOrWhiteSpace(tiqueteActual.ReportedByNombre)
+                            ? "Usuario"
+                            : tiqueteActual.ReportedByNombre;
+
+                        var estadoTexto = esResuelto ? "Resuelto" : "Cancelado";
+
+                        await _correoNotificaciones.EnviarTiqueteResueltoOCerradoAsync(
+                            tiqueteActual.ReportedByEmail,
+                            nombreUsuario,
+                            model.IdTiquete,
+                            tiqueteActual.Asunto ?? "Sin asunto",
+                            estadoTexto,
+                            detalleLink);
+                    }
+                }
+
+                return Json(new
+                {
+                    success = true
+                });
+
+            }
+            catch (UnauthorizedAccessException)
+            {
+                return Unauthorized();
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return Json(new
+                {
+                    success = false,
+                    errors = new
+                    {
+                        _form = new[] { ex.Message }
+                    }
+                });
+            }
+            catch (ArgumentException ex)
+            {
+                return Json(new
+                {
+                    success = false,
+                    errors = new
+                    {
+                        _form = new[] { ex.Message }
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                return Json(new
+                {
+                    success = false,
+                    errors = new
+                    {
+                        _form = new[] { ex.Message }
+                    }
+                });
+            }
+        }
+
+
+        [Authorize(Roles = "Administrador")]
+        [HttpPost]
+        public async Task<IActionResult> AsignarTiquetes([FromBody] AsignarTiqueteDto dto)
+        {
+            try
+            {
+                var currentUserId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+                await _tiqueteService.AsignarTiquetesAsync(
+                    dto,
+                    currentUserId,
+                    User.IsInRole("Administrador")
+                );
+
+                return Ok(new { success = true, message = "Tiquetes asignados correctamente." });
+
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { success = false, message = ex.Message });
+            }
+        }
+
+
+        [HttpGet]
+        public async Task<IActionResult> Details(int id)
+        {
+            //Obtener el tiquete
+            var tiquete = await _tiqueteService.ObtenerTiquetePorIdReadAsync(id);
+
+            //Si el servicio no retorna nada, entonces retornar not found
+            if (tiquete == null)
+            {
+                return NotFound();
+            }
+
+            //Esto es para el tiempo de prioridad
+            string? tiempoRestante = null;
+            string? tiempoExcedido = null;
+            bool atrasado = false;
+
+            if (tiquete.DuracionMinutos.HasValue)
+            {
+                (tiempoRestante, tiempoExcedido, atrasado) =
+                    _helper.Calcular(tiquete.CreatedAt, tiquete.DuracionMinutos.Value);
+            }
+
+            //Si el servicio retorna un tiquete, entonces mapear a viewModel
+            var model = new TiqueteDetalleViewModel
+            {
+                IdTiquete = id,
+                Asunto = tiquete.Asunto,
+                Descripcion = tiquete.Descripcion,
+                Resolucion = tiquete.Resolucion,
+                Estatus = tiquete.Estatus,
+                Categoria = tiquete.Categoria,
+                SubCategoria = tiquete.SubCategoria,
+                ReportedBy = tiquete.ReportedBy,
+                Departamento = tiquete.Departamento,
+                Assignee = tiquete.Assignee,
+
+                CreatedAt = _helper.FormatearCRTime(tiquete.CreatedAt),
+                UpdatedAt = tiquete.UpdatedAt.HasValue
+                        ? _helper.FormatearCRTime(tiquete.UpdatedAt.Value)
+                        : null,
+
+                Prioridad = tiquete.Prioridad,
+                DuracionMinutos = tiquete.DuracionMinutos,
+                TiempoRestante = tiempoRestante,
+                TiempoExcedido = tiempoExcedido,
+                EstaAtrasado = atrasado,
+
+                Avances = tiquete.Avances
+                    .Select(a => new AvanceDetalleViewModel
+                    {
+                        AutorCorreo = a.Autor,
+                        TextoAvance = a.TextoAvance,
+                        CreatedAt = a.CreatedAt
+                    })
+                    .ToList(),
+                Attachments = tiquete.Attachments
+                    .Select(at => new AttachmentDetalleViewModel
+                    {
+                        IdAttachment = at.IdAttachment,
+                        FileName = at.FileName,
+                        FileSize = at.FileSize
+
+                    })
+                    .ToList(),
+                Historiales = tiquete.Historiales
+                    .Select(h => new TiqueteHistorialDetalleViewModel
+                    {
+                        PerformedAt = h.PerformedAt,
+                        PerformedBy = h.PerformedBy,
+                        DescripcionEvento = h.DescripcionEvento
+                    })
+                    .ToList()
+
+            };
+            return View(model);
+        }
+
+        [Authorize(Roles = "Administrador")]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AgregarAvance(int id,
+                [Bind(Prefix = "NuevoAvance")] AvanceCrearViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return Json(new
+                {
+                    success = false,
+                    errors = ModelState
+                                .Where(x => x.Value!.Errors.Any())
+                                .ToDictionary(
+                                    k => k.Key,
+                                    v => v.Value!.Errors.Select(e => e.ErrorMessage).ToArray()
+                                )
+                });
+            }
+
+            try
+            {
+                var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+                var tiquete = await _tiqueteService.ObtenerTiquetePorIdAsync(id);
+
+                var dto = new CrearAvanceDto
+                {
+                    TextoAvance = model.TextoAvance
+                };
+
+                await _avanceService.AgregarAvanceAsync(dto, currentUserId, id);
+
+                if (tiquete != null && !string.IsNullOrWhiteSpace(tiquete.ReportedByEmail))
+                {
+                    var baseUrl = (_appSettings.BaseUrl ?? "").TrimEnd('/');
+
+                    var detalleLink = string.IsNullOrWhiteSpace(baseUrl)
+                        ? $"/Tiquete/Details/{id}"
+                        : $"{baseUrl}/Tiquete/Details/{id}";
+
+                    var nombreUsuario = string.IsNullOrWhiteSpace(tiquete.ReportedByNombre)
+                        ? "Usuario"
+                        : tiquete.ReportedByNombre;
+
+                    await _correoNotificaciones.EnviarNuevoAvanceTiqueteAsync(
+                        tiquete.ReportedByEmail,
+                        nombreUsuario,
+                        id,
+                        tiquete.Asunto ?? "Sin asunto",
+                        dto.TextoAvance,
+                        detalleLink);
+                }
+
+                return Json(new { success = true });
+            }
+            catch (Exception ex)
+            {
+                return Json(new
+                {
+                    success = false,
+                    errors = new
+                    {
+                        _form = new[] { ex.Message }
+                    }
+                });
+            }
+        }
+
+
+        [HttpGet]
+        public async Task<IActionResult> DescargaArchivo(int id)
+        {
+            try
+            {
+                var attachment = await _attachmentService.DownloadAttachmentAsync(id);
+
+                return File(
+                    attachment.File,
+                    "application/octet-stream",
+                    attachment.FileName
+                );
+            }
+            catch (KeyNotFoundException)
+            {
+                return NotFound();
+            }
         }
 
         public IActionResult Dashboard()
         {
             return View();
         }
+
+
+        //----------------------------Helpers---------------------------------------
+
+        //Para las subcategorias
+        [HttpGet]
+        public async Task<IActionResult> ObtenerSubCategorias(int idCategoria)
+        {
+            var subcategorias = await _subCategoriasService.ObtenerSubCategoriasPorCategoria(idCategoria);
+            return Json(subcategorias);
+        }
+        private async Task CargarDropdownsAsync(TiqueteFormViewModel model)
+        {
+            //Obtener datos por medio de servicios
+            var categorias = await _categoriaService.ObtenerTodasAsync();
+            var usuarios = await _usuarioService.ObtenerUsuariosTIAsync();
+            var estatuses = Enum.GetValues(typeof(TiqueteEstatus))
+                    .Cast<TiqueteEstatus>();
+
+
+            //Mapear a selectlistitems
+
+            model.Categorias = categorias.Select(c => new SelectListItem
+            {
+                Value = c.IdCategoria.ToString(),
+                Text = c.NombreCategoria
+            });
+
+
+            model.Asignees = usuarios.Select(u => new SelectListItem
+            {
+                Value = u.Id,
+                Text = u.UserName
+            });
+
+            model.Estatuses = estatuses.Select(e => new SelectListItem
+            {
+                Value = ((int)e).ToString(),
+                Text = e.ToString()
+            });
+
+        }
+
+        private async Task CargarFiltrosAsync(TiqueteFiltroViewModel model)
+        {
+            var estatuses = Enum.GetValues(typeof(TiqueteEstatus))
+                                .Cast<TiqueteEstatus>();
+
+            model.Estatuses = estatuses.Select(e => new SelectListItem
+            {
+                Value = e.ToString(),
+                Text = e.ToString(),
+                Selected = e.ToString() == model.Estatus
+            });
+        }
+
     }
 }

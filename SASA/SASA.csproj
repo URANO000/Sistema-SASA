@@ -4,6 +4,43 @@
     <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>3a87d676-52bf-4262-8d4a-b444444fc50b</UserSecretsId>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="ViewModels\NewFolder1\**" />
+    <Compile Remove="ViewModels\Tiquete - Copy\**" />
+    <Content Remove="ViewModels\NewFolder1\**" />
+    <Content Remove="ViewModels\Tiquete - Copy\**" />
+    <EmbeddedResource Remove="ViewModels\NewFolder1\**" />
+    <EmbeddedResource Remove="ViewModels\Tiquete - Copy\**" />
+    <None Remove="ViewModels\NewFolder1\**" />
+    <None Remove="ViewModels\Tiquete - Copy\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Azure.Identity" Version="1.17.1" />
+    <PackageReference Include="Microsoft.AspNetCore.Http" Version="2.3.9" />
+    <PackageReference Include="ClosedXML" Version="0.105.0" />
+    <PackageReference Include="EPPlus" Version="8.4.1" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Graph" Version="5.102.0" />
+    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="8.0.23" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\BusinessLogic\BusinessLogic.csproj" />
+    <ProjectReference Include="..\DataAccess\DataAccess.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Models\" />
+    <Folder Include="Mapping\" />
+    <Folder Include="Views\Shared\Components\UserMenu\" />
+  </ItemGroup>
 
 </Project>

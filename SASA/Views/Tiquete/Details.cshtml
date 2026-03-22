@@ -1,17 +1,98 @@
-﻿@{
+﻿@using SASA.ViewModels.Tiquete
+@model TiqueteDetalleViewModel
+@{
     ViewData["Title"] = "Detalle de Tiquete";
 }
 
 <!---------Make sure to always keep separation of important and slightly less important-------->
+<a onclick="history.back()" class="btn btn-link px-0">
+    <i class="bi bi-arrow-left"></i> Volver
+</a>
 <div class="card mb-3">
     <div class="card-body">
         <div class="ticket-header mb-4">
-            <a asp-area="" asp-controller="Tiquete" asp-action="Index" class="btn btn-link px-0">
-                <i class="bi bi-arrow-left"></i> Volver al listado
-            </a>
             <div class="d-flex justify-content-between align-items-center mt-2">
-                <h4 class="mb-0 fw-bold">Tiquete TQ-001</h4>
-                <span class="badge bg-warning text-dark">En Progreso</span>
+                <div>
+                    <h4 class="mb-2 fw-bold">Detalle e Información general de tiquete</h4>
+                    <div class="gap-2">
+                        @switch (Model.Estatus)
+                        {
+                            case "Creado":
+                                <span class="badge bg-primary">@Model.Estatus</span>
+                                break;
+                            case "En Proceso":
+                                <span class="badge bg-warning">@Model.Estatus</span>
+                                break;
+                            case "Cancelado":
+                                <span class="badge bg-danger">@Model.Estatus</span>
+                                break;
+                            case "Resuelto":
+                                <span class="badge bg-success"> @Model.Estatus </span>
+                                break;
+                            default:
+                                <span class="badge bg-secondary"> @Model.Estatus </span>
+                                break;
+                        }
+                        @if(User.IsInRole("Administrador"))
+                        {
+                            @switch (Model.Prioridad)
+                            {
+                                case "Baja":
+                                    <span class="badge bg-secondary">
+                                        Prioridad: @Model.Prioridad
+
+                                    </span>
+                                    break;
+
+                                case "Media":
+
+                                    <span class="badge bg-primary">
+                                        Prioridad: @Model.Prioridad
+
+                                    </span>
+
+                                    break;
+
+                                case "Alta":
+
+                                    <span class="badge bg-warning">
+                                        Prioridad: @Model.Prioridad
+
+                                    </span>
+
+                                    break;
+
+                                default:
+
+                                    <span class="badge bg-danger">
+                                        Prioridad: @Model.Prioridad
+
+                                    </span>
+                                    break;
+                            }
+
+                            @if (!Model.EstaAtrasado)
+                            {
+                                <span class="badge bg-success">
+                                    Tiempo restante: @Model.TiempoRestante
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-danger">
+                                    Atrasado: @Model.TiempoExcedido
+                                </span>
+                            }
+                        }
+                    </div>
+                </div>
+              
+
+                <div class="text-end small text-muted">
+                    <div>Creado: @Model.CreatedAt</div>
+                    <div>Reportado por: @Model.ReportedBy</div>
+                    <div>Asignado a: @Model.Assignee</div>
+                </div>
             </div>
         </div>
     </div>
@@ -20,83 +101,205 @@
 <div class="row">
     <!-- MAIN -->
     <div class="col-lg-8">
-        <!-- Description -->
-        <div class="card mb-4">
+        <!-- Info general -->
+        <div class="card mb-4 shadow-sm">
             <div class="card-body">
-                <h6 class="section-title">Descripción</h6>
-                <p class="text-muted mb-0">
-                    Reporte de fallo de acceso al sistema principal. Se genera un error 500.
-                </p>
+
+                <h6 class="section-title border-bottom pb-2 mb-3">
+                    Información General
+                </h6>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <small class="text-muted">Asunto</small>
+                        <div class="fw-semibold">@Model.Asunto</div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <small class="text-muted">Departamento</small>
+                        <div>@Model.Departamento</div>
+                    </div>
+                </div>
+                
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <small class="text-muted">Categoría</small>
+                        <div class="fw-semibold">@Model.Categoria</div>
+                    </div>
+                    <div class="col-md-6">
+                        <small class="text-muted">Sub-Categoría</small>
+                        <div class="fw-semibold">@Model.SubCategoria</div>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <small class="text">Descripción</small>
+                    <div class="border rounded p-3">
+                        @Model.Descripcion
+                    </div>
+                </div>
+
+                @if (!string.IsNullOrEmpty(Model.Resolucion))
+                {
+                    <small class="text">
+                        Resolución
+                    </small>
+
+                    <div class="border rounded p-3">
+                        @Model.Resolucion
+                    </div>
+                }
+
             </div>
         </div>
 
-        <!-- Timeline / Avances -->
-        <div class="card mb-4">
-            <div class="card-body">
-                <h6 class="section-title">Historial y Avances</h6>
-
-                <ul class="timeline">
-                    <li>
-                        <span class="timeline-date">12/03/2025 09:14</span>
-                        <p><strong>Creado</strong> por Juan Pérez</p>
-                    </li>
-                    <li>
-                        <span class="timeline-date">12/03/2025 10:02</span>
-                        <p>Asignado a Soporte TI</p>
-                    </li>
-                    <li>
-                        <span class="timeline-date">12/03/2025 14:30</span>
-                        <p>Diagnóstico inicial completado</p>
-                    </li>
-                </ul>
-            </div>
-        </div>
-
-        <!-- Attachments -->
+        <!-- Avances-->
         <div class="card">
             <div class="card-body">
-                <h6 class="section-title">Documentos Adjuntos</h6>
+                <div class="d-flex justify-content-between  border-bottom pb-2 mb-3">
+                    <h6 class="section-title">Avances</h6>
 
-                <ul class="list-unstyled">
-                    <li>
-                        <i class="bi bi-paperclip"></i>
-                        <a href="#">diagnostico-red.pdf</a>
-                    </li>
-                    <li>
-                        <i class="bi bi-paperclip"></i>
-                        <a href="#">foto-equipo.jpg</a>
-                    </li>
-                </ul>
+                    @if (User.IsInRole("Administrador"))
+                    {
+                        <button class="btn btn-primary-custom text-white" data-bs-toggle="modal" data-bs-target="#avanceModal">
+                           Agregar avance
+                        </button>
+                    }
+                </div>
+                <div class="p-3" style="max-height: 200px; overflow-y: auto;">
+                    @if (!Model.Avances.Any())
+                    {
+                        <p class="text-muted mb-0">No hay avances registrados.</p>
+                    }
+                    else
+                    {
+                        @foreach (var avance in Model.Avances)
+                        {
+                            <div class="border-start border-3 ps-3">
+
+                                <!-- Header Row -->
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <span class="text-muted">
+                                        Autor:
+                                        @avance.AutorCorreo
+                                    </span>
+                                    <small class="text-muted">
+                                        @avance.CreatedAt.ToString("dd MMM yyyy HH:mm")
+                                    </small>
+                                </div>
+
+                                <!-- Body -->
+                                <p class="mb-0 ">
+                                    @avance.TextoAvance
+                                </p>
+                            </div>
+                        }
+                    }
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- SIDE -->
+    <!-- SIDE - Timeline-->
     <div class="col-lg-4">
-        <div class="card">
+        <div class="card mb-3">
             <div class="card-body">
-                <h6 class="section-title">Información del Tiquete</h6>
+                <div class="p-3" style="max-height: 314px; overflow-y: auto;">
+                    <h6 class="section-title border-bottom pb-2 mb-3">Historial</h6>
 
-                <dl class="row mb-0">
-                    <dt class="col-5">Prioridad</dt>
-                    <dd class="col-7">Alta</dd>
+                    <ul class="timeline">
+                        @foreach (var historial in Model.Historiales)
+                        {
+                            <li class="mb-3">
+                                <div class="timeline-content">
+                                    <span class="timeline-date text-muted small">
+                                        @historial.PerformedAt
+                                    </span>
 
-                    <dt class="col-5">Creado por</dt>
-                    <dd class="col-7">juanp@gmail.com</dd>
+                                    <p class="mb-1">
+                                        @historial.DescripcionEvento
+                                    </p>
 
-                    <dt class="col-5">Responsable</dt>
-                    <dd class="col-7">Soporte TI</dd>
+                                    <span class="text-muted small">
+                                        por <strong>@historial.PerformedBy</strong>
+                                    </span>
+                                </div>
+                            </li>
+                        }
+                    </ul>
+               </div>
+            </div>
+        </div>
 
-                    <dt class="col-5">Fecha creación</dt>
-                    <dd class="col-7">12/03/2025</dd>
-
-                    <dt class="col-5">Última actualización</dt>
-                    <dd class="col-7">12/03/2025</dd>
-
-                    <dt class="col-5">Actualizado por</dt>
-                    <dd class="col-7">sarad@gmail.com</dd>
-                </dl>
+        <div class="card mb-4">
+            <div class="card-body">
+                <h6 class="section-title border-bottom pb-2 mb-3">Archivos adjuntos</h6>
+                @foreach (var attachment in Model.Attachments)
+                {
+                    <div class="attachment-item d-flex justify-content-between">
+                        <a asp-controller="Tiquete"
+                           asp-action="DescargaArchivo"
+                           asp-route-id="@attachment.IdAttachment">
+                            <i class="bi bi-paperclip"></i> @attachment.FileName
+                        </a>
+                        <small>@attachment.FileSize KB</small>
+                    </div>
+                }
             </div>
         </div>
     </div>
 </div>
+
+<!--Add advances to the ticket-->
+<div class="modal fade" id="avanceModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-md">
+        <div class="modal-content avance-modal">
+            <!-------------------HEADER DEL MODAL--------------->
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="bi bi-ticket-perforated me-2"></i>
+                    Registrar Nuevo Avance
+                </h5>
+                <button type="button" class="btn text-white" data-bs-dismiss="modal"><i class="bi bi-x-lg"></i></button>
+            </div>
+
+            <!----------------MODAL CUERPO------------------>
+
+            <div class="modal-body text-center px-4 py-5">
+                <form asp-action="AgregarAvance"
+                      asp-controller="Tiquete"
+                      asp-route-id="@Model.IdTiquete"
+                      method="post"
+                      id="addAdvanceForm">
+
+                    @Html.AntiForgeryToken()
+
+                    <div class="mb-3">
+                        <textarea asp-for="NuevoAvance.TextoAvance"
+                                  class="form-control"
+                                  rows="3"
+                                  placeholder="Describa el avance realizado..."></textarea>
+                        <span asp-validation-for="NuevoAvance.TextoAvance"
+                              class="text-danger"></span>
+                    </div>
+                    <button class="btn btn-outline-secondary"
+                            data-bs-dismiss="modal">
+                        Cancelar
+                    </button>
+                    <button class="btn btn-primary-custom text-white"
+                            type="submit">
+                            Guardar
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@await Html.PartialAsync("_SuccessModal")
+@await Html.PartialAsync("_ErrorModal")
+
+@section Scripts {
+    <script src="~/js/formSubmits.js" asp-append-version="true"></script>
+}

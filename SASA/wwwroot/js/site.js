@@ -1,19 +1,44 @@
-﻿// Please see documentation at https://learn.microsoft.com/aspnet/core/client-side/bundling-and-minification
-// for details on configuring this project to bundle and minify static web assets.
+﻿//Contador de notificacione
+async function actualizarIndicadorNotificaciones() {
+    try {
+        const res = await fetch('/Notificaciones/Contador', { credentials: 'same-origin' });
 
-// Write your JavaScript code.
-console.log(":)");
+        if (res.redirected) return;
+
+        const total = await res.json();
+        const badge = document.getElementById('notifBadge');
+        if (!badge) return;
+
+        if (total > 0) {
+            badge.classList.remove('d-none');
+            badge.textContent = total > 99 ? '99+' : total;
+        } else {
+            badge.classList.add('d-none');
+        }
+    } catch (e) {
+        console.error('Error cargando contador', e);
+    }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    actualizarIndicadorNotificaciones();
+    setInterval(actualizarIndicadorNotificaciones, 15000);
+});
+
+
 
 //This is for my sidebar toggle
 
 document.getElementById("sidebarToggle")
-    .addEventListener("click", function () {
+    .addEventListener("click", function (e) {
+        e.stopPropagation();
         document.getElementById("sidebar")
             .classList.toggle("open"); //Toggle adds open if not present, removes it if present
     });
-//I am not smart enough to do this better so for now, I'll do it the brainless way
+
 document.getElementById("sidebarClose")
-    .addEventListener("click", function () {
+    .addEventListener("click", function (e) {
+        e.stopPropagation();
         document.getElementById("sidebar")
             .classList.toggle("open");
     });
@@ -26,147 +51,92 @@ document.querySelectorAll(".dropdown-toggle-btn")
         });
     });
 
-//For now, this is only for show, triggers my success modal
-document.getElementById('fakeSubmitTicket')?.addEventListener('click', function () {
+document.addEventListener("DOMContentLoaded", function () {
+    const sidebar = document.getElementById("sidebar");
+    const body = document.body;
 
-    //It immediately closes add ticket modal window
-    const addModal = bootstrap.Modal.getInstance(
-        document.getElementById('addTicketModal')
-    );
-    addModal?.hide();
+    const closeSidebar = (e) => {
+        if (!sidebar.contains(e.target) && sidebar.classList.contains("open")) {
+            sidebar.classList.remove("open");
+        }
+    };
 
-    //Shows success modal
-    const successModal = new bootstrap.Modal(
-        document.getElementById('successModal')
-    );
-    successModal.show();
+    body.addEventListener('touchend', closeSidebar, { passive: true });
+    body.addEventListener('click', closeSidebar);
 
-    //User can close if they want
 });
 
-//For now, this is only for show, triggers my success modal
-document.getElementById('fakeCancelTicket')?.addEventListener('click', function () {
+//---------------------------TICKETS----------------------------------------------
+//PARA FILTROS
+document.addEventListener("DOMContentLoaded", function () {
 
-    //It immediately closes add ticket modal window
-    const addModal = bootstrap.Modal.getInstance(
-        document.getElementById('cancelConfirm')
-    );
-    addModal?.hide();
+    const switchInput = document.getElementById("dateRangeSwitch");
 
-    //Shows success modal
-    const successModal = new bootstrap.Modal(
-        document.getElementById('successModal')
-    );
-    successModal.show();
+    const singleWrapper = document.getElementById("single-wrapper");
+    const rangeWrapper = document.getElementById("range-wrapper");
 
-    //User can close if they want
-});
+    const singleDate = document.getElementById("filter-date-single");
+    const dateFrom = document.getElementById("filter-date-from");
+    const dateTo = document.getElementById("filter-date-to");
 
-//For now, this is only for show, triggers my success modal
-document.getElementById('fakeEditTicket')?.addEventListener('click', function () {
-    //Shows success modal
-        
-    const successModal = new bootstrap.Modal(
-        document.getElementById('successModal')
-    );
-    successModal.show();
+    const mainLabel = document.getElementById("main-label");
 
-    //I need to add nav back to list
+    function updateMode() {
 
-    const guardarBtn = document.getElementById("fakeEditTicket");
-    guardarBtn.classList.add(`asp-area="" asp-controller="Tiquete" asp-action="Index"`);
-});
+        if (switchInput.checked) {
 
-//---------------------------USERS----------------------------------------------
+            // UI
+            singleWrapper.classList.add("d-none");
+            rangeWrapper.classList.remove("d-none");
 
-//For now, this is only for show, triggers my success modal
-document.getElementById('fakeEditUser')?.addEventListener('click', function () {
-    //Shows success modal
+            // Enable/disable
+            singleDate.disabled = true;
+            dateFrom.disabled = false;
+            dateTo.disabled = false;
 
-    const successModal = new bootstrap.Modal(
-        document.getElementById('successModal')
-    );
-    successModal.show();
+            mainLabel.textContent = "Rango de Fechas";
 
-    //I need to add nav back to list
-});
+        } else {
 
-document.getElementById('fakeDisableUser')?.addEventListener('click', function () {
+            singleWrapper.classList.remove("d-none");
+            rangeWrapper.classList.add("d-none");
 
-    //It immediately closes add ticket modal window
-    const addModal = bootstrap.Modal.getInstance(
-        document.getElementById('cancelConfirm')
-    );
-    addModal?.hide();
+            singleDate.disabled = false;
+            dateFrom.disabled = true;
+            dateTo.disabled = true;
 
-    //Shows success modal
-    const successModal = new bootstrap.Modal(
-        document.getElementById('disableConfirm')
-    );
-    successModal.show();
+            mainLabel.textContent = "Fecha";
+        }
+    }
 
-    //User can close if they want
-});
+    switchInput.addEventListener("change", updateMode);
 
-//For now, this is only for show, triggers my success modal
-document.getElementById('fakeSubmitUser')?.addEventListener('click', function () {
-
-    //It immediately closes add ticket modal window
-    const addModal = bootstrap.Modal.getInstance(
-        document.getElementById('addUserModal')
-    );
-    addModal?.hide();
-
-    //Shows success modal
-    const successModal = new bootstrap.Modal(
-        document.getElementById('successModal')
-    );
-    successModal.show();
-
-    //User can close if they want
+    updateMode();
 });
 
 
-//-------------------QUEUE-------------------
-document.getElementById('fakeCreateQueue')?.addEventListener('click', function () {
+//TABS--------------------------------------------------------------
+document.addEventListener("DOMContentLoaded", function () {
+    const activeTab = "@Model.TabActiva";
 
-    //It immediately closes add ticket modal window
-    const addModal = bootstrap.Modal.getInstance(
-        document.getElementById('addQueueModal')
-    );
-    addModal?.hide();
-
-    //Shows success modal
-    const successModal = new bootstrap.Modal(
-        document.getElementById('successModal')
-    );
-    successModal.show();
-
-    //User can close if they want
-});
-
-document.getElementById('fakeEditQueue')?.addEventListener('click', function () {
-    //Shows success modal
-
-    const successModal = new bootstrap.Modal(
-        document.getElementById('successModal')
-    );
-    successModal.show();
-
-    //I need to add nav back to list
+    if (activeTab === "subcategorias") {
+        const trigger = document.getElementById("subcategorias-tab");
+        if (trigger) {
+            const tab = new bootstrap.Tab(trigger);
+            tab.show();
+        }
+    }
 });
 
 
-//------------------FORMS----------------------------
-document.getElementById('fakeEditForm')?.addEventListener('click', function () {
-    //Shows success modal
+document.addEventListener("DOMContentLoaded", function () {
+    const activeTab = "@Model.TabActiva";
 
-    const successModal = new bootstrap.Modal(
-        document.getElementById('successModal')
-    );
-    successModal.show();
-
-    //I need to add nav back to list
+    if (activeTab === "Cola Global") {
+        const trigger = document.getElementById("global-tab");
+        if (trigger) {
+            const tab = new bootstrap.Tab(trigger);
+            tab.show();
+        }
+    }
 });
-
-

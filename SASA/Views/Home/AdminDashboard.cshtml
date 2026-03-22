@@ -1,0 +1,228 @@
+﻿@using SASA.ViewModels.Home
+@using System.Text.Json
+@model DashboardAdminViewModel
+@{
+    ViewData["Title"] = "Dashboard Administrativo";
+}
+<div>
+
+    <!-- Header -->
+    <div class="card mb-3">
+        <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h2 class="mb-0 fw-bold">Dashboard Administrativo</h2>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Access -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-4">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h6 class="section-title">Cola de Trabajo</h6>
+                    <p class="text-muted">Gestión de tareas y procesos</p>
+                    <a asp-controller="Cola" asp-action="Index" class="btn btn-custom">Acceder</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h6 class="section-title">Tiquetes</h6>
+                    <p class="text-muted">Gestión de tiquetes</p>
+                    <a asp-controller="Tiquete" asp-action="Index" class="btn btn-custom">Acceder</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h6 class="section-title">Inventario</h6>
+                    <p class="text-muted">Control de recursos y stock</p>
+                    <a asp-controller="Inventory" asp-action="Index" class="btn btn-custom">Acceder</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- KPI Summary -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h6 class="text-muted">Total tiquetes</h6>
+                    <h3 class="fw-bold text-primary">@Model.TotalTiquetes</h3>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h6 class="text-muted">Promedio de Resolución de Tiquetes</h6>
+                    <h3 class="fw-bold text-primary">
+                        @Model.PromedioResolucionFormateado
+                    </h3>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h6 class="text-muted">Items en Inventario</h6>
+                    <h3 class="fw-bold text-success">@Model.TotalInventario</h3>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h6 class="text-muted">Total Tiquetes Vencidos</h6>
+                    <h3 class="fw-bold text-danger">
+                        @Model.TiquetesVencidosPorEstado.Sum(x => x.Cantidad)
+                    </h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Charts -->
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h6 class="section-title">Estado de Procesos</h6>
+                    <canvas id="estadoChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-body">
+                    <h6 class="section-title">Tiquetes Vencidos por Estado</h6>
+                    <canvas id="vencidosChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <h6 class="section-title">Evolución Semanal</h6>
+                    <canvas id="tiquetesSemanaChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const estadosLabels = @Html.Raw(JsonSerializer.Serialize(
+                    Model.PorEstado.Select(x => x.Estado)
+            ));
+
+      const estadosData = @Html.Raw(JsonSerializer.Serialize(
+                    Model.PorEstado.Select(x => x.Cantidad)
+            ));
+
+      const diasLabels = @Html.Raw(JsonSerializer.Serialize(
+                                        Model.Ultimos7Dias.Select(x => x.Fecha.ToString("ddd"))
+            ));
+
+      const diasData = @Html.Raw(JsonSerializer.Serialize(
+                    Model.Ultimos7Dias.Select(x => x.Cantidad)
+            ));
+
+      const vencidosLabels = @Html.Raw(JsonSerializer.Serialize(
+                Model.TiquetesVencidosPorEstado.Select(x => x.Estado)
+        ));
+
+        const vencidosData = @Html.Raw(JsonSerializer.Serialize(
+                Model.TiquetesVencidosPorEstado.Select(x => x.Cantidad)
+        ));
+
+    //Para estados
+    new Chart(document.getElementById('estadoChart'), {
+        type: 'doughnut',
+        data: {
+            labels: estadosLabels,
+            datasets: [{
+                data: estadosData,
+                backgroundColor: [
+                    '#012473',
+                    '#0347b8',
+                    '#d4a147',
+                    '#6c757d',   //extra fallback colors
+                    '#198754'
+                ]
+            }]
+        },
+        options: {
+            plugins: {
+                legend: { position: 'bottom' }
+            }
+        }
+    });
+
+    //Para días
+     new Chart(document.getElementById('tiquetesSemanaChart'), {
+        type: 'line',
+        data: {
+            labels: diasLabels,
+            datasets: [{
+                label: 'Tiquetes creados',
+                data: diasData,
+                tension: 0.3,
+                fill: false,
+                borderColor: '#0347b8',
+                backgroundColor: '#0347b8'
+            }]
+        },
+        options: {
+            plugins: {
+                legend: { display: true }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        precision: 0
+                    }
+                }
+            }
+        }
+    });
+
+        new Chart(document.getElementById('vencidosChart'), {
+        type: 'bar',
+        data: {
+            labels: vencidosLabels,
+            datasets: [{
+                label: 'Tiquetes vencidos',
+                data: vencidosData,
+                backgroundColor: '#dc3545'
+            }]
+        },
+        options: {
+            plugins: {
+                legend: { display: false }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: { precision: 0 }
+                }
+            }
+        }
+    });
+
+</script>

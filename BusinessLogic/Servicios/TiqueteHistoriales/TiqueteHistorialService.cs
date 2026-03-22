@@ -1,0 +1,144 @@
+﻿using DataAccess.Modelos.DTOs.TiqueteHistorial;
+using DataAccess.Modelos.DTOs.TiqueteHistorial.Filtros;
+using DataAccess.Modelos.DTOs.Wrappers;
+using DataAccess.Modelos.Entidades.ModTiquete;
+using DataAccess.Modelos.Enums;
+using DataAccess.Repositorios.TiqueteHistoriales;
+
+namespace BusinessLogic.Servicios.TiqueteHistoriales
+{
+    public class TiqueteHistorialService : ITiqueteHistorialService
+    {
+        private readonly ITiqueteHistorialRepository _repository;
+        public TiqueteHistorialService(ITiqueteHistorialRepository repository)
+        {
+            _repository = repository;
+        }
+
+        //Centralizar creación de entidad en este método privado
+        private async Task RegistrarEventoAsync(
+        int idTiquete,
+        TipoEventoTiquete tipoEvento,
+        string? campoAfectado,
+        string? valorAnterior,
+        string? valorNuevo,
+        string? descripcion,
+        string performedBy,
+        bool autoSave = true)
+        {
+            var entity = new TiqueteHistorial
+            {
+                IdTiquete = idTiquete,
+                TipoEvento = tipoEvento,
+                CampoAfectado = campoAfectado,
+                ValorAnterior = valorAnterior,
+                ValorNuevo = valorNuevo,
+                DescripcionEvento = descripcion,
+                PerformedAt = DateTime.UtcNow,
+                PerformedBy = performedBy
+            };
+
+            await _repository.AgregarTiqueteHistorialAsync(entity, autoSave);
+        }
+
+
+        //Registrar que un tiquete fue creado (y por quién)
+        public async Task RegistrarTiqueteCreadoAsync(int idTiquete, string performedBy, bool autoSave = true)
+        {
+            await RegistrarEventoAsync(
+                idTiquete,
+                TipoEventoTiquete.TiqueteCreado,
+                null,
+                null,
+                null,
+                "Tiquete creado",
+                performedBy,
+                autoSave);
+        }
+
+        //Registrar cambio de estado del tiquete (de qué a qué)
+        public async Task RegistrarCambioEstadoAsync(
+            int idTiquete,
+            string estadoAnterior,
+            string estadoNuevo,
+            string performedBy,
+            bool autoSave = true)
+        {
+            await RegistrarEventoAsync(
+                idTiquete,
+                TipoEventoTiquete.CambioDeEstatus,
+                "Estado",
+                estadoAnterior,
+                estadoNuevo,
+                $"Estado cambiado de {estadoAnterior} a {estadoNuevo}",
+                performedBy,
+                autoSave);
+        }
+
+        //Registrar cuando se ha asignado (externamente) el tiquete 
+        public async Task RegistrarAsignacionAsync(
+            int idTiquete,
+            string asignadoAnterior,
+            string usuarioAsignado,
+            string performedBy,
+            bool autoSave = true)
+        {
+            await RegistrarEventoAsync(
+                idTiquete,
+                TipoEventoTiquete.Asignado,
+                "IdAsignee",
+                asignadoAnterior,
+                usuarioAsignado,
+                $"Tiquete asignado a {usuarioAsignado}",
+                performedBy,
+                autoSave);
+        }
+
+        //Registrar algún cambio de categoría
+        public async Task RegistrarCambioCategoriaAsync(
+            int idTiquete,
+            string categoriaAnterior,
+            string categoriaNueva,
+            string performedBy,
+            bool autoSave = true)
+        {
+            await RegistrarEventoAsync(
+                idTiquete,
+                TipoEventoTiquete.CambioDeCategoria,
+                "IdCategoria",
+                categoriaAnterior,
+                categoriaNueva,
+                $"Categoría cambiada de {categoriaAnterior} a {categoriaNueva}",
+                performedBy,
+                autoSave);
+        }
+
+        //Registrar creación de avance
+        public async Task RegistrarAvanceAsync(
+            int idTiquete,
+            string descripcionAvance,
+            string performedBy,
+            bool autoSave = true)
+        {
+            await RegistrarEventoAsync(
+                idTiquete,
+                TipoEventoTiquete.AvanceAgregado,
+                null,
+                null,
+                null,
+                descripcionAvance,
+                performedBy,
+                autoSave);
+        }
+
+        public async Task<List<TiqueteHistorialPorIdDto>> GetByTiqueteIdAsync(int idTiquete)
+        {
+            return await _repository.GetHistorialByTiqueteIdAsync(idTiquete);
+        }
+
+        public async Task<PagedResult<ListaTiqueteHistorialDto>> ListarHistorialAsync(TiqueteHistorialFiltroDto filtro)
+        {
+            return await _repository.ListarHistorialAsync(filtro);
+        }
+    }
+}

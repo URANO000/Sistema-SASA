@@ -1,0 +1,331 @@
+﻿using DataAccess.Modelos.DTOs.Notificaciones;
+using DataAccess.Modelos.Entidades;
+using Microsoft.EntityFrameworkCore;
+
+namespace DataAccess.Repositorios.Notificaciones
+{
+    public class NotificacionRepository : INotificacionRepository
+    {
+        private readonly ApplicationDbContext _db;
+
+        public NotificacionRepository(ApplicationDbContext db)
+        {
+            _db = db;
+        }
+
+        public async Task<ResultadoPaginadoDTO<NotificacionDTO>> ObtenerPorUsuarioAsync(string userId, string? q, string? tipo, string? estado, DateTime? fecha, int pagina, int tamanoPagina)
+        {
+            if (pagina < 1) pagina = 1;
+            if (tamanoPagina < 1) tamanoPagina = 10;
+
+            var query = _db.Notificaciones
+                .AsNoTracking()
+                .Where(n => n.UserId == userId);
+
+            if (!string.IsNullOrWhiteSpace(q))
+            {
+                q = q.Trim();
+                query = query.Where(n =>
+                    n.Mensaje.Contains(q) ||
+                    n.TipoEvento.Contains(q) ||
+                    n.IdTiquete.ToString().Contains(q)
+                );
+            }
+
+            if (!string.IsNullOrWhiteSpace(tipo) && tipo != "Tipo")
+            {
+                query = query.Where(n => n.TipoEvento == tipo);
+            }
+
+            if (!string.IsNullOrWhiteSpace(estado) && estado != "Estado")
+            {
+                if (estado == "Leida") query = query.Where(n => n.Leida);
+                if (estado == "NoLeida") query = query.Where(n => !n.Leida);
+            }
+
+            if (fecha.HasValue)
+            {
+                var d = fecha.Value.Date;
+                var d2 = d.AddDays(1);
+                query = query.Where(n => n.FechaCreacion >= d && n.FechaCreacion < d2);
+            }
+
+            query = query.OrderByDescending(n => n.FechaCreacion);
+
+            var total = await query.CountAsync();
+
+            var elementos = await query
+                .Skip((pagina - 1) * tamanoPagina)
+                .Take(tamanoPagina)
+                .Select(n => new NotificacionDTO
+                {
+                    IdNotificacion = n.IdNotificacion,
+                    IdTiquete = n.IdTiquete,
+                    TipoEvento = n.TipoEvento,
+                    Mensaje = n.Mensaje,
+                    Leida = n.Leida,
+                    FechaCreacion = DateTime.SpecifyKind(n.FechaCreacion, DateTimeKind.Local)
+                })
+                .ToListAsync();
+
+            return new ResultadoPaginadoDTO<NotificacionDTO>
+            {
+                Elementos = elementos,
+                Pagina = pagina,
+                TamanoPagina = tamanoPagina,
+                TotalRegistros = total
+            };
+        }
+
+        public async Task<NotificacionDTO?> ObtenerPorIdAsync(long idNotificacion, string userId)
+        {
+            return await _db.Notificaciones
+                .AsNoTracking()
+                .Where(n => n.IdNotificacion == idNotificacion && n.UserId == userId)
+                .Select(n => new NotificacionDTO
+                {
+                    IdNotificacion = n.IdNotificacion,
+                    IdTiquete = n.IdTiquete,
+                    TipoEvento = n.TipoEvento,
+                    Mensaje = n.Mensaje,
+                    Leida = n.Leida,
+                    FechaCreacion = DateTime.SpecifyKind(n.FechaCreacion, DateTimeKind.Local)
+                })
+                .FirstOrDefaultAsync();
+        }
+
+        public async Task MarcarComoLeidaAsync(long idNotificacion, string userId)
+        {
+            var n = await _db.Notificaciones
+                .FirstOrDefaultAsync(x => x.IdNotificacion == idNotificacion && x.UserId == userId);
+
+            if (n == null) return;
+
+            if (!n.Leida)
+            {
+                n.Leida = true;
+                await _db.SaveChangesAsync();
+            }
+        }
+
+        public async Task AlternarLeidaAsync(long idNotificacion, string userId)
+        {
+            var n = await _db.Notificaciones
+                .FirstOrDefaultAsync(x => x.IdNotificacion == idNotificacion && x.UserId == userId);
+
+            if (n == null) return;
+
+            n.Leida = !n.Leida;
+            await _db.SaveChangesAsync();
+        }
+
+        public async Task MarcarTodasComoLeidasAsync(string userId)
+        {
+            var notifs = await _db.Notificaciones
+                .Where(n => n.UserId == userId && !n.Leida)
+                .ToListAsync();
+
+            if (notifs.Count == 0) return;
+
+            foreach (var n in notifs) n.Leida = true;
+            await _db.SaveChangesAsync();
+        }
+        public async Task<int> ContarNoLeidasAsync(string userId)
+        {
+            return await _db.Notificaciones
+                .CountAsync(n => n.UserId == userId && !n.Leida);
+        }
+
+        public async Task NotificarNuevoComentarioAsync(int idTiquete, string autorUserId, string mensaje)
+        {
+            var t = await _db.Tiquetes
+                .AsNoTracking()
+                .FirstOrDefaultAsync(x => x.IdTiquete == idTiquete);
+
+            if (t == null) return;
+
+            var responsableId = t.IdAsignee;
+
+            if (string.IsNullOrWhiteSpace(responsableId)) return;
+
+            if (responsableId == autorUserId) return;
+
+            var ahora = DateTime.UtcNow;
+
+            var estaSilenciado = await _db.NotificacionSilencios
+                .AsNoTracking()
+                .AnyAsync(s =>
+                    s.UserId == responsableId &&
+                    s.idTiquete == idTiquete &&
+                    (s.fechaFin == null || s.fechaFin > ahora)
+                );
+
+            if (estaSilenciado) return;
+
+            _db.Notificaciones.Add(new Notificacion
+            {
+                UserId = responsableId,
+                IdTiquete = idTiquete,
+                TipoEvento = "NuevoComentario",
+                Mensaje = mensaje,
+                Leida = false,
+                FechaCreacion = ahora
+            });
+
+            _db.Auditorias.Add(new Auditoria
+            {
+                Fecha = DateOnly.FromDateTime(ahora),
+                Hora = ahora.TimeOfDay,
+                Usuario = autorUserId,
+                Tabla = "Notificaciones",
+                Accion = $"Emitida NuevoComentario -> Tiquete {idTiquete} -> Destino {responsableId}"
+            });
+
+            await _db.SaveChangesAsync();
+        }
+
+        public async Task<DateTime?> ObtenerSilencioActivoAsync(string userId, int idTiquete)
+        {
+            var ahora = DateTime.UtcNow;
+
+            return await _db.NotificacionSilencios
+                .AsNoTracking()
+                .Where(s => s.UserId == userId
+                            && s.idTiquete == idTiquete
+                            && (s.fechaFin == null || s.fechaFin > ahora))
+                .OrderByDescending(s => s.fechaInicio)
+                .Select(s => s.fechaFin)
+                .FirstOrDefaultAsync();
+        }
+
+        public async Task SilenciarTiqueteAsync(string userId, int idTiquete, int horas)
+        {
+            if (horas <= 0) horas = 1;
+
+            var ahora = DateTime.UtcNow;
+            var hasta = ahora.AddHours(horas);
+
+            var activos = await _db.NotificacionSilencios
+                .Where(s => s.UserId == userId
+                            && s.idTiquete == idTiquete
+                            && (s.fechaFin == null || s.fechaFin > ahora))
+                .ToListAsync();
+
+            if (activos.Count > 0)
+                _db.NotificacionSilencios.RemoveRange(activos);
+
+            _db.NotificacionSilencios.Add(new NotificacionSilencio
+            {
+                UserId = userId,
+                idTiquete = idTiquete,
+                fechaInicio = ahora,
+                fechaFin = hasta
+            });
+
+            await _db.SaveChangesAsync();
+        }
+
+        public async Task ReactivarSilencioAsync(string userId, int idTiquete)
+        {
+            var ahora = DateTime.UtcNow;
+
+            var activos = await _db.NotificacionSilencios
+                .Where(s => s.UserId == userId
+                            && s.idTiquete == idTiquete
+                            && (s.fechaFin == null || s.fechaFin > ahora))
+                .ToListAsync();
+
+            if (activos.Count == 0) return;
+
+            _db.NotificacionSilencios.RemoveRange(activos);
+            await _db.SaveChangesAsync();
+        }
+
+        public async Task<ResultadoPaginadoDTO<DataAccess.Modelos.DTOs.Notificaciones.NotificacionAuditoriaItemDTO>> ObtenerAuditoriaAsync(string? q, string? tipo, string? estado, DateTime? fecha, int pagina, int tamanoPagina)
+        {
+            if (pagina < 1) pagina = 1;
+            if (tamanoPagina < 1) tamanoPagina = 10;
+
+            var query = _db.Notificaciones.AsNoTracking();
+
+            if (!string.IsNullOrWhiteSpace(q))
+            {
+                q = q.Trim();
+                query = query.Where(n =>
+                    n.Mensaje.Contains(q) ||
+                    n.TipoEvento.Contains(q) ||
+                    n.IdTiquete.ToString().Contains(q) ||
+                    _db.Users.Any(u => u.Id == n.UserId &&
+                        ((u.Email != null && u.Email.Contains(q)) ||
+                         (u.UserName != null && u.UserName.Contains(q))))
+                );
+            }
+
+            if (!string.IsNullOrWhiteSpace(tipo) && tipo != "Tipo")
+            {
+                query = query.Where(n => n.TipoEvento == tipo);
+            }
+
+            if (!string.IsNullOrWhiteSpace(estado) && estado != "Estado")
+            {
+                if (estado == "Leida") query = query.Where(n => n.Leida);
+                if (estado == "NoLeida") query = query.Where(n => !n.Leida);
+            }
+
+            if (fecha.HasValue)
+            {
+                var d = fecha.Value.Date;
+                var d2 = d.AddDays(1);
+                query = query.Where(n => n.FechaCreacion >= d && n.FechaCreacion < d2);
+            }
+
+            query = query.OrderByDescending(n => n.FechaCreacion);
+
+            var total = await query.CountAsync();
+
+            var elementos = await query
+                .Skip((pagina - 1) * tamanoPagina)
+                .Take(tamanoPagina)
+                .Select(n => new DataAccess.Modelos.DTOs.Notificaciones.NotificacionAuditoriaItemDTO
+                {
+                    IdNotificacion = n.IdNotificacion,
+                    FechaCreacion = DateTime.SpecifyKind(n.FechaCreacion, DateTimeKind.Local),
+                    TipoEvento = n.TipoEvento,
+                    IdTiquete = n.IdTiquete,
+                    Destinatario = _db.Users
+                        .Where(u => u.Id == n.UserId)
+                        .Select(u => u.Email ?? u.UserName ?? "—")
+                        .FirstOrDefault() ?? "—",
+                    Canal = "In-App",
+                    Estado = n.Leida ? "Leida" : "NoLeida"
+                })
+                .ToListAsync();
+
+            return new ResultadoPaginadoDTO<DataAccess.Modelos.DTOs.Notificaciones.NotificacionAuditoriaItemDTO>
+            {
+                Elementos = elementos,
+                Pagina = pagina,
+                TamanoPagina = tamanoPagina,
+                TotalRegistros = total
+            };
+        }
+
+        public async Task<DataAccess.Modelos.DTOs.Notificaciones.NotificacionDTO?> ObtenerPorIdParaAuditoriaAsync(long idNotificacion)
+        {
+            return await _db.Notificaciones
+                .AsNoTracking()
+                .Where(n => n.IdNotificacion == idNotificacion)
+                .Select(n => new DataAccess.Modelos.DTOs.Notificaciones.NotificacionDTO
+                {
+                    IdNotificacion = n.IdNotificacion,
+                    IdTiquete = n.IdTiquete,
+                    TipoEvento = n.TipoEvento,
+                    Mensaje = n.Mensaje,
+                    Leida = n.Leida,
+                    FechaCreacion = DateTime.SpecifyKind(n.FechaCreacion, DateTimeKind.Utc)
+                })
+                .FirstOrDefaultAsync();
+        }
+
+    }
+}

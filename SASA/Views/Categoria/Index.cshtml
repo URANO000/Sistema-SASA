@@ -1,0 +1,357 @@
+﻿@using SASA.ViewModels.Categoria
+@model CategoriaGestionViewModel
+
+@{
+    ViewData["Title"] = "Gestión de Categorías";
+    var tabCategoriasActiva = Model.TabActiva == "categorias";
+    var tabSubcategoriasActiva = Model.TabActiva == "subcategorias";
+}
+
+<div class="container-fluid">
+    <div class="card mb-3">
+        <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h2 class="mb-0 fw-bold">Gestión de Categorías</h2>
+
+                <div class="d-flex gap-2">
+                    <button class="btn btn-outline-secondary"
+                            data-bs-toggle="modal"
+                            data-bs-target="#addCategoriaModal">
+                        <i class="bi bi-plus-lg"></i>
+                        Nueva Categoría
+                    </button>
+
+                    <button class="btn btn-custom"
+                            data-bs-toggle="modal"
+                            data-bs-target="#addSubCategoriaModal">
+                        <i class="bi bi-plus-lg"></i>
+                        Nueva Subcategoría
+                    </button>
+                </div>
+            </div>
+
+            <ul class="nav nav-tabs mb-3" id="categoriaTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link @(tabCategoriasActiva ? "active" : "")"
+                            id="categorias-tab"
+                            data-bs-toggle="tab"
+                            data-bs-target="#categorias-pane"
+                            type="button"
+                            role="tab">
+                        Categorías
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link @(tabSubcategoriasActiva ? "active" : "")"
+                            id="subcategorias-tab"
+                            data-bs-toggle="tab"
+                            data-bs-target="#subcategorias-pane"
+                            type="button"
+                            role="tab">
+                        Subcategorías
+                    </button>
+                </li>
+            </ul>
+
+            <div class="tab-content" id="categoriaTabsContent">
+                <div class="tab-pane fade @(tabCategoriasActiva ? "show active" : "")" id="categorias-pane" role="tabpanel">
+                    <form method="get" asp-action="Index" class="row g-3 mb-4">
+                        <input type="hidden" name="tab" value="categorias" />
+
+                        <input type="hidden" name="subCategoriaBuscar" value="@Model.SubCategoriaBuscar" />
+                        <input type="hidden" name="subCategoriaFiltroIdCategoria" value="@Model.SubCategoriaFiltroIdCategoria" />
+                        <input type="hidden" name="subCategoriaFiltroIdPrioridad" value="@Model.SubCategoriaFiltroIdPrioridad" />
+
+                        <div class="col-md-6">
+                            <label class="form-label">Buscar</label>
+                            <input type="text"
+                                   name="categoriaBuscar"
+                                   value="@Model.CategoriaBuscar"
+                                   class="form-control"
+                                   placeholder="Nombre de categoría" />
+                        </div>
+
+                        <div class="col-md-3 d-flex align-items-end">
+                            <button type="submit" class="btn btn-outline-secondary w-100">
+                                <i class="bi bi-funnel"></i> Filtrar
+                            </button>
+                        </div>
+
+                        
+                    </form>
+
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle sasa-table">
+                            <thead>
+                                <tr>
+                                    <th>Acciones</th>
+                                    <th>ID</th>
+                                    <th>Nombre</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (Model.CategoriasPaginadas.Items.Any())
+                                {
+                                    @foreach (var item in Model.CategoriasPaginadas.Items)
+                                    {
+                                        <tr>
+                                            <td>
+                                                <a class="btn btn-link icon-btn"
+                                                   asp-controller="Categoria"
+                                                   asp-action="EditarCategoria"
+                                                   asp-route-id="@item.IdCategoria">
+                                                    <i class="fa-regular fa-pen-to-square edit-btn"></i>
+                                                </a>
+                                            </td>
+                                            <td>@item.IdCategoria</td>
+                                            <td>@item.NombreCategoria</td>
+                                        </tr>
+                                    }
+                                }
+                                else
+                                {
+                                    <tr>
+                                        <td colspan="3" class="text-center text-muted">
+                                            No se encontraron categorías.
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+
+                    @if (Model.CategoriasPaginadas.TotalPages > 1)
+                    {
+                        <nav aria-label="Paginación" class="align-content-center justify-content-center mt-3">
+                            <ul class="pagination pagination-sm mb-0 justify-content-center">
+                                <li class="page-item @(Model.CategoriasPaginadas.HasPreviousPage ? "" : "disabled")">
+                                    <a class="page-link"
+                                       asp-action="Index"
+                                       asp-route-tab="categorias"
+                                       asp-route-categoriaBuscar="@Model.CategoriaBuscar"
+                                       asp-route-categoriaPagina="@(Model.CategoriasPaginadas.PageNumber - 1)"
+                                       asp-route-subCategoriaBuscar="@Model.SubCategoriaBuscar"
+                                       asp-route-subCategoriaFiltroIdCategoria="@Model.SubCategoriaFiltroIdCategoria"
+                                       asp-route-subCategoriaFiltroIdPrioridad="@Model.SubCategoriaFiltroIdPrioridad">
+                                        Anterior
+                                    </a>
+                                </li>
+
+                                <li class="page-item disabled">
+                                    <span class="page-link">Página @Model.CategoriasPaginadas.PageNumber de @Model.CategoriasPaginadas.TotalPages</span>
+                                </li>
+
+                                <li class="page-item @(Model.CategoriasPaginadas.HasNextPage ? "" : "disabled")">
+                                    <a class="page-link"
+                                       asp-action="Index"
+                                       asp-route-tab="categorias"
+                                       asp-route-categoriaBuscar="@Model.CategoriaBuscar"
+                                       asp-route-categoriaPagina="@(Model.CategoriasPaginadas.PageNumber + 1)"
+                                       asp-route-subCategoriaBuscar="@Model.SubCategoriaBuscar"
+                                       asp-route-subCategoriaFiltroIdCategoria="@Model.SubCategoriaFiltroIdCategoria"
+                                       asp-route-subCategoriaFiltroIdPrioridad="@Model.SubCategoriaFiltroIdPrioridad">
+                                        Siguiente
+                                    </a>
+                                </li>
+                            </ul>
+                        </nav>
+                    }
+                </div>
+
+                <div class="tab-pane fade @(tabSubcategoriasActiva ? "show active" : "")" id="subcategorias-pane" role="tabpanel">
+                    <form method="get" asp-action="Index" class="row g-3 mb-4">
+                        <input type="hidden" name="tab" value="subcategorias" />
+                        <input type="hidden" name="categoriaBuscar" value="@Model.CategoriaBuscar" />
+                        <input type="hidden" name="categoriaPagina" value="@Model.CategoriaPagina" />
+
+                        <div class="col-md-6">
+                            <label class="form-label">Buscar</label>
+                            <input type="text"
+                                   name="subCategoriaBuscar"
+                                   value="@Model.SubCategoriaBuscar"
+                                   class="form-control"
+                                   placeholder="Nombre de subcategoría" />
+                        </div>
+
+                        <div class="col-md-2">
+                            <label class="form-label">Categoría</label>
+                            <select name="subCategoriaFiltroIdCategoria" class="form-select">
+                                <option value="">Todas</option>
+                                @foreach (var item in Model.CategoriasDropdown)
+                                {
+                                    if (item.Value == Model.SubCategoriaFiltroIdCategoria?.ToString())
+                                    {
+                                        <option value="@item.Value" selected>@item.Text</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="@item.Value">@item.Text</option>
+                                    }
+                                }
+                            </select>
+                        </div>
+
+                        <div class="col-md-2">
+                            <label class="form-label">Prioridad</label>
+                            <select name="subCategoriaFiltroIdPrioridad" class="form-select">
+                                <option value="">Todas</option>
+                                @foreach (var item in Model.PrioridadesDropdown)
+                                {
+                                    if (item.Value == Model.SubCategoriaFiltroIdPrioridad?.ToString())
+                                    {
+                                        <option value="@item.Value" selected>@item.Text</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="@item.Value">@item.Text</option>
+                                    }
+                                }
+                            </select>
+                        </div>
+
+                        <div class="col-md-2 d-flex align-items-end">
+                            <button type="submit" class="btn btn-outline-secondary w-100">
+                                <i class="bi bi-funnel"></i> Filtrar
+                            </button>
+                        </div>
+
+                        
+                    </form>
+
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle sasa-table">
+                            <thead>
+                                <tr>
+                                    <th>Acciones</th>
+                                    <th>ID</th>
+                                    <th>Subcategoría</th>
+                                    <th>Categoría</th>
+                                    <th>Prioridad</th>
+                                    <th>Duración</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (Model.SubCategoriasPaginadas.Items.Any())
+                                {
+                                    @foreach (var item in Model.SubCategoriasPaginadas.Items)
+                                    {
+                                        <tr>
+                                            <td>
+                                                <a class="btn btn-link icon-btn"
+                                                   asp-controller="Categoria"
+                                                   asp-action="EditarSubCategoria"
+                                                   asp-route-id="@item.IdSubCategoria">
+                                                    <i class="fa-regular fa-pen-to-square edit-btn"></i>
+                                                </a>
+                                            </td>
+                                            <td>@item.IdSubCategoria</td>
+                                            <td>@item.NombreSubCategoria</td>
+                                            <td>@item.NombreCategoria</td>
+                                            <td>@item.NombrePrioridad</td>
+                                            <td>@item.DuracionDisplay</td>
+                                        </tr>
+                                    }
+                                }
+                                else
+                                {
+                                    <tr>
+                                        <td colspan="6" class="text-center text-muted">
+                                            No se encontraron subcategorías.
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+
+                    @if (Model.SubCategoriasPaginadas.TotalPages > 1)
+                    {
+                        <nav aria-label="Paginación" class="align-content-center justify-content-center mt-3">
+                            <ul class="pagination pagination-sm mb-0 justify-content-center">
+                                <li class="page-item @(Model.SubCategoriasPaginadas.HasPreviousPage ? "" : "disabled")">
+                                    <a class="page-link"
+                                       asp-action="Index"
+                                       asp-route-tab="subcategorias"
+                                       asp-route-categoriaBuscar="@Model.CategoriaBuscar"
+                                       asp-route-subCategoriaBuscar="@Model.SubCategoriaBuscar"
+                                       asp-route-subCategoriaFiltroIdCategoria="@Model.SubCategoriaFiltroIdCategoria"
+                                       asp-route-subCategoriaFiltroIdPrioridad="@Model.SubCategoriaFiltroIdPrioridad"
+                                       asp-route-subCategoriaPagina="@(Model.SubCategoriasPaginadas.PageNumber - 1)">
+                                        Anterior
+                                    </a>
+                                </li>
+
+                                <li class="page-item disabled">
+                                    <span class="page-link">Página @Model.SubCategoriasPaginadas.PageNumber de @Model.SubCategoriasPaginadas.TotalPages</span>
+                                </li>
+
+                                <li class="page-item @(Model.SubCategoriasPaginadas.HasNextPage ? "" : "disabled")">
+                                    <a class="page-link"
+                                       asp-action="Index"
+                                       asp-route-tab="subcategorias"
+                                       asp-route-categoriaBuscar="@Model.CategoriaBuscar"
+                                       asp-route-subCategoriaBuscar="@Model.SubCategoriaBuscar"
+                                       asp-route-subCategoriaFiltroIdCategoria="@Model.SubCategoriaFiltroIdCategoria"
+                                       asp-route-subCategoriaFiltroIdPrioridad="@Model.SubCategoriaFiltroIdPrioridad"
+                                       asp-route-subCategoriaPagina="@(Model.SubCategoriasPaginadas.PageNumber + 1)">
+                                        Siguiente
+                                    </a>
+                                </li>
+                            </ul>
+                        </nav>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@await Html.PartialAsync("_SuccessModal")
+@await Html.PartialAsync("_ErrorModal")
+@await Html.PartialAsync("_AddCategoriaModal", Model.CrearCategoria)
+@await Html.PartialAsync("_AddSubCategoriaModal", Model.CrearSubCategoria)
+
+@section Scripts {
+    <script src="~/js/formSubmits.js" asp-append-version="true"></script>
+    <script>
+        //Mostrar modales de éxito/error
+        document.addEventListener('DOMContentLoaded', function () {
+            var success = @System.Text.Json.JsonSerializer.Serialize(TempData["Success"]?.ToString() ?? "");
+            var error = @System.Text.Json.JsonSerializer.Serialize(TempData["Error"]?.ToString() ?? "");
+
+            try {
+                if (success && success !== "") {
+                    var sm = new bootstrap.Modal(document.getElementById('successModal'));
+                    sm.show();
+                    setTimeout(function () { sm.hide(); }, 900);
+                }
+
+                if (error && error !== "") {
+                    var addCatHasErrors = document.querySelectorAll('#addCategoriaModal [data-valmsg-for]').length > 0 &&
+                        Array.from(document.querySelectorAll('#addCategoriaModal [data-valmsg-for]')).some(function (el) {
+                            return el.textContent.trim() !== '';
+                        });
+
+                    var addSubCatHasErrors = document.querySelectorAll('#addSubCategoriaModal [data-valmsg-for]').length > 0 &&
+                        Array.from(document.querySelectorAll('#addSubCategoriaModal [data-valmsg-for]')).some(function (el) {
+                            return el.textContent.trim() !== '';
+                        });
+
+                    if (addCatHasErrors) {
+                        var mc = new bootstrap.Modal(document.getElementById('addCategoriaModal'));
+                        mc.show();
+                    }
+
+                    if (addSubCatHasErrors) {
+                        var ms = new bootstrap.Modal(document.getElementById('addSubCategoriaModal'));
+                        ms.show();
+                    }
+                    var em = new bootstrap.Modal(document.getElementById('errorModal'));
+                    em.show();
+                }
+            } catch (e) {
+                console.error('Error mostrando modales de categoría:', e);
+            }
+        });
+    </script>
+}

@@ -1,9 +1,10 @@
+@model SASA.ViewModels.Inventario.CrearActivoViewModel
+
 @{
     ViewData["Title"] = "Registrar Activo";
 }
 
 <div class="container-fluid">
-
     <div class="card shadow-sm">
         <div class="card-body">
 
@@ -14,58 +15,90 @@
                 </small>
             </div>
 
-            <form>
+            <form asp-action="Create" method="post">
+                @Html.AntiForgeryToken()
 
                 <div class="row mb-3">
                     <div class="col-md-4">
-                        <label class="form-label">Código del Activo</label>
-                        <input type="text" class="form-control" placeholder="INV-002">
+                        <label asp-for="NumeroActivo" class="form-label">Código del Activo</label>
+                        <input asp-for="NumeroActivo" class="form-control" placeholder="INV-002" />
+                        <span asp-validation-for="NumeroActivo" class="text-danger"></span>
                     </div>
 
                     <div class="col-md-8">
-                        <label class="form-label">Nombre del Activo</label>
-                        <input type="text" class="form-control" placeholder="Nombre del activo">
+                        <label asp-for="NombreMaquina" class="form-label">Nombre del Activo</label>
+                        <input asp-for="NombreMaquina" class="form-control" placeholder="Nombre del activo" />
+                        <span asp-validation-for="NombreMaquina" class="text-danger"></span>
                     </div>
                 </div>
 
                 <div class="row mb-3">
                     <div class="col-md-6">
-                        <label class="form-label">Tipo de Activo</label>
-                        <select class="form-select">
-                            <option selected disabled>Seleccione un tipo</option>
-                            <option>Dispositivo</option>
-                            <option>Herramienta</option>
-                            <option>Mobiliario</option>
-                            <option>Otro</option>
+                        <label asp-for="IdTipoActivo" class="form-label">Tipo de Activo</label>
+                        <select asp-for="IdTipoActivo" asp-items="ViewBag.Tipos" class="form-select">
+                            <option value="">Seleccione un tipo</option>
                         </select>
+                        <span asp-validation-for="IdTipoActivo" class="text-danger"></span>
                     </div>
 
                     <div class="col-md-6">
-                        <label class="form-label">Estado</label>
-                        <select class="form-select">
-                            <option selected>Activo</option>
-                            <option>En Mantenimiento</option>
-                            <option>Fuera de Servicio</option>
+                        <label asp-for="IdEstadoActivo" class="form-label">Estado</label>
+                        <select asp-for="IdEstadoActivo" asp-items="ViewBag.Estados" class="form-select">
+                            <option value="">Seleccione un estado</option>
                         </select>
+                        <span asp-validation-for="IdEstadoActivo" class="text-danger"></span>
                     </div>
                 </div>
 
-                <div class="mb-4">
-                    <label class="form-label">Descripción</label>
-                    <textarea class="form-control" rows="4" placeholder="Descripción del activo..."></textarea>
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <label asp-for="Marca" class="form-label">Marca</label>
+                        <input asp-for="Marca" class="form-control" placeholder="Dell / HP / Lenovo" />
+                    </div>
+                    <div class="col-md-4">
+                        <label asp-for="Modelo" class="form-label">Modelo</label>
+                        <input asp-for="Modelo" class="form-control" placeholder="Latitude 5420" />
+                    </div>
+                    <div class="col-md-4">
+                        <label asp-for="SerieServicio" class="form-label">Serie / Service Tag</label>
+                        <input asp-for="SerieServicio" class="form-control" placeholder="SVC-1001" />
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label asp-for="DireccionMAC" class="form-label">Dirección MAC</label>
+                        <input asp-for="DireccionMAC" class="form-control" placeholder="AA:BB:CC:11:22:33" />
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="SistemaOperativo" class="form-label">Sistema Operativo</label>
+                        <input asp-for="SistemaOperativo" class="form-control" placeholder="Windows 11" />
+                    </div>
+                </div>
+
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <label asp-for="IdTipoLicencia" class="form-label">Tipo de Licencia</label>
+                        <select asp-for="IdTipoLicencia" asp-items="ViewBag.Licencias" class="form-select">
+                            <option value="">(Opcional)</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="ClaveLicencia" class="form-label">Clave de Licencia</label>
+                        <input asp-for="ClaveLicencia" class="form-control" placeholder="XXXXX-XXXXX-XXXXX-XXXXX" />
+                    </div>
                 </div>
 
                 <div class="d-flex justify-content-end">
-                    <a asp-action="Index" class="btn btn-outline-secondary me-2">
-                        Cancelar
-                    </a>
-                    <button type="submit" class="btn btn-primary">
-                        Guardar Activo
-                    </button>
+                    <a asp-action="Index" class="btn btn-outline-secondary me-2">Cancelar</a>
+                    <button type="submit" class="btn btn-primary">Guardar Activo</button>
                 </div>
-
             </form>
 
         </div>
     </div>
 </div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -1,21 +1,32 @@
-﻿@{
+﻿@using SASA.ViewModels.Usuario
+@model UsuarioDetalleViewModel
+@{
     ViewData["Title"] = "Detalles del Usuario";
 }
 
 <!-- HEADER -->
+<a onclick="history.back()" class="btn btn-link px-0">
+    <i class="bi bi-arrow-left"></i> Volver
+</a>
 <div class="card mb-3">
     <div class="card-body">
         <div class="ticket-header mb-4">
-            <a asp-controller="Usuario" asp-action="Index" class="btn btn-link px-0">
-                <i class="bi bi-arrow-left"></i> Volver al listado
-            </a>
 
             <div class="d-flex justify-content-between align-items-center mt-2">
                 <h4 class="mb-0 fw-bold">Detalles del Usuario</h4>
 
-                <span class="badge bg-success">
-                    Usuario Activo
-                </span>
+                @if(Model.Estado == "Activo")
+                {
+                    <span class="badge bg-success">
+                        Usuario Activo
+                    </span>
+                }
+                else
+                {
+                    <span class="badge bg-secondary">
+                        Usuario Inactivo
+                    </span>
+                }
             </div>
         </div>
     </div>
@@ -24,7 +35,7 @@
 <div class="row">
 
     <!-- MAIN -->
-    <div class="col-lg-8">
+    <div class="col-lg">
 
         <!-- IDENTIDAD -->
         <div class="card mb-4">
@@ -33,13 +44,13 @@
 
                 <dl class="row mb-0">
                     <dt class="col-4">Nombre Completo</dt>
-                    <dd class="col-8">Juan Pérez</dd>
-
+                    <dd class="col-8">@Model.NombreCompleto</dd>
+@* 
                     <dt class="col-4">No. Empleado</dt>
-                    <dd class="col-8">EMP-1023</dd>
+                    <dd class="col-8">EMP-1023</dd> *@
 
                     <dt class="col-4">Correo</dt>
-                    <dd class="col-8">juanp@gmail.com</dd>
+                    <dd class="col-8">@Model.CorreoEmpresa</dd>
                 </dl>
             </div>
         </div>
@@ -51,75 +62,89 @@
 
                 <dl class="row mb-0">
                     <dt class="col-4">Departamento</dt>
-                    <dd class="col-8">Tecnologías de Información</dd>
+                    <dd class="col-8">@Model.Departamento</dd>
 
                     <dt class="col-4">Puesto</dt>
-                    <dd class="col-8">Analista de Soporte</dd>
+                    <dd class="col-8">@Model.Puesto</dd>
 
-                    <dt class="col-4">Jefe Directo</dt>
-                    <dd class="col-8">Carlos Ramírez</dd>
+                    <dt class="col-4">Rol</dt>
+                    <dd class="col-8">@Model.Rol</dd>
                 </dl>
             </div>
         </div>
 
-        <!-- ACTIVIDAD EN TIQUETES -->
-        <div class="card">
-            <div class="card-body">
-                <h6 class="section-title">Actividad en el Sistema de Tiquetes</h6>
+        <hr />
 
-                <ul class="timeline">
-                    <li>
-                        <span class="timeline-date">12/03/2025</span>
-                        <p><strong>Último tiquete creado</strong> – Error de acceso al sistema</p>
-                    </li>
-
-                    <li>
-                        <span class="timeline-date">10/03/2025</span>
-                        <p>Tiquete cerrado – Solicitud de equipo</p>
-                    </li>
-                </ul>
-            </div>
-        </div>
-
-    </div>
-
-    <!-- SIDE -->
-    <div class="col-lg-4">
-
-        <!-- MÉTRICAS -->
         <div class="card mb-4">
             <div class="card-body">
-                <h6 class="section-title">Resumen Operativo</h6>
+                <div class="text-uppercase text-muted mb-3" style="font-size: .75rem; letter-spacing: .04em;">
+                    Intentos de inicio de sesión (últimos 15)
+                </div>
 
-                <dl class="row mb-0">
-                    <dt class="col-7">Tiquetes Abiertos</dt>
-                    <dd class="col-5">3</dd>
-
-                    <dt class="col-7">Tiquetes Cerrados</dt>
-                    <dd class="col-5">12</dd>
-
-                    <dt class="col-7">Última Actividad</dt>
-                    <dd class="col-5">12/03/2025</dd>
-                </dl>
+                @if (Model.IntentosLogin == null || !Model.IntentosLogin.Any())
+                {
+                    <div class="alert alert-info mb-0">
+                        No hay intentos registrados para este usuario.
+                    </div>
+                }
+                else
+                {
+                    <div class="table-responsive">
+                        <table class="table table-sm align-middle mb-0">
+                            <thead>
+                                <tr class="text-muted" style="font-size:.875rem;">
+                                    <th>Fecha (Local)</th>
+                                    <th>Resultado</th>
+                                    <th>Motivo</th>
+                                    <th>IP</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var intento in Model.IntentosLogin)
+                                {
+                                    <tr>
+                                        <td>@intento.FechaLocal</td>
+                                        <td>
+                                            @if (intento.Exitoso)
+                                            {
+                                                <span class="badge bg-success">Exitoso</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-danger">Fallido</span>
+                                            }
+                                        </td>
+                                        <td>
+                                            @{
+                                                string motivo = intento.MotivoFallo ?? "";
+                                                motivo = motivo switch
+                                                {
+                                                    "InvalidCredentials" => "Credenciales inválidas",
+                                                    "UserNotFound" => "Usuario no existe",
+                                                    "LockedOut" => "Bloqueo temporal",
+                                                    "NotAllowed" => "No permitido (sin activar)",
+                                                    "Disabled" => "Cuenta desactivada",
+                                                    _ => (string.IsNullOrWhiteSpace(motivo) ? "-" : motivo)
+                                                };
+                                            }
+                                            @(intento.Exitoso ? "-" : motivo)
+                                        </td>
+                                        <td>
+                                            @{
+                                                var ipMostrar =
+                                                (intento.IpAddress == "::1" || intento.IpAddress == "127.0.0.1")
+                                                ? "Localhost"
+                                                : intento.IpAddress;
+                                            }
+                                            <span class="badge bg-light text-dark">@ipMostrar</span>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
             </div>
         </div>
-
-@*         <!-- ACCIONES -->
-        <div class="card">
-            <div class="card-body">
-                <h6 class="section-title">Acciones</h6>
-
-                <div class="d-grid gap-2">
-                    <a class="btn btn-primary-custom text-white">
-                        Ver Tiquetes del Usuario
-                    </a>
-
-                    <a class="btn btn-outline-secondary">
-                        Editar Información Básica
-                    </a>
-                </div>
-            </div>
-        </div> *@
-
-    </div>
+    </div> 
 </div>

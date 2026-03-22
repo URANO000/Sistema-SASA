@@ -1,0 +1,22 @@
+﻿body:not(.auth-page) {
+    font-family: 'Montserrat', sans-serif !important;
+    margin-bottom: 60px;
+    background: #E9ECEF;
+    background: linear-gradient(178deg,rgba(233, 236, 239, 1) 0%, rgba(248, 249, 250, 1) 100%);
+}
+
+h1 {
+    font-size: 2em;
+}
+
+h2 {
+    font-size: 1.5em;
+}
+
+.text-danger-custom {
+    color: var(--danger-color);
+}
+
+html {
+    font-size: 14px;
+}

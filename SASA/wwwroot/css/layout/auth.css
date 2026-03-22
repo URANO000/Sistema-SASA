@@ -1,0 +1,90 @@
+﻿/* =========================
+   AUTH (AISLADO)
+   - <1200: sin imagen, fondo primary, form centrado
+   - >=1200: 2 columnas 60/40 con imagen
+   ========================= */
+
+body.auth-page {
+    margin: 0;
+    background: var(--primary-color); /* fondo mobile/tablet */
+}
+
+/* Shell */
+.auth-shell {
+    min-height: 100dvh;
+    overflow: hidden;
+    background: var(--primary-color); /* fallback */
+}
+
+/* ---------- MOBILE/TABLET (<1200) ---------- */
+@media (max-width: 1199.98px) {
+
+    /* En mobile NO queremos imagen */
+    .auth-left {
+        display: none !important;
+    }
+
+    /* Form centrado */
+    .auth-right {
+        min-height: 100dvh;
+        display: grid;
+        place-items: center;
+        padding: 24px 16px;
+    }
+
+    /* Card estable (no se estira) */
+    .auth-right-inner {
+        width: min(520px, calc(100% - 32px));
+    }
+
+    /* Por si algún CSS viejo metió imagen al shell */
+    .auth-shell {
+        background-image: none !important;
+    }
+}
+
+/* ---------- DESKTOP (>=1200) ---------- */
+@media (min-width: 1200px) {
+
+    body.auth-page {
+        background: none; /* ya no usamos el fondo azul */
+    }
+
+    .auth-shell {
+        display: grid;
+        grid-template-columns: 60% 40%;
+        background: none;
+    }
+
+    .auth-left {
+        display: block !important;
+        position: relative;
+        min-height: 100dvh;
+        background-image: url("/img/auth-bg.jpeg");
+        background-repeat: no-repeat;
+        background-size: cover;
+        /* Ajuste para “que se vea mejor” (evita cortar el logo) */
+        background-position: left center; /* prueba left top si quieres más arriba */
+    }
+
+    .auth-left-overlay {
+        position: absolute;
+        inset: 0;
+    }
+
+    .auth-right {
+        min-height: 100dvh;
+        display: grid;
+        place-items: center;
+        padding: 0 24px;
+    }
+
+    .auth-right-inner {
+        width: min(520px, 85%);
+    }
+}
+
+/* FIX: si en Login.cshtml hay min-vh-100, que no rompa */
+.auth-right-inner .min-vh-100 {
+    min-height: auto !important;
+}
