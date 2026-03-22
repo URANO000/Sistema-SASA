@@ -89,59 +89,61 @@
                 }
                 else
                 {
-                    <div class="table-responsive">
-                        <table class="table table-sm align-middle mb-0">
-                            <thead>
-                                <tr class="text-muted" style="font-size:.875rem;">
-                                    <th>Fecha (Local)</th>
-                                    <th>Resultado</th>
-                                    <th>Motivo</th>
-                                    <th>IP</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach (var intento in Model.IntentosLogin)
-                                {
-                                    <tr>
-                                        <td>@intento.FechaLocal</td>
-                                        <td>
-                                            @if (intento.Exitoso)
-                                            {
-                                                <span class="badge bg-success">Exitoso</span>
-                                            }
-                                            else
-                                            {
-                                                <span class="badge bg-danger">Fallido</span>
-                                            }
-                                        </td>
-                                        <td>
-                                            @{
-                                                string motivo = intento.MotivoFallo ?? "";
-                                                motivo = motivo switch
-                                                {
-                                                    "InvalidCredentials" => "Credenciales inválidas",
-                                                    "UserNotFound" => "Usuario no existe",
-                                                    "LockedOut" => "Bloqueo temporal",
-                                                    "NotAllowed" => "No permitido (sin activar)",
-                                                    "Disabled" => "Cuenta desactivada",
-                                                    _ => (string.IsNullOrWhiteSpace(motivo) ? "-" : motivo)
-                                                };
-                                            }
-                                            @(intento.Exitoso ? "-" : motivo)
-                                        </td>
-                                        <td>
-                                            @{
-                                                var ipMostrar =
-                                                (intento.IpAddress == "::1" || intento.IpAddress == "127.0.0.1")
-                                                ? "Localhost"
-                                                : intento.IpAddress;
-                                            }
-                                            <span class="badge bg-light text-dark">@ipMostrar</span>
-                                        </td>
+                    <div class="p-3" style="max-height: 260px; overflow-y: auto;">
+                        <div class="table-responsive">
+                            <table class="table table-sm align-middle mb-0">
+                                <thead>
+                                    <tr class="text-muted" style="font-size:.875rem;">
+                                        <th>Fecha (Local)</th>
+                                        <th>Resultado</th>
+                                        <th>Motivo</th>
+                                        <th>IP</th>
                                     </tr>
-                                }
-                            </tbody>
-                        </table>
+                                </thead>
+                                <tbody>
+                                    @foreach (var intento in Model.IntentosLogin)
+                                    {
+                                        <tr>
+                                            <td>@intento.FechaLocal</td>
+                                            <td>
+                                                @if (intento.Exitoso)
+                                                {
+                                                    <span class="badge bg-success">Exitoso</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge bg-danger">Fallido</span>
+                                                }
+                                            </td>
+                                            <td>
+                                                @{
+                                                    string motivo = intento.MotivoFallo ?? "";
+                                                    motivo = motivo switch
+                                                    {
+                                                        "InvalidCredentials" => "Credenciales inválidas",
+                                                        "UserNotFound" => "Usuario no existe",
+                                                        "LockedOut" => "Bloqueo temporal",
+                                                        "NotAllowed" => "No permitido (sin activar)",
+                                                        "Disabled" => "Cuenta desactivada",
+                                                        _ => (string.IsNullOrWhiteSpace(motivo) ? "-" : motivo)
+                                                    };
+                                                }
+                                                @(intento.Exitoso ? "-" : motivo)
+                                            </td>
+                                            <td>
+                                                @{
+                                                    var ipMostrar =
+                                                    (intento.IpAddress == "::1" || intento.IpAddress == "127.0.0.1")
+                                                    ? "Localhost"
+                                                    : intento.IpAddress;
+                                                }
+                                                <span class="badge bg-light text-dark">@ipMostrar</span>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 }
             </div>
