@@ -33,8 +33,6 @@ namespace BusinessLogic.Servicios.Helpers
 
                 return weeksPart;
             }
-
-            // Days and hours
             if (span.TotalDays >= 1)
             {
                 var days = span.Days;
@@ -49,15 +47,11 @@ namespace BusinessLogic.Servicios.Helpers
 
                 return daysPart;
             }
-
-            // Hours (omit minutes)
             if (span.TotalHours >= 1)
             {
                 var hours = (int)span.TotalHours;
                 return hours == 1 ? "1 hora" : $"{hours} horas";
             }
-
-            // Less than 1 hour -> show minutes
             var minutes = span.Minutes;
             return minutes == 1 ? "1 minuto" : $"{minutes} minutos";
         }
