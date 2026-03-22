@@ -11,6 +11,7 @@ namespace BusinessLogic.Servicios.Helpers
         public void ValidarUsuarioExiste(ApplicationUser? user);
 
         (string? restante, string? excedido, bool atrasado) Calcular(DateTime createdAt, int duracionMinutos);
+        string FormatearDuracionDesdeMinutos(int? duracionMinutos);
 
         string FormatTiempo(TimeSpan span);
 

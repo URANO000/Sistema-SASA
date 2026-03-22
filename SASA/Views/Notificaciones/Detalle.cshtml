@@ -1,4 +1,5 @@
 ﻿@using SASA.ViewModels.Notificaciones
+@using SASA.Helpers
 @model NotificacionDetalleViewModel
 
 @{
@@ -31,7 +32,19 @@
 
         <div class="notif-detail-row">
             <span class="label">Fecha y hora</span>
-            <span class="value">@n.FechaCreacion.ToString("dd/MM/yyyy HH:mm")</span>
+            <span class="value">
+                @{
+                    var f = n.FechaCreacion;
+                    if (f.Kind == DateTimeKind.Utc || f.Kind == DateTimeKind.Unspecified)
+                    {
+                        @DateTimeHelper.ToLocalString(f, "dd/MM/yyyy HH:mm")
+                    }
+                    else
+                    {
+                        @f.ToString("dd/MM/yyyy HH:mm")
+                    }
+                }
+            </span>
         </div>
 
         <div class="notif-detail-row">
@@ -55,7 +68,7 @@
                     <div class="text-muted small">
                         @if (Model.EstaSilenciado && Model.SilenciadoHasta.HasValue)
                         {
-                            <span>Estado: <span class="badge bg-danger">Silenciado</span> hasta <strong>@Model.SilenciadoHasta.Value.ToString("dd/MM/yyyy HH:mm")</strong></span>
+                            <span>Estado: <span class="badge bg-danger">Silenciado</span> hasta <strong>@DateTimeHelper.ToLocalString(Model.SilenciadoHasta.Value, "dd/MM/yyyy HH:mm")</strong></span>
                         }
                         else
                         {
@@ -118,6 +131,28 @@
                     <div class="text-muted small">Detalles completos tiquete</div>
                 </div>
                 <span class="badge bg-secondary">@Model.Estatus</span>
+                @if (!string.IsNullOrWhiteSpace(Model.Prioridad) && Model.Prioridad != "—")
+                {
+                    @switch (Model.Prioridad)
+                    {
+                        case "Baja":
+                            <span class="badge bg-secondary ms-2">Prioridad: @Model.Prioridad</span>
+                            break;
+                        case "Media":
+                            <span class="badge bg-primary ms-2">Prioridad: @Model.Prioridad</span>
+                            break;
+                        case "Alta":
+                            <span class="badge bg-warning text-dark ms-2">Prioridad: @Model.Prioridad</span>
+                            break;
+                        case "Critica":
+                        case "Crítica":
+                            <span class="badge bg-danger ms-2">Prioridad: @Model.Prioridad</span>
+                            break;
+                        default:
+                            <span class="badge bg-danger ms-2">Prioridad: @Model.Prioridad</span>
+                            break;
+                    }
+                }
             </div>
 
             <hr class="my-3" />
@@ -129,11 +164,7 @@
                 <dt class="col-4 col-md-3">Categoría</dt>
                 <dd class="col-8 col-md-9">@Model.Categoria</dd>
 
-                <dt class="col-4 col-md-3">Cola</dt>
-                <dd class="col-8 col-md-9">@Model.Cola</dd>
-
-                <dt class="col-4 col-md-3">Prioridad</dt>
-                <dd class="col-8 col-md-9">@Model.Prioridad</dd>
+ 
 
                 <dt class="col-4 col-md-3">Reportado por</dt>
                 <dd class="col-8 col-md-9">@Model.ReportadoPor</dd>
@@ -142,7 +173,7 @@
                 <dd class="col-8 col-md-9">@Model.AsignadoA</dd>
 
                 <dt class="col-4 col-md-3">Creado</dt>
-                <dd class="col-8 col-md-9">@(Model.CreatedAt.HasValue? Model.CreatedAt.Value.ToString("dd/MM/yyyy HH:mm") : "—")</dd>
+                <dd class="col-8 col-md-9">@(Model.CreatedAt.HasValue? DateTimeHelper.ToLocalString(Model.CreatedAt.Value, "dd/MM/yyyy HH:mm") : "—")</dd>
 
                 <dt class="col-4 col-md-3">Descripción</dt>
                 <dd class="col-8 col-md-9">@Model.DescripcionPreview</dd>
