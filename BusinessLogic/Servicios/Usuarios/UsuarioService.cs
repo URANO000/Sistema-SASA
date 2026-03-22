@@ -20,7 +20,7 @@ namespace BusinessLogic.Servicios.Usuarios
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IHelper _helper;
         private readonly IAuditoriaRepository _audit;
-        public UsuarioService(IUsuarioRepository usuarioRepository, UserManager<ApplicationUser> userManager, IHelper helper,IAuditoriaRepository audit)
+        public UsuarioService(IUsuarioRepository usuarioRepository, UserManager<ApplicationUser> userManager, IHelper helper, IAuditoriaRepository audit)
         {
             _usuarioRepository = usuarioRepository;
             _userManager = userManager;
@@ -311,8 +311,8 @@ namespace BusinessLogic.Servicios.Usuarios
                 throw new ArgumentException("Id inválido", nameof(id));
             }
 
-            var usuarioDto = await _usuarioRepository.ObtenerUsuarioPorIdAsync(id);
-            if (usuarioDto == null)
+            var usuario = await _usuarioRepository.ObtenerUsuarioPorIdAsync(id);
+            if (usuario == null)
             {
                 throw new InvalidOperationException("Usuario no encontrado.");
             }
@@ -343,8 +343,8 @@ namespace BusinessLogic.Servicios.Usuarios
                 throw new ArgumentException("Id inválido", nameof(id));
             }
 
-            var usuarioDto = await _usuarioRepository.ObtenerUsuarioPorIdAsync(id);
-            if (usuarioDto == null)
+            var usuario = await _usuarioRepository.ObtenerUsuarioPorIdAsync(id);
+            if (usuario == null)
             {
                 throw new InvalidOperationException("Usuario no encontrado.");
             }
