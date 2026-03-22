@@ -30,9 +30,9 @@
         <div class="col-md-4">
             <div class="card text-center">
                 <div class="card-body">
-                    <h6 class="section-title">Administración</h6>
-                    <p class="text-muted">Usuarios, roles y configuración</p>
-                    <a asp-controller="Usuario" asp-action="Index" class="btn btn-custom">Acceder</a>
+                    <h6 class="section-title">Tiquetes</h6>
+                    <p class="text-muted">Gestión de tiquetes</p>
+                    <a asp-controller="Tiquete" asp-action="Index" class="btn btn-custom">Acceder</a>
                 </div>
             </div>
         </div>
@@ -63,7 +63,9 @@
             <div class="card text-center">
                 <div class="card-body">
                     <h6 class="text-muted">Promedio de Resolución de Tiquetes</h6>
-                    <h3 class="fw-bold text-primary">@Model.PromedioResolucion.ToString("0") min</h3>
+                    <h3 class="fw-bold text-primary">
+                        @Model.PromedioResolucionFormateado
+                    </h3>
                 </div>
             </div>
         </div>
@@ -80,8 +82,10 @@
         <div class="col-md-3">
             <div class="card text-center">
                 <div class="card-body">
-                    <h6 class="text-muted">Alertas</h6>
-                    <h3 class="fw-bold text-danger">4</h3>
+                    <h6 class="text-muted">Total Tiquetes Vencidos</h6>
+                    <h3 class="fw-bold text-danger">
+                        @Model.TiquetesVencidosPorEstado.Sum(x => x.Cantidad)
+                    </h3>
                 </div>
             </div>
         </div>
@@ -102,8 +106,8 @@
         <div class="col-md-8">
             <div class="card">
                 <div class="card-body">
-                    <h6 class="section-title">Tiquetes por Semana</h6>
-                    <canvas id=""></canvas>
+                    <h6 class="section-title">Tiquetes Vencidos por Estado</h6>
+                    <canvas id="vencidosChart"></canvas>
                 </div>
             </div>
         </div>
@@ -131,12 +135,20 @@
             ));
 
       const diasLabels = @Html.Raw(JsonSerializer.Serialize(
-                    Model.Ultimos7Dias.Select(x => x.Fecha.ToString("yyyy-MM-dd"))
+                                        Model.Ultimos7Dias.Select(x => x.Fecha.ToString("ddd"))
             ));
 
       const diasData = @Html.Raw(JsonSerializer.Serialize(
                     Model.Ultimos7Dias.Select(x => x.Cantidad)
             ));
+
+      const vencidosLabels = @Html.Raw(JsonSerializer.Serialize(
+                Model.TiquetesVencidosPorEstado.Select(x => x.Estado)
+        ));
+
+        const vencidosData = @Html.Raw(JsonSerializer.Serialize(
+                Model.TiquetesVencidosPorEstado.Select(x => x.Cantidad)
+        ));
 
     //Para estados
     new Chart(document.getElementById('estadoChart'), {
@@ -185,6 +197,29 @@
                     ticks: {
                         precision: 0
                     }
+                }
+            }
+        }
+    });
+
+        new Chart(document.getElementById('vencidosChart'), {
+        type: 'bar',
+        data: {
+            labels: vencidosLabels,
+            datasets: [{
+                label: 'Tiquetes vencidos',
+                data: vencidosData,
+                backgroundColor: '#dc3545'
+            }]
+        },
+        options: {
+            plugins: {
+                legend: { display: false }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: { precision: 0 }
                 }
             }
         }

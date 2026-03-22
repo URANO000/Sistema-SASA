@@ -262,11 +262,27 @@ $(function () {
 
         const form = document.getElementById("crearTiqueteForm");
         const files = form.querySelector('input[type="file"]').files;
+        const extensionesPermitidas = [".jpg", ".jpeg", ".png", ".pdf"];
 
-        // Client-side size validation
         for (let i = 0; i < files.length; i++) {
-            if (files[i].size > 5 * 1024 * 1024) {
-                alert("Un archivo supera el límite de 5MB.");
+
+            const file = files[i];
+
+            // Validar tamaño
+            if (file.size > 2 * 1024 * 1024) {
+                $("#addTicket").modal("hide");
+                $("#alertModal").modal("show");
+                $("#mensaje").text("Un archivo supera el límite de 1MB.");
+                return;
+            }
+
+            // Validar extensión
+            const extension = file.name.substring(file.name.lastIndexOf(".")).toLowerCase();
+
+            if (!extensionesPermitidas.includes(extension)) {
+                $("#addTicket").modal("hide");
+                $("#alertModal").modal("show");
+                $("#mensaje").text(`Tipo de archivo no permitido: ${file.name}`);
                 return;
             }
         }
@@ -301,6 +317,7 @@ $(function () {
 
                     $.each(response.errors, function (key, messages) {
                         if (key === "_form") {
+                            $("#addTicket").modal("hide");
                             $("#alertModal").modal("show")
                             $("#mensaje").text(messages[0])
                             return;

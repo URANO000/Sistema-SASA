@@ -12,5 +12,11 @@ namespace BusinessLogic.Servicios.Helpers
 
         (string? restante, string? excedido, bool atrasado) Calcular(DateTime createdAt, int duracionMinutos);
         string FormatearDuracionDesdeMinutos(int? duracionMinutos);
+
+        string FormatTiempo(TimeSpan span);
+
+        DateTime ObtenerAhoraCR();
+        DateOnly ObtenerFechaHoyCR();
+        TimeSpan ObtenerHoraCR();
     }
 }

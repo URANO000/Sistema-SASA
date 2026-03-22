@@ -1,11 +1,13 @@
 ﻿using DataAccess.Identity;
 using Microsoft.AspNetCore.Identity;
+using System.Runtime.InteropServices;
 
 namespace BusinessLogic.Servicios.Helpers
 {
     public class Helper : IHelper
     {
         private readonly UserManager<ApplicationUser> _userManager;
+        private static readonly TimeZoneInfo ZonaCR = ObtenerZonaCR();
         public Helper(UserManager<ApplicationUser> userManager)
         {
             _userManager = userManager;
@@ -56,6 +58,30 @@ namespace BusinessLogic.Servicios.Helpers
             return minutes == 1 ? "1 minuto" : $"{minutes} minutos";
         }
 
+        //Para auditoria de usuarios
+        private static TimeZoneInfo ObtenerZonaCR()
+        {
+            string timeZoneId = RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
+                ? "Central America Standard Time"
+                : "America/Costa_Rica";
+
+            return TimeZoneInfo.FindSystemTimeZoneById(timeZoneId);
+        }
+
+        public DateTime ObtenerAhoraCR()
+        {
+            return TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, ZonaCR);
+        }
+
+        public DateOnly ObtenerFechaHoyCR()
+        {
+            return DateOnly.FromDateTime(ObtenerAhoraCR());
+        }
+
+        public TimeSpan ObtenerHoraCR()
+        {
+            return TimeOnly.FromDateTime(ObtenerAhoraCR()).ToTimeSpan();
+        }
         //Para la fecha UTC a CR time para los listados, etc
         public DateTime FormatearCRTime(DateTime dateTime)
         {
@@ -122,7 +148,7 @@ namespace BusinessLogic.Servicios.Helpers
             );
         }
 
-        private string FormatTiempo(TimeSpan span)
+        public string FormatTiempo(TimeSpan span)
         {
             if (span.TotalDays >= 1)
             {

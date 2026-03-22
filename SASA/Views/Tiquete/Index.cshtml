@@ -36,8 +36,8 @@
 
                     </div>
                     <div class="col-md-4">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <label class="form-label mb-1">Fecha</label>
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <label class="form-label mb-0" id="main-label">Fecha</label>
 
                             <div class="form-check form-switch m-0">
                                 <input class="form-check-input" type="checkbox" id="dateRangeSwitch">
@@ -45,25 +45,33 @@
                             </div>
                         </div>
 
-                        <div class="d-flex gap-2">
-                            <!-- Single -->
+                        <!-- Single -->
+                        <div id="single-wrapper">
                             <input type="date"
                                    class="form-control"
                                    name="Filtro.Fecha"
                                    id="filter-date-single">
+                        </div>
 
-                            <!-- Range -->
-                            <input type="date"
-                                   class="form-control d-none"
-                                   name="Filtro.FechaInicio"
-                                   id="filter-date-from"
-                                   disabled>
+                        <!-- Range -->
+                        <div class="row g-2 d-none" id="range-wrapper">
+                            <div class="col-6">
+                                <label class="form-label mb-1 small">Fecha Inicio</label>
+                                <input type="date"
+                                       class="form-control"
+                                       name="Filtro.FechaInicio"
+                                       id="filter-date-from"
+                                       disabled>
+                            </div>
 
-                            <input type="date"
-                                   class="form-control d-none"
-                                   name="Filtro.FechaFinal"
-                                   id="filter-date-to"
-                                   disabled>
+                            <div class="col-6">
+                                <label class="form-label mb-1 small">Fecha Fin</label>
+                                <input type="date"
+                                       class="form-control"
+                                       name="Filtro.FechaFinal"
+                                       id="filter-date-to"
+                                       disabled>
+                            </div>
                         </div>
                     </div>
   

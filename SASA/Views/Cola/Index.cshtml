@@ -40,11 +40,11 @@
 
                 <div class="tab-content" id="colaTabsContent">
                     <div class="tab-pane fade @(tabColaPersonalActiva ? "show active" : "")" id="personal-pane" role="tabpanel">
-                        <div id="ticketQueue" class="notif-list queue-container" style="max-height: 700px; overflow-y: auto;">
+                        <div id="ticketQueue" class="notif-list queue-container" style="max-height: 700px; overflow-y: auto; overflow-x: auto;">
 
                             @foreach (var c in Model.Personal)
                             {
-                                <div class="notif-item notif-unread"
+                                <div class="notif-item notif-unread ticket-card"
                                     data-id="@c.IdTiquete"
                                     data-orden="@c.OrdenCola">
                                     <div class="notif-left">
@@ -58,13 +58,12 @@
                                                 <div class="notif-title">@c.Asunto</div>
                                                 <div class="notif-meta">
                                                     <ul class="list-unstyled">
-                                                        <div>
 
-                                                            <div class="text-muted small">
+                                                            <li class="text-muted small">
                                                                 Categoría : @c.Categoria
-                                                            </div>
+                                                            </li>
 
-                                                            <div class="mt-2 d-flex gap-2 flex-wrap">
+                                                            <li class="mt-2 d-flex gap-2 flex-wrap">
 
                                                                 <!-- PRIORITY -->
                                                                 @switch (c.Prioridad)
@@ -97,34 +96,10 @@
                                                                     </span>
                                                                 }
 
-                                                            </div>
-                                                        </div>
+                                                            </li>
                                                     </ul>
                                                 </div>
                                             </div>
-
-                                            <div class="notif-controls">
-                                                <a asp-route-id="@c.IdTiquete" 
-                                                class="btn btn-sm btn-success notif-btn"
-                                                asp-action="Details" 
-                                                asp-controller="Tiquete"
-                                                title="Ver detalle">
-
-                                                    <i class="bi bi-eye"></i>
-                                                </a>
-
-                                                <a asp-route-id="@c.IdTiquete"
-                                                       class="btn btn-sm btn-primary notif-btn"
-                                                       asp-action="Edit"
-                                                       asp-controller="Tiquete"
-                                                       title="Editar tiquete">
-
-                                                    <i class="bi bi-pencil-square"></i>
-                                                </a>
-
-                                            </div>
-
-
                                        </div>
                                     </div>
                                 </div>

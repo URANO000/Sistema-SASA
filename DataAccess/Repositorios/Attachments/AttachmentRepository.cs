@@ -16,7 +16,6 @@ namespace DataAccess.Repositorios.Attachments
         public async Task AddRangeAsync(List<Attachment> attachments)
         {
             await _context.Attachments.AddRangeAsync(attachments);
-            await _context.SaveChangesAsync();
         }
 
         public async Task<List<ListaAttachmentDto>> ListarAttachmentsAsync(int idTiquete)

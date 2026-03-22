@@ -1,6 +1,7 @@
 ﻿using BusinessLogic.Servicios.Helpers;
 using BusinessLogic.Servicios.Tiquetes;
 using DataAccess.Identity;
+using DataAccess.Modelos.DTOs.Tiquete.Colas;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -96,5 +97,17 @@ namespace SASA.Controllers
             };
             return View(viewModel);
         }
+
+        public async Task<IActionResult> Reordenar([FromBody] ReordenarDto dto)
+        {
+            var nuevoOrden = await _service.ReordenarAsync(
+               dto.IdTiquete,
+               dto.OrdenAnterior,
+               dto.OrdenSiguiente
+           );
+
+            return Ok(new { nuevoOrden });
+        }
     }
+
 }
