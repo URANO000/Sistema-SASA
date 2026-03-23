@@ -23,7 +23,8 @@ namespace BusinessLogic.Servicios.TiqueteHistoriales
         string? valorAnterior,
         string? valorNuevo,
         string? descripcion,
-        string performedBy)
+        string performedBy,
+        bool autoSave = true)
         {
             var entity = new TiqueteHistorial
             {
@@ -37,12 +38,12 @@ namespace BusinessLogic.Servicios.TiqueteHistoriales
                 PerformedBy = performedBy
             };
 
-            await _repository.AgregarTiqueteHistorialAsync(entity);
+            await _repository.AgregarTiqueteHistorialAsync(entity, autoSave);
         }
 
 
         //Registrar que un tiquete fue creado (y por quién)
-        public async Task RegistrarTiqueteCreadoAsync(int idTiquete, string performedBy)
+        public async Task RegistrarTiqueteCreadoAsync(int idTiquete, string performedBy, bool autoSave = true)
         {
             await RegistrarEventoAsync(
                 idTiquete,
@@ -51,7 +52,8 @@ namespace BusinessLogic.Servicios.TiqueteHistoriales
                 null,
                 null,
                 "Tiquete creado",
-                performedBy);
+                performedBy,
+                autoSave);
         }
 
         //Registrar cambio de estado del tiquete (de qué a qué)
@@ -59,7 +61,8 @@ namespace BusinessLogic.Servicios.TiqueteHistoriales
             int idTiquete,
             string estadoAnterior,
             string estadoNuevo,
-            string performedBy)
+            string performedBy,
+            bool autoSave = true)
         {
             await RegistrarEventoAsync(
                 idTiquete,
@@ -68,7 +71,8 @@ namespace BusinessLogic.Servicios.TiqueteHistoriales
                 estadoAnterior,
                 estadoNuevo,
                 $"Estado cambiado de {estadoAnterior} a {estadoNuevo}",
-                performedBy);
+                performedBy,
+                autoSave);
         }
 
         //Registrar cuando se ha asignado (externamente) el tiquete 
@@ -76,7 +80,8 @@ namespace BusinessLogic.Servicios.TiqueteHistoriales
             int idTiquete,
             string asignadoAnterior,
             string usuarioAsignado,
-            string performedBy)
+            string performedBy,
+            bool autoSave = true)
         {
             await RegistrarEventoAsync(
                 idTiquete,
@@ -85,7 +90,8 @@ namespace BusinessLogic.Servicios.TiqueteHistoriales
                 asignadoAnterior,
                 usuarioAsignado,
                 $"Tiquete asignado a {usuarioAsignado}",
-                performedBy);
+                performedBy,
+                autoSave);
         }
 
         //Registrar algún cambio de categoría
@@ -93,7 +99,8 @@ namespace BusinessLogic.Servicios.TiqueteHistoriales
             int idTiquete,
             string categoriaAnterior,
             string categoriaNueva,
-            string performedBy)
+            string performedBy,
+            bool autoSave = true)
         {
             await RegistrarEventoAsync(
                 idTiquete,
@@ -102,14 +109,16 @@ namespace BusinessLogic.Servicios.TiqueteHistoriales
                 categoriaAnterior,
                 categoriaNueva,
                 $"Categoría cambiada de {categoriaAnterior} a {categoriaNueva}",
-                performedBy);
+                performedBy,
+                autoSave);
         }
 
         //Registrar creación de avance
         public async Task RegistrarAvanceAsync(
             int idTiquete,
             string descripcionAvance,
-            string performedBy)
+            string performedBy,
+            bool autoSave = true)
         {
             await RegistrarEventoAsync(
                 idTiquete,
@@ -118,7 +127,8 @@ namespace BusinessLogic.Servicios.TiqueteHistoriales
                 null,
                 null,
                 descripcionAvance,
-                performedBy);
+                performedBy,
+                autoSave);
         }
 
         public async Task<List<TiqueteHistorialPorIdDto>> GetByTiqueteIdAsync(int idTiquete)

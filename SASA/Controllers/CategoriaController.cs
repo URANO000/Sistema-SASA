@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using SASA.Filters;
+using BusinessLogic.Servicios.Helpers;
 using SASA.ViewModels.Categoria;
 
 namespace SASA.Controllers
@@ -18,15 +19,18 @@ namespace SASA.Controllers
         private readonly ICategoriaService _categoriaService;
         private readonly ISubCategoriaService _subCategoriaService;
         private readonly IPrioridadService _prioridadService;
+        private readonly IHelper _helper;
 
         public CategoriaController(
             ICategoriaService categoriaService,
             ISubCategoriaService subCategoriaService,
-            IPrioridadService prioridadService)
+            IPrioridadService prioridadService,
+            IHelper helper)
         {
             _categoriaService = categoriaService;
             _subCategoriaService = subCategoriaService;
             _prioridadService = prioridadService;
+            _helper = helper;
         }
 
         [HttpGet]
@@ -55,8 +59,25 @@ namespace SASA.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CrearCategoria(CrearCategoriaViewModel model)
         {
+            // If request is AJAX, return JSON responses similar to Tiquete controller
+            var isAjax = Request.Headers["X-Requested-With"] == "XMLHttpRequest";
+
             if (!ModelState.IsValid)
             {
+                if (isAjax)
+                {
+                    return Json(new
+                    {
+                        success = false,
+                        errors = ModelState
+                                    .Where(x => x.Value!.Errors.Any())
+                                    .ToDictionary(
+                                        k => k.Key,
+                                        v => v.Value!.Errors.Select(e => e.ErrorMessage).ToArray()
+                                    )
+                    });
+                }
+
                 TempData["Error"] = "Verifica los datos de la categoría.";
                 var vm = await ConstruirViewModelAsync("categorias", null, 1, null, null, null, 1);
                 vm.CrearCategoria = model;
@@ -67,6 +88,14 @@ namespace SASA.Controllers
             {
                 NombreCategoria = model.NombreCategoria
             });
+
+            if (isAjax)
+            {
+                if (result.Ok)
+                    return Json(new { success = true });
+
+                return Json(new { success = false, errors = new { _form = new[] { result.Mensaje } } });
+            }
 
             TempData[result.Ok ? "Success" : "Error"] = result.Mensaje;
             return RedirectToAction(nameof(Index), new { tab = "categorias" });
@@ -113,8 +142,24 @@ namespace SASA.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CrearSubCategoria(CrearSubCategoriaViewModel model)
         {
+            var isAjax = Request.Headers["X-Requested-With"] == "XMLHttpRequest";
+
             if (!ModelState.IsValid)
             {
+                if (isAjax)
+                {
+                    return Json(new
+                    {
+                        success = false,
+                        errors = ModelState
+                                    .Where(x => x.Value!.Errors.Any())
+                                    .ToDictionary(
+                                        k => k.Key,
+                                        v => v.Value!.Errors.Select(e => e.ErrorMessage).ToArray()
+                                    )
+                    });
+                }
+
                 TempData["Error"] = "Verifica los datos de la subcategoría.";
                 var vm = await ConstruirViewModelAsync("subcategorias", null, 1, null, null, null, 1);
                 vm.CrearSubCategoria = model;
@@ -129,6 +174,14 @@ namespace SASA.Controllers
                 IdPrioridad = model.IdPrioridad,
                 NombreSubCategoria = model.NombreSubCategoria
             });
+
+            if (isAjax)
+            {
+                if (result.Ok)
+                    return Json(new { success = true });
+
+                return Json(new { success = false, errors = new { _form = new[] { result.Mensaje } } });
+            }
 
             TempData[result.Ok ? "Success" : "Error"] = result.Mensaje;
             return RedirectToAction(nameof(Index), new { tab = "subcategorias" });
@@ -248,6 +301,12 @@ namespace SASA.Controllers
                     Value = p.IdPrioridad.ToString(),
                     Text = p.NombrePrioridad
                 }).ToList();
+
+            // Set DuracionDisplay for each subcategory item using helper
+            foreach (var item in subCategoriasPaginadas.Items)
+            {
+                item.DuracionDisplay = _helper.FormatearDuracionDesdeMinutos(item.DuracionMinutos);
+            }
 
             return new CategoriaGestionViewModel
             {

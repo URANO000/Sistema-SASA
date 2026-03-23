@@ -126,40 +126,60 @@ namespace BusinessLogic.Servicios.Tiquetes
         //--------------------Creación de tiquetes-----------------------------------
         public async Task<int> AgregarTiqueteAsync(CrearTiqueteDto dto, string currentUserId, bool esAdministrador)
         {
-            await _helper.ValidarUsuarioEstado(currentUserId);
-            _helper.ValidarUsuarioActual(currentUserId);
-            await ValidarCategoriaAsync(dto.IdCategoria);
-
-            //Regla de autorización. Si es administrador entonces puede asignar tiquetes, si es empleado normal, no. 
-            if (!esAdministrador && dto.IdAsignee != null)
-                throw new UnauthorizedAccessException(
-                    "Un usuario normal no puede asignar tiquetes."
-                );
-
-
-            var idTiquete = await CrearTiqueteAsync(
-                dto.Asunto,
-                dto.Descripcion,
-                dto.IdCategoria,
-                dto.IdSubCategoria,
-                currentUserId,
-                dto.IdAsignee
-            );
-
-            //Una vez que todo está listo, entonces se puede hacer un log en el historial
-            await _tiqueteHistorialService.RegistrarTiqueteCreadoAsync(
-                    idTiquete,
-                    currentUserId
-                );
-
-            //Primero se crea el tiquete para asegurar que el ID de este tiquete exista
-            //Luego de eso, es posible agregar los archivos adjuntos a la base de datos
-            if (dto.ArchivoAdjunto != null && dto.ArchivoAdjunto.Any())
+            await using var transaction = await _context.Database.BeginTransactionAsync();
+            try
             {
-                await GuardarAdjuntosAsync(dto.ArchivoAdjunto, idTiquete, currentUserId);
-            }
+                await _helper.ValidarUsuarioEstado(currentUserId);
+                _helper.ValidarUsuarioActual(currentUserId);
+                await ValidarCategoriaAsync(dto.IdCategoria);
 
-            return idTiquete;
+                //Regla de autorización. Si es administrador entonces puede asignar tiquetes, si es empleado normal, no. 
+                if (!esAdministrador && dto.IdAsignee != null)
+                    throw new UnauthorizedAccessException(
+                        "Un usuario normal no puede asignar tiquetes."
+                    );
+
+
+                var tiquete = await CrearTiqueteAsync(
+                    dto.Asunto,
+                    dto.Descripcion,
+                    dto.IdCategoria,
+                    dto.IdSubCategoria,
+                    currentUserId,
+                    dto.IdAsignee
+                );
+
+
+                //Para que exista FK a historial tiquetes (idTiquete)
+                await _context.SaveChangesAsync();
+
+                var idTiquete = tiquete.IdTiquete;
+
+                //Una vez que todo está listo, entonces se puede hacer un log en el historial
+                await _tiqueteHistorialService.RegistrarTiqueteCreadoAsync(
+                        idTiquete,
+                        currentUserId,
+                        autoSave: false
+                    );
+
+                //Primero se crea el tiquete para asegurar que el ID de este tiquete exista
+                //Luego de eso, es posible agregar los archivos adjuntos a la base de datos
+                if (dto.ArchivoAdjunto != null && dto.ArchivoAdjunto.Any())
+                {
+                    await GuardarAdjuntosAsync(dto.ArchivoAdjunto, idTiquete, currentUserId);
+                }
+
+                await _context.SaveChangesAsync();
+                await transaction.CommitAsync();
+
+
+                return idTiquete;
+            }
+            catch
+            {
+                await transaction.RollbackAsync();
+                throw;
+            }
         }
 
         //--------------------Actualizar tiquetes para el administrador-----------------------------------
@@ -380,10 +400,12 @@ namespace BusinessLogic.Servicios.Tiquetes
                         tiquete.IdTiquete,
                         nombreAnterior ?? "Sin asignado anterior",
                         nombreCompleto ?? "Sin nombre asignado",
-                        tiquete.UpdatedBy);
+                        tiquete.UpdatedBy,
+                        autoSave: false);
                 }
 
                 await _tiqueteRepository.ActualizarAsignacionAsync(tiquetes);
+                await _context.SaveChangesAsync();
                 await transaction.CommitAsync();
             }
             catch
@@ -409,6 +431,37 @@ namespace BusinessLogic.Servicios.Tiquetes
             return await _tiqueteRepository.GetColasGlobalAsync();
         }
 
+        public async Task<decimal> ReordenarAsync(int idTiquete, decimal? ordenAnterior, decimal? ordenSiguiente)
+        {
+            decimal nuevoOrden;
+
+            if (ordenAnterior == null && ordenSiguiente == null)
+                throw new Exception("Lista vacía");
+
+            if (ordenAnterior == null)
+            {
+                //Mover arriba
+                nuevoOrden = ordenSiguiente.Value / 2m;
+            }
+            else if (ordenSiguiente == null)
+            {
+                //Mover abajo
+                nuevoOrden = ordenAnterior.Value + 1000m;
+            }
+            else
+            {
+                // Between two items
+                nuevoOrden = _tiqueteRepository.CalcularOrdenEntre(ordenAnterior.Value, ordenSiguiente.Value);
+            }
+
+            var tiquete = await _context.Tiquetes.FindAsync(idTiquete);
+            tiquete.OrdenCola = nuevoOrden;
+
+            await _context.SaveChangesAsync();
+
+            return nuevoOrden;
+        }
+
         //---------------------------Dashboard--------------------------------------------------
         public async Task<int> ContarTiquetesAsync()
         {
@@ -425,9 +478,14 @@ namespace BusinessLogic.Servicios.Tiquetes
             return await _tiqueteRepository.ObtenerTiquetesUltimos7DiasAsync();
         }
 
-        public async Task<double> PromedioResolucion()
+        public async Task<double> PromedioResolucionAsync()
         {
-            return await _tiqueteRepository.PromedioResolucion();
+            return await _tiqueteRepository.PromedioResolucionAsync();
+        }
+
+        public async Task<List<TiquetesPorEstadoDto>> ObtenerTiquetesVencidosPorEstadoAsync()
+        {
+            return await _tiqueteRepository.ObtenerTiquetesVencidosPorEstadoAsync();
         }
 
 
@@ -440,7 +498,7 @@ namespace BusinessLogic.Servicios.Tiquetes
                 throw new ArgumentException("Categoria no existe.");
         }
 
-        private async Task<int> CrearTiqueteAsync(
+        private async Task<Tiquete> CrearTiqueteAsync(
             string asunto,
             string descripcion,
             int idCategoria,
@@ -473,7 +531,7 @@ namespace BusinessLogic.Servicios.Tiquetes
             };
 
             var creado = await _tiqueteRepository.AgregarTiqueteAsync(tiquete);
-            return creado.IdTiquete;
+            return tiquete;
         }
 
         private async Task GuardarAdjuntosAsync(

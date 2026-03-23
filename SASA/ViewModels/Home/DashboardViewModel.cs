@@ -14,8 +14,12 @@ namespace SASA.ViewModels.Home
         public string? Rol { get; set; }
         public string[] PriorityLabels { get; set; } = Array.Empty<string>();
         public int[] PriorityCounts { get; set; } = Array.Empty<int>();
+        public int[] PriorityTicketCounts { get; set; } = Array.Empty<int>();
+        public string[] PriorityDisplayLabels { get; set; } = Array.Empty<string>();
         public string[] TrendLabels { get; set; } = Array.Empty<string>();
         public int[] TrendCreados { get; set; } = Array.Empty<int>();
+        public int[] TrendResueltos { get; set; } = Array.Empty<int>();
+        public int[] TrendEnProgreso { get; set; } = Array.Empty<int>();
         public int[] TrendEspera{ get; set; } = Array.Empty<int>();
         public int[] TrendCancelados { get; set; } = Array.Empty<int>();
     }

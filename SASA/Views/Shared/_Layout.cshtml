@@ -128,11 +128,21 @@
             <!--Sections of the navbar-->
                 <div class="nav-section">
                     <span class="section-title">General</span>
-                    <a asp-controller="Home" asp-action="AdminDashboard" class="nav-link">
+                        @if (User.IsInRole("Administrador"))
+                        {
+                        <a asp-controller="Home" asp-action="AdminDashboard" class="nav-link">
                         <i class="bi bi-bar-chart"></i>
                         Dashboard
-                    </a>
-                </div>
+                        </a>
+                        }
+                        else
+                        {
+                        <a asp-controller="Home" asp-action="Index" class="nav-link">
+                        <i class="bi bi-bar-chart"></i>
+                        Dashboard
+                        </a>
+                        }
+                    </div>
 
             @if (User.IsInRole("Administrador"))
             {
@@ -152,7 +162,7 @@
                         </a>
                         <a asp-area="" asp-controller="LoginAttempt" asp-action="Index" class="submenu-link">
                             <i class=""></i>
-                            Intentos de inicio de sesión
+                            Gestión de Intentos de Inicio de Sesión
                         </a>
                         <a asp-area="" asp-controller="Categoria" asp-action="Index" class="submenu-link">
                             <i class=""></i>
@@ -294,18 +304,6 @@ else
     }
 
     @await RenderSectionAsync("Scripts", required: false)
-
-    <script>
-        // Evita mostrar duplicados en el menú de usuario (si hay más de un elemento con mismas clases)
-        document.addEventListener('DOMContentLoaded', function () {
-            document.querySelectorAll('.user-menu').forEach(function (menu) {
-                var names = menu.querySelectorAll('.user-name');
-                names.forEach(function (el, i) { if (i > 0) el.remove(); });
-                var roles = menu.querySelectorAll('.user-role');
-                roles.forEach(function (el, i) { if (i > 0) el.remove(); });
-            });
-        });
-    </script>
 
     <div class="modal fade" id="sessionTimeoutModal" tabindex="-1" aria-hidden="true"
          data-bs-backdrop="static" data-bs-keyboard="false">

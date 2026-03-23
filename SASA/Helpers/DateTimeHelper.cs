@@ -20,5 +20,15 @@
 
         public static string ToLocalString(DateTime utcDateTime, string format = "yyyy-MM-dd HH:mm:ss")
             => ToLocalFromUtc(utcDateTime).ToString(format);
+
+        public static string FormatearDuracionHoras(int hours)
+        {
+            if (hours == 168) return "1 semana";
+            if (hours == 24) return "1 día";
+            if (hours == 4) return "4 horas";
+            if (hours == 1) return "1 hora";
+            if (hours % 24 == 0) return (hours / 24) + " días";
+            return hours + " h";
+        }
     }
 }

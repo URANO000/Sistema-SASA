@@ -13,7 +13,7 @@
         <div class="ticket-header mb-4">
             <div class="d-flex justify-content-between align-items-center mt-2">
                 <div>
-                    <h4 class="mb-2 fw-bold">Tiquete #@Model.IdTiquete</h4>
+                    <h4 class="mb-2 fw-bold">Detalle e Información general de tiquete</h4>
                     <div class="gap-2">
                         @switch (Model.Estatus)
                         {
@@ -70,18 +70,19 @@
                                     </span>
                                     break;
                             }
-                        }
-                        @if (!Model.EstaAtrasado)
-                        {
-                            <span class="badge bg-success">
-                                Tiempo restante: @Model.TiempoRestante
-                            </span>
-                        }
-                        else
-                        {
-                            <span class="badge bg-danger">
-                                Atrasado: @Model.TiempoExcedido
-                            </span>
+
+                            @if (!Model.EstaAtrasado)
+                            {
+                                <span class="badge bg-success">
+                                    Tiempo restante: @Model.TiempoRestante
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-danger">
+                                    Atrasado: @Model.TiempoExcedido
+                                </span>
+                            }
                         }
                     </div>
                 </div>

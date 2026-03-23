@@ -77,13 +77,7 @@
                             </button>
                         </div>
 
-                        <div class="col-md-3 d-flex align-items-end">
-                            <a asp-action="Index"
-                               asp-route-tab="categorias"
-                               class="btn btn-outline-dark w-100">
-                                Limpiar
-                            </a>
-                        </div>
+                        
                     </form>
 
                     <div class="table-responsive">
@@ -128,8 +122,8 @@
 
                     @if (Model.CategoriasPaginadas.TotalPages > 1)
                     {
-                        <nav class="d-flex justify-content-center mt-3">
-                            <ul class="pagination">
+                        <nav aria-label="Paginación" class="align-content-center justify-content-center mt-3">
+                            <ul class="pagination pagination-sm mb-0 justify-content-center">
                                 <li class="page-item @(Model.CategoriasPaginadas.HasPreviousPage ? "" : "disabled")">
                                     <a class="page-link"
                                        asp-action="Index"
@@ -143,21 +137,9 @@
                                     </a>
                                 </li>
 
-                                @for (int i = 1; i <= Model.CategoriasPaginadas.TotalPages; i++)
-                                {
-                                    <li class="page-item @(i == Model.CategoriasPaginadas.PageNumber ? "active" : "")">
-                                        <a class="page-link"
-                                           asp-action="Index"
-                                           asp-route-tab="categorias"
-                                           asp-route-categoriaBuscar="@Model.CategoriaBuscar"
-                                           asp-route-categoriaPagina="@i"
-                                           asp-route-subCategoriaBuscar="@Model.SubCategoriaBuscar"
-                                           asp-route-subCategoriaFiltroIdCategoria="@Model.SubCategoriaFiltroIdCategoria"
-                                           asp-route-subCategoriaFiltroIdPrioridad="@Model.SubCategoriaFiltroIdPrioridad">
-                                            @i
-                                        </a>
-                                    </li>
-                                }
+                                <li class="page-item disabled">
+                                    <span class="page-link">Página @Model.CategoriasPaginadas.PageNumber de @Model.CategoriasPaginadas.TotalPages</span>
+                                </li>
 
                                 <li class="page-item @(Model.CategoriasPaginadas.HasNextPage ? "" : "disabled")">
                                     <a class="page-link"
@@ -180,8 +162,9 @@
                     <form method="get" asp-action="Index" class="row g-3 mb-4">
                         <input type="hidden" name="tab" value="subcategorias" />
                         <input type="hidden" name="categoriaBuscar" value="@Model.CategoriaBuscar" />
+                        <input type="hidden" name="categoriaPagina" value="@Model.CategoriaPagina" />
 
-                        <div class="col-md-4">
+                        <div class="col-md-6">
                             <label class="form-label">Buscar</label>
                             <input type="text"
                                    name="subCategoriaBuscar"
@@ -190,7 +173,7 @@
                                    placeholder="Nombre de subcategoría" />
                         </div>
 
-                        <div class="col-md-3">
+                        <div class="col-md-2">
                             <label class="form-label">Categoría</label>
                             <select name="subCategoriaFiltroIdCategoria" class="form-select">
                                 <option value="">Todas</option>
@@ -208,7 +191,7 @@
                             </select>
                         </div>
 
-                        <div class="col-md-3">
+                        <div class="col-md-2">
                             <label class="form-label">Prioridad</label>
                             <select name="subCategoriaFiltroIdPrioridad" class="form-select">
                                 <option value="">Todas</option>
@@ -226,19 +209,13 @@
                             </select>
                         </div>
 
-                        <div class="col-md-1 d-flex align-items-end">
+                        <div class="col-md-2 d-flex align-items-end">
                             <button type="submit" class="btn btn-outline-secondary w-100">
-                                <i class="bi bi-funnel"></i>
+                                <i class="bi bi-funnel"></i> Filtrar
                             </button>
                         </div>
 
-                        <div class="col-md-1 d-flex align-items-end">
-                            <a asp-action="Index"
-                               asp-route-tab="subcategorias"
-                               class="btn btn-outline-dark w-100">
-                                X
-                            </a>
-                        </div>
+                        
                     </form>
 
                     <div class="table-responsive">
@@ -271,7 +248,7 @@
                                             <td>@item.NombreSubCategoria</td>
                                             <td>@item.NombreCategoria</td>
                                             <td>@item.NombrePrioridad</td>
-                                            <td>@(item.DuracionMinutos.HasValue ? $"{item.DuracionMinutos} min" : "—")</td>
+                                            <td>@item.DuracionDisplay</td>
                                         </tr>
                                     }
                                 }
@@ -289,8 +266,8 @@
 
                     @if (Model.SubCategoriasPaginadas.TotalPages > 1)
                     {
-                        <nav class="d-flex justify-content-center mt-3">
-                            <ul class="pagination">
+                        <nav aria-label="Paginación" class="align-content-center justify-content-center mt-3">
+                            <ul class="pagination pagination-sm mb-0 justify-content-center">
                                 <li class="page-item @(Model.SubCategoriasPaginadas.HasPreviousPage ? "" : "disabled")">
                                     <a class="page-link"
                                        asp-action="Index"
@@ -304,21 +281,9 @@
                                     </a>
                                 </li>
 
-                                @for (int i = 1; i <= Model.SubCategoriasPaginadas.TotalPages; i++)
-                                {
-                                    <li class="page-item @(i == Model.SubCategoriasPaginadas.PageNumber ? "active" : "")">
-                                        <a class="page-link"
-                                           asp-action="Index"
-                                           asp-route-tab="subcategorias"
-                                           asp-route-categoriaBuscar="@Model.CategoriaBuscar"
-                                           asp-route-subCategoriaBuscar="@Model.SubCategoriaBuscar"
-                                           asp-route-subCategoriaFiltroIdCategoria="@Model.SubCategoriaFiltroIdCategoria"
-                                           asp-route-subCategoriaFiltroIdPrioridad="@Model.SubCategoriaFiltroIdPrioridad"
-                                           asp-route-subCategoriaPagina="@i">
-                                            @i
-                                        </a>
-                                    </li>
-                                }
+                                <li class="page-item disabled">
+                                    <span class="page-link">Página @Model.SubCategoriasPaginadas.PageNumber de @Model.SubCategoriasPaginadas.TotalPages</span>
+                                </li>
 
                                 <li class="page-item @(Model.SubCategoriasPaginadas.HasNextPage ? "" : "disabled")">
                                     <a class="page-link"
@@ -348,4 +313,45 @@
 
 @section Scripts {
     <script src="~/js/formSubmits.js" asp-append-version="true"></script>
+    <script>
+        //Mostrar modales de éxito/error
+        document.addEventListener('DOMContentLoaded', function () {
+            var success = @System.Text.Json.JsonSerializer.Serialize(TempData["Success"]?.ToString() ?? "");
+            var error = @System.Text.Json.JsonSerializer.Serialize(TempData["Error"]?.ToString() ?? "");
+
+            try {
+                if (success && success !== "") {
+                    var sm = new bootstrap.Modal(document.getElementById('successModal'));
+                    sm.show();
+                    setTimeout(function () { sm.hide(); }, 900);
+                }
+
+                if (error && error !== "") {
+                    var addCatHasErrors = document.querySelectorAll('#addCategoriaModal [data-valmsg-for]').length > 0 &&
+                        Array.from(document.querySelectorAll('#addCategoriaModal [data-valmsg-for]')).some(function (el) {
+                            return el.textContent.trim() !== '';
+                        });
+
+                    var addSubCatHasErrors = document.querySelectorAll('#addSubCategoriaModal [data-valmsg-for]').length > 0 &&
+                        Array.from(document.querySelectorAll('#addSubCategoriaModal [data-valmsg-for]')).some(function (el) {
+                            return el.textContent.trim() !== '';
+                        });
+
+                    if (addCatHasErrors) {
+                        var mc = new bootstrap.Modal(document.getElementById('addCategoriaModal'));
+                        mc.show();
+                    }
+
+                    if (addSubCatHasErrors) {
+                        var ms = new bootstrap.Modal(document.getElementById('addSubCategoriaModal'));
+                        ms.show();
+                    }
+                    var em = new bootstrap.Modal(document.getElementById('errorModal'));
+                    em.show();
+                }
+            } catch (e) {
+                console.error('Error mostrando modales de categoría:', e);
+            }
+        });
+    </script>
 }

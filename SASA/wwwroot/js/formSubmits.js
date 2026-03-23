@@ -50,6 +50,108 @@ $(function () {
             }
         });
     });
+
+//--CATEGORIA SUBMIT via AJAX------------
+$(function () {
+
+    $(document).on("submit", "#crearCategoriaForm", function (e) {
+
+        e.preventDefault();
+
+        const form = $(this);
+
+        if (!form.valid()) {
+            return;
+        }
+
+        $.ajax({
+            url: form.attr("action"),
+            type: "POST",
+            data: form.serialize(),
+
+            success: function (response) {
+
+                if (response.success) {
+                    $("#addCategoriaModal").modal("hide");
+                    $("#successModal").modal("show");
+
+                    setTimeout(() => {
+                        window.location.href = "/Categoria?tab=categorias";
+                    }, 900);
+                }
+                else {
+                    $("#addCategoriaModal").modal("hide");
+                    $("#errorModal").modal("show");
+
+                    setTimeout(() => {
+                        window.location.href = "/Categoria";
+                    }, 900);
+                }
+            },
+
+            error: function () {
+                $("#addCategoriaModal").modal("hide");
+                $("#errorModal").modal("show");
+
+                setTimeout(() => {
+                    window.location.href = "/Categoria";
+                }, 900);
+            }
+        });
+    });
+
+});
+
+//--SUBCATEGORIA SUBMIT via AJAX------------
+$(function () {
+
+    $(document).on("submit", "#crearSubCategoriaForm", function (e) {
+
+        e.preventDefault();
+
+        const form = $(this);
+
+        if (!form.valid()) {
+            return;
+        }
+
+        $.ajax({
+            url: form.attr("action"),
+            type: "POST",
+            data: form.serialize(),
+
+            success: function (response) {
+
+                if (response.success) {
+                    $("#addSubCategoriaModal").modal("hide");
+                    $("#successModal").modal("show");
+
+                    setTimeout(() => {
+                        window.location.href = "/Categoria?tab=subcategorias";
+                    }, 900);
+                }
+                else {
+                    $("#addSubCategoriaModal").modal("hide");
+                    $("#errorModal").modal("show");
+
+                    setTimeout(() => {
+                        window.location.href = "/Categoria";
+                    }, 900);
+                }
+            },
+
+            error: function () {
+                $("#addSubCategoriaModal").modal("hide");
+                $("#errorModal").modal("show");
+
+                setTimeout(() => {
+                    window.location.href = "/Categoria";
+                }, 900);
+            }
+        });
+    });
+
+});
 });
 
 //--------------------------------------------------------------------
@@ -160,11 +262,27 @@ $(function () {
 
         const form = document.getElementById("crearTiqueteForm");
         const files = form.querySelector('input[type="file"]').files;
+        const extensionesPermitidas = [".jpg", ".jpeg", ".png", ".pdf"];
 
-        // Client-side size validation
         for (let i = 0; i < files.length; i++) {
-            if (files[i].size > 5 * 1024 * 1024) {
-                alert("Un archivo supera el límite de 5MB.");
+
+            const file = files[i];
+
+            // Validar tamaño
+            if (file.size > 2 * 1024 * 1024) {
+                $("#addTicket").modal("hide");
+                $("#alertModal").modal("show");
+                $("#mensaje").text("Un archivo supera el límite de 1MB.");
+                return;
+            }
+
+            // Validar extensión
+            const extension = file.name.substring(file.name.lastIndexOf(".")).toLowerCase();
+
+            if (!extensionesPermitidas.includes(extension)) {
+                $("#addTicket").modal("hide");
+                $("#alertModal").modal("show");
+                $("#mensaje").text(`Tipo de archivo no permitido: ${file.name}`);
                 return;
             }
         }
@@ -199,6 +317,7 @@ $(function () {
 
                     $.each(response.errors, function (key, messages) {
                         if (key === "_form") {
+                            $("#addTicket").modal("hide");
                             $("#alertModal").modal("show")
                             $("#mensaje").text(messages[0])
                             return;
