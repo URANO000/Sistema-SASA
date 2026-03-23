@@ -33,6 +33,16 @@
                             <i class="bi bi-plus-lg"></i>
                             Nuevo Teléfono
                         </a>
+
+                        <a class="btn btn-success"
+                               asp-controller="InventoryPhone"
+                               asp-action="ExportToExcel"
+                               asp-route-q="@Model.Q"
+                               asp-route-sortBy="@Model.SortBy"
+                               asp-route-sortDir="@Model.SortDir">
+                            <i class="bi bi-file-earmark-excel"></i>
+                            Exportar
+                        </a>
                     </div>
                 }
             </div>

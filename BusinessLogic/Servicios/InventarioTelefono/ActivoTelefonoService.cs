@@ -1,7 +1,9 @@
-﻿using DataAccess.Modelos.DTOs.InventarioTelefono;
+﻿using ClosedXML.Excel;
+using DataAccess.Modelos.DTOs.InventarioTelefono;
 using DataAccess.Modelos.Entidades.InventarioTelefono;
 using DataAccess.Repositorios.InventarioTelefono;
 using Microsoft.EntityFrameworkCore;
+using System.IO;
 
 namespace BusinessLogic.Servicios.InventarioTelefono
 {
@@ -146,6 +148,56 @@ namespace BusinessLogic.Servicios.InventarioTelefono
             {
                 return (false, "Ocurrió un error inesperado al actualizar el teléfono.");
             }
+        }
+
+        public async Task<byte[]> ExportarExcelAsync(ActivoTelefonoFiltroDto filtros)
+        {
+            var data = await _repo.ListarPaginadoAsync(
+                filtros.Texto,
+                0,
+                100000,
+                filtros.SortBy,
+                filtros.SortDir
+            );
+
+            using var workbook = new XLWorkbook();
+            var ws = workbook.Worksheets.Add("Telefonos");
+
+            ws.Cell(1, 1).Value = "Nombre Colaborador";
+            ws.Cell(1, 2).Value = "Departamento";
+            ws.Cell(1, 3).Value = "Operador";
+            ws.Cell(1, 4).Value = "Numero Celular";
+            ws.Cell(1, 5).Value = "Correo Sistemas Analiticos";
+            ws.Cell(1, 6).Value = "Modelo";
+            ws.Cell(1, 7).Value = "IMEI";
+            ws.Cell(1, 8).Value = "Cargador";
+            ws.Cell(1, 9).Value = "Auriculares";
+
+            var headerRange = ws.Range(1, 1, 1, 9);
+            headerRange.Style.Font.Bold = true;
+            headerRange.Style.Fill.BackgroundColor = XLColor.LightGray;
+
+            int row = 2;
+            foreach (var item in data)
+            {
+                ws.Cell(row, 1).Value = item.NombreColaborador ?? "";
+                ws.Cell(row, 2).Value = item.Departamento ?? "";
+                ws.Cell(row, 3).Value = item.Operador ?? "";
+                ws.Cell(row, 4).Value = item.NumeroCelular ?? "";
+                ws.Cell(row, 5).Value = item.CorreoSistemasAnaliticos ?? "";
+                ws.Cell(row, 6).Value = item.Modelo ?? "";
+                ws.Cell(row, 7).Value = item.IMEI ?? "";
+                ws.Cell(row, 8).Value = item.Cargador ? "Sí" : "No";
+                ws.Cell(row, 9).Value = item.Auriculares ? "Sí" : "No";
+                row++;
+            }
+
+            ws.Columns().AdjustToContents();
+            ws.SheetView.FreezeRows(1);
+
+            using var stream = new MemoryStream();
+            workbook.SaveAs(stream);
+            return stream.ToArray();
         }
     }
 }

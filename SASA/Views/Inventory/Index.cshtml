@@ -16,6 +16,24 @@
         })!;
 }
 
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="bi bi-check-circle me-1"></i>
+        @TempData["Success"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+    </div>
+}
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="bi bi-exclamation-triangle me-1"></i>
+        @TempData["Error"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+    </div>
+}
+
 <div class="container-fluid">
 
     <div class="card mb-3">
@@ -36,6 +54,16 @@
                         <a class="btn btn-custom" asp-controller="Inventory" asp-action="Create">
                             <i class="bi bi-plus-lg"></i>
                             Nuevo Activo
+                        </a>
+
+                        <a class="btn btn-success"
+                               asp-controller="Inventory"
+                               asp-action="ExportToExcel"
+                               asp-route-q="@Model.Q"
+                               asp-route-estadoId="@Model.EstadoId"
+                               asp-route-tipoId="@Model.TipoId">
+                            <i class="bi bi-file-earmark-excel"></i>
+                            Exportar
                         </a>
                     </div>
                 }
