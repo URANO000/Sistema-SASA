@@ -28,4 +28,3 @@ namespace DataAccess.Modelos.Entidades.Integracion
         public string? UsuarioEjecutorId { get; set; } // opcional
     }
 }
-

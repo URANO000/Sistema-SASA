@@ -4,6 +4,24 @@
     ViewData["Title"] = "Historial de Integraciones";
 }
 
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="bi bi-check-circle me-1"></i>
+        @TempData["Success"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+    </div>
+}
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="bi bi-exclamation-triangle me-1"></i>
+        @TempData["Error"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+    </div>
+}
+
 <div class="container-fluid">
     <div class="card shadow-sm">
         <div class="card-body">
@@ -57,10 +75,11 @@
                                         @{
                                             var badge = h.Estado switch
                                             {
-                                                                "Importado" => "bg-success",
-                                                                "Validado" => "bg-primary",
-                                                                "Cargado" => "bg-secondary",
-                                                                "Fallido" => "bg-danger",
+                                                "Importado" => "bg-success",
+                                                "Validado" => "bg-primary",
+                                                "Cargado" => "bg-secondary",
+                                                "Fallido" => "bg-danger",
+                                                "Deshabilitado" => "bg-dark",
                                                 _ => "bg-warning"
                                             };
                                         }
@@ -70,11 +89,40 @@
                                         @h.FilasValidas/@h.TotalFilas
                                     </td>
                                     <td class="text-end">
-                                        <a asp-action="Validation"
-                                           asp-route-historialId="@h.Id"
-                                           class="btn btn-sm btn-outline-primary">
-                                            Ver validación
-                                        </a>
+                                        <div class="d-flex flex-column align-items-end gap-2">
+                                            @if (h.Estado != "Deshabilitado")
+                                            {
+                                                <a asp-action="Validation"
+                                                       asp-route-historialId="@h.Id"
+                                                       class="btn btn-sm btn-outline-primary"
+                                                       style="min-width: 130px;">
+                                                    Ver validación
+                                                </a>
+                                            }
+
+                                            @if (h.Estado == "Fallido")
+                                            {
+                                                <form asp-action="ReprocesarArchivo" method="post" class="d-inline">
+                                                    @Html.AntiForgeryToken()
+                                                    <input type="hidden" name="historialId" value="@h.Id" />
+                                                    <button type="submit" class="btn btn-sm btn-outline-warning" style="min-width: 130px;">
+                                                        Reprocesar
+                                                    </button>
+                                                </form>
+
+                                                <form asp-action="DeshabilitarArchivo" method="post" class="d-inline">
+                                                    @Html.AntiForgeryToken()
+                                                    <input type="hidden" name="historialId" value="@h.Id" />
+                                                    <button type="submit" class="btn btn-sm btn-outline-dark" style="min-width: 130px;">
+                                                        Deshabilitar
+                                                    </button>
+                                                </form>
+                                            }
+                                            @if (h.Estado == "Deshabilitado")
+                                            {
+                                                <span class="text-muted small">Archivo deshabilitado</span>
+                                            }
+                                        </div>
                                     </td>
                                 </tr>
                             }
@@ -85,4 +133,4 @@
 
         </div>
     </div>
-</div>  
+</div>

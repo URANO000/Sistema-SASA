@@ -1,6 +1,7 @@
 ﻿using BusinessLogic.Servicios.Integracion;
-using Microsoft.AspNetCore.Mvc;
+using DataAccess.Modelos.DTOs.Integracion;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using SASA.Filters;
 using SASA.ViewModels.Integracion;
 using System.Security.Claims;
@@ -14,7 +15,6 @@ namespace SASA.Controllers
         private readonly IIntegracionService _integracion;
         private readonly IWebHostEnvironment _env;
 
-        // 10MB (ajustable)
         private const long MaxFileSizeBytes = 10 * 1024 * 1024;
 
         public IntegrationController(IIntegracionService integracion, IWebHostEnvironment env)
@@ -30,7 +30,7 @@ namespace SASA.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Upload(IFormFile archivo)
+        public async Task<IActionResult> Upload(IFormFile archivo, string tipoCarga)
         {
             if (archivo == null || archivo.Length == 0)
             {
@@ -41,6 +41,12 @@ namespace SASA.Controllers
             if (archivo.Length > MaxFileSizeBytes)
             {
                 ModelState.AddModelError("", $"El archivo supera el tamaño máximo permitido ({MaxFileSizeBytes / (1024 * 1024)}MB).");
+                return View();
+            }
+
+            if (tipoCarga != "Equipos" && tipoCarga != "Telefonos")
+            {
+                ModelState.AddModelError("", "Debe seleccionar un tipo de integración válido.");
                 return View();
             }
 
@@ -71,7 +77,8 @@ namespace SASA.Controllers
             var historialId = await _integracion.RegistrarCargaAsync(
                 nombreArchivoOriginal: originalName,
                 rutaArchivoRelativa: $"/uploads/integracion/{nombreSeguro}",
-                usuarioId: userId
+                usuarioId: userId,
+                tipoCarga: tipoCarga
             );
 
             return RedirectToAction(nameof(Validation), new { historialId });
@@ -82,33 +89,23 @@ namespace SASA.Controllers
         {
             try
             {
-                var dto = await _integracion.ValidarInventarioDesdeExcelAsync(historialId, _env.WebRootPath);
+                var historial = (await _integracion.ObtenerHistorialAsync())
+                    .FirstOrDefault(x => x.Id == historialId);
 
-                var vm = new ValidacionImportacionViewModel
+                if (historial == null)
                 {
-                    HistorialId = dto.HistorialId,
-                    NombreArchivo = dto.NombreArchivo,
-                    TotalFilas = dto.TotalFilas,
-                    FilasValidas = dto.FilasValidas,
-                    FilasConError = dto.FilasConError,
-                    Errores = dto.Errores.Select(e => new FilaValidacion { NumeroFila = e.NumeroFila, Mensaje = e.Mensaje }).ToList(),
-                    FilasValidasPreview = dto.FilasValidasPreview.Select(f => new FilaImportacionActivos
-                    {
-                        NumeroFila = f.NumeroFila,
-                        NumeroActivo = f.NumeroActivo,
-                        NombreMaquina = f.NombreMaquina,
-                        TipoEquipo = f.TipoEquipo,
-                        Marca = f.Marca,
-                        Modelo = f.Modelo,
-                        SerieServicio = f.SerieServicio,
-                        DireccionMAC = f.DireccionMAC,
-                        SistemaOperativo = f.SistemaOperativo,
-                        TipoLicencia = f.TipoLicencia,
-                        ClaveLicencia = f.ClaveLicencia
-                    }).ToList()
-                };
+                    TempData["Error"] = "No se encontró el historial solicitado.";
+                    return RedirectToAction(nameof(History));
+                }
 
-                return View(vm);
+                if (historial.Modulo == "InventarioTelefonos")
+                {
+                    var dtoTelefonos = await _integracion.ValidarTelefonosDesdeExcelAsync(historialId, _env.WebRootPath);
+                    return View("ValidationPhones", MapToTelefonoViewModel(dtoTelefonos));
+                }
+
+                var dtoEquipos = await _integracion.ValidarInventarioDesdeExcelAsync(historialId, _env.WebRootPath);
+                return View("Validation", MapToViewModel(dtoEquipos));
             }
             catch (InvalidOperationException ex) when (ex.Message.Contains("Historial no encontrado"))
             {
@@ -119,10 +116,72 @@ namespace SASA.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> ConfirmImport(int historialId)
+        public async Task<IActionResult> ConfirmImport(ValidacionImportacionViewModel model)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            await _integracion.ConfirmarImportacionInventarioAsync(historialId, _env.WebRootPath, userId);
+
+            var filas = (model.FilasDetectadas ?? new List<FilaImportacionActivos>())
+                .Select(f => new FilaImportacionActivosDto
+                {
+                    NumeroFila = f.NumeroFila,
+                    Seleccionado = f.Seleccionado,
+                    NumeroActivo = f.NumeroActivo,
+                    NombreMaquina = f.NombreMaquina,
+                    TipoEquipo = f.TipoEquipo,
+                    Marca = f.Marca,
+                    Modelo = f.Modelo,
+                    SerieServicio = f.SerieServicio,
+                    DireccionMAC = f.DireccionMAC,
+                    SistemaOperativo = f.SistemaOperativo,
+                    TipoLicencia = f.TipoLicencia,
+                    ClaveLicencia = f.ClaveLicencia
+                })
+                .ToList();
+
+            var resultado = await _integracion.ConfirmarImportacionInventarioEditadoAsync(model.HistorialId, filas, userId);
+
+            if (!resultado.Ok)
+            {
+                ModelState.AddModelError("", resultado.Mensaje);
+                return View("Validation", MapToViewModel(resultado.Resultado));
+            }
+
+            TempData["Success"] = resultado.Mensaje;
+            return RedirectToAction(nameof(History));
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ConfirmImportPhones(ValidacionImportacionTelefonoViewModel model)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            var filas = (model.FilasDetectadas ?? new List<FilaImportacionTelefonos>())
+                .Select(f => new FilaImportacionTelefonoDto
+                {
+                    NumeroFila = f.NumeroFila,
+                    Seleccionado = f.Seleccionado,
+                    NombreColaborador = f.NombreColaborador,
+                    Departamento = f.Departamento,
+                    Operador = f.Operador,
+                    NumeroCelular = f.NumeroCelular,
+                    CorreoSistemasAnaliticos = f.CorreoSistemasAnaliticos,
+                    Modelo = f.Modelo,
+                    IMEI = f.IMEI,
+                    Cargador = f.Cargador,
+                    Auriculares = f.Auriculares
+                })
+                .ToList();
+
+            var resultado = await _integracion.ConfirmarImportacionTelefonosAsync(model.HistorialId, filas, userId);
+
+            if (!resultado.Ok)
+            {
+                ModelState.AddModelError("", resultado.Mensaje);
+                return View("ValidationPhones", MapToTelefonoViewModel(resultado.Resultado));
+            }
+
+            TempData["Success"] = resultado.Mensaje;
             return RedirectToAction(nameof(History));
         }
 
@@ -131,6 +190,103 @@ namespace SASA.Controllers
         {
             var data = await _integracion.ObtenerHistorialAsync();
             return View(data);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeshabilitarArchivo(int historialId)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            var resultado = await _integracion.DeshabilitarArchivoAsync(historialId, userId);
+
+            if (resultado.Ok)
+                TempData["Success"] = resultado.Mensaje;
+            else
+                TempData["Error"] = resultado.Mensaje;
+
+            return RedirectToAction(nameof(History));
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ReprocesarArchivo(int historialId)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            var resultado = await _integracion.ReprocesarArchivoAsync(historialId, _env.WebRootPath, userId);
+
+            if (resultado.Ok)
+                TempData["Success"] = resultado.Mensaje;
+            else
+                TempData["Error"] = resultado.Mensaje;
+
+            return RedirectToAction(nameof(History));
+        }
+
+        private static ValidacionImportacionViewModel MapToViewModel(ValidacionImportacionDto dto)
+        {
+            return new ValidacionImportacionViewModel
+            {
+                HistorialId = dto.HistorialId,
+                NombreArchivo = dto.NombreArchivo,
+                TotalFilas = dto.TotalFilas,
+                FilasValidas = dto.FilasValidas,
+                FilasConError = dto.FilasConError,
+                TiposEquipoDisponibles = dto.TiposEquipoDisponibles,
+                TiposLicenciaDisponibles = dto.TiposLicenciaDisponibles,
+                Errores = dto.Errores.Select(e => new FilaValidacion
+                {
+                    NumeroFila = e.NumeroFila,
+                    Mensaje = e.Mensaje
+                }).ToList(),
+                FilasDetectadas = dto.FilasDetectadas.Select(f => new FilaImportacionActivos
+                {
+                    NumeroFila = f.NumeroFila,
+                    Seleccionado = f.Seleccionado,
+                    NumeroActivo = f.NumeroActivo,
+                    NombreMaquina = f.NombreMaquina,
+                    TipoEquipo = f.TipoEquipo,
+                    Marca = f.Marca,
+                    Modelo = f.Modelo,
+                    SerieServicio = f.SerieServicio,
+                    DireccionMAC = f.DireccionMAC,
+                    SistemaOperativo = f.SistemaOperativo,
+                    TipoLicencia = f.TipoLicencia,
+                    ClaveLicencia = f.ClaveLicencia
+                }).ToList()
+            };
+        }
+
+        private static ValidacionImportacionTelefonoViewModel MapToTelefonoViewModel(ValidacionImportacionTelefonoDto dto)
+        {
+            return new ValidacionImportacionTelefonoViewModel
+            {
+                HistorialId = dto.HistorialId,
+                NombreArchivo = dto.NombreArchivo,
+                TotalFilas = dto.TotalFilas,
+                FilasValidas = dto.FilasValidas,
+                FilasConError = dto.FilasConError,
+                Errores = dto.Errores.Select(e => new FilaValidacionTelefono
+                {
+                    NumeroFila = e.NumeroFila,
+                    Mensaje = e.Mensaje
+                }).ToList(),
+                FilasDetectadas = dto.FilasDetectadas.Select(f => new FilaImportacionTelefonos
+                {
+                    NumeroFila = f.NumeroFila,
+                    Seleccionado = f.Seleccionado,
+                    NombreColaborador = f.NombreColaborador,
+                    Departamento = f.Departamento,
+                    Operador = f.Operador,
+                    NumeroCelular = f.NumeroCelular,
+                    CorreoSistemasAnaliticos = f.CorreoSistemasAnaliticos,
+                    Modelo = f.Modelo,
+                    IMEI = f.IMEI,
+                    Cargador = f.Cargador,
+                    Auriculares = f.Auriculares
+                }).ToList()
+            };
         }
     }
 }

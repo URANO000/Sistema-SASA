@@ -12,5 +12,7 @@ namespace BusinessLogic.Servicios.InventarioTelefono
         Task<(bool Ok, string? Error)> CrearAsync(ActivoTelefonoCreateDto dto);
 
         Task<(bool Ok, string? Error)> ActualizarAsync(int id, ActivoTelefonoEditDto dto);
+
+        Task<byte[]> ExportarExcelAsync(ActivoTelefonoFiltroDto filtros);
     }
 }

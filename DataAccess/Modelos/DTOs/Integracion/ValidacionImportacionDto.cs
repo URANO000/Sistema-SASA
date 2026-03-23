@@ -9,8 +9,15 @@
         public int FilasValidas { get; set; }
         public int FilasConError { get; set; }
 
+        // NUEVO
+        public List<string> TiposEquipoDisponibles { get; set; } = new();
+        public List<string> TiposLicenciaDisponibles { get; set; } = new();
+
         public List<FilaValidacionDto> Errores { get; set; } = new();
-        public List<FilaImportacionActivosDto> FilasValidasPreview { get; set; } = new();
+
+        // ANTES era FilasValidasPreview
+        // AHORA será la lista completa de equipos detectados y editables
+        public List<FilaImportacionActivosDto> FilasDetectadas { get; set; } = new();
     }
 
     public class FilaValidacionDto
@@ -22,6 +29,10 @@
     public class FilaImportacionActivosDto
     {
         public int NumeroFila { get; set; }
+
+        // NUEVO
+        public bool Seleccionado { get; set; } = true;
+
         public string NumeroActivo { get; set; } = string.Empty;
         public string NombreMaquina { get; set; } = string.Empty;
         public string TipoEquipo { get; set; } = string.Empty;
