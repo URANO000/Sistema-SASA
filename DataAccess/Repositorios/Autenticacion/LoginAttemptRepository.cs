@@ -54,7 +54,7 @@ namespace DataAccess.Repositorios.Autenticacion
             filtro ??= new LoginAttemptFiltroDto();
 
             var page = filtro.Page <= 0 ? 1 : filtro.Page;
-            var pageSize = filtro.PageSize <= 0 ? 15 : filtro.PageSize;
+            var pageSize = filtro.PageSize <= 0 ? 10 : filtro.PageSize;
 
             var query = _db.IntentosInicioSesion
                 .AsNoTracking()
@@ -71,16 +71,26 @@ namespace DataAccess.Repositorios.Autenticacion
                 query = query.Where(x => x.Exitoso == filtro.Exitoso.Value);
             }
 
-            if (filtro.FechaDesde.HasValue)
+            if (filtro.Fecha.HasValue)
             {
-                var fechaDesdeUtc = filtro.FechaDesde.Value.Date;
-                query = query.Where(x => x.FechaUtc >= fechaDesdeUtc);
-            }
+                var fecha = filtro.Fecha.Value.Date;
+                var fechaSiguiente = fecha.AddDays(1);
 
-            if (filtro.FechaHasta.HasValue)
+                query = query.Where(x => x.FechaUtc >= fecha && x.FechaUtc < fechaSiguiente);
+            }
+            else
             {
-                var fechaHastaUtcExclusiva = filtro.FechaHasta.Value.Date.AddDays(1);
-                query = query.Where(x => x.FechaUtc < fechaHastaUtcExclusiva);
+                if (filtro.FechaDesde.HasValue)
+                {
+                    var fechaDesdeUtc = filtro.FechaDesde.Value.Date;
+                    query = query.Where(x => x.FechaUtc >= fechaDesdeUtc);
+                }
+
+                if (filtro.FechaHasta.HasValue)
+                {
+                    var fechaHastaUtcExclusiva = filtro.FechaHasta.Value.Date.AddDays(1);
+                    query = query.Where(x => x.FechaUtc < fechaHastaUtcExclusiva);
+                }
             }
 
             var totalCount = await query.CountAsync();
