@@ -9,8 +9,11 @@
         public int FilasValidas { get; set; }
         public int FilasConError { get; set; }
 
+        public List<string> TiposEquipoDisponibles { get; set; } = new();
+        public List<string> TiposLicenciaDisponibles { get; set; } = new();
+
         public List<FilaValidacion> Errores { get; set; } = new();
-        public List<FilaImportacionActivos> FilasValidasPreview { get; set; } = new();
+        public List<FilaImportacionActivos> FilasDetectadas { get; set; } = new();
     }
 
     public class FilaValidacion
@@ -22,6 +25,8 @@
     public class FilaImportacionActivos
     {
         public int NumeroFila { get; set; }
+        public bool Seleccionado { get; set; } = true;
+
         public string NumeroActivo { get; set; } = string.Empty;
         public string NombreMaquina { get; set; } = string.Empty;
         public string TipoEquipo { get; set; } = string.Empty;

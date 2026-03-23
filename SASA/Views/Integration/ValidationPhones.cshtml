@@ -1,7 +1,7 @@
-@model SASA.ViewModels.Integracion.ValidacionImportacionViewModel
+@model SASA.ViewModels.Integracion.ValidacionImportacionTelefonoViewModel
 
 @{
-    ViewData["Title"] = "Detección automática de equipos";
+    ViewData["Title"] = "Detección automática de teléfonos";
     var tieneErrores = Model.Errores != null && Model.Errores.Any();
     var tieneFilas = Model.FilasDetectadas != null && Model.FilasDetectadas.Any();
 }
@@ -30,10 +30,10 @@
 
             <div class="d-flex justify-content-between align-items-start mb-3 flex-wrap gap-2">
                 <div>
-                    <h4 class="mb-1">Detección automática de equipos</h4>
+                    <h4 class="mb-1">Detección automática de teléfonos</h4>
                     <div class="text-muted">Archivo: <strong>@Model.NombreArchivo</strong></div>
                     <div class="text-muted small">
-                        Revise los dispositivos detectados, edite los campos necesarios y seleccione cuáles desea registrar en el inventario.
+                        Revise los teléfonos detectados, edite los campos necesarios y seleccione cuáles desea registrar en el inventario.
                     </div>
                 </div>
 
@@ -76,7 +76,7 @@
                 <div class="alert alert-warning">
                     <div class="fw-semibold mb-2">Errores detectados</div>
                     <ul class="mb-0">
-                        @foreach (var e in (Model.Errores ?? Enumerable.Empty<SASA.ViewModels.Integracion.FilaValidacion>()))
+                        @foreach (var e in Model.Errores)
                         {
                             <li>@(e.NumeroFila > 0 ? $"Fila {e.NumeroFila}: " : string.Empty)@e.Mensaje</li>
                         }
@@ -86,11 +86,11 @@
 
             @if (!tieneFilas)
             {
-                <div class="text-muted">No hay equipos detectados para mostrar.</div>
+                <div class="text-muted">No hay teléfonos detectados para mostrar.</div>
             }
             else
             {
-                <form asp-action="ConfirmImport" method="post">
+                <form asp-action="ConfirmImportPhones" method="post">
                     @Html.AntiForgeryToken()
 
                     <input type="hidden" asp-for="HistorialId" />
@@ -101,23 +101,9 @@
                             Solo se registrarán las filas seleccionadas.
                         </div>
                         <button type="submit" class="btn btn-success">
-                            Registrar equipos seleccionados
+                            Registrar teléfonos seleccionados
                         </button>
                     </div>
-
-                    <datalist id="tiposEquipoList">
-                        @foreach (var tipo in Model.TiposEquipoDisponibles)
-                        {
-                            <option value="@tipo"></option>
-                        }
-                    </datalist>
-
-                    <datalist id="tiposLicenciaList">
-                        @foreach (var tipo in Model.TiposLicenciaDisponibles)
-                        {
-                            <option value="@tipo"></option>
-                        }
-                    </datalist>
 
                     <div class="table-responsive">
                         <table class="table table-bordered table-sm align-middle">
@@ -125,16 +111,15 @@
                                 <tr>
                                     <th>Registrar</th>
                                     <th>Fila</th>
-                                    <th>Número Activo</th>
-                                    <th>Nombre máquina</th>
-                                    <th>Tipo equipo</th>
-                                    <th>Marca</th>
+                                    <th>Nombre colaborador</th>
+                                    <th>Departamento</th>
+                                    <th>Operador</th>
+                                    <th>Número celular</th>
+                                    <th>Correo Sistemas Analíticos</th>
                                     <th>Modelo</th>
-                                    <th>Serie/Servitag</th>
-                                    <th>MAC</th>
-                                    <th>Sistema operativo</th>
-                                    <th>Tipo licencia</th>
-                                    <th>Licencia</th>
+                                    <th>IMEI</th>
+                                    <th>Cargador</th>
+                                    <th>Auriculares</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -149,25 +134,23 @@
                                         <td>@Model.FilasDetectadas[i].NumeroFila</td>
 
                                         <td>
-                                            <input asp-for="FilasDetectadas[i].NumeroActivo" class="form-control form-control-sm" />
+                                            <input asp-for="FilasDetectadas[i].NombreColaborador" class="form-control form-control-sm" />
                                         </td>
 
                                         <td>
-                                            <input asp-for="FilasDetectadas[i].NombreMaquina" class="form-control form-control-sm" />
+                                            <input asp-for="FilasDetectadas[i].Departamento" class="form-control form-control-sm" />
                                         </td>
 
                                         <td>
-                                            <select asp-for="FilasDetectadas[i].TipoEquipo" class="form-select form-select-sm">
-                                                <option value="">Seleccione</option>
-                                                @foreach (var tipo in Model.TiposEquipoDisponibles)
-                                                {
-                                                    <option value="@tipo">@tipo</option>
-                                                }
-                                            </select>
+                                            <input asp-for="FilasDetectadas[i].Operador" class="form-control form-control-sm" />
                                         </td>
 
                                         <td>
-                                            <input asp-for="FilasDetectadas[i].Marca" class="form-control form-control-sm" />
+                                            <input asp-for="FilasDetectadas[i].NumeroCelular" class="form-control form-control-sm" />
+                                        </td>
+
+                                        <td>
+                                            <input asp-for="FilasDetectadas[i].CorreoSistemasAnaliticos" class="form-control form-control-sm" />
                                         </td>
 
                                         <td>
@@ -175,29 +158,15 @@
                                         </td>
 
                                         <td>
-                                            <input asp-for="FilasDetectadas[i].SerieServicio" class="form-control form-control-sm" />
+                                            <input asp-for="FilasDetectadas[i].IMEI" class="form-control form-control-sm" />
                                         </td>
 
-                                        <td>
-                                            <input asp-for="FilasDetectadas[i].DireccionMAC" class="form-control form-control-sm" />
+                                        <td class="text-center">
+                                            <input asp-for="FilasDetectadas[i].Cargador" class="form-check-input" />
                                         </td>
 
-                                        <td>
-                                            <input asp-for="FilasDetectadas[i].SistemaOperativo" class="form-control form-control-sm" />
-                                        </td>
-
-                                        <td>
-                                            <select asp-for="FilasDetectadas[i].TipoLicencia" class="form-select form-select-sm">
-                                                <option value=""></option>
-                                                @foreach (var tipo in Model.TiposLicenciaDisponibles)
-                                                {
-                                                    <option value="@tipo">@tipo</option>
-                                                }
-                                            </select>
-                                        </td>
-
-                                        <td>
-                                            <input asp-for="FilasDetectadas[i].ClaveLicencia" class="form-control form-control-sm" />
+                                        <td class="text-center">
+                                            <input asp-for="FilasDetectadas[i].Auriculares" class="form-check-input" />
                                         </td>
                                     </tr>
                                 }

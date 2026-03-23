@@ -2,6 +2,7 @@
 .content {
     padding: 1rem;
     min-height: calc(100vh - 56px);
+    overflow-x: hidden;
 }
 
 /* Desktop */
@@ -9,6 +10,8 @@
     .content {
         margin: 0 6rem 0 6rem;
         padding: 0.2rem 2rem 0 2rem;
+        min-height: calc(100vh - 60px);
+        overflow-x: hidden;
     }
 
     .logo-sasa {

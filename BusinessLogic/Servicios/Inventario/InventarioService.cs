@@ -2,6 +2,8 @@
 using DataAccess.Modelos.DTOs.Wrappers;
 using DataAccess.Modelos.Entidades.Inventario;
 using DataAccess.Repositorios.Inventario;
+using ClosedXML.Excel;
+using System.IO;
 
 namespace BusinessLogic.Servicios.Inventario
 {
@@ -375,6 +377,59 @@ namespace BusinessLogic.Servicios.Inventario
                     }
                 }
             }
+        }
+
+        public async Task<byte[]> ExportarInventarioExcelAsync(string? q, int? idTipoActivo, int? idEstadoActivo)
+        {
+            var activos = await _repo.ListarAsync(q, idEstadoActivo, idTipoActivo);
+
+            using var workbook = new XLWorkbook();
+            var worksheet = workbook.Worksheets.Add("Inventario");
+
+            // Encabezados
+            worksheet.Cell(1, 1).Value = "Número Activo";
+            worksheet.Cell(1, 2).Value = "Nombre Máquina";
+            worksheet.Cell(1, 3).Value = "Marca";
+            worksheet.Cell(1, 4).Value = "Modelo";
+            worksheet.Cell(1, 5).Value = "Serie/Servitag";
+            worksheet.Cell(1, 6).Value = "MAC";
+            worksheet.Cell(1, 7).Value = "Sistema Operativo";
+            worksheet.Cell(1, 8).Value = "Tipo Activo";
+            worksheet.Cell(1, 9).Value = "Estado";
+            worksheet.Cell(1, 10).Value = "Tipo Licencia";
+            worksheet.Cell(1, 11).Value = "Clave Licencia";
+            worksheet.Cell(1, 12).Value = "Fecha Creación";
+
+            var headerRange = worksheet.Range(1, 1, 1, 12);
+            headerRange.Style.Font.Bold = true;
+            headerRange.Style.Fill.BackgroundColor = XLColor.LightGray;
+
+            int row = 2;
+
+            foreach (var item in activos)
+            {
+                worksheet.Cell(row, 1).Value = item.NumeroActivo ?? "";
+                worksheet.Cell(row, 2).Value = item.NombreMaquina ?? "";
+                worksheet.Cell(row, 3).Value = item.Marca ?? "";
+                worksheet.Cell(row, 4).Value = item.Modelo ?? "";
+                worksheet.Cell(row, 5).Value = item.SerieServicio ?? "";
+                worksheet.Cell(row, 6).Value = item.DireccionMAC ?? "";
+                worksheet.Cell(row, 7).Value = item.SistemaOperativo ?? "";
+                worksheet.Cell(row, 8).Value = item.TipoActivo?.Nombre ?? "";
+                worksheet.Cell(row, 9).Value = item.EstadoActivo?.Nombre ?? "";
+                worksheet.Cell(row, 10).Value = item.TipoLicencia?.Nombre ?? "";
+                worksheet.Cell(row, 11).Value = item.ClaveLicencia ?? "";
+                worksheet.Cell(row, 12).Value = item.FechaCreacion.ToString("yyyy-MM-dd HH:mm");
+
+                row++;
+            }
+
+            worksheet.Columns().AdjustToContents();
+            worksheet.SheetView.FreezeRows(1);
+
+            using var stream = new MemoryStream();
+            workbook.SaveAs(stream);
+            return stream.ToArray();
         }
 
         //-----------------------------Para Dashboard--------------------------------------

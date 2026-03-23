@@ -4,7 +4,9 @@
     <h5 class="modal-title">
         Editar Activo — <span class="fw-semibold">@Model.NumeroActivo</span>
     </h5>
-    <button type="button" class="btn text-white" data-bs-dismiss="modal"><i class="bi bi-x-lg"></i></button>
+    <button type="button" class="btn text-white" data-bs-dismiss="modal">
+        <i class="bi bi-x-lg"></i>
+    </button>
 </div>
 
 <form id="editActivoForm" method="post" class="form-container">
@@ -78,8 +80,11 @@
             </div>
 
             <div class="col-md-6">
-                <label class="form-label">Id Tipo Licencia</label>
-                <input asp-for="IdTipoLicencia" class="form-control" placeholder="(Opcional)" />
+                <label class="form-label">Tipo de Licencia</label>
+                <select asp-for="IdTipoLicencia" class="form-select" asp-items="ViewBag.Licencias">
+                    <option value="">(Opcional)</option>
+                </select>
+                <span asp-validation-for="IdTipoLicencia" class="text-danger"></span>
             </div>
 
             <div class="col-md-6">

@@ -12,3 +12,15 @@ body:not(.auth-page){
 margin: 0;
 background: linear-gradient( 178deg, rgba(233,236,239,1) 0%, rgba(248,249,250,1) 100% );
 }
+
+html, body {
+    overflow-x: hidden;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+    html::-webkit-scrollbar,
+    body::-webkit-scrollbar {
+        width: 0;
+        background: transparent;
+    }
