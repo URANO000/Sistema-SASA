@@ -15,13 +15,16 @@
 .form-container {
     display: flex;
     flex-direction: column;
-    height: 100%;
+    flex: 1 1 auto;
+    min-height: 0;
 }
 
 .form-content {
-    flex: 1;
+    flex: 1 1 auto;
+    min-height: 0;
     overflow-y: auto;
     padding: 2rem;
+    overscroll-behavior: contain;
 }
 
 .section-title-form {
@@ -36,7 +39,6 @@
     font-size: 0.9rem;
 }
 
-/*Labels*/
 .form-label {
     font-weight: 600;
     font-size: 0.9rem;
@@ -53,8 +55,6 @@
     padding: 1rem 2rem;
 }
 
-/*Pop ups*/
-﻿ /*First for success modal*/
 .custom-modal {
     border-radius: 14px;
 }
@@ -74,8 +74,6 @@
     color: #6c757d;
 }
 
-/*Then for error modal*/
-
 .error-icon {
     font-size: 3.5rem;
     color: var(--danger-color);
@@ -91,7 +89,6 @@
     color: #6c757d;
 }
 
-/* Scroll oculto reutilizable */
 .scroll-hidden {
     -ms-overflow-style: none;
     scrollbar-width: none;
@@ -100,23 +97,24 @@
     .scroll-hidden::-webkit-scrollbar {
         width: 0;
         height: 0;
+        display: none;
     }
 
-/* Detalle modal body reutilizable */
 .detail-modal-content {
     max-height: calc(100vh - 220px);
+    min-height: 0;
     overflow-y: auto;
     padding: 2rem;
+    overscroll-behavior: contain;
 }
 
-/* Footer sticky reutilizable */
 .modal-footer-sticky {
     position: sticky;
     bottom: 0;
     background: #fff;
     z-index: 10;
 }
-/*Then for alert modal*/
+
 #alertModal .alert-icon i {
     font-size: 3.5rem;
     color: #D99209;
@@ -126,3 +124,67 @@
     font-weight: 700;
     color: #D99209;
 }
+
+/* CLAVE para modales con form dentro del modal-content */
+.modal-dialog-scrollable {
+    height: calc(100% - 1rem);
+}
+
+    .modal-dialog-scrollable .modal-content {
+        height: 100%;
+        max-height: 100%;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+    }
+
+    .modal-dialog-scrollable .form-container {
+        height: 100%;
+        max-height: 100%;
+    }
+
+    .modal-dialog-scrollable .modal-body {
+        min-height: 0;
+    }
+
+body.modal-open {
+    overflow: hidden !important;
+}
+
+html.modal-scroll-lock,
+html.modal-scroll-lock body {
+    overflow: hidden !important;
+    height: 100% !important;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+    html.modal-scroll-lock::-webkit-scrollbar,
+    html.modal-scroll-lock body::-webkit-scrollbar {
+        width: 0;
+        height: 0;
+        display: none;
+    }
+
+    html.modal-scroll-lock .content {
+        overflow: hidden !important;
+    }
+
+    html.modal-scroll-lock .modal,
+    html.modal-scroll-lock .modal-body,
+    html.modal-scroll-lock .form-content,
+    html.modal-scroll-lock .detail-modal-content {
+        overscroll-behavior: contain;
+    }
+
+
+.modal {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+    .modal::-webkit-scrollbar {
+        width: 0;
+        height: 0;
+        display: none;
+    }

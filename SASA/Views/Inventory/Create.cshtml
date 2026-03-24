@@ -21,13 +21,13 @@
                 <div class="row mb-3">
                     <div class="col-md-4">
                         <label asp-for="NumeroActivo" class="form-label">Código del Activo</label>
-                        <input asp-for="NumeroActivo" class="form-control" placeholder="INV-002" />
+                        <input asp-for="NumeroActivo" class="form-control" placeholder="INV-002" maxlength="40" />
                         <span asp-validation-for="NumeroActivo" class="text-danger"></span>
                     </div>
 
                     <div class="col-md-8">
                         <label asp-for="NombreMaquina" class="form-label">Nombre del Activo</label>
-                        <input asp-for="NombreMaquina" class="form-control" placeholder="Nombre del activo" />
+                        <input asp-for="NombreMaquina" class="form-control" placeholder="Nombre del activo" maxlength="50" />
                         <span asp-validation-for="NombreMaquina" class="text-danger"></span>
                     </div>
                 </div>
@@ -53,26 +53,31 @@
                 <div class="row mb-3">
                     <div class="col-md-4">
                         <label asp-for="Marca" class="form-label">Marca</label>
-                        <input asp-for="Marca" class="form-control" placeholder="Dell / HP / Lenovo" />
+                        <input asp-for="Marca" class="form-control" placeholder="Dell / HP / Lenovo" maxlength="50" />
+                        <span asp-validation-for="Marca" class="text-danger"></span>
                     </div>
                     <div class="col-md-4">
                         <label asp-for="Modelo" class="form-label">Modelo</label>
-                        <input asp-for="Modelo" class="form-control" placeholder="Latitude 5420" />
+                        <input asp-for="Modelo" class="form-control" placeholder="Latitude 5420" maxlength="50" />
+                        <span asp-validation-for="Modelo" class="text-danger"></span>
                     </div>
                     <div class="col-md-4">
                         <label asp-for="SerieServicio" class="form-label">Serie / Service Tag</label>
-                        <input asp-for="SerieServicio" class="form-control" placeholder="SVC-1001" />
+                        <input asp-for="SerieServicio" class="form-control" placeholder="SVC-1001" maxlength="50" />
+                        <span asp-validation-for="SerieServicio" class="text-danger"></span>
                     </div>
                 </div>
 
                 <div class="row mb-3">
                     <div class="col-md-6">
                         <label asp-for="DireccionMAC" class="form-label">Dirección MAC</label>
-                        <input asp-for="DireccionMAC" class="form-control" placeholder="AA:BB:CC:11:22:33" />
+                        <input asp-for="DireccionMAC" class="form-control" placeholder="AA:BB:CC:11:22:33" maxlength="17" />
+                        <span asp-validation-for="DireccionMAC" class="text-danger"></span>
                     </div>
                     <div class="col-md-6">
                         <label asp-for="SistemaOperativo" class="form-label">Sistema Operativo</label>
-                        <input asp-for="SistemaOperativo" class="form-control" placeholder="Windows 11" />
+                        <input asp-for="SistemaOperativo" class="form-control" placeholder="Windows 11" maxlength="50" />
+                        <span asp-validation-for="SistemaOperativo" class="text-danger"></span>
                     </div>
                 </div>
 
@@ -85,7 +90,8 @@
                     </div>
                     <div class="col-md-6">
                         <label asp-for="ClaveLicencia" class="form-label">Clave de Licencia</label>
-                        <input asp-for="ClaveLicencia" class="form-control" placeholder="XXXXX-XXXXX-XXXXX-XXXXX" />
+                        <input asp-for="ClaveLicencia" class="form-control" placeholder="XXXXX-XXXXX-XXXXX-XXXXX" maxlength="100" />
+                        <span asp-validation-for="ClaveLicencia" class="text-danger"></span>
                     </div>
                 </div>
 

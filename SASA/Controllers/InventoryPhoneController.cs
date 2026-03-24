@@ -131,8 +131,29 @@ namespace SASA.Controllers
                 return PartialView("_EditModal", model);
             }
 
+            var dataActual = await _service.ObtenerDetalleAsync(id);
+            if (dataActual == null)
+                return NotFound();
+
             if (!ModelState.IsValid)
             {
+                return PartialView("_EditModal", model);
+            }
+
+            bool sinCambios =
+                (dataActual.NombreColaborador?.Trim() ?? string.Empty) == (model.NombreColaborador?.Trim() ?? string.Empty) &&
+                (dataActual.Departamento?.Trim() ?? string.Empty) == (model.Departamento?.Trim() ?? string.Empty) &&
+                (dataActual.Operador?.Trim() ?? string.Empty) == (model.Operador?.Trim() ?? string.Empty) &&
+                (dataActual.NumeroCelular?.Trim() ?? string.Empty) == (model.NumeroCelular?.Trim() ?? string.Empty) &&
+                (dataActual.CorreoSistemasAnaliticos?.Trim() ?? string.Empty) == (model.CorreoSistemasAnaliticos?.Trim() ?? string.Empty) &&
+                (dataActual.Modelo?.Trim() ?? string.Empty) == (model.Modelo?.Trim() ?? string.Empty) &&
+                (dataActual.IMEI?.Trim() ?? string.Empty) == (model.IMEI?.Trim() ?? string.Empty) &&
+                dataActual.Cargador == model.Cargador &&
+                dataActual.Auriculares == model.Auriculares;
+
+            if (sinCambios)
+            {
+                ModelState.AddModelError(string.Empty, "No se detectaron cambios para guardar.");
                 return PartialView("_EditModal", model);
             }
 
