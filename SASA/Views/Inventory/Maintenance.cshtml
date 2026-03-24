@@ -2,6 +2,13 @@
 
 @{
     ViewData["Title"] = "Historial de Mantenimiento";
+
+    string BuildUrl(int pageNumber)
+        => Url.Action("Maintenance", "Inventory", new
+        {
+            pageNumber = pageNumber,
+            pageSize = Model.PageSize
+        })!;
 }
 
 <div class="card">
@@ -96,7 +103,34 @@
             </table>
         </div>
 
-        <!-- Modal edición -->
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-center gap-2 mt-3">
+            <div class="text-muted small">
+                Página <strong>@Model.PageNumber</strong> de <strong>@Model.TotalPages</strong>
+            </div>
+
+            <nav aria-label="Paginación de mantenimiento">
+                <ul class="pagination mb-0">
+                    <li class="page-item @(!Model.HasPrev ? "disabled" : "")">
+                        <a class="page-link"
+                               href="@(!Model.HasPrev ? "#" : BuildUrl(Model.PageNumber - 1))">
+                            Anterior
+                        </a>
+                    </li>
+
+                    <li class="page-item active">
+                        <span class="page-link">@Model.PageNumber</span>
+                    </li>
+
+                    <li class="page-item @(!Model.HasNext ? "disabled" : "")">
+                        <a class="page-link"
+                               href="@(!Model.HasNext ? "#" : BuildUrl(Model.PageNumber + 1))">
+                            Siguiente
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+
         <div class="modal fade" id="editMaintenanceModal" tabindex="-1" aria-hidden="true">
             <div class="modal-dialog modal-lg modal-dialog-scrollable">
                 <div class="modal-content" id="editMaintenanceModalContent">

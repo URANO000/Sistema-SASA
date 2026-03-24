@@ -9,57 +9,57 @@
     @Html.AntiForgeryToken()
     <input type="hidden" asp-for="IdActivoTelefono" />
 
-    <div class="modal-body form-content scroll-hidden">
+    <div class="modal-body form-content">
 
         <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
 
         @if (!ViewData.ModelState.IsValid)
         {
-            <div class="alert alert-danger">
-                Revisá los campos marcados.
+            <div class="alert alert-warning">
+                Revisá la información antes de continuar.
             </div>
         }
 
         <div class="row g-3">
             <div class="col-md-6">
                 <label class="form-label">Nombre del colaborador</label>
-                <input asp-for="NombreColaborador" class="form-control" />
+                <input asp-for="NombreColaborador" class="form-control" maxlength="80" />
                 <span asp-validation-for="NombreColaborador" class="text-danger"></span>
             </div>
 
             <div class="col-md-6">
                 <label class="form-label">Departamento</label>
-                <input asp-for="Departamento" class="form-control" />
+                <input asp-for="Departamento" class="form-control" maxlength="50" />
                 <span asp-validation-for="Departamento" class="text-danger"></span>
             </div>
 
             <div class="col-md-6">
                 <label class="form-label">Operador</label>
-                <input asp-for="Operador" class="form-control" />
+                <input asp-for="Operador" class="form-control" maxlength="30" />
                 <span asp-validation-for="Operador" class="text-danger"></span>
             </div>
 
             <div class="col-md-6">
                 <label class="form-label">Número celular</label>
-                <input asp-for="NumeroCelular" class="form-control" />
+                <input asp-for="NumeroCelular" class="form-control" maxlength="20" />
                 <span asp-validation-for="NumeroCelular" class="text-danger"></span>
             </div>
 
             <div class="col-md-6">
                 <label class="form-label">Correo Sistemas Analíticos</label>
-                <input asp-for="CorreoSistemasAnaliticos" class="form-control" />
+                <input asp-for="CorreoSistemasAnaliticos" class="form-control" maxlength="100" />
                 <span asp-validation-for="CorreoSistemasAnaliticos" class="text-danger"></span>
             </div>
 
             <div class="col-md-6">
                 <label class="form-label">Modelo</label>
-                <input asp-for="Modelo" class="form-control" />
+                <input asp-for="Modelo" class="form-control" maxlength="50" />
                 <span asp-validation-for="Modelo" class="text-danger"></span>
             </div>
 
             <div class="col-md-6">
                 <label class="form-label">IMEI</label>
-                <input asp-for="IMEI" class="form-control" />
+                <input asp-for="IMEI" class="form-control" maxlength="20" />
                 <span asp-validation-for="IMEI" class="text-danger"></span>
             </div>
 

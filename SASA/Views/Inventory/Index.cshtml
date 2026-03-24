@@ -243,23 +243,22 @@
 
             <!-- Modal (Editar) -->
             <div class="modal fade" id="activoEditModal" tabindex="-1" aria-hidden="true">
-                <div class="modal-dialog modal-lg" style="max-height: calc(100vh - 3.5rem);">
-                    <div class="modal-content" id="activoEditModalContent" style="max-height: calc(100vh - 3.5rem); overflow: hidden;">
-                        <div class="modal-body" style="overflow-y: auto; max-height: calc(100vh - 12rem);">
-                            <div class="text-center p-4 text-muted">
-                                Cargando...
-                            </div>
+                <div class="modal-dialog modal-lg modal-dialog-scrollable">
+                    <div class="modal-content" id="activoEditModalContent">
+                        <div class="modal-body text-center p-4 text-muted">
+                            Cargando...
                         </div>
                     </div>
                 </div>
             </div>
 
+            <!-- Modal éxito -->
             <div class="modal fade" id="successModal" tabindex="-1" aria-hidden="true">
                 <div class="modal-dialog modal-sm modal-dialog-centered">
                     <div class="modal-content">
                         <div class="modal-header">
                             <h5 class="modal-title">Cambios guardados</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                         </div>
                         <div class="modal-body">
                             <div class="d-flex align-items-start gap-2">
