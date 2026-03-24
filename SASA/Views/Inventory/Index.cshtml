@@ -285,6 +285,30 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
     <script>
+        function enableModalScrollLock() {
+        document.documentElement.classList.add('modal-scroll-lock');
+        document.body.classList.add('modal-scroll-lock');
+        }
+
+        function disableModalScrollLock() {
+        if (!document.querySelector('.modal.show')) {
+        document.documentElement.classList.remove('modal-scroll-lock');
+        document.body.classList.remove('modal-scroll-lock');
+        }
+        }
+
+        const activoDetailModalLock = document.getElementById('activoDetailModal');
+        const activoEditModalLock = document.getElementById('activoEditModal');
+        const successModalLock = document.getElementById('successModal');
+
+        [activoDetailModalLock, activoEditModalLock, successModalLock].forEach(modal => {
+        if (!modal) return;
+        modal.addEventListener('shown.bs.modal', enableModalScrollLock);
+        modal.addEventListener('hidden.bs.modal', disableModalScrollLock);
+        });
+    </script>
+
+    <script>
         // ============================
         // DETALLE MODAL
         // ============================

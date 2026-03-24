@@ -9,13 +9,12 @@
     </button>
 </div>
 
-<form id="editActivoForm" method="post" class="form-container">
+<form id="editActivoForm" method="post" class="form-container h-100">
     @Html.AntiForgeryToken()
 
     <input type="hidden" asp-for="NumeroActivo" />
 
-    <div class="modal-body form-content">
-
+    <div class="modal-body form-content scroll-hidden">
         <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
 
         @if (!ViewData.ModelState.IsValid)

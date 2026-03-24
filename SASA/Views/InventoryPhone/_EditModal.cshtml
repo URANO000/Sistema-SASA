@@ -5,12 +5,11 @@
     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
 </div>
 
-<form id="editPhoneForm" method="post" class="form-container">
+<form id="editPhoneForm" method="post" class="form-container h-100">
     @Html.AntiForgeryToken()
     <input type="hidden" asp-for="IdActivoTelefono" />
 
-    <div class="modal-body form-content">
-
+    <div class="modal-body form-content scroll-hidden">
         <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
 
         @if (!ViewData.ModelState.IsValid)
