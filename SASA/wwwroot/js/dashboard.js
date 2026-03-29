@@ -94,7 +94,7 @@
         data: {
             labels: init.TrendLabels || [],
             datasets: [
-                { label: 'Creados', data: init.TrendCreados || [], borderColor: '#0d6efd', fill: false },
+                { label: 'Abiertos', data: init.TrendAbiertos || init.TrendCreados || [], borderColor: '#0d6efd', fill: false },
                 { label: 'Resueltos', data: init.TrendResueltos || [], borderColor: '#198754', fill: false },
                 { label: 'En Proceso', data: init.TrendEnProgreso || [], borderColor: '#ffc107', fill: false },
                 { label: 'En espera', data: init.TrendEspera || [], borderColor: '#d4a147', fill: false },
@@ -165,7 +165,7 @@
             prioridadChart.update();
 
             const trendLabels = data.trendLabels ?? data.TrendLabels ?? [];
-            const trendCreados = data.trendCreados ?? data.TrendCreados ?? [];
+            const trendAbiertos = data.trendAbiertos ?? data.TrendAbiertos ?? [];
             const trendResueltos = data.trendResueltos ?? data.TrendResueltos ?? [];
             const trendEnProgreso = data.trendEnProgreso ?? data.TrendEnProgreso ?? [];
             const trendEspera = data.trendEspera ?? data.TrendEspera ?? [];
@@ -173,14 +173,14 @@
 
             // debug: log trend arrays to help diagnose missing series
             console.debug('trendLabels', trendLabels);
-            console.debug('trendCreados', trendCreados);
+            console.debug('trendAbiertos', trendAbiertos);
             console.debug('trendResueltos', trendResueltos);
             console.debug('trendEnProgreso', trendEnProgreso);
             console.debug('trendEspera', trendEspera);
             console.debug('trendCancelados', trendCancelados);
 
             trendChart.data.labels = trendLabels;
-            trendChart.data.datasets[0].data = trendCreados;
+            trendChart.data.datasets[0].data = trendAbiertos;
             trendChart.data.datasets[1].data = trendResueltos;
             trendChart.data.datasets[2].data = trendEnProgreso;
             trendChart.data.datasets[3].data = trendEspera;
