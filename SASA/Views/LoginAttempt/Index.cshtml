@@ -173,46 +173,46 @@
                             }
                         </tbody>
                     </table>
-
-                    @if (Model.TotalPages > 1)
-                    {
-                        <nav aria-label="Paginación" class="align-content-center justify-content-center mt-3">
-                            <ul class="pagination pagination-sm mb-0 justify-content-center">
-                                <li class="page-item @(Model.Filtros.Page > 1 ? "" : "disabled")">
-                                    <a class="page-link"
-                                           asp-action="Index"
-                                           asp-route-Filtros.EmailIngresado="@Model.Filtros.EmailIngresado"
-                                           asp-route-Filtros.Exitoso="@Model.Filtros.Exitoso"
-                                           asp-route-Filtros.FechaDesde="@(Model.Filtros.FechaDesde?.ToString("yyyy-MM-dd"))"
-                                           asp-route-Filtros.FechaHasta="@(Model.Filtros.FechaHasta?.ToString("yyyy-MM-dd"))"
-                                           asp-route-Filtros.Page="@(Model.Filtros.Page - 1)"
-                                           asp-route-Filtros.PageSize="@Model.Filtros.PageSize">
-                                        Anterior
-                                    </a>
-                                </li>
-
-                                <li class="page-item disabled">
-                                    <span class="page-link">
-                                        Página @Model.Filtros.Page de @Model.TotalPages
-                                    </span>
-                                </li>
-
-                                <li class="page-item @(Model.Filtros.Page < Model.TotalPages ? "" : "disabled")">
-                                    <a class="page-link"
-                                           asp-action="Index"
-                                           asp-route-Filtros.EmailIngresado="@Model.Filtros.EmailIngresado"
-                                           asp-route-Filtros.Exitoso="@Model.Filtros.Exitoso"
-                                           asp-route-Filtros.FechaDesde="@(Model.Filtros.FechaDesde?.ToString("yyyy-MM-dd"))"
-                                           asp-route-Filtros.FechaHasta="@(Model.Filtros.FechaHasta?.ToString("yyyy-MM-dd"))"
-                                           asp-route-Filtros.Page="@(Model.Filtros.Page + 1)"
-                                           asp-route-Filtros.PageSize="@Model.Filtros.PageSize">
-                                        Siguiente
-                                    </a>
-                                </li>
-                            </ul>
-                        </nav>
-                    }
                 }
+                <nav aria-label="Paginación" class="align-content-center justify-content-center">
+                    <ul class="pagination pagination-sm mb-0 justify-content-center">
+
+                        <li class="page-item @((Model.Filtros.Page <= 1) ? "disabled" : "")">
+                            <a class="page-link"
+                                   asp-action="Index"
+                                   asp-route-Filtros.EmailIngresado="@Model.Filtros.EmailIngresado"
+                                   asp-route-Filtros.Exitoso="@Model.Filtros.Exitoso"
+                                   asp-route-Filtros.Fecha="@(Model.Filtros.Fecha?.ToString("yyyy-MM-dd"))"
+                                   asp-route-Filtros.FechaDesde="@(Model.Filtros.FechaDesde?.ToString("yyyy-MM-dd"))"
+                                   asp-route-Filtros.FechaHasta="@(Model.Filtros.FechaHasta?.ToString("yyyy-MM-dd"))"
+                                   asp-route-Filtros.Page="@(((Model.Filtros.Page <= 0 ? 1 : Model.Filtros.Page) - 1))"
+                                   asp-route-Filtros.PageSize="@Model.Filtros.PageSize">
+                                Anterior
+                            </a>
+                        </li>
+
+                        <li class="page-item disabled">
+                            <span class="page-link">
+                                Página @((Model.Filtros.Page <= 0 ? 1 : Model.Filtros.Page)) de @(Model.TotalPages <= 0 ? 1 : Model.TotalPages)
+                            </span>
+                        </li>
+
+                        <li class="page-item @(((Model.Filtros.Page <= 0 ? 1 : Model.Filtros.Page) < (Model.TotalPages <= 0 ? 1 : Model.TotalPages)) ? "" : "disabled")">
+                            <a class="page-link"
+                                   asp-action="Index"
+                                   asp-route-Filtros.EmailIngresado="@Model.Filtros.EmailIngresado"
+                                   asp-route-Filtros.Exitoso="@Model.Filtros.Exitoso"
+                                   asp-route-Filtros.Fecha="@(Model.Filtros.Fecha?.ToString("yyyy-MM-dd"))"
+                                   asp-route-Filtros.FechaDesde="@(Model.Filtros.FechaDesde?.ToString("yyyy-MM-dd"))"
+                                   asp-route-Filtros.FechaHasta="@(Model.Filtros.FechaHasta?.ToString("yyyy-MM-dd"))"
+                                   asp-route-Filtros.Page="@((Model.Filtros.Page <= 0 ? 1 : Model.Filtros.Page) + 1)"
+                                   asp-route-Filtros.PageSize="@Model.Filtros.PageSize">
+                                Siguiente
+                            </a>
+                        </li>
+
+                    </ul>
+                </nav>
             </div>
         </div>
     </div>
