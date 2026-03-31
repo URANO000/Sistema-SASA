@@ -1,9 +1,12 @@
 ﻿using BusinessLogic.Servicios.InventarioTelefono;
 using DataAccess.Modelos.DTOs.InventarioTelefono;
+using DataAccess.Modelos.Entidades.Integracion;
+using DataAccess.Repositorios.Integracion;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SASA.Filters;
 using SASA.ViewModels.InventarioTelefono;
+using System.Security.Claims;
 
 namespace SASA.Controllers
 {
@@ -12,10 +15,14 @@ namespace SASA.Controllers
     public class InventoryPhoneController : Controller
     {
         private readonly IActivoTelefonoService _service;
+        private readonly IIntegracionHistorialRepository _histRepo;
 
-        public InventoryPhoneController(IActivoTelefonoService service)
+        public InventoryPhoneController(
+            IActivoTelefonoService service,
+            IIntegracionHistorialRepository histRepo)
         {
             _service = service;
+            _histRepo = histRepo;
         }
 
         [HttpGet]
@@ -124,8 +131,29 @@ namespace SASA.Controllers
                 return PartialView("_EditModal", model);
             }
 
+            var dataActual = await _service.ObtenerDetalleAsync(id);
+            if (dataActual == null)
+                return NotFound();
+
             if (!ModelState.IsValid)
             {
+                return PartialView("_EditModal", model);
+            }
+
+            bool sinCambios =
+                (dataActual.NombreColaborador?.Trim() ?? string.Empty) == (model.NombreColaborador?.Trim() ?? string.Empty) &&
+                (dataActual.Departamento?.Trim() ?? string.Empty) == (model.Departamento?.Trim() ?? string.Empty) &&
+                (dataActual.Operador?.Trim() ?? string.Empty) == (model.Operador?.Trim() ?? string.Empty) &&
+                (dataActual.NumeroCelular?.Trim() ?? string.Empty) == (model.NumeroCelular?.Trim() ?? string.Empty) &&
+                (dataActual.CorreoSistemasAnaliticos?.Trim() ?? string.Empty) == (model.CorreoSistemasAnaliticos?.Trim() ?? string.Empty) &&
+                (dataActual.Modelo?.Trim() ?? string.Empty) == (model.Modelo?.Trim() ?? string.Empty) &&
+                (dataActual.IMEI?.Trim() ?? string.Empty) == (model.IMEI?.Trim() ?? string.Empty) &&
+                dataActual.Cargador == model.Cargador &&
+                dataActual.Auriculares == model.Auriculares;
+
+            if (sinCambios)
+            {
+                ModelState.AddModelError(string.Empty, "No se detectaron cambios para guardar.");
                 return PartialView("_EditModal", model);
             }
 
@@ -138,6 +166,76 @@ namespace SASA.Controllers
             }
 
             return Json(new { success = true });
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> ExportToExcel(string? q, string sortBy = "Nombre", string sortDir = "asc")
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var nombreArchivo = $"Telefonos_{DateTime.Now:yyyyMMdd_HHmmss}.xlsx";
+
+            try
+            {
+                var filtros = new ActivoTelefonoFiltroDto
+                {
+                    Texto = q,
+                    SortBy = sortBy,
+                    SortDir = sortDir,
+                    Page = 1,
+                    PageSize = 100000
+                };
+
+                var archivo = await _service.ExportarExcelAsync(filtros);
+
+                var hist = new IntegracionHistorial
+                {
+                    TipoProceso = "Exportacion",
+                    Modulo = "InventarioTelefonos",
+                    NombreArchivo = nombreArchivo,
+                    RutaArchivo = string.Empty,
+                    Fecha = DateTime.UtcNow,
+                    Estado = "Exportado",
+                    DetalleError = null,
+                    UsuarioEjecutorId = userId,
+                    TotalFilas = 0,
+                    FilasValidas = 0,
+                    FilasConError = 0
+                };
+
+                await _histRepo.CrearAsync(hist);
+                await _histRepo.GuardarAsync();
+
+                TempData["Success"] = "Exportación de teléfonos generada correctamente.";
+
+                return File(
+                    archivo,
+                    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                    nombreArchivo
+                );
+            }
+            catch (Exception ex)
+            {
+                var hist = new IntegracionHistorial
+                {
+                    TipoProceso = "Exportacion",
+                    Modulo = "InventarioTelefonos",
+                    NombreArchivo = nombreArchivo,
+                    RutaArchivo = string.Empty,
+                    Fecha = DateTime.UtcNow,
+                    Estado = "Fallido",
+                    DetalleError = ex.Message,
+                    UsuarioEjecutorId = userId,
+                    TotalFilas = 0,
+                    FilasValidas = 0,
+                    FilasConError = 0
+                };
+
+                await _histRepo.CrearAsync(hist);
+                await _histRepo.GuardarAsync();
+
+                TempData["Error"] = $"No se pudo exportar el inventario de teléfonos: {ex.Message}";
+                return RedirectToAction(nameof(Index), new { q, sortBy, sortDir });
+            }
         }
     }
 }

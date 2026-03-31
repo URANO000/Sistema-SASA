@@ -16,6 +16,24 @@
         })!;
 }
 
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="bi bi-check-circle me-1"></i>
+        @TempData["Success"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+    </div>
+}
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="bi bi-exclamation-triangle me-1"></i>
+        @TempData["Error"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+    </div>
+}
+
 <div class="container-fluid">
 
     <div class="card mb-3">
@@ -36,6 +54,16 @@
                         <a class="btn btn-custom" asp-controller="Inventory" asp-action="Create">
                             <i class="bi bi-plus-lg"></i>
                             Nuevo Activo
+                        </a>
+
+                        <a class="btn btn-success"
+                               asp-controller="Inventory"
+                               asp-action="ExportToExcel"
+                               asp-route-q="@Model.Q"
+                               asp-route-estadoId="@Model.EstadoId"
+                               asp-route-tipoId="@Model.TipoId">
+                            <i class="bi bi-file-earmark-excel"></i>
+                            Exportar
                         </a>
                     </div>
                 }
@@ -215,23 +243,22 @@
 
             <!-- Modal (Editar) -->
             <div class="modal fade" id="activoEditModal" tabindex="-1" aria-hidden="true">
-                <div class="modal-dialog modal-lg" style="max-height: calc(100vh - 3.5rem);">
-                    <div class="modal-content" id="activoEditModalContent" style="max-height: calc(100vh - 3.5rem); overflow: hidden;">
-                        <div class="modal-body" style="overflow-y: auto; max-height: calc(100vh - 12rem);">
-                            <div class="text-center p-4 text-muted">
-                                Cargando...
-                            </div>
+                <div class="modal-dialog modal-lg modal-dialog-scrollable">
+                    <div class="modal-content" id="activoEditModalContent">
+                        <div class="modal-body text-center p-4 text-muted">
+                            Cargando...
                         </div>
                     </div>
                 </div>
             </div>
 
+            <!-- Modal éxito -->
             <div class="modal fade" id="successModal" tabindex="-1" aria-hidden="true">
                 <div class="modal-dialog modal-sm modal-dialog-centered">
                     <div class="modal-content">
                         <div class="modal-header">
                             <h5 class="modal-title">Cambios guardados</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                         </div>
                         <div class="modal-body">
                             <div class="d-flex align-items-start gap-2">
@@ -256,6 +283,30 @@
 
 @section Scripts {
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+    <script>
+        function enableModalScrollLock() {
+        document.documentElement.classList.add('modal-scroll-lock');
+        document.body.classList.add('modal-scroll-lock');
+        }
+
+        function disableModalScrollLock() {
+        if (!document.querySelector('.modal.show')) {
+        document.documentElement.classList.remove('modal-scroll-lock');
+        document.body.classList.remove('modal-scroll-lock');
+        }
+        }
+
+        const activoDetailModalLock = document.getElementById('activoDetailModal');
+        const activoEditModalLock = document.getElementById('activoEditModal');
+        const successModalLock = document.getElementById('successModal');
+
+        [activoDetailModalLock, activoEditModalLock, successModalLock].forEach(modal => {
+        if (!modal) return;
+        modal.addEventListener('shown.bs.modal', enableModalScrollLock);
+        modal.addEventListener('hidden.bs.modal', disableModalScrollLock);
+        });
+    </script>
 
     <script>
         // ============================

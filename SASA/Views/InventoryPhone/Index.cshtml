@@ -33,6 +33,16 @@
                             <i class="bi bi-plus-lg"></i>
                             Nuevo Teléfono
                         </a>
+
+                        <a class="btn btn-success"
+                               asp-controller="InventoryPhone"
+                               asp-action="ExportToExcel"
+                               asp-route-q="@Model.Q"
+                               asp-route-sortBy="@Model.SortBy"
+                               asp-route-sortDir="@Model.SortDir">
+                            <i class="bi bi-file-earmark-excel"></i>
+                            Exportar
+                        </a>
                     </div>
                 }
             </div>
@@ -183,7 +193,7 @@
                     <div class="modal-content">
                         <div class="modal-header">
                             <h5 class="modal-title">Cambios guardados</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                         </div>
                         <div class="modal-body">
                             <div class="d-flex align-items-start gap-2">
@@ -202,12 +212,35 @@
                     </div>
                 </div>
             </div>
-
         </div>
     </div>
 </div>
 
 @section Scripts {
+    <script>
+        function enableModalScrollLock() {
+            document.documentElement.classList.add('modal-scroll-lock');
+            document.body.classList.add('modal-scroll-lock');
+        }
+
+        function disableModalScrollLock() {
+            if (!document.querySelector('.modal.show')) {
+                document.documentElement.classList.remove('modal-scroll-lock');
+                document.body.classList.remove('modal-scroll-lock');
+            }
+        }
+
+        const phoneDetailModalLock = document.getElementById('phoneDetailModal');
+        const phoneEditModalLock = document.getElementById('phoneEditModal');
+        const phoneSuccessModalLock = document.getElementById('phoneSuccessModal');
+
+        [phoneDetailModalLock, phoneEditModalLock, phoneSuccessModalLock].forEach(modal => {
+            if (!modal) return;
+            modal.addEventListener('shown.bs.modal', enableModalScrollLock);
+            modal.addEventListener('hidden.bs.modal', disableModalScrollLock);
+        });
+    </script>
+
     <script>
         const phoneDetailModal = document.getElementById('phoneDetailModal');
         const phoneDetailContent = document.getElementById('phoneDetailModalContent');

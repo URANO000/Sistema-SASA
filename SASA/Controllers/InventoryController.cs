@@ -1,12 +1,16 @@
 using BusinessLogic.Servicios.Inventario;
 using BusinessLogic.Servicios.Tiquetes;
 using DataAccess.Modelos.DTOs.Inventario;
+using DataAccess.Modelos.Entidades.Integracion;
+using DataAccess.Repositorios.Integracion;
 using DataAccess.Repositorios.Inventario;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using SASA.Filters;
 using SASA.ViewModels.Inventario;
+using System;
+using System.Security.Claims;
 
 namespace SASA.Controllers
 {
@@ -17,15 +21,18 @@ namespace SASA.Controllers
         private readonly IInventarioService _inventario;
         private readonly ICatalogosInventarioRepository _catRepo;
         private readonly ITiqueteService _tiqueteService;
+        private readonly IIntegracionHistorialRepository _histRepo;
 
         public InventoryController(
             IInventarioService inventario,
             ICatalogosInventarioRepository catRepo,
-            ITiqueteService tiqueteService)
+            ITiqueteService tiqueteService,
+            IIntegracionHistorialRepository histRepo)
         {
             _inventario = inventario;
             _catRepo = catRepo;
             _tiqueteService = tiqueteService;
+            _histRepo = histRepo;
         }
 
         [HttpGet]
@@ -88,7 +95,7 @@ namespace SASA.Controllers
 
             if (!ModelState.IsValid)
             {
-                await CargarCatalogosAsync(model.IdTipoActivo, model.IdEstadoActivo);
+                await CargarCatalogosAsync(model.IdTipoActivo, model.IdEstadoActivo, model.IdTipoLicencia);
                 return View(model);
             }
 
@@ -112,7 +119,7 @@ namespace SASA.Controllers
             if (!ok)
             {
                 ModelState.AddModelError(string.Empty, error ?? "No se pudo crear el activo.");
-                await CargarCatalogosAsync(model.IdTipoActivo, model.IdEstadoActivo);
+                await CargarCatalogosAsync(model.IdTipoActivo, model.IdEstadoActivo, model.IdTipoLicencia);
                 return View(model);
             }
 
@@ -127,7 +134,7 @@ namespace SASA.Controllers
             var detalle = await _inventario.ObtenerDetalleAsync(id);
             if (detalle == null) return NotFound();
 
-            await CargarCatalogosAsync(detalle.IdTipoActivo, detalle.IdEstadoActivo);
+            await CargarCatalogosAsync(detalle.IdTipoActivo, detalle.IdEstadoActivo, detalle.IdTipoLicencia);
 
             var vm = new CrearActivoViewModel
             {
@@ -153,21 +160,45 @@ namespace SASA.Controllers
         {
             ViewData["Title"] = "Editar Activo";
 
+            var detalleActual = await _inventario.ObtenerDetalleAsync(id);
+            if (detalleActual == null)
+                return NotFound();
+
             if (!ModelState.IsValid)
             {
-                await CargarCatalogosAsync(model.IdTipoActivo, model.IdEstadoActivo);
+                await CargarCatalogosAsync(model.IdTipoActivo, model.IdEstadoActivo, model.IdTipoLicencia);
+                return View(model);
+            }
+
+            bool sinCambios =
+                (detalleActual.NumeroActivo?.Trim() ?? string.Empty) == (model.NumeroActivo?.Trim() ?? string.Empty) &&
+                (detalleActual.NombreMaquina?.Trim() ?? string.Empty) == (model.NombreMaquina?.Trim() ?? string.Empty) &&
+                detalleActual.IdTipoActivo == model.IdTipoActivo &&
+                detalleActual.IdEstadoActivo == model.IdEstadoActivo &&
+                (detalleActual.Marca?.Trim() ?? string.Empty) == (model.Marca?.Trim() ?? string.Empty) &&
+                (detalleActual.Modelo?.Trim() ?? string.Empty) == (model.Modelo?.Trim() ?? string.Empty) &&
+                (detalleActual.SerieServicio?.Trim() ?? string.Empty) == (model.SerieServicio?.Trim() ?? string.Empty) &&
+                (detalleActual.DireccionMAC?.Trim() ?? string.Empty) == (model.DireccionMAC?.Trim() ?? string.Empty) &&
+                (detalleActual.SistemaOperativo?.Trim() ?? string.Empty) == (model.SistemaOperativo?.Trim() ?? string.Empty) &&
+                detalleActual.IdTipoLicencia == model.IdTipoLicencia &&
+                (detalleActual.ClaveLicencia?.Trim() ?? string.Empty) == (model.ClaveLicencia?.Trim() ?? string.Empty);
+
+            if (sinCambios)
+            {
+                ModelState.AddModelError(string.Empty, "No se detectaron cambios para guardar.");
+                await CargarCatalogosAsync(model.IdTipoActivo, model.IdEstadoActivo, model.IdTipoLicencia);
                 return View(model);
             }
 
             var dto = new ActivoInventarioEditDto
             {
-                NumeroActivo = model.NumeroActivo,
-                NombreMaquina = model.NombreMaquina,
-                SerieServicio = model.SerieServicio,
+                NumeroActivo = model.NumeroActivo ?? string.Empty,
+                NombreMaquina = model.NombreMaquina ?? string.Empty,
                 IdTipoActivo = model.IdTipoActivo,
                 IdEstadoActivo = model.IdEstadoActivo,
                 Marca = model.Marca,
                 Modelo = model.Modelo,
+                SerieServicio = model.SerieServicio,
                 DireccionMAC = model.DireccionMAC,
                 SistemaOperativo = model.SistemaOperativo,
                 IdTipoLicencia = model.IdTipoLicencia,
@@ -179,7 +210,7 @@ namespace SASA.Controllers
             if (!ok)
             {
                 ModelState.AddModelError(string.Empty, error ?? "No se pudo actualizar el activo.");
-                await CargarCatalogosAsync(model.IdTipoActivo, model.IdEstadoActivo);
+                await CargarCatalogosAsync(model.IdTipoActivo, model.IdEstadoActivo, model.IdTipoLicencia);
                 return View(model);
             }
 
@@ -201,7 +232,7 @@ namespace SASA.Controllers
             var detalle = await _inventario.ObtenerDetalleAsync(id);
             if (detalle == null) return NotFound();
 
-            await CargarCatalogosAsync(detalle.IdTipoActivo, detalle.IdEstadoActivo);
+            await CargarCatalogosAsync(detalle.IdTipoActivo, detalle.IdEstadoActivo, detalle.IdTipoLicencia);
 
             var vm = new CrearActivoViewModel
             {
@@ -225,16 +256,40 @@ namespace SASA.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> EditModal(int id, CrearActivoViewModel model)
         {
+            var detalleActual = await _inventario.ObtenerDetalleAsync(id);
+            if (detalleActual == null)
+                return NotFound();
+
             if (!ModelState.IsValid)
             {
-                await CargarCatalogosAsync(model.IdTipoActivo, model.IdEstadoActivo);
+                await CargarCatalogosAsync(model.IdTipoActivo, model.IdEstadoActivo, model.IdTipoLicencia);
+                return PartialView("_EditModal", model);
+            }
+
+            bool sinCambios =
+                (detalleActual.NumeroActivo?.Trim() ?? string.Empty) == (model.NumeroActivo?.Trim() ?? string.Empty) &&
+                (detalleActual.NombreMaquina?.Trim() ?? string.Empty) == (model.NombreMaquina?.Trim() ?? string.Empty) &&
+                detalleActual.IdTipoActivo == model.IdTipoActivo &&
+                detalleActual.IdEstadoActivo == model.IdEstadoActivo &&
+                (detalleActual.Marca?.Trim() ?? string.Empty) == (model.Marca?.Trim() ?? string.Empty) &&
+                (detalleActual.Modelo?.Trim() ?? string.Empty) == (model.Modelo?.Trim() ?? string.Empty) &&
+                (detalleActual.SerieServicio?.Trim() ?? string.Empty) == (model.SerieServicio?.Trim() ?? string.Empty) &&
+                (detalleActual.DireccionMAC?.Trim() ?? string.Empty) == (model.DireccionMAC?.Trim() ?? string.Empty) &&
+                (detalleActual.SistemaOperativo?.Trim() ?? string.Empty) == (model.SistemaOperativo?.Trim() ?? string.Empty) &&
+                detalleActual.IdTipoLicencia == model.IdTipoLicencia &&
+                (detalleActual.ClaveLicencia?.Trim() ?? string.Empty) == (model.ClaveLicencia?.Trim() ?? string.Empty);
+
+            if (sinCambios)
+            {
+                ModelState.AddModelError(string.Empty, "No se detectaron cambios para guardar.");
+                await CargarCatalogosAsync(model.IdTipoActivo, model.IdEstadoActivo, model.IdTipoLicencia);
                 return PartialView("_EditModal", model);
             }
 
             var dto = new ActivoInventarioEditDto
             {
-                NumeroActivo = model.NumeroActivo,
-                NombreMaquina = model.NombreMaquina,
+                NumeroActivo = model.NumeroActivo ?? string.Empty,
+                NombreMaquina = model.NombreMaquina ?? string.Empty,
                 IdTipoActivo = model.IdTipoActivo,
                 IdEstadoActivo = model.IdEstadoActivo,
                 Marca = model.Marca,
@@ -251,7 +306,7 @@ namespace SASA.Controllers
             if (!ok)
             {
                 ModelState.AddModelError(string.Empty, error ?? "No se pudo actualizar el activo.");
-                await CargarCatalogosAsync(model.IdTipoActivo, model.IdEstadoActivo);
+                await CargarCatalogosAsync(model.IdTipoActivo, model.IdEstadoActivo, model.IdTipoLicencia);
                 return PartialView("_EditModal", model);
             }
 
@@ -328,15 +383,33 @@ namespace SASA.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Maintenance()
+        public async Task<IActionResult> Maintenance(int pageNumber = 1, int pageSize = 10)
         {
             ViewData["Title"] = "Historial de Mantenimiento";
 
-            var data = await _inventario.ObtenerHistorialMantenimientoAsync();
+            if (pageNumber < 1) pageNumber = 1;
+            if (pageSize < 5) pageSize = 5;
+            if (pageSize > 50) pageSize = 50;
+
+            var allItems = (await _inventario.ObtenerHistorialMantenimientoAsync()).ToList();
+            var totalRecords = allItems.Count;
+            var totalPages = (int)Math.Ceiling(totalRecords / (double)pageSize);
+
+            if (totalPages < 1) totalPages = 1;
+            if (pageNumber > totalPages) pageNumber = totalPages;
+
+            var items = allItems
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToList();
 
             var vm = new MantenimientoIndexViewModel
             {
-                Items = data.ToList()
+                Items = items,
+                PageNumber = pageNumber,
+                PageSize = pageSize,
+                TotalPages = totalPages,
+                TotalRecords = totalRecords
             };
 
             return View(vm);
@@ -496,22 +569,40 @@ namespace SASA.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GeneralReport()
+        public async Task<IActionResult> GeneralReport(int pageNumber = 1, int pageSize = 10)
         {
             ViewData["Title"] = "Reporte General de Inventario";
 
-            var items = (await _inventario.ObtenerActivosReporteGeneralAsync()).ToList();
+            if (pageNumber < 1) pageNumber = 1;
+            if (pageSize < 5) pageSize = 5;
+            if (pageSize > 50) pageSize = 50;
+
+            var allItems = (await _inventario.ObtenerActivosReporteGeneralAsync()).ToList();
+            var totalRecords = allItems.Count;
+            var totalPages = (int)Math.Ceiling(totalRecords / (double)pageSize);
+
+            if (totalPages < 1) totalPages = 1;
+            if (pageNumber > totalPages) pageNumber = totalPages;
+
+            var items = allItems
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToList();
 
             var vm = new ReporteGeneralInventarioViewModel
             {
-                TotalActivos = items.Count,
-                ActivosActivos = items.Count(x =>
+                TotalActivos = allItems.Count,
+                ActivosActivos = allItems.Count(x =>
                     string.Equals(x.EstadoActivoNombre, "Activo", StringComparison.OrdinalIgnoreCase) ||
                     string.Equals(x.EstadoActivoNombre, "Operativo", StringComparison.OrdinalIgnoreCase)),
-                EnMantenimiento = items.Count(x =>
+                EnMantenimiento = allItems.Count(x =>
                     string.Equals(x.EstadoActivoNombre, "Mantenimiento", StringComparison.OrdinalIgnoreCase) ||
                     string.Equals(x.EstadoActivoNombre, "En Mantenimiento", StringComparison.OrdinalIgnoreCase)),
-                Items = items
+                Items = items,
+                PageNumber = pageNumber,
+                PageSize = pageSize,
+                TotalPages = totalPages,
+                TotalRecords = totalRecords
             };
 
             return View(vm);
@@ -533,21 +624,103 @@ namespace SASA.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> MaintenanceReport()
+        public async Task<IActionResult> MaintenanceReport(int pageNumber = 1, int pageSize = 10)
         {
             ViewData["Title"] = "Reporte de Mantenimiento";
 
-            var data = await _inventario.ObtenerHistorialMantenimientoAsync();
+            if (pageNumber < 1) pageNumber = 1;
+            if (pageSize < 5) pageSize = 5;
+            if (pageSize > 50) pageSize = 50;
+
+            var allItems = (await _inventario.ObtenerHistorialMantenimientoAsync()).ToList();
+            var totalRecords = allItems.Count;
+            var totalPages = (int)Math.Ceiling(totalRecords / (double)pageSize);
+
+            if (totalPages < 1) totalPages = 1;
+            if (pageNumber > totalPages) pageNumber = totalPages;
+
+            var items = allItems
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToList();
 
             var vm = new MantenimientoIndexViewModel
             {
-                Items = data.ToList()
+                Items = items,
+                PageNumber = pageNumber,
+                PageSize = pageSize,
+                TotalPages = totalPages,
+                TotalRecords = totalRecords
             };
 
             return View(vm);
         }
 
-        private async Task CargarCatalogosAsync(int? tipoIdSeleccionado = null, int? estadoIdSeleccionado = null)
+        [HttpGet]
+        public async Task<IActionResult> ExportToExcel(string? q, int? estadoId, int? tipoId)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var nombreArchivo = $"Inventario_{DateTime.Now:yyyyMMdd_HHmmss}.xlsx";
+
+            try
+            {
+                var archivo = await _inventario.ExportarInventarioExcelAsync(q, tipoId, estadoId);
+
+                var hist = new IntegracionHistorial
+                {
+                    TipoProceso = "Exportacion",
+                    Modulo = "Inventario",
+                    NombreArchivo = nombreArchivo,
+                    RutaArchivo = string.Empty,
+                    Fecha = DateTime.UtcNow,
+                    Estado = "Exportado",
+                    DetalleError = null,
+                    UsuarioEjecutorId = userId,
+                    TotalFilas = 0,
+                    FilasValidas = 0,
+                    FilasConError = 0
+                };
+
+                await _histRepo.CrearAsync(hist);
+                await _histRepo.GuardarAsync();
+
+                TempData["Success"] = "Exportación generada correctamente.";
+
+                return File(
+                    archivo,
+                    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                    nombreArchivo
+                );
+            }
+            catch (Exception ex)
+            {
+                var hist = new IntegracionHistorial
+                {
+                    TipoProceso = "Exportacion",
+                    Modulo = "Inventario",
+                    NombreArchivo = nombreArchivo,
+                    RutaArchivo = string.Empty,
+                    Fecha = DateTime.UtcNow,
+                    Estado = "Fallido",
+                    DetalleError = ex.Message,
+                    UsuarioEjecutorId = userId,
+                    TotalFilas = 0,
+                    FilasValidas = 0,
+                    FilasConError = 0
+                };
+
+                await _histRepo.CrearAsync(hist);
+                await _histRepo.GuardarAsync();
+
+                TempData["Error"] = $"No se pudo exportar el inventario: {ex.Message}";
+                return RedirectToAction(nameof(Index), new { q, estadoId, tipoId });
+            }
+        }
+
+        private async Task CargarCatalogosAsync(
+            int? tipoIdSeleccionado = null,
+            int? estadoIdSeleccionado = null,
+            int? licenciaIdSeleccionada = null)
         {
             ViewBag.Estados = new SelectList(
                 (await _catRepo.ObtenerEstadosAsync()).OrderBy(e => e.Nombre),
@@ -556,6 +729,10 @@ namespace SASA.Controllers
             ViewBag.Tipos = new SelectList(
                 (await _catRepo.ObtenerTiposAsync()).OrderBy(t => t.Nombre),
                 "IdTipoActivo", "Nombre", tipoIdSeleccionado);
+
+            ViewBag.Licencias = new SelectList(
+                (await _catRepo.ObtenerLicenciasAsync()).OrderBy(l => l.Nombre),
+                "IdTipoLicencia", "Nombre", licenciaIdSeleccionada);
         }
     }
 }
