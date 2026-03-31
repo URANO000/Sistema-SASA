@@ -17,6 +17,7 @@ namespace SASA.ViewModels.Home
         public int[] PriorityTicketCounts { get; set; } = Array.Empty<int>();
         public string[] PriorityDisplayLabels { get; set; } = Array.Empty<string>();
         public string[] TrendLabels { get; set; } = Array.Empty<string>();
+        public int[] TrendAbiertos { get; set; } = Array.Empty<int>();
         public int[] TrendCreados { get; set; } = Array.Empty<int>();
         public int[] TrendResueltos { get; set; } = Array.Empty<int>();
         public int[] TrendEnProgreso { get; set; } = Array.Empty<int>();

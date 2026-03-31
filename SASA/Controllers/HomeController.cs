@@ -144,7 +144,6 @@ namespace SASA.Controllers
                 .Select(g => new { Date = g.Key, Count = g.Count() })
                 .ToList();
 
-            // resolved and inProgress already computed above
 
             var waiting = _db.Tiquetes.AsNoTracking()
                 .Where(t => t.UpdatedAt.HasValue && t.UpdatedAt.Value.Date >= from && t.IdEstatus == (int)DataAccess.Modelos.Enums.TiqueteEstatus.EnEsperaDelUsuario)
@@ -177,13 +176,12 @@ namespace SASA.Controllers
             }
 
             vm.TrendLabels = labels.ToArray();
-            vm.TrendCreados = creadosList.ToArray();
+            vm.TrendAbiertos = creadosList.ToArray();
             vm.TrendResueltos = resueltosList.ToArray();
             vm.TrendEnProgreso = enprogresoList.ToArray();
             vm.TrendEspera = esperaList.ToArray();
             vm.TrendCancelados = canceladosList.ToArray();
 
-            // Return vm plus some normalized aliases so client-side finds consistent keys
             return Json(new
             {
                 Abiertos = vm.Abiertos,
@@ -198,7 +196,8 @@ namespace SASA.Controllers
                 PriorityDisplayLabels = vm.PriorityDisplayLabels,
                 PriorityTicketCounts = vm.PriorityTicketCounts,
                 TrendLabels = vm.TrendLabels,
-                TrendCreados = vm.TrendCreados,
+                TrendAbiertos = vm.TrendAbiertos,
+                TrendCreados = vm.TrendAbiertos,
                 TrendResueltos = vm.TrendResueltos,
                 TrendEnProgreso = vm.TrendEnProgreso,
                 TrendEspera = vm.TrendEspera,
@@ -361,7 +360,7 @@ namespace SASA.Controllers
             }
 
             vm.TrendLabels = labels.ToArray();
-            vm.TrendCreados = creadosList.ToArray();
+            vm.TrendAbiertos = creadosList.ToArray();
             vm.TrendResueltos = resueltosList.ToArray();
             vm.TrendEnProgreso = enprogresoList.ToArray();
             vm.TrendEspera = esperaList.ToArray();

@@ -200,7 +200,7 @@ namespace DataAccess.Repositorios.Usuarios
                 .Select(u => new UsuarioTIDropdownDto
                 {
                     Id = u.Id,
-                    UserName = u.UserName
+                    UserName = u.PrimerNombre + " " + u.PrimerApellido
                 })
                 .ToListAsync();
         }

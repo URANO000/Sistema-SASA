@@ -9,17 +9,18 @@
     </button>
 </div>
 
-<form id="editActivoForm" method="post" class="form-container">
+<form id="editActivoForm" method="post" class="form-container h-100">
     @Html.AntiForgeryToken()
 
     <input type="hidden" asp-for="NumeroActivo" />
 
     <div class="modal-body form-content scroll-hidden">
+        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
 
         @if (!ViewData.ModelState.IsValid)
         {
-            <div class="alert alert-danger">
-                Revisá los campos marcados.
+            <div class="alert alert-warning">
+                Revisá la información antes de continuar.
             </div>
         }
 
@@ -33,13 +34,13 @@
 
             <div class="col-md-6">
                 <label class="form-label">Nombre del activo</label>
-                <input asp-for="NombreMaquina" class="form-control" />
+                <input asp-for="NombreMaquina" class="form-control" maxlength="50" />
                 <span asp-validation-for="NombreMaquina" class="text-danger"></span>
             </div>
 
             <div class="col-md-6">
                 <label class="form-label">Serie / Service Tag</label>
-                <input asp-for="SerieServicio" class="form-control" />
+                <input asp-for="SerieServicio" class="form-control" maxlength="50" />
                 <span asp-validation-for="SerieServicio" class="text-danger"></span>
             </div>
 
@@ -61,22 +62,26 @@
 
             <div class="col-md-6">
                 <label class="form-label">Marca</label>
-                <input asp-for="Marca" class="form-control" />
+                <input asp-for="Marca" class="form-control" maxlength="50" />
+                <span asp-validation-for="Marca" class="text-danger"></span>
             </div>
 
             <div class="col-md-6">
                 <label class="form-label">Modelo</label>
-                <input asp-for="Modelo" class="form-control" />
+                <input asp-for="Modelo" class="form-control" maxlength="50" />
+                <span asp-validation-for="Modelo" class="text-danger"></span>
             </div>
 
             <div class="col-md-6">
                 <label class="form-label">MAC</label>
-                <input asp-for="DireccionMAC" class="form-control" />
+                <input asp-for="DireccionMAC" class="form-control" maxlength="17" />
+                <span asp-validation-for="DireccionMAC" class="text-danger"></span>
             </div>
 
             <div class="col-md-6">
                 <label class="form-label">Sistema Operativo</label>
-                <input asp-for="SistemaOperativo" class="form-control" />
+                <input asp-for="SistemaOperativo" class="form-control" maxlength="50" />
+                <span asp-validation-for="SistemaOperativo" class="text-danger"></span>
             </div>
 
             <div class="col-md-6">
@@ -89,7 +94,8 @@
 
             <div class="col-md-6">
                 <label class="form-label">Clave Licencia</label>
-                <input asp-for="ClaveLicencia" class="form-control" />
+                <input asp-for="ClaveLicencia" class="form-control" maxlength="100" />
+                <span asp-validation-for="ClaveLicencia" class="text-danger"></span>
             </div>
 
         </div>
