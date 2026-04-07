@@ -38,26 +38,38 @@ namespace BusinessLogic.Servicios.Integracion
 
         public Task<List<IntegracionHistorial>> ObtenerHistorialAsync() => _histRepo.ListarAsync();
 
-        public async Task<int> RegistrarCargaAsync(string nombreArchivoOriginal, string rutaArchivoRelativa, string? usuarioId, string tipoCarga)
+        public async Task<int> RegistrarCargaAsync(
+            string nombreArchivoOriginal,
+            byte[] archivoBytes,
+            string tipoMime,
+            long pesoBytes,
+            string? usuarioId,
+            string tipoCarga)
         {
             var modulo = tipoCarga == "Telefonos"
                 ? "InventarioTelefonos"
                 : "InventarioEquipos";
 
             _logger.LogInformation(
-                "Registrando carga de integración. Usuario: {UsuarioId}, TipoCarga: {TipoCarga}, Modulo: {Modulo}, Archivo: {Archivo}, RutaRelativa: {RutaRelativa}",
+                "Registrando carga (BLOB). Usuario: {UsuarioId}, TipoCarga: {TipoCarga}, Archivo: {Archivo}, Mime: {Mime}, Size: {Size}",
                 usuarioId,
                 tipoCarga,
-                modulo,
                 nombreArchivoOriginal,
-                rutaArchivoRelativa);
+                tipoMime,
+                pesoBytes);
 
             var hist = new IntegracionHistorial
             {
                 TipoProceso = "Importacion",
                 Modulo = modulo,
+
                 NombreArchivo = nombreArchivoOriginal,
-                RutaArchivo = rutaArchivoRelativa,
+                TipoMime = tipoMime,
+                PesoArchivo = pesoBytes,
+                Archivo = archivoBytes,
+
+                RutaArchivo = string.Empty, //no se usa, QUITAR a futuro
+
                 Estado = "Cargado",
                 Fecha = DateTime.UtcNow,
                 UsuarioEjecutorId = usuarioId
@@ -66,15 +78,14 @@ namespace BusinessLogic.Servicios.Integracion
             var id = await _histRepo.CrearAsync(hist);
 
             _logger.LogInformation(
-                "Carga registrada en historial. HistorialId: {HistorialId}, Modulo: {Modulo}, Archivo: {Archivo}",
+                "Historial guardado (BLOB). HistorialId: {HistorialId}, Archivo: {Archivo}",
                 id,
-                modulo,
                 nombreArchivoOriginal);
 
             return id;
         }
 
-        public async Task<ValidacionImportacionDto> ValidarInventarioDesdeExcelAsync(int historialId, string webRootPath)
+        public async Task<ValidacionImportacionDto> ValidarInventarioDesdeExcelAsync(int historialId)
         {
             var hist = await _histRepo.ObtenerPorIdAsync(historialId);
             if (hist == null) throw new InvalidOperationException("Historial no encontrado.");
@@ -85,22 +96,29 @@ namespace BusinessLogic.Servicios.Integracion
                 NombreArchivo = hist.NombreArchivo
             };
 
-            var rutaFisica = Path.Combine(
-                webRootPath,
-                hist.RutaArchivo.TrimStart('/').Replace("/", Path.DirectorySeparatorChar.ToString())
-            );
-
             var requeridas = new[] { "Numero de Activo", "Nombre de maquina", "Tipo de equipo" };
 
             _logger.LogInformation(
-                "Inicio de validación de inventario desde Excel. HistorialId: {HistorialId}, Archivo: {Archivo}, RutaFisica: {RutaFisica}",
+                "Inicio de validación desde BLOB. HistorialId: {HistorialId}, Archivo: {Archivo}, Size: {Size}",
                 historialId,
                 hist.NombreArchivo,
-                rutaFisica);
+                hist.PesoArchivo);
 
             try
             {
-                using var wb = new XLWorkbook(rutaFisica);
+                //Validaciones con BLOB
+                if (hist.Archivo == null || hist.Archivo.Length == 0)
+                {
+                    throw new InvalidOperationException("El archivo no existe en base de datos.");
+                }
+
+                if (hist.TipoMime != "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+                {
+                    throw new InvalidOperationException("El archivo almacenado no es un Excel válido.");
+                }
+
+                using var stream = new MemoryStream(hist.Archivo);
+                using var wb = new XLWorkbook(stream);
                 var ws = wb.Worksheets.First();
 
                 var headerRow = ws.Row(1);
@@ -118,7 +136,7 @@ namespace BusinessLogic.Servicios.Integracion
                 }
 
                 _logger.LogInformation(
-                    "Encabezados detectados en Excel de inventario. HistorialId: {HistorialId}, Encabezados: {Encabezados}",
+                    "Encabezados detectados. HistorialId: {HistorialId}, Encabezados: {Encabezados}",
                     historialId,
                     string.Join(", ", headerMap.Keys));
 
@@ -128,11 +146,6 @@ namespace BusinessLogic.Servicios.Integracion
                     hist.Estado = "Fallido";
                     hist.DetalleError = "Faltan columnas requeridas: " + string.Join(", ", faltantes);
                     await _histRepo.GuardarAsync();
-
-                    _logger.LogWarning(
-                        "Faltan columnas requeridas en Excel de inventario. HistorialId: {HistorialId}, Faltantes: {Faltantes}",
-                        historialId,
-                        string.Join(", ", faltantes));
 
                     vm.Errores.Add(new FilaValidacionDto { NumeroFila = 0, Mensaje = hist.DetalleError });
                     return vm;
@@ -146,20 +159,11 @@ namespace BusinessLogic.Servicios.Integracion
 
                 var lastRow = ws.LastRowUsed()?.RowNumber() ?? 1;
 
-                _logger.LogInformation(
-                    "Total de filas detectadas en Excel de inventario. HistorialId: {HistorialId}, LastRow: {LastRow}",
-                    historialId,
-                    lastRow);
-
                 if (lastRow < 2)
                 {
                     hist.Estado = "Fallido";
                     hist.DetalleError = "El archivo no contiene filas de datos.";
                     await _histRepo.GuardarAsync();
-
-                    _logger.LogWarning(
-                        "El archivo de inventario no contiene filas de datos. HistorialId: {HistorialId}",
-                        historialId);
 
                     vm.Errores.Add(new FilaValidacionDto { NumeroFila = 0, Mensaje = hist.DetalleError });
                     return vm;
@@ -226,7 +230,7 @@ namespace BusinessLogic.Servicios.Integracion
                         }
 
                         _logger.LogWarning(
-                            "Fila inválida detectada en inventario. HistorialId: {HistorialId}, Fila: {Fila}, Errores: {Errores}",
+                            "Fila inválida. HistorialId: {HistorialId}, Fila: {Fila}, Errores: {Errores}",
                             historialId,
                             r,
                             string.Join(" | ", errores));
@@ -251,12 +255,11 @@ namespace BusinessLogic.Servicios.Integracion
                 await _histRepo.GuardarAsync();
 
                 _logger.LogInformation(
-                    "Validación de inventario finalizada. HistorialId: {HistorialId}, TotalFilas: {TotalFilas}, FilasValidas: {FilasValidas}, FilasConError: {FilasConError}, EstadoHistorial: {Estado}",
+                    "Validación finalizada. HistorialId: {HistorialId}, Total: {Total}, OK: {OK}, Error: {Error}",
                     historialId,
                     vm.TotalFilas,
                     vm.FilasValidas,
-                    vm.FilasConError,
-                    hist.Estado);
+                    vm.FilasConError);
 
                 return vm;
             }
@@ -268,10 +271,9 @@ namespace BusinessLogic.Servicios.Integracion
 
                 _logger.LogError(
                     ex,
-                    "Error validando inventario desde Excel. HistorialId: {HistorialId}, Archivo: {Archivo}, RutaFisica: {RutaFisica}",
+                    "Error validando Excel desde BLOB. HistorialId: {HistorialId}, Archivo: {Archivo}",
                     historialId,
-                    hist.NombreArchivo,
-                    rutaFisica);
+                    hist.NombreArchivo);
 
                 vm.Errores.Add(new FilaValidacionDto { NumeroFila = 0, Mensaje = ex.Message });
                 return vm;
@@ -502,32 +504,26 @@ namespace BusinessLogic.Servicios.Integracion
             return (true, "El archivo fue deshabilitado correctamente.");
         }
 
-        public async Task<(bool Ok, string Mensaje)> ReprocesarArchivoAsync(int historialId, string webRootPath, string? usuarioId)
+        public async Task<(bool Ok, string Mensaje)> ReprocesarArchivoAsync(int historialId, string? usuarioId)
         {
             var hist = await _histRepo.ObtenerPorIdAsync(historialId);
             if (hist == null)
                 return (false, "No se encontró el archivo solicitado.");
 
-            if (string.IsNullOrWhiteSpace(hist.RutaArchivo))
-                return (false, "El historial no tiene una ruta de archivo válida.");
-
-            var rutaFisica = Path.Combine(
-                webRootPath,
-                hist.RutaArchivo.TrimStart('/').Replace("/", Path.DirectorySeparatorChar.ToString())
-            );
-
-            if (!File.Exists(rutaFisica))
-                return (false, "El archivo físico no existe para reprocesarlo.");
+            //Neuva validación con BLOB
+            if (hist.Archivo == null || hist.Archivo.Length == 0)
+                return (false, "El archivo no existe en base de datos para reprocesarlo.");
 
             _logger.LogInformation(
-                "Iniciando reproceso de archivo de integración. HistorialId: {HistorialId}, Usuario: {UsuarioId}, Archivo: {Archivo}, RutaFisica: {RutaFisica}",
+                "Iniciando reproceso desde BLOB. HistorialId: {HistorialId}, Usuario: {UsuarioId}, Archivo: {Archivo}, Size: {Size}",
                 historialId,
                 usuarioId,
                 hist.NombreArchivo,
-                rutaFisica);
+                hist.PesoArchivo);
 
             try
             {
+                //Reset estado
                 hist.Estado = "Cargado";
                 hist.DetalleError = null;
                 hist.TotalFilas = 0;
@@ -539,7 +535,22 @@ namespace BusinessLogic.Servicios.Integracion
                 await _histRepo.ActualizarAsync(hist);
                 await _histRepo.GuardarAsync();
 
-                var resultado = await ValidarInventarioDesdeExcelAsync(historialId, webRootPath);
+                //Reproceso según módulo
+                ValidacionImportacionDto? resultadoInventario = null;
+                ValidacionImportacionTelefonoDto? resultadoTelefonos = null;
+
+                if (hist.Modulo == "InventarioEquipos")
+                {
+                    resultadoInventario = await ValidarInventarioDesdeExcelAsync(historialId);
+                }
+                else if (hist.Modulo == "InventarioTelefonos")
+                {
+                    resultadoTelefonos = await ValidarTelefonosDesdeExcelAsync(historialId);
+                }
+                else
+                {
+                    return (false, $"Módulo no soportado: {hist.Modulo}");
+                }
 
                 hist = await _histRepo.ObtenerPorIdAsync(historialId);
 
@@ -549,7 +560,7 @@ namespace BusinessLogic.Servicios.Integracion
                 if (string.Equals(hist.Estado, "Fallido", StringComparison.OrdinalIgnoreCase))
                 {
                     _logger.LogWarning(
-                        "Reproceso de archivo terminó con fallos. HistorialId: {HistorialId}, Usuario: {UsuarioId}, DetalleError: {DetalleError}",
+                        "Reproceso terminó con fallos. HistorialId: {HistorialId}, Usuario: {UsuarioId}, DetalleError: {DetalleError}",
                         historialId,
                         usuarioId,
                         hist.DetalleError);
@@ -557,16 +568,35 @@ namespace BusinessLogic.Servicios.Integracion
                     return (false, $"El archivo fue reprocesado, pero continúa con fallos: {hist.DetalleError ?? "Revise la validación."}");
                 }
 
-                if (resultado.Errores.Any())
+                //Según tipo
+                if (resultadoInventario != null)
                 {
-                    _logger.LogInformation(
-                        "Reproceso completado con errores de validación. HistorialId: {HistorialId}, Usuario: {UsuarioId}, FilasConError: {FilasConError}, FilasValidas: {FilasValidas}",
-                        historialId,
-                        usuarioId,
-                        resultado.FilasConError,
-                        resultado.FilasValidas);
+                    if (resultadoInventario.Errores.Any())
+                    {
+                        _logger.LogInformation(
+                            "Reproceso con errores (Inventario). HistorialId: {HistorialId}, Usuario: {UsuarioId}, FilasConError: {FilasConError}, FilasValidas: {FilasValidas}",
+                            historialId,
+                            usuarioId,
+                            resultadoInventario.FilasConError,
+                            resultadoInventario.FilasValidas);
 
-                    return (true, $"El archivo fue reprocesado. Se detectaron {resultado.FilasConError} fila(s) con error y {resultado.FilasValidas} válida(s).");
+                        return (true, $"El archivo fue reprocesado. Se detectaron {resultadoInventario.FilasConError} fila(s) con error y {resultadoInventario.FilasValidas} válida(s).");
+                    }
+                }
+
+                if (resultadoTelefonos != null)
+                {
+                    if (resultadoTelefonos.Errores.Any())
+                    {
+                        _logger.LogInformation(
+                            "Reproceso con errores (Teléfonos). HistorialId: {HistorialId}, Usuario: {UsuarioId}, FilasConError: {FilasConError}, FilasValidas: {FilasValidas}",
+                            historialId,
+                            usuarioId,
+                            resultadoTelefonos.FilasConError,
+                            resultadoTelefonos.FilasValidas);
+
+                        return (true, $"El archivo fue reprocesado. Se detectaron {resultadoTelefonos.FilasConError} fila(s) con error y {resultadoTelefonos.FilasValidas} válida(s).");
+                    }
                 }
 
                 _logger.LogInformation(
@@ -588,17 +618,16 @@ namespace BusinessLogic.Servicios.Integracion
 
                 _logger.LogError(
                     ex,
-                    "Error reprocesando archivo de integración. HistorialId: {HistorialId}, Usuario: {UsuarioId}, Archivo: {Archivo}, RutaFisica: {RutaFisica}",
+                    "Error reprocesando archivo desde BLOB. HistorialId: {HistorialId}, Usuario: {UsuarioId}, Archivo: {Archivo}",
                     historialId,
                     usuarioId,
-                    hist.NombreArchivo,
-                    rutaFisica);
+                    hist.NombreArchivo);
 
                 return (false, $"No se pudo reprocesar el archivo: {ex.Message}");
             }
         }
 
-        public async Task<ValidacionImportacionTelefonoDto> ValidarTelefonosDesdeExcelAsync(int historialId, string webRootPath)
+        public async Task<ValidacionImportacionTelefonoDto> ValidarTelefonosDesdeExcelAsync(int historialId)
         {
             var hist = await _histRepo.ObtenerPorIdAsync(historialId);
             if (hist == null) throw new InvalidOperationException("Historial no encontrado.");
@@ -609,22 +638,29 @@ namespace BusinessLogic.Servicios.Integracion
                 NombreArchivo = hist.NombreArchivo
             };
 
-            var rutaFisica = Path.Combine(
-                webRootPath,
-                hist.RutaArchivo.TrimStart('/').Replace("/", Path.DirectorySeparatorChar.ToString())
-            );
-
             var requeridas = new[] { "Nombre Colaborador" };
 
             _logger.LogInformation(
-                "Inicio de validación de teléfonos desde Excel. HistorialId: {HistorialId}, Archivo: {Archivo}, RutaFisica: {RutaFisica}",
+                "Inicio de validación de teléfonos desde BLOB. HistorialId: {HistorialId}, Archivo: {Archivo}, Size: {Size}",
                 historialId,
                 hist.NombreArchivo,
-                rutaFisica);
+                hist.PesoArchivo);
 
             try
             {
-                using var wb = new XLWorkbook(rutaFisica);
+                //Validaciones BLOB
+                if (hist.Archivo == null || hist.Archivo.Length == 0)
+                {
+                    throw new InvalidOperationException("El archivo no existe en base de datos.");
+                }
+
+                if (hist.TipoMime != "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+                {
+                    throw new InvalidOperationException("El archivo almacenado no es un Excel válido.");
+                }
+
+                using var stream = new MemoryStream(hist.Archivo);
+                using var wb = new XLWorkbook(stream);
                 var ws = wb.Worksheets.First();
 
                 var headerRow = ws.Row(1);
@@ -642,7 +678,7 @@ namespace BusinessLogic.Servicios.Integracion
                 }
 
                 _logger.LogInformation(
-                    "Encabezados detectados en Excel de teléfonos. HistorialId: {HistorialId}, Encabezados: {Encabezados}",
+                    "Encabezados detectados en teléfonos. HistorialId: {HistorialId}, Encabezados: {Encabezados}",
                     historialId,
                     string.Join(", ", headerMap.Keys));
 
@@ -652,11 +688,6 @@ namespace BusinessLogic.Servicios.Integracion
                     hist.Estado = "Fallido";
                     hist.DetalleError = "Faltan columnas requeridas: " + string.Join(", ", faltantes);
                     await _histRepo.GuardarAsync();
-
-                    _logger.LogWarning(
-                        "Faltan columnas requeridas en Excel de teléfonos. HistorialId: {HistorialId}, Faltantes: {Faltantes}",
-                        historialId,
-                        string.Join(", ", faltantes));
 
                     vm.Errores.Add(new FilaValidacionTelefonoDto
                     {
@@ -675,20 +706,11 @@ namespace BusinessLogic.Servicios.Integracion
 
                 var lastRow = ws.LastRowUsed()?.RowNumber() ?? 1;
 
-                _logger.LogInformation(
-                    "Total de filas detectadas en Excel de teléfonos. HistorialId: {HistorialId}, LastRow: {LastRow}",
-                    historialId,
-                    lastRow);
-
                 if (lastRow < 2)
                 {
                     hist.Estado = "Fallido";
                     hist.DetalleError = "El archivo no contiene filas de datos.";
                     await _histRepo.GuardarAsync();
-
-                    _logger.LogWarning(
-                        "El archivo de teléfonos no contiene filas de datos. HistorialId: {HistorialId}",
-                        historialId);
 
                     vm.Errores.Add(new FilaValidacionTelefonoDto
                     {
@@ -735,7 +757,7 @@ namespace BusinessLogic.Servicios.Integracion
                         }
 
                         _logger.LogWarning(
-                            "Fila inválida detectada en teléfonos. HistorialId: {HistorialId}, Fila: {Fila}, Errores: {Errores}",
+                            "Fila inválida en teléfonos. HistorialId: {HistorialId}, Fila: {Fila}, Errores: {Errores}",
                             historialId,
                             r,
                             string.Join(" | ", errores));
@@ -760,7 +782,7 @@ namespace BusinessLogic.Servicios.Integracion
                 await _histRepo.GuardarAsync();
 
                 _logger.LogInformation(
-                    "Validación de teléfonos finalizada. HistorialId: {HistorialId}, TotalFilas: {TotalFilas}, FilasValidas: {FilasValidas}, FilasConError: {FilasConError}, EstadoHistorial: {Estado}",
+                    "Validación de teléfonos finalizada. HistorialId: {HistorialId}, Total: {Total}, OK: {OK}, Error: {Error}",
                     historialId,
                     vm.TotalFilas,
                     vm.FilasValidas,
@@ -777,10 +799,9 @@ namespace BusinessLogic.Servicios.Integracion
 
                 _logger.LogError(
                     ex,
-                    "Error validando teléfonos desde Excel. HistorialId: {HistorialId}, Archivo: {Archivo}, RutaFisica: {RutaFisica}",
+                    "Error validando teléfonos desde BLOB. HistorialId: {HistorialId}, Archivo: {Archivo}",
                     historialId,
-                    hist.NombreArchivo,
-                    rutaFisica);
+                    hist.NombreArchivo);
 
                 vm.Errores.Add(new FilaValidacionTelefonoDto
                 {

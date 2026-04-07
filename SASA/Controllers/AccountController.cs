@@ -152,12 +152,12 @@ namespace SASA.Controllers
                 return RedirectToAction(nameof(Login));
             }
 
-            // Generar token real
-            var resetToken = await _userManager.GeneratePasswordResetTokenAsync(user);
-            var payload = EncodeTokenPayload(user.Id, resetToken);
 
-            // Construir link usando BaseUrl (como UsuarioController)
+            var resetToken = await _userManager.GeneratePasswordResetTokenAsync(user);
+
+            var payload = EncodeTokenPayload(user.Id, resetToken);
             var baseUrl = (_appSettings.BaseUrl ?? "").TrimEnd('/');
+            var safePayload = payload.Replace("+", "-").Replace("/", "_").Replace("=", "");
             var resetLink = $"{baseUrl}/reset-password/{payload}";
 
             // Nombre para el correo

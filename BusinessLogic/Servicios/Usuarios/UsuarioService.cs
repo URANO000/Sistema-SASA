@@ -146,7 +146,7 @@ namespace BusinessLogic.Servicios.Usuarios
 
                 Departamento = dto.Departamento,
                 Puesto = dto.Puesto,
-                CreatedAt = DateTime.Now,
+                CreatedAt = DateTime.UtcNow,
                 CreatedById = currentUserId,
 
                 Estado = true,           // usuario activo por defecto

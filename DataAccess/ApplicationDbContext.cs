@@ -67,7 +67,6 @@ namespace DataAccess
                     new Estatus { IdEstatus = (int)TiqueteEstatus.EnEsperaDelUsuario, NombreEstatus = "En Espera Del Usuario" },
                     new Estatus { IdEstatus = (int)TiqueteEstatus.Cancelado, NombreEstatus = "Cancelado" },
                     new Estatus { IdEstatus = (int)TiqueteEstatus.Resuelto, NombreEstatus = "Resuelto" }
-
                 );
 
             //Modelado en tiquetes

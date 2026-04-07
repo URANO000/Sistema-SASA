@@ -55,7 +55,7 @@ public static class PlantillasCorreo
               <table role='presentation' cellpadding='0' cellspacing='0' border='0' style='margin:10px 0 18px 0;'>
                 <tr>
                   <td align='center' style='border-radius:999px;background:#012473;'>
-                    <a href='https://rrhh.sistemasanaliticos.cr/'
+                    <a href='https://ticenter.sistemasanaliticos.cr/'
                        style='display:inline-block;padding:12px 22px;font-size:14px;color:#ffffff;text-decoration:none;font-weight:700;border-radius:999px;'>
                       Ir al sistema
                     </a>

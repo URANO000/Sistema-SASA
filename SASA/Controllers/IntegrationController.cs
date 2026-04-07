@@ -42,111 +42,58 @@ namespace SASA.Controllers
 
             try
             {
-                _logger.LogInformation(
-                    "Inicio de carga de integración. Usuario: {UsuarioId}, TipoCarga: {TipoCarga}, Archivo: {Archivo}, Tamano: {Tamano}",
-                    userId,
-                    tipoCarga,
-                    archivo?.FileName,
-                    archivo?.Length);
-
                 if (archivo == null || archivo.Length == 0)
                 {
-                    _logger.LogWarning(
-                        "Carga rechazada: archivo nulo o vacío. Usuario: {UsuarioId}, TipoCarga: {TipoCarga}",
-                        userId,
-                        tipoCarga);
-
                     ModelState.AddModelError("", "Debe seleccionar un archivo.");
                     return View();
                 }
 
                 if (archivo.Length > MaxFileSizeBytes)
                 {
-                    _logger.LogWarning(
-                        "Carga rechazada: archivo excede tamaño máximo. Usuario: {UsuarioId}, TipoCarga: {TipoCarga}, Archivo: {Archivo}, Tamano: {Tamano}",
-                        userId,
-                        tipoCarga,
-                        archivo.FileName,
-                        archivo.Length);
-
                     ModelState.AddModelError("", $"El archivo supera el tamaño máximo permitido ({MaxFileSizeBytes / (1024 * 1024)}MB).");
                     return View();
                 }
 
                 if (tipoCarga != "Equipos" && tipoCarga != "Telefonos")
                 {
-                    _logger.LogWarning(
-                        "Carga rechazada: tipo de carga inválido. Usuario: {UsuarioId}, TipoCarga: {TipoCarga}, Archivo: {Archivo}",
-                        userId,
-                        tipoCarga,
-                        archivo?.FileName);
-
-                    ModelState.AddModelError("", "Debe seleccionar un tipo de integración válido.");
+                    ModelState.AddModelError("", "Debe seleccionar un tipo válido.");
                     return View();
                 }
 
                 var ext = Path.GetExtension(archivo.FileName).ToLowerInvariant();
                 if (ext != ".xlsx")
                 {
-                    _logger.LogWarning(
-                        "Carga rechazada: extensión inválida. Usuario: {UsuarioId}, TipoCarga: {TipoCarga}, Archivo: {Archivo}, Extension: {Extension}",
-                        userId,
-                        tipoCarga,
-                        archivo.FileName,
-                        ext);
-
                     ModelState.AddModelError("", "Formato inválido. Debe ser .xlsx");
                     return View();
                 }
 
-                var carpeta = Path.Combine(_env.WebRootPath, "uploads", "integracion");
-                Directory.CreateDirectory(carpeta);
-
-                var originalName = Path.GetFileName(archivo.FileName);
-                var safeName = string.Join("_", originalName.Split(Path.GetInvalidFileNameChars(), StringSplitOptions.RemoveEmptyEntries))
-                                    .Replace(" ", "_");
-
-                var nombreSeguro = $"{DateTime.UtcNow:yyyyMMddHHmmss}_{safeName}";
-                var rutaFisica = Path.Combine(carpeta, nombreSeguro);
-
-                _logger.LogInformation(
-                    "Guardando archivo de integración. Usuario: {UsuarioId}, TipoCarga: {TipoCarga}, ArchivoOriginal: {ArchivoOriginal}, RutaFisica: {RutaFisica}",
-                    userId,
-                    tipoCarga,
-                    originalName,
-                    rutaFisica);
-
-                await using (var stream = System.IO.File.Create(rutaFisica))
+                if (string.IsNullOrEmpty(userId))
                 {
-                    await archivo.CopyToAsync(stream);
+                    throw new UnauthorizedAccessException("Usuario no autenticado.");
+                }
+
+                //Read file into memory, not wwwroot
+                byte[] archivoBytes;
+                await using (var ms = new MemoryStream())
+                {
+                    await archivo.CopyToAsync(ms);
+                    archivoBytes = ms.ToArray();
                 }
 
                 var historialId = await _integracion.RegistrarCargaAsync(
-                    nombreArchivoOriginal: originalName,
-                    rutaArchivoRelativa: $"/uploads/integracion/{nombreSeguro}",
+                    nombreArchivoOriginal: archivo.FileName,
+                    archivoBytes: archivoBytes,
+                    tipoMime: archivo.ContentType,
+                    pesoBytes: archivo.Length,
                     usuarioId: userId,
                     tipoCarga: tipoCarga
                 );
-
-                _logger.LogInformation(
-                    "Carga registrada correctamente. Usuario: {UsuarioId}, TipoCarga: {TipoCarga}, HistorialId: {HistorialId}, Archivo: {Archivo}",
-                    userId,
-                    tipoCarga,
-                    historialId,
-                    originalName);
 
                 return RedirectToAction(nameof(Validation), new { historialId });
             }
             catch (Exception ex)
             {
-                _logger.LogError(
-                    ex,
-                    "Error inesperado al subir archivo de integración. Usuario: {UsuarioId}, TipoCarga: {TipoCarga}, Archivo: {Archivo}, Tamano: {Tamano}",
-                    userId,
-                    tipoCarga,
-                    archivo?.FileName,
-                    archivo?.Length);
-
+                _logger.LogError(ex, "Error al subir archivo.");
                 throw;
             }
         }
@@ -175,6 +122,13 @@ namespace SASA.Controllers
                     return RedirectToAction(nameof(History));
                 }
 
+                //Validación BLOB
+                if (historial.Archivo == null || historial.Archivo.Length == 0)
+                {
+                    TempData["Error"] = "El archivo asociado no existe o está vacío.";
+                    return RedirectToAction(nameof(History));
+                }
+
                 if (historial.Modulo == "InventarioTelefonos")
                 {
                     _logger.LogInformation(
@@ -182,7 +136,7 @@ namespace SASA.Controllers
                         historialId,
                         historial.NombreArchivo);
 
-                    var dtoTelefonos = await _integracion.ValidarTelefonosDesdeExcelAsync(historialId, _env.WebRootPath);
+                    var dtoTelefonos = await _integracion.ValidarTelefonosDesdeExcelAsync(historialId);
 
                     _logger.LogInformation(
                         "Validación de teléfonos completada. HistorialId: {HistorialId}, TotalFilas: {TotalFilas}, FilasValidas: {FilasValidas}, FilasConError: {FilasConError}",
@@ -199,7 +153,7 @@ namespace SASA.Controllers
                     historialId,
                     historial.NombreArchivo);
 
-                var dtoEquipos = await _integracion.ValidarInventarioDesdeExcelAsync(historialId, _env.WebRootPath);
+                var dtoEquipos = await _integracion.ValidarInventarioDesdeExcelAsync(historialId);
 
                 _logger.LogInformation(
                     "Validación de equipos completada. HistorialId: {HistorialId}, TotalFilas: {TotalFilas}, FilasValidas: {FilasValidas}, FilasConError: {FilasConError}",
@@ -380,7 +334,7 @@ namespace SASA.Controllers
                 historialId,
                 userId);
 
-            var resultado = await _integracion.ReprocesarArchivoAsync(historialId, _env.WebRootPath, userId);
+            var resultado = await _integracion.ReprocesarArchivoAsync(historialId, userId);
 
             _logger.LogInformation(
                 "Resultado de reprocesar archivo. HistorialId: {HistorialId}, Usuario: {UsuarioId}, Ok: {Ok}, Mensaje: {Mensaje}",
