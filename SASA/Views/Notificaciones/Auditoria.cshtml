@@ -12,11 +12,11 @@
         </div>
 
         <form method="get" class="audit-filters row g-2 mb-3">
-            <div class="col-md-3">
+            <div class="col-12 col-md-3">
                 <input name="q" value="@Model.Q" class="form-control" placeholder="Buscar por estado o fecha">
             </div>
 
-            <div class="col-md-2">
+            <div class="col-12 col-md-2">
                 <select name="estado" class="form-select">
                     <option value="">Estado</option>
                     <option value="NoLeida" selected="@(Model.Estado == "NoLeida")">NoLeida</option>
@@ -24,18 +24,19 @@
                 </select>
             </div>
 
-            <div class="col-md-2">
+            <div class="col-12 col-md-2">
                 <input name="fecha" value="@(Model.Fecha?.ToString("yyyy-MM-dd"))" class="form-control" type="date">
             </div>
 
-            <div class="col-md-3">
+            <div class="col-12 col-md-3">
                 <button class="btn btn-outline-secondary w-100">
                     <i class="bi bi-funnel"></i> Filtrar
                 </button>
             </div>
         </form>
 
-        <table class="table sasa-table">
+        <div class="table-responsive">
+            <table class="table sasa-table">
             <thead>
                 <tr>
                     <th>Fecha</th>
@@ -50,7 +51,7 @@
                 @if (Model.Elementos.Count == 0)
                 {
                     <tr>
-                        <td colspan="7" class="text-muted">No hay notificaciones con esos filtros.</td>
+                        <td colspan="6" class="text-muted">No hay notificaciones con esos filtros.</td>
                     </tr>
                 }
                 else
@@ -60,8 +61,8 @@
                         <tr>
                             <td>@n.FechaCreacion.ToString("dd/MM/yyyy HH:mm")</td>
                             <td><span class="badge bg-primary">@n.TipoEvento</span></td>
-                            <td>Tiquete #@n.IdTiquete</td>
-                            <td>@n.Destinatario</td>
+                            <td class="text-break">Tiquete #@n.IdTiquete</td>
+                            <td class="text-break">@n.Destinatario</td>
                             <td>
                                 @if (n.Estado == "Leida")
                                 {
@@ -82,6 +83,7 @@
                 }
             </tbody>
         </table>
+        </div>
 
         @{
             var totalPaginas = (int)Math.Ceiling(Model.TotalRegistros / (double)Model.TamanoPagina);

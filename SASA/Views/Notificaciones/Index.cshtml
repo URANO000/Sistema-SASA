@@ -10,7 +10,7 @@
 
 <div class="sasa-card">
 
-    <div class="notif-header">
+    <div class="notif-header d-flex flex-column flex-md-row justify-content-between align-items-start gap-3">
         <div>
             <h2 class="mb-0">Centro de notificaciones</h2>
             <div class="text-muted small">
@@ -18,7 +18,7 @@
             </div>
         </div>
 
-        <div class="notif-actions">
+        <div class="notif-actions d-flex gap-2 mt-2 mt-md-0">
 
             <form asp-controller="Notificaciones" asp-action="MarcarTodasComoLeidas" method="post">
                 <button class="btn btn-outline-primary btn-sm" type="submit" id="btnMarkAll">
@@ -41,11 +41,11 @@
 
     <div class="card-body pt-3">
         <form method="get" class="row g-2 mb-3">
-            <div class="col-md-4">
+            <div class="col-12 col-md-4">
                 <input name="q" value="@Model.Q" class="form-control" placeholder="Buscar por fecha o estado">
             </div>
 
-            <div class="col-md-2">
+            <div class="col-12 col-md-2">
                 <select name="estado" class="form-select">
                     <option value="">Estado</option>
                     <option value="NoLeida" selected="@(Model.Estado == "NoLeida")">NoLeida</option>
@@ -53,11 +53,11 @@
                 </select>
             </div>
 
-            <div class="col-md-2">
+            <div class="col-12 col-md-2">
                 <input name="fecha" value="@(Model.Fecha?.ToString("yyyy-MM-dd"))" class="form-control" type="date">
             </div>
 
-            <div class="col-md-2">
+            <div class="col-12 col-md-2">
                 <button class="btn btn-outline-secondary w-100">
                     <i class="bi bi-funnel"></i> Filtrar
                 </button>
@@ -94,25 +94,25 @@
 
                     <div class="notif-body">
 
-                        <div class="notif-row">
+                        <div class="notif-row d-flex flex-column flex-md-row justify-content-between">
 
                             <div>
                                 <div class="notif-title">
                                     @TituloPorTipoEvento(n.TipoEvento, n.IdTiquete)
                                 </div>
 
-                                <div class="notif-text">
+                                <div class="notif-text text-break">
                                     @n.Mensaje
                                 </div>
 
-                                <div class="notif-meta">
+                                <div class="notif-meta text-break">
                                     @FormatearTiempo(n.FechaCreacion)
                                     • Relacionado:
                                     <strong>Tiquete #@n.IdTiquete</strong>
                                 </div>
                             </div>
 
-                            <div class="notif-controls">
+                            <div class="notif-controls d-flex gap-2 mt-2 mt-md-0 align-items-start">
 
                                 <form asp-controller="Notificaciones"
                                       asp-action="AlternarLeida"
