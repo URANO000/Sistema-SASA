@@ -2,6 +2,7 @@
 using DataAccess.Modelos.DTOs.Integracion;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using SASA.Filters;
 using SASA.ViewModels.Integracion;
 using System.Security.Claims;
@@ -14,13 +15,18 @@ namespace SASA.Controllers
     {
         private readonly IIntegracionService _integracion;
         private readonly IWebHostEnvironment _env;
+        private readonly ILogger<IntegrationController> _logger;
 
         private const long MaxFileSizeBytes = 10 * 1024 * 1024;
 
-        public IntegrationController(IIntegracionService integracion, IWebHostEnvironment env)
+        public IntegrationController(
+            IIntegracionService integracion,
+            IWebHostEnvironment env,
+            ILogger<IntegrationController> logger)
         {
             _integracion = integracion;
             _env = env;
+            _logger = logger;
         }
 
         public IActionResult Index() => View();
@@ -32,56 +38,64 @@ namespace SASA.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Upload(IFormFile archivo, string tipoCarga)
         {
-            if (archivo == null || archivo.Length == 0)
-            {
-                ModelState.AddModelError("", "Debe seleccionar un archivo.");
-                return View();
-            }
-
-            if (archivo.Length > MaxFileSizeBytes)
-            {
-                ModelState.AddModelError("", $"El archivo supera el tamaño máximo permitido ({MaxFileSizeBytes / (1024 * 1024)}MB).");
-                return View();
-            }
-
-            if (tipoCarga != "Equipos" && tipoCarga != "Telefonos")
-            {
-                ModelState.AddModelError("", "Debe seleccionar un tipo de integración válido.");
-                return View();
-            }
-
-            var ext = Path.GetExtension(archivo.FileName).ToLowerInvariant();
-            if (ext != ".xlsx")
-            {
-                ModelState.AddModelError("", "Formato inválido. Debe ser .xlsx");
-                return View();
-            }
-
-            var carpeta = Path.Combine(_env.WebRootPath, "uploads", "integracion");
-            Directory.CreateDirectory(carpeta);
-
-            var originalName = Path.GetFileName(archivo.FileName);
-            var safeName = string.Join("_", originalName.Split(Path.GetInvalidFileNameChars(), StringSplitOptions.RemoveEmptyEntries))
-                                .Replace(" ", "_");
-
-            var nombreSeguro = $"{DateTime.UtcNow:yyyyMMddHHmmss}_{safeName}";
-            var rutaFisica = Path.Combine(carpeta, nombreSeguro);
-
-            await using (var stream = System.IO.File.Create(rutaFisica))
-            {
-                await archivo.CopyToAsync(stream);
-            }
-
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            var historialId = await _integracion.RegistrarCargaAsync(
-                nombreArchivoOriginal: originalName,
-                rutaArchivoRelativa: $"/uploads/integracion/{nombreSeguro}",
-                usuarioId: userId,
-                tipoCarga: tipoCarga
-            );
+            try
+            {
+                if (archivo == null || archivo.Length == 0)
+                {
+                    ModelState.AddModelError("", "Debe seleccionar un archivo.");
+                    return View();
+                }
 
-            return RedirectToAction(nameof(Validation), new { historialId });
+                if (archivo.Length > MaxFileSizeBytes)
+                {
+                    ModelState.AddModelError("", $"El archivo supera el tamaño máximo permitido ({MaxFileSizeBytes / (1024 * 1024)}MB).");
+                    return View();
+                }
+
+                if (tipoCarga != "Equipos" && tipoCarga != "Telefonos")
+                {
+                    ModelState.AddModelError("", "Debe seleccionar un tipo válido.");
+                    return View();
+                }
+
+                var ext = Path.GetExtension(archivo.FileName).ToLowerInvariant();
+                if (ext != ".xlsx")
+                {
+                    ModelState.AddModelError("", "Formato inválido. Debe ser .xlsx");
+                    return View();
+                }
+
+                if (string.IsNullOrEmpty(userId))
+                {
+                    throw new UnauthorizedAccessException("Usuario no autenticado.");
+                }
+
+                //Read file into memory, not wwwroot
+                byte[] archivoBytes;
+                await using (var ms = new MemoryStream())
+                {
+                    await archivo.CopyToAsync(ms);
+                    archivoBytes = ms.ToArray();
+                }
+
+                var historialId = await _integracion.RegistrarCargaAsync(
+                    nombreArchivoOriginal: archivo.FileName,
+                    archivoBytes: archivoBytes,
+                    tipoMime: archivo.ContentType,
+                    pesoBytes: archivo.Length,
+                    usuarioId: userId,
+                    tipoCarga: tipoCarga
+                );
+
+                return RedirectToAction(nameof(Validation), new { historialId });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error al subir archivo.");
+                throw;
+            }
         }
 
         [HttpGet]
@@ -89,28 +103,87 @@ namespace SASA.Controllers
         {
             try
             {
+                _logger.LogInformation(
+                    "Iniciando validación de integración. HistorialId: {HistorialId}, Usuario: {UsuarioId}",
+                    historialId,
+                    User.FindFirstValue(ClaimTypes.NameIdentifier));
+
                 var historial = (await _integracion.ObtenerHistorialAsync())
                     .FirstOrDefault(x => x.Id == historialId);
 
                 if (historial == null)
                 {
+                    _logger.LogWarning(
+                        "No se encontró historial para validación. HistorialId: {HistorialId}, Usuario: {UsuarioId}",
+                        historialId,
+                        User.FindFirstValue(ClaimTypes.NameIdentifier));
+
                     TempData["Error"] = "No se encontró el historial solicitado.";
+                    return RedirectToAction(nameof(History));
+                }
+
+                //Validación BLOB
+                if (historial.Archivo == null || historial.Archivo.Length == 0)
+                {
+                    TempData["Error"] = "El archivo asociado no existe o está vacío.";
                     return RedirectToAction(nameof(History));
                 }
 
                 if (historial.Modulo == "InventarioTelefonos")
                 {
-                    var dtoTelefonos = await _integracion.ValidarTelefonosDesdeExcelAsync(historialId, _env.WebRootPath);
+                    _logger.LogInformation(
+                        "Validando archivo de teléfonos. HistorialId: {HistorialId}, Archivo: {Archivo}",
+                        historialId,
+                        historial.NombreArchivo);
+
+                    var dtoTelefonos = await _integracion.ValidarTelefonosDesdeExcelAsync(historialId);
+
+                    _logger.LogInformation(
+                        "Validación de teléfonos completada. HistorialId: {HistorialId}, TotalFilas: {TotalFilas}, FilasValidas: {FilasValidas}, FilasConError: {FilasConError}",
+                        historialId,
+                        dtoTelefonos.TotalFilas,
+                        dtoTelefonos.FilasValidas,
+                        dtoTelefonos.FilasConError);
+
                     return View("ValidationPhones", MapToTelefonoViewModel(dtoTelefonos));
                 }
 
-                var dtoEquipos = await _integracion.ValidarInventarioDesdeExcelAsync(historialId, _env.WebRootPath);
+                _logger.LogInformation(
+                    "Validando archivo de equipos. HistorialId: {HistorialId}, Archivo: {Archivo}",
+                    historialId,
+                    historial.NombreArchivo);
+
+                var dtoEquipos = await _integracion.ValidarInventarioDesdeExcelAsync(historialId);
+
+                _logger.LogInformation(
+                    "Validación de equipos completada. HistorialId: {HistorialId}, TotalFilas: {TotalFilas}, FilasValidas: {FilasValidas}, FilasConError: {FilasConError}",
+                    historialId,
+                    dtoEquipos.TotalFilas,
+                    dtoEquipos.FilasValidas,
+                    dtoEquipos.FilasConError);
+
                 return View("Validation", MapToViewModel(dtoEquipos));
             }
             catch (InvalidOperationException ex) when (ex.Message.Contains("Historial no encontrado"))
             {
+                _logger.LogWarning(
+                    ex,
+                    "Historial no encontrado durante validación. HistorialId: {HistorialId}, Usuario: {UsuarioId}",
+                    historialId,
+                    User.FindFirstValue(ClaimTypes.NameIdentifier));
+
                 TempData["Error"] = "No se encontró el historial solicitado (posible link incorrecto).";
                 return RedirectToAction(nameof(History));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(
+                    ex,
+                    "Error inesperado durante validación de integración. HistorialId: {HistorialId}, Usuario: {UsuarioId}",
+                    historialId,
+                    User.FindFirstValue(ClaimTypes.NameIdentifier));
+
+                throw;
             }
         }
 
@@ -119,6 +192,12 @@ namespace SASA.Controllers
         public async Task<IActionResult> ConfirmImport(ValidacionImportacionViewModel model)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            _logger.LogInformation(
+                "Inicio de confirmación de importación de equipos. HistorialId: {HistorialId}, Usuario: {UsuarioId}, TotalFilasEnModelo: {TotalFilas}",
+                model.HistorialId,
+                userId,
+                model.FilasDetectadas?.Count ?? 0);
 
             var filas = (model.FilasDetectadas ?? new List<FilaImportacionActivos>())
                 .Select(f => new FilaImportacionActivosDto
@@ -140,6 +219,13 @@ namespace SASA.Controllers
 
             var resultado = await _integracion.ConfirmarImportacionInventarioEditadoAsync(model.HistorialId, filas, userId);
 
+            _logger.LogInformation(
+                "Resultado de confirmación de importación de equipos. HistorialId: {HistorialId}, Usuario: {UsuarioId}, Ok: {Ok}, Mensaje: {Mensaje}",
+                model.HistorialId,
+                userId,
+                resultado.Ok,
+                resultado.Mensaje);
+
             if (!resultado.Ok)
             {
                 ModelState.AddModelError("", resultado.Mensaje);
@@ -155,6 +241,12 @@ namespace SASA.Controllers
         public async Task<IActionResult> ConfirmImportPhones(ValidacionImportacionTelefonoViewModel model)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            _logger.LogInformation(
+                "Inicio de confirmación de importación de teléfonos. HistorialId: {HistorialId}, Usuario: {UsuarioId}, TotalFilasEnModelo: {TotalFilas}",
+                model.HistorialId,
+                userId,
+                model.FilasDetectadas?.Count ?? 0);
 
             var filas = (model.FilasDetectadas ?? new List<FilaImportacionTelefonos>())
                 .Select(f => new FilaImportacionTelefonoDto
@@ -175,6 +267,13 @@ namespace SASA.Controllers
 
             var resultado = await _integracion.ConfirmarImportacionTelefonosAsync(model.HistorialId, filas, userId);
 
+            _logger.LogInformation(
+                "Resultado de confirmación de importación de teléfonos. HistorialId: {HistorialId}, Usuario: {UsuarioId}, Ok: {Ok}, Mensaje: {Mensaje}",
+                model.HistorialId,
+                userId,
+                resultado.Ok,
+                resultado.Mensaje);
+
             if (!resultado.Ok)
             {
                 ModelState.AddModelError("", resultado.Mensaje);
@@ -188,6 +287,10 @@ namespace SASA.Controllers
         [HttpGet]
         public async Task<IActionResult> History()
         {
+            _logger.LogInformation(
+                "Consulta de historial de integración. Usuario: {UsuarioId}",
+                User.FindFirstValue(ClaimTypes.NameIdentifier));
+
             var data = await _integracion.ObtenerHistorialAsync();
             return View(data);
         }
@@ -198,7 +301,19 @@ namespace SASA.Controllers
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
+            _logger.LogInformation(
+                "Solicitud para deshabilitar archivo de integración. HistorialId: {HistorialId}, Usuario: {UsuarioId}",
+                historialId,
+                userId);
+
             var resultado = await _integracion.DeshabilitarArchivoAsync(historialId, userId);
+
+            _logger.LogInformation(
+                "Resultado de deshabilitar archivo. HistorialId: {HistorialId}, Usuario: {UsuarioId}, Ok: {Ok}, Mensaje: {Mensaje}",
+                historialId,
+                userId,
+                resultado.Ok,
+                resultado.Mensaje);
 
             if (resultado.Ok)
                 TempData["Success"] = resultado.Mensaje;
@@ -214,7 +329,19 @@ namespace SASA.Controllers
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            var resultado = await _integracion.ReprocesarArchivoAsync(historialId, _env.WebRootPath, userId);
+            _logger.LogInformation(
+                "Solicitud para reprocesar archivo de integración. HistorialId: {HistorialId}, Usuario: {UsuarioId}",
+                historialId,
+                userId);
+
+            var resultado = await _integracion.ReprocesarArchivoAsync(historialId, userId);
+
+            _logger.LogInformation(
+                "Resultado de reprocesar archivo. HistorialId: {HistorialId}, Usuario: {UsuarioId}, Ok: {Ok}, Mensaje: {Mensaje}",
+                historialId,
+                userId,
+                resultado.Ok,
+                resultado.Mensaje);
 
             if (resultado.Ok)
                 TempData["Success"] = resultado.Mensaje;
