@@ -1,4 +1,5 @@
 @using SASA.ViewModels.Tiquete
+@using DataAccess.Modelos.Enums;
 @model TiqueteEditarViewModel
 @{
     ViewData["Title"] = "Editar Tiquete";
@@ -87,12 +88,14 @@
                 <div class="col-md-6">
                     <label asp-for="IdEstatus" class="form-label">Estado</label>
                     <select asp-for="IdEstatus"
-                            asp-items="Model.Estatuses" class="form-select">
+                            asp-items="Model.Estatuses" class="form-select"
+                            id="estatusDropdown"
+                            data-cancelado="@((int)TiqueteEstatus.Cancelado)">
                         <option value="" disabled>Seleccione al usuario a asignar</option>
                     </select>
                     <span asp-validation-for="IdEstatus" class="text-danger"></span>
                 </div>
-                <div class="col-12">
+                <div class="col-12" id="resolucionContainer">
                         <label asp-for="Resolucion" class="form-label">Resolución</label>
                         <textarea asp-for="Resolucion" class="form-control" rows="4"
                                   placeholder="Para cancelar el tiquete, una resolución es necesaria"></textarea>
@@ -119,4 +122,5 @@
 
 @section Scripts {
     <script src="~/js/formSubmits.js" asp-append-version="true"></script>
+    <script src="~/js/ticketFunctionality.js" asp-append-version="true"></script>
 }
