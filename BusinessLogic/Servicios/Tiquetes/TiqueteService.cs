@@ -368,10 +368,17 @@ namespace BusinessLogic.Servicios.Tiquetes
 
                     //Para historial y colas
                     var asignadoAnterior = tiquete.IdAsignee;
-                    var usuarioAnterior = await _userManager.FindByIdAsync(asignadoAnterior);
-                    _helper.ValidarUsuarioExiste(usuarioAnterior);
+                    var usuarioAnterior = null as ApplicationUser;
 
-                    var nombreAnterior = usuarioAnterior.PrimerNombre + " " + usuarioAnterior.PrimerApellido;
+                    if(asignadoAnterior != null)
+                    {
+                        usuarioAnterior = await _userManager.FindByIdAsync(asignadoAnterior);
+                        _helper.ValidarUsuarioExiste(usuarioAnterior);
+                    }
+
+                    var nombreAnterior = usuarioAnterior != null
+                        ? $"{usuarioAnterior.PrimerNombre} {usuarioAnterior.PrimerApellido}"
+                        : null;
 
                     //Para colas nada más
                     bool cambiaAssignee = asignadoAnterior != dto.IdAssignee;
