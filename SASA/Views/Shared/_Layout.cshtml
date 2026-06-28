@@ -159,24 +159,9 @@
                             <i class=""></i>
                             Gestión de Intentos de Inicio de Sesión
                         </a>
-                        <a asp-area="" asp-controller="Categoria" asp-action="Index" class="submenu-link">
-                            <i class=""></i>
-                            Gestión de Categorías
-                        </a>
-                        <a asp-area="" asp-controller="Tiquete" asp-action="Index" class="submenu-link">
-                            <i class=""></i>
-                            Gestión de Tiquetes
-                        </a>
-                        <a asp-area="" asp-controller="TiqueteHistorial" asp-action="Index" class="submenu-link">
-                            <i class=""></i>
-                            Gestión Historial de Tiquetes
-                        </a>
-                        <a asp-area="" asp-controller="Cola" asp-action="Index" class="submenu-link">
-                            <i class=""></i>
-                            Gestión de Colas
-                        </a>
                     </div>
                 </div>
+             
                     <div class="nav-section">
                         <button class="nav-link dropdown-toggle-btn" type="button">
                             <i class="bi bi-archive"></i>
@@ -206,6 +191,36 @@
                             </a>
                         </div>
                     </div>
+
+                     <div class="nav-section">
+                    <span class="section-title">Tiquetes</span>
+                    <button class="nav-link dropdown-toggle-btn" type="button">
+                        <i class="bi bi-ticket-perforated"></i>
+                        Módulo de tiquetes
+                                            <i class="bi-chevron-down ms-auto"></i>
+                    </button>
+
+                    <div class="submenu">
+                        <a asp-area="" asp-controller="Tiquete" asp-action="Index" class="submenu-link">
+                            <i class=""></i>
+                            Gestión de Tiquetes
+                        </a>
+                        <a asp-area="" asp-controller="TiqueteHistorial" asp-action="Index" class="submenu-link">
+                            <i class=""></i>
+                            Gestión Historial de Tiquetes
+                        </a>
+
+                         <a asp-area="" asp-controller="Categoria" asp-action="Index" class="submenu-link">
+                            <i class=""></i>
+                            Gestión de Categorías
+                        </a>
+                         <a asp-area="" asp-controller="Cola" asp-action="Index" class="submenu-link">
+                            <i class=""></i>
+                            Gestión de Colas
+                        </a>
+                    </div>
+                    
+                </div>
 
                 <div class="nav-section">
                     <span class="section-title">Integración</span>
