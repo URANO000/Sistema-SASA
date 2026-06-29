@@ -272,7 +272,7 @@ $(function () {
             if (file.size > 2 * 1024 * 1024) {
                 $("#addTicket").modal("hide");
                 $("#alertModal").modal("show");
-                $("#mensaje").text("Un archivo supera el límite de 1MB.");
+                $("#mensaje").text("Un archivo supera el límite de 2MB.");
                 return;
             }
 
