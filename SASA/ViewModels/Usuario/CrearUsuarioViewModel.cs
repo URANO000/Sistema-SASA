@@ -13,7 +13,7 @@ namespace SASA.ViewModels.Usuario
         public required string PrimerApellido { get; set; }
         public string? SegundoApellido { get; set; }
         [Required(ErrorMessage = "El correo empresarial es obligatorio.")]
-        [EmailAddress]
+        [EmailAddress(ErrorMessage ="El correo tiene un formato incorrecto.")]
         public required string CorreoEmpresa { get; set; }
         [Required(ErrorMessage = "El departamento es obligatorio.")]
         public required string Departamento { get; set; }
@@ -21,7 +21,7 @@ namespace SASA.ViewModels.Usuario
         public required string Puesto { get; set; }
 
         //POST para seleccionar rol
-        [Required]
+        [Required(ErrorMessage ="El rol es obligatorio.")]
         public required string Rol { get; set; }
 
         //GET para roles disponibles
