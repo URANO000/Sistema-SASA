@@ -10,11 +10,15 @@ namespace SASA.ViewModels.Notificaciones
         public string? Estado { get; set; }
         public DateTime? Fecha { get; set; }
 
-     
+
         public int Pagina { get; set; } = 1;
         public int TamanoPagina { get; set; } = 10;
         public int TotalRegistros { get; set; }
 
         public List<NotificacionAuditoriaItemViewModel> Elementos { get; set; } = new();
+
+        public int TotalPaginas => TotalRegistros == 0 ? 1 : (int)Math.Ceiling((double)TotalRegistros / TamanoPagina);
+        public bool TieneAnterior => Pagina > 1;
+        public bool TieneSiguiente => Pagina < TotalPaginas;
     }
 }

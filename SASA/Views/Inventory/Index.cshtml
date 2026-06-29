@@ -202,27 +202,28 @@
             </div>
 
             <!-- Paginación -->
-            <div class="d-flex flex-column flex-md-row justify-content-between align-items-center gap-2 mt-3">
-                <div class="text-muted small">
-                    Página <strong>@Model.PageNumber</strong> de <strong>@Model.TotalPages</strong>
-                </div>
-
+            <div class="d-flex flex-column align-items-center gap-2 mt-3">
                 <nav aria-label="Paginación">
-                    <ul class="pagination mb-0">
-                        <li class="page-item @(!Model.HasPrev ? "disabled" : "")">
+                    <ul class="pagination pagination-sm mb-0 justify-content-center">
+                        <!-- Previous -->
+                        <li class="page-item @(Model.HasPrev ? "" : "disabled")">
                             <a class="page-link"
-                               href="@(!Model.HasPrev ? "#" : BuildUrl(Model.SortBy, Model.SortDir, Model.PageNumber - 1))">
+                               href="@(Model.HasPrev ? BuildUrl(Model.SortBy, Model.SortDir, Model.PageNumber - 1) : "#")">
                                 Anterior
                             </a>
                         </li>
 
-                        <li class="page-item active">
-                            <span class="page-link">@Model.PageNumber</span>
+                        <!-- Info -->
+                        <li class="page-item disabled">
+                            <span class="page-link">
+                                Página @Model.PageNumber de @Model.TotalPages
+                            </span>
                         </li>
 
-                        <li class="page-item @(!Model.HasNext ? "disabled" : "")">
+                        <!-- Next -->
+                        <li class="page-item @(Model.HasNext ? "" : "disabled")">
                             <a class="page-link"
-                               href="@(!Model.HasNext ? "#" : BuildUrl(Model.SortBy, Model.SortDir, Model.PageNumber + 1))">
+                               href="@(Model.HasNext ? BuildUrl(Model.SortBy, Model.SortDir, Model.PageNumber + 1) : "#")">
                                 Siguiente
                             </a>
                         </li>
