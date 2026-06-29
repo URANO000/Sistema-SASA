@@ -60,7 +60,8 @@ namespace DataAccess.Repositorios.TiqueteHistoriales
             {
                 query = query.Where(t =>
                     t.Tiquete.Asunto.Contains(filtro.Search) ||
-                    t.User.CorreoEmpresa.Contains(filtro.Search)
+                    t.User.PrimerNombre.Contains(filtro.Search) ||
+                    t.User.PrimerApellido.Contains(filtro.Search)
                     );
             }
 
@@ -81,8 +82,9 @@ namespace DataAccess.Repositorios.TiqueteHistoriales
             if (filtro.Fecha.HasValue)
             {
                 var fecha = filtro.Fecha.Value.Date;
+                var fechaSiguiente = fecha.AddDays(1);
 
-                query = query.Where(t => t.PerformedAt == fecha);
+                query = query.Where(t => t.PerformedAt >= fecha && t.PerformedAt < fechaSiguiente);
             }
             else if (filtro.FechaInicio.HasValue && filtro.FechaFinal.HasValue)
             {
