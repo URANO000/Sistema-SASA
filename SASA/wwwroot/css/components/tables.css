@@ -1,4 +1,4 @@
-﻿table-custom thead {
+﻿.table-custom thead {
     height: 5vh;
     background-color: #f9fafb;
     border-bottom: rgba(0, 0, 0, .05);
@@ -6,4 +6,74 @@
 
 .table td, .table th {
     vertical-align: middle;
+}
+
+/* SASA Table Styles */
+.sasa-table {
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+.sasa-table thead {
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.sasa-table thead th {
+    padding: 0.75rem;
+    font-weight: 600;
+    font-size: 0.875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #495057;
+    border: none;
+}
+
+.sasa-table tbody tr {
+    border-bottom: 1px solid #dee2e6;
+    transition: background-color 0.2s ease;
+}
+
+.sasa-table tbody tr:hover {
+    background-color: #f8f9fa;
+}
+
+.sasa-table td {
+    padding: 0.75rem;
+}
+
+/* Icon Button Styles */
+.icon-btn {
+    padding: 0.375rem 0.5rem !important;
+    border: none;
+    background: transparent;
+    color: inherit;
+    font-size: 1rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.2s ease, transform 0.2s ease;
+}
+
+.icon-btn:hover {
+    color: #0d6efd;
+    transform: scale(1.15);
+    text-decoration: none;
+}
+
+.icon-btn.detail-btn {
+    color: #0d6efd;
+}
+
+.icon-btn.edit-btn {
+    color: #198754;
+}
+
+.icon-btn.delete-btn {
+    color: #dc3545;
+}
+
+.icon-btn:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.25);
 }

@@ -36,15 +36,15 @@
         </form>
 
         <div class="table-responsive">
-            <table class="table sasa-table">
+            <table class="table table-hover align-middle sasa-table">
             <thead>
                 <tr>
+                    <th>Acciones</th>
                     <th>Fecha</th>
                     <th>Tipo</th>
                     <th>Relacionado</th>
                     <th>Destinatario</th>
                     <th>Estado</th>
-                    <th>Detalle</th>
                 </tr>
             </thead>
             <tbody>
@@ -59,6 +59,11 @@
                     foreach (var n in Model.Elementos)
                     {
                         <tr>
+                            <td>
+                                <a class="btn btn-link icon-btn" asp-controller="Notificaciones" asp-action="AuditoriaDetalle" asp-route-id="@n.IdNotificacion">
+                                    <i class="bi bi-eye detail-btn"></i>
+                                </a>
+                            </td>
                             <td>@n.FechaCreacion.ToString("dd/MM/yyyy HH:mm")</td>
                             <td><span class="badge bg-primary">@n.TipoEvento</span></td>
                             <td class="text-break">Tiquete #@n.IdTiquete</td>
@@ -72,11 +77,6 @@
                                 {
                                     <span class="badge bg-warning text-dark">No leída</span>
                                 }
-                            </td>
-                            <td class="sasa-actions">
-                                <a asp-controller="Notificaciones" asp-action="AuditoriaDetalle" asp-route-id="@n.IdNotificacion">
-                                    <i class="bi bi-eye"></i>
-                                </a>
                             </td>
                         </tr>
                     }
