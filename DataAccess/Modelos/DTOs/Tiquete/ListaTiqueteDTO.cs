@@ -17,6 +17,8 @@ namespace DataAccess.Modelos.DTOs.Tiquete
         public string? Departamento { get; set; }
         public string? Assignee { get; set; }
 
+        public int? DuracionMinutos { get; set; }
+
         public DateTime CreatedAt { get; set; }
         public DateTime? UpdatedAt { get; set; }
 

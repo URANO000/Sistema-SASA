@@ -1,4 +1,5 @@
 ﻿@using SASA.ViewModels.Tiquete;
+@using DataAccess.Modelos.Enums;
 @model TiqueteIndexViewModel
 
 @{
@@ -8,6 +9,26 @@
     <!-- Header -->
     <div class="card mb-3">
         <div class="card-body">
+            @if (User.IsInRole("Administrador"))
+            {
+                <ul class="nav nav-tabs mb-3">
+                    <li class="nav-item">
+                        <a class="nav-link @(Model.Filtro.Vista == VistaTiquetes.AsignadosAMi ? "active" : "")"
+                           asp-action="Index"
+                           asp-route-Vista="@VistaTiquetes.AsignadosAMi">
+                            Mis asignaciones
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link @(Model.Filtro.Vista == VistaTiquetes.Todos ? "active" : "")"
+                           asp-action="Index"
+                           asp-route-Vista="@VistaTiquetes.Todos">
+                            Todos
+                        </a>
+                    </li>
+                </ul>
+            }
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <h2 class="mb-0 fw-bold">Gestión de Tiquetes</h2>
                     <button class="btn btn-custom" data-bs-toggle="modal" data-bs-target="#addTicket">
@@ -16,9 +37,12 @@
                     </button>
 
             </div>
+
             <!-- Filters -->
             <form method="get">
                 <div class="row g-3 align-items-end mb-3">
+                    <input asp-for="Filtro.Vista" type="hidden" />
+
                     <div class="col-md-4">
                         <label class="form-label">Buscar</label>
                         <input type="text" name="Filtro.Search" asp-for="Filtro.Search"
@@ -50,7 +74,8 @@
                             <input type="date"
                                    class="form-control"
                                    name="Filtro.Fecha"
-                                   id="filter-date-single">
+                                   id="filter-date-single"
+                                   asp-for="Filtro.Fecha">
                         </div>
 
                         <!-- Range -->
@@ -61,6 +86,7 @@
                                        class="form-control"
                                        name="Filtro.FechaInicio"
                                        id="filter-date-from"
+                                       asp-for="Filtro.FechaInicio"
                                        disabled>
                             </div>
 
@@ -70,6 +96,7 @@
                                        class="form-control"
                                        name="Filtro.FechaFinal"
                                        id="filter-date-to"
+                                       asp-for="Filtro.FechaFinal"
                                        disabled>
                             </div>
                         </div>
@@ -124,7 +151,10 @@
                             <th>Departamento</th>
                             <th>Fecha de Creación</th>
                             <th>Asignado</th>
-                            <th>Fecha de Edición</th>
+                            @if (User.IsInRole("Administrador"))
+                            {
+                                <th>Tiempo de Atención</th>
+                            }
                         </tr>
                     </thead>
                     <tbody>
@@ -192,7 +222,35 @@
                                 <td>@t.Departamento</td>
                                 <td>@t.CreatedAt</td>
                                 <td>@t.Assignee</td>
-                                <td>@t.UpdatedAt</td>
+                                @if (User.IsInRole("Administrador"))
+                                {
+                                    <td>
+                                        @if (t.Estatus == "Resuelto")
+                                        {
+                                            <span class="badge bg-primary">
+                                                Resuelto
+                                            </span>
+                                        }
+                                        else if (t.Estatus == "Cancelado")
+                                        {
+                                            <span class="badge bg-secondary">
+                                                Cancelado
+                                            </span>
+                                        }
+                                        else if (t.EstaAtrasado)
+                                        {
+                                            <span class="badge bg-danger">
+                                                Atrasado: @t.TiempoExcedido
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-success">
+                                                Tiempo restante: @t.TiempoRestante
+                                            </span>
+                                        }
+                                    </td>
+                                }
                             </tr>
                         }
 
@@ -207,6 +265,7 @@
                                asp-action="Index"
                                asp-route-PageNumber="@(Model.Filtro.PageNumber - 1)"
                                asp-route-PageSize="@Model.Filtro.PageSize"
+                               asp-route-Vista="@Model.Filtro.Vista"
                                asp-route-Search="@Model.Filtro.Search"
                                asp-route-Estatus="@Model.Filtro.Estatus"
                                asp-route-Fecha="@Model.Filtro.Fecha"
@@ -229,6 +288,7 @@
                                asp-action="Index"
                                asp-route-PageNumber="@(Model.Filtro.PageNumber + 1)"
                                asp-route-PageSize="@Model.Filtro.PageSize"
+                               asp-route-Vista="@Model.Filtro.Vista"
                                asp-route-Search="@Model.Filtro.Search"
                                asp-route-Estatus="@Model.Filtro.Estatus"
                                asp-route-Fecha="@Model.Filtro.Fecha"
