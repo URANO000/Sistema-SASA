@@ -120,42 +120,42 @@
                         </table>
                     </div>
 
-                    @if (Model.CategoriasPaginadas.TotalPages > 1)
-                    {
-                        <nav aria-label="Paginación" class="align-content-center justify-content-center mt-3">
-                            <ul class="pagination pagination-sm mb-0 justify-content-center">
-                                <li class="page-item @(Model.CategoriasPaginadas.HasPreviousPage ? "" : "disabled")">
-                                    <a class="page-link"
-                                       asp-action="Index"
-                                       asp-route-tab="categorias"
-                                       asp-route-categoriaBuscar="@Model.CategoriaBuscar"
-                                       asp-route-categoriaPagina="@(Model.CategoriasPaginadas.PageNumber - 1)"
-                                       asp-route-subCategoriaBuscar="@Model.SubCategoriaBuscar"
-                                       asp-route-subCategoriaFiltroIdCategoria="@Model.SubCategoriaFiltroIdCategoria"
-                                       asp-route-subCategoriaFiltroIdPrioridad="@Model.SubCategoriaFiltroIdPrioridad">
-                                        Anterior
-                                    </a>
-                                </li>
+                    <nav aria-label="Paginación" class="align-content-center justify-content-center mt-3">
+                        <ul class="pagination pagination-sm mb-0 justify-content-center">
+                            <!-- Previous -->
+                            <li class="page-item @(Model.CategoriasPaginadas.HasPreviousPage ? "" : "disabled")">
+                                <a class="page-link"
+                                   asp-action="Index"
+                                   asp-route-tab="categorias"
+                                   asp-route-categoriaBuscar="@Model.CategoriaBuscar"
+                                   asp-route-categoriaPagina="@(Model.CategoriasPaginadas.PageNumber - 1)"
+                                   asp-route-subCategoriaBuscar="@Model.SubCategoriaBuscar"
+                                   asp-route-subCategoriaFiltroIdCategoria="@Model.SubCategoriaFiltroIdCategoria"
+                                   asp-route-subCategoriaFiltroIdPrioridad="@Model.SubCategoriaFiltroIdPrioridad">
+                                    Anterior
+                                </a>
+                            </li>
 
-                                <li class="page-item disabled">
-                                    <span class="page-link">Página @Model.CategoriasPaginadas.PageNumber de @Model.CategoriasPaginadas.TotalPages</span>
-                                </li>
+                            <!-- Info -->
+                            <li class="page-item disabled">
+                                <span class="page-link">Página @Model.CategoriasPaginadas.PageNumber de @Model.CategoriasPaginadas.TotalPages</span>
+                            </li>
 
-                                <li class="page-item @(Model.CategoriasPaginadas.HasNextPage ? "" : "disabled")">
-                                    <a class="page-link"
-                                       asp-action="Index"
-                                       asp-route-tab="categorias"
-                                       asp-route-categoriaBuscar="@Model.CategoriaBuscar"
-                                       asp-route-categoriaPagina="@(Model.CategoriasPaginadas.PageNumber + 1)"
-                                       asp-route-subCategoriaBuscar="@Model.SubCategoriaBuscar"
-                                       asp-route-subCategoriaFiltroIdCategoria="@Model.SubCategoriaFiltroIdCategoria"
-                                       asp-route-subCategoriaFiltroIdPrioridad="@Model.SubCategoriaFiltroIdPrioridad">
-                                        Siguiente
-                                    </a>
-                                </li>
-                            </ul>
-                        </nav>
-                    }
+                            <!-- Next -->
+                            <li class="page-item @(Model.CategoriasPaginadas.HasNextPage ? "" : "disabled")">
+                                <a class="page-link"
+                                   asp-action="Index"
+                                   asp-route-tab="categorias"
+                                   asp-route-categoriaBuscar="@Model.CategoriaBuscar"
+                                   asp-route-categoriaPagina="@(Model.CategoriasPaginadas.PageNumber + 1)"
+                                   asp-route-subCategoriaBuscar="@Model.SubCategoriaBuscar"
+                                   asp-route-subCategoriaFiltroIdCategoria="@Model.SubCategoriaFiltroIdCategoria"
+                                   asp-route-subCategoriaFiltroIdPrioridad="@Model.SubCategoriaFiltroIdPrioridad">
+                                    Siguiente
+                                </a>
+                            </li>
+                        </ul>
+                    </nav>
                 </div>
 
                 <div class="tab-pane fade @(tabSubcategoriasActiva ? "show active" : "")" id="subcategorias-pane" role="tabpanel">
@@ -264,42 +264,42 @@
                         </table>
                     </div>
 
-                    @if (Model.SubCategoriasPaginadas.TotalPages > 1)
-                    {
-                        <nav aria-label="Paginación" class="align-content-center justify-content-center mt-3">
-                            <ul class="pagination pagination-sm mb-0 justify-content-center">
-                                <li class="page-item @(Model.SubCategoriasPaginadas.HasPreviousPage ? "" : "disabled")">
-                                    <a class="page-link"
-                                       asp-action="Index"
-                                       asp-route-tab="subcategorias"
-                                       asp-route-categoriaBuscar="@Model.CategoriaBuscar"
-                                       asp-route-subCategoriaBuscar="@Model.SubCategoriaBuscar"
-                                       asp-route-subCategoriaFiltroIdCategoria="@Model.SubCategoriaFiltroIdCategoria"
-                                       asp-route-subCategoriaFiltroIdPrioridad="@Model.SubCategoriaFiltroIdPrioridad"
-                                       asp-route-subCategoriaPagina="@(Model.SubCategoriasPaginadas.PageNumber - 1)">
-                                        Anterior
-                                    </a>
-                                </li>
+                    <nav aria-label="Paginación" class="align-content-center justify-content-center mt-3">
+                        <ul class="pagination pagination-sm mb-0 justify-content-center">
+                            <!-- Previous -->
+                            <li class="page-item @(Model.SubCategoriasPaginadas.HasPreviousPage ? "" : "disabled")">
+                                <a class="page-link"
+                                   asp-action="Index"
+                                   asp-route-tab="subcategorias"
+                                   asp-route-categoriaBuscar="@Model.CategoriaBuscar"
+                                   asp-route-subCategoriaBuscar="@Model.SubCategoriaBuscar"
+                                   asp-route-subCategoriaFiltroIdCategoria="@Model.SubCategoriaFiltroIdCategoria"
+                                   asp-route-subCategoriaFiltroIdPrioridad="@Model.SubCategoriaFiltroIdPrioridad"
+                                   asp-route-subCategoriaPagina="@(Model.SubCategoriasPaginadas.PageNumber - 1)">
+                                    Anterior
+                                </a>
+                            </li>
 
-                                <li class="page-item disabled">
-                                    <span class="page-link">Página @Model.SubCategoriasPaginadas.PageNumber de @Model.SubCategoriasPaginadas.TotalPages</span>
-                                </li>
+                            <!-- Info -->
+                            <li class="page-item disabled">
+                                <span class="page-link">Página @Model.SubCategoriasPaginadas.PageNumber de @Model.SubCategoriasPaginadas.TotalPages</span>
+                            </li>
 
-                                <li class="page-item @(Model.SubCategoriasPaginadas.HasNextPage ? "" : "disabled")">
-                                    <a class="page-link"
-                                       asp-action="Index"
-                                       asp-route-tab="subcategorias"
-                                       asp-route-categoriaBuscar="@Model.CategoriaBuscar"
-                                       asp-route-subCategoriaBuscar="@Model.SubCategoriaBuscar"
-                                       asp-route-subCategoriaFiltroIdCategoria="@Model.SubCategoriaFiltroIdCategoria"
-                                       asp-route-subCategoriaFiltroIdPrioridad="@Model.SubCategoriaFiltroIdPrioridad"
-                                       asp-route-subCategoriaPagina="@(Model.SubCategoriasPaginadas.PageNumber + 1)">
-                                        Siguiente
-                                    </a>
-                                </li>
-                            </ul>
-                        </nav>
-                    }
+                            <!-- Next -->
+                            <li class="page-item @(Model.SubCategoriasPaginadas.HasNextPage ? "" : "disabled")">
+                                <a class="page-link"
+                                   asp-action="Index"
+                                   asp-route-tab="subcategorias"
+                                   asp-route-categoriaBuscar="@Model.CategoriaBuscar"
+                                   asp-route-subCategoriaBuscar="@Model.SubCategoriaBuscar"
+                                   asp-route-subCategoriaFiltroIdCategoria="@Model.SubCategoriaFiltroIdCategoria"
+                                   asp-route-subCategoriaFiltroIdPrioridad="@Model.SubCategoriaFiltroIdPrioridad"
+                                   asp-route-subCategoriaPagina="@(Model.SubCategoriasPaginadas.PageNumber + 1)">
+                                    Siguiente
+                                </a>
+                            </li>
+                        </ul>
+                    </nav>
                 </div>
             </div>
         </div>

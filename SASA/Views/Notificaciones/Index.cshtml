@@ -166,23 +166,13 @@
 
     </div>
 
-    <div class="notif-pagination">
+    <div class="notif-pagination d-flex flex-column align-items-center">
 
-        @{
-            var desde = (Model.Pagina - 1) * Model.TamanoPagina + 1;
-            var hasta = Math.Min(Model.Pagina * Model.TamanoPagina, Model.TotalRegistros);
-        }
+        <nav aria-label="Paginación" class="mt-2">
+            <ul class="pagination pagination-sm mb-0 justify-content-center">
 
-        <span class="text-muted small" id="notifSummary">
-            Mostrando @desde–@hasta de @Model.TotalRegistros
-        </span>
-
-        <nav aria-label="Paginación">
-
-            <ul class="pagination pagination-sm mb-0">
-
+                <!-- Previous -->
                 <li class="page-item @(Model.TieneAnterior ? "" : "disabled")">
-
                     <a class="page-link"
                        asp-action="Index"
                        asp-route-q="@Model.Q"
@@ -191,25 +181,19 @@
                        asp-route-fecha="@(Model.Fecha?.ToString("yyyy-MM-dd"))"
                        asp-route-pagina="@(Model.Pagina - 1)"
                        asp-route-tamanoPagina="@Model.TamanoPagina">
-
                         Anterior
-
                     </a>
-
                 </li>
 
+                <!-- Info -->
                 <li class="page-item disabled">
-
                     <span class="page-link">
-
                         Página @Model.Pagina de @Model.TotalPaginas
-
                     </span>
-
                 </li>
 
+                <!-- Next -->
                 <li class="page-item @(Model.TieneSiguiente ? "" : "disabled")">
-
                     <a class="page-link"
                        asp-action="Index"
                        asp-route-q="@Model.Q"
@@ -218,15 +202,11 @@
                        asp-route-fecha="@(Model.Fecha?.ToString("yyyy-MM-dd"))"
                        asp-route-pagina="@(Model.Pagina + 1)"
                        asp-route-tamanoPagina="@Model.TamanoPagina">
-
                         Siguiente
-
                     </a>
-
                 </li>
 
             </ul>
-
         </nav>
 
     </div>

@@ -12,9 +12,12 @@ namespace SASA.ViewModels.Auth
         {
             get
             {
-                if (Filtros.PageSize <= 0) return 1;
+                if (Filtros.PageSize <= 0 || TotalCount == 0) return 1;
                 return (int)Math.Ceiling((double)TotalCount / Filtros.PageSize);
             }
         }
+
+        public bool TieneAnterior => Filtros.Page > 1;
+        public bool TieneSiguiente => Filtros.Page < TotalPages;
     }
 }

@@ -112,38 +112,14 @@
 
             <!-- Table -->
             <div class="table-responsive">
-                <table class="table table-hover align-middle">
-                    <thead class="table-light">
+                <table class="table table-hover align-middle sasa-table">
+                    <thead class="">
                         <tr>
-                            <th class="text-center" style="width:140px;">Acciones</th>
-
-                            <th>
-                                <a class="text-decoration-none"
-                                   href="@BuildUrl("Codigo", Model.ToggleDir("Codigo"), 1)">
-                                    Código @Model.SortIcon("Codigo")
-                                </a>
-                            </th>
-
-                            <th>
-                                <a class="text-decoration-none"
-                                   href="@BuildUrl("Nombre", Model.ToggleDir("Nombre"), 1)">
-                                    Nombre @Model.SortIcon("Nombre")
-                                </a>
-                            </th>
-
-                            <th class="d-none d-md-table-cell">
-                                <a class="text-decoration-none"
-                                   href="@BuildUrl("Tipo", Model.ToggleDir("Tipo"), 1)">
-                                    Tipo @Model.SortIcon("Tipo")
-                                </a>
-                            </th>
-
-                            <th class="d-none d-md-table-cell">
-                                <a class="text-decoration-none"
-                                   href="@BuildUrl("Estado", Model.ToggleDir("Estado"), 1)">
-                                    Estado @Model.SortIcon("Estado")
-                                </a>
-                            </th>
+                            <th>Acciones</th>
+                            <th>Código</th>
+                            <th>Nombre</th>
+                            <th>Tipo</th>
+                            <th>Estado</th>
                         </tr>
                     </thead>
 
@@ -153,35 +129,29 @@
                             foreach (var a in Model.Items)
                             {
                                 <tr>
-                                    <td class="text-center">
-                                        <button type="button"
-                                                class="btn btn-link p-0 me-2"
-                                                title="Ver detalle"
-                                                data-bs-toggle="modal"
-                                                data-bs-target="#activoDetailModal"
-                                                data-id="@a.IdActivo">
+                                    <td>
+                                        <a class="btn btn-link icon-btn"
+                                           title="Ver detalle"
+                                           data-bs-toggle="modal"
+                                           data-bs-target="#activoDetailModal"
+                                           data-id="@a.IdActivo">
                                             <i class="bi bi-eye detail-btn"></i>
-                                        </button>
-
+                                        </a>
                                         @if (User.IsInRole("Administrador"))
                                         {
-                                            <button type="button"
-                                                    class="btn btn-link p-0 me-2"
-                                                    title="Editar"
-                                                    data-bs-toggle="modal"
-                                                    data-bs-target="#activoEditModal"
-                                                    data-id="@a.IdActivo">
+                                            <a class="btn btn-link icon-btn"
+                                               title="Editar"
+                                               data-bs-toggle="modal"
+                                               data-bs-target="#activoEditModal"
+                                               data-id="@a.IdActivo">
                                                 <i class="fa-regular fa-pen-to-square edit-btn"></i>
-                                            </button>
+                                            </a>
                                         }
                                     </td>
-
-                                    <td class="fw-semibold">@a.NumeroActivo</td>
+                                    <td>@a.NumeroActivo</td>
                                     <td>@a.NombreMaquina</td>
-
-                                    <td class="d-none d-md-table-cell">@(!string.IsNullOrWhiteSpace(a.TipoActivoNombre) ? a.TipoActivoNombre : "-")</td>
-
-                                    <td class="d-none d-md-table-cell">
+                                    <td>@(!string.IsNullOrWhiteSpace(a.TipoActivoNombre) ? a.TipoActivoNombre : "-")</td>
+                                    <td>
                                         <span class="badge bg-secondary">
                                             @(!string.IsNullOrWhiteSpace(a.EstadoActivoNombre) ? a.EstadoActivoNombre : "-")
                                         </span>
@@ -192,7 +162,7 @@
                         else
                         {
                             <tr>
-                                <td colspan="5" class="text-center text-muted py-4">
+                                <td colspan="5" class="text-muted text-center py-4">
                                     No se encontraron activos registrados.
                                 </td>
                             </tr>
@@ -202,27 +172,28 @@
             </div>
 
             <!-- Paginación -->
-            <div class="d-flex flex-column flex-md-row justify-content-between align-items-center gap-2 mt-3">
-                <div class="text-muted small">
-                    Página <strong>@Model.PageNumber</strong> de <strong>@Model.TotalPages</strong>
-                </div>
-
+            <div class="d-flex flex-column align-items-center gap-2 mt-3">
                 <nav aria-label="Paginación">
-                    <ul class="pagination mb-0">
-                        <li class="page-item @(!Model.HasPrev ? "disabled" : "")">
+                    <ul class="pagination pagination-sm mb-0 justify-content-center">
+                        <!-- Previous -->
+                        <li class="page-item @(Model.HasPrev ? "" : "disabled")">
                             <a class="page-link"
-                               href="@(!Model.HasPrev ? "#" : BuildUrl(Model.SortBy, Model.SortDir, Model.PageNumber - 1))">
+                               href="@(Model.HasPrev ? BuildUrl(Model.SortBy, Model.SortDir, Model.PageNumber - 1) : "#")">
                                 Anterior
                             </a>
                         </li>
 
-                        <li class="page-item active">
-                            <span class="page-link">@Model.PageNumber</span>
+                        <!-- Info -->
+                        <li class="page-item disabled">
+                            <span class="page-link">
+                                Página @Model.PageNumber de @Model.TotalPages
+                            </span>
                         </li>
 
-                        <li class="page-item @(!Model.HasNext ? "disabled" : "")">
+                        <!-- Next -->
+                        <li class="page-item @(Model.HasNext ? "" : "disabled")">
                             <a class="page-link"
-                               href="@(!Model.HasNext ? "#" : BuildUrl(Model.SortBy, Model.SortDir, Model.PageNumber + 1))">
+                               href="@(Model.HasNext ? BuildUrl(Model.SortBy, Model.SortDir, Model.PageNumber + 1) : "#")">
                                 Siguiente
                             </a>
                         </li>
