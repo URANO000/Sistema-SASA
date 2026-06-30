@@ -1,4 +1,5 @@
-﻿using SASA.ViewModels.Tiquete.Extras;
+﻿using DataAccess.Modelos.Enums;
+using SASA.ViewModels.Tiquete.Extras;
 
 namespace SASA.ViewModels.Tiquete.Filtro
 {
@@ -14,6 +15,9 @@ namespace SASA.ViewModels.Tiquete.Filtro
         public int PageSize { get; set; } = 10;
 
         public int TotalPages { get; set; }
+
+        // Para cola personal
+        public VistaTiquetes Vista { get; set; } = VistaTiquetes.Todos;
 
         public bool TieneAnterior => PageNumber > 1;
         public bool TieneSiguiente => PageNumber < TotalPages;

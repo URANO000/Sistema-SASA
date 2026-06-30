@@ -80,34 +80,57 @@ namespace SASA.Controllers
                 FechaInicio = filtro.FechaInicio,
                 FechaFinal = filtro.FechaFinal,
                 PageNumber = filtro.PageNumber <= 0 ? 1 : filtro.PageNumber,
-                PageSize = filtro.PageSize <= 0 ? 10 : filtro.PageSize
+                PageSize = filtro.PageSize <= 0 ? 10 : filtro.PageSize,
+                Vista = filtro.Vista
             };
 
             //Condicional, depende de qué rol, van a ver una lista diferente de tiquetes
-            var userId = User.IsInRole("Administrador")
-                ? null
-                : User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var currentUserId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var esAdmin = User.IsInRole("Administrador");
+            var result = await _tiqueteService.ObtenerTiquetesAsync(filtroDto, currentUserId, esAdmin);
 
-            var result = await _tiqueteService.ObtenerTiquetesAsync(filtroDto, userId);
+            if (!User.IsInRole("Administrador"))
+            {
+                filtroDto.Vista = VistaTiquetes.ReportadosPorMi;
+            }
 
             //Mapeo de resultado a ViewModel para tabla (con filtros)
             var viewModel = new TiqueteIndexViewModel
             {
-                Tiquetes = result.Items.Select(u => new TiqueteListaViewModel
+                Tiquetes = result.Items.Select(u =>
                 {
-                    IdTiquete = u.IdTiquete,
-                    Asunto = u.Asunto,
-                    Descripcion = u.Descripcion,
-                    Resolucion = u.Resolucion,
-                    Estatus = u.Estatus,
-                    Categoria = u.Categoria,
-                    ReportedBy = u.ReportedBy,
-                    Departamento = u.Departamento,
-                    Assignee = u.Assignee,
-                    CreatedAt = _helper.FormatearCRTime(u.CreatedAt),
-                    UpdatedAt = u.UpdatedAt.HasValue
-                        ? _helper.FormatearCRTime(u.UpdatedAt.Value)
-                        : null
+                    string? tiempoRestante = null;
+                    string? tiempoExcedido = null;
+                    bool atrasado = false;
+
+                    if (u.DuracionMinutos.HasValue)
+                    {
+                        (tiempoRestante, tiempoExcedido, atrasado) =
+                            _helper.Calcular(u.CreatedAt, u.DuracionMinutos.Value);
+                    }
+
+                    return new TiqueteListaViewModel
+                    {
+                        IdTiquete = u.IdTiquete,
+                        Asunto = u.Asunto,
+                        Descripcion = u.Descripcion,
+                        Resolucion = u.Resolucion,
+                        Estatus = u.Estatus,
+                        Categoria = u.Categoria,
+                        ReportedBy = u.ReportedBy,
+                        Departamento = u.Departamento,
+                        Assignee = u.Assignee,
+
+                        CreatedAt = _helper.FormatearCRTime(u.CreatedAt),
+                        UpdatedAt = u.UpdatedAt.HasValue
+                            ? _helper.FormatearCRTime(u.UpdatedAt.Value)
+                            : null,
+
+                        DuracionMinutos = u.DuracionMinutos,
+                        TiempoRestante = tiempoRestante,
+                        TiempoExcedido = tiempoExcedido,
+                        EstaAtrasado = atrasado
+                    };
                 }).ToList(),
 
                 Filtro = new TiqueteFiltroViewModel
@@ -119,6 +142,7 @@ namespace SASA.Controllers
                     FechaFinal = filtro.FechaFinal,
                     PageNumber = filtro.PageNumber,
                     PageSize = filtro.PageSize,
+                    Vista = filtro.Vista,
                     TotalPages = result.TotalPages
                 },
             };

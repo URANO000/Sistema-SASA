@@ -85,14 +85,17 @@ document.addEventListener("DOMContentLoaded", function () {
 
         if (switchInput.checked) {
 
-            // UI
+            //Mostrar rango
             singleWrapper.classList.add("d-none");
             rangeWrapper.classList.remove("d-none");
 
-            // Enable/disable
+            //Habilitar/deshabilitar
             singleDate.disabled = true;
             dateFrom.disabled = false;
             dateTo.disabled = false;
+
+            //Limpiar fecha única
+            singleDate.value = "";
 
             mainLabel.textContent = "Rango de Fechas";
 
@@ -105,38 +108,30 @@ document.addEventListener("DOMContentLoaded", function () {
             dateFrom.disabled = true;
             dateTo.disabled = true;
 
+            // Limpiar rango
+            dateFrom.value = "";
+            dateTo.value = "";
+
             mainLabel.textContent = "Fecha";
         }
+    }
+
+    // Determinar automáticamente el modo al cargar la página
+    const hasRange =
+        dateFrom.value !== "" ||
+        dateTo.value !== "";
+
+    const hasSingle =
+        singleDate.value !== "";
+
+    if (hasRange) {
+        switchInput.checked = true;
+    }
+    else if (hasSingle) {
+        switchInput.checked = false;
     }
 
     switchInput.addEventListener("change", updateMode);
 
     updateMode();
-});
-
-
-//TABS--------------------------------------------------------------
-document.addEventListener("DOMContentLoaded", function () {
-    const activeTab = "@Model.TabActiva";
-
-    if (activeTab === "subcategorias") {
-        const trigger = document.getElementById("subcategorias-tab");
-        if (trigger) {
-            const tab = new bootstrap.Tab(trigger);
-            tab.show();
-        }
-    }
-});
-
-
-document.addEventListener("DOMContentLoaded", function () {
-    const activeTab = "@Model.TabActiva";
-
-    if (activeTab === "Cola Global") {
-        const trigger = document.getElementById("global-tab");
-        if (trigger) {
-            const tab = new bootstrap.Tab(trigger);
-            tab.show();
-        }
-    }
 });
