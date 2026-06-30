@@ -153,7 +153,7 @@
                             <th>Asignado</th>
                             @if (User.IsInRole("Administrador"))
                             {
-                                <th>SLA</th>
+                                <th>Tiempo de Atención</th>
                             }
                         </tr>
                     </thead>
@@ -224,22 +224,32 @@
                                 <td>@t.Assignee</td>
                                 @if (User.IsInRole("Administrador"))
                                 {
-                                    @if (!t.EstaAtrasado)
-                                    {
-                                        <td>
-                                            <span class="badge bg-success">
-                                                Tiempo restante: @t.TiempoRestante
+                                    <td>
+                                        @if (t.Estatus == "Resuelto")
+                                        {
+                                            <span class="badge bg-primary">
+                                                Resuelto
                                             </span>
-                                        </td>
-                                    }
-                                    else
-                                    {
-                                        <td>
+                                        }
+                                        else if (t.Estatus == "Cancelado")
+                                        {
+                                            <span class="badge bg-secondary">
+                                                Cancelado
+                                            </span>
+                                        }
+                                        else if (t.EstaAtrasado)
+                                        {
                                             <span class="badge bg-danger">
                                                 Atrasado: @t.TiempoExcedido
                                             </span>
-                                        </td>
-                                    }
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-success">
+                                                Tiempo restante: @t.TiempoRestante
+                                            </span>
+                                        }
+                                    </td>
                                 }
                             </tr>
                         }
