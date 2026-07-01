@@ -196,7 +196,7 @@ namespace DataAccess.Repositorios.Tiquetes
             IdEstatus = t.IdEstatus,
             IdAsignee = t.IdAsignee,
             Resolucion = t.Resolucion,
-            ReportedByEmail = t.Asignee.CorreoEmpresa ?? "Sin correo empresarial",
+            ReportedByEmail = t.ReportedBy != null ? t.ReportedBy.CorreoEmpresa : null,
             ReportedByNombre = (t.ReportedBy.PrimerNombre ?? "") + " " + (t.ReportedBy.PrimerApellido ?? ""),
             EstatusNombre = t.Estatus.NombreEstatus
         })
