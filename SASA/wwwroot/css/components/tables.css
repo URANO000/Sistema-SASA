@@ -77,3 +77,43 @@
     outline: none;
     box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.25);
 }
+/* Login Attempts Table */
+.login-attempts-table {
+    width: 100%;
+}
+
+    .login-attempts-table .user-agent-cell {
+        max-width: 320px;
+        white-space: normal;
+        overflow-wrap: anywhere;
+        word-break: break-word;
+    }
+
+@media (max-width: 991.98px) {
+    .login-attempts-table th,
+    .login-attempts-table td {
+        font-size: 0.8rem;
+        padding: 0.55rem;
+        white-space: normal;
+    }
+
+        .login-attempts-table th:nth-child(1),
+        .login-attempts-table td:nth-child(1) {
+            width: 30%;
+        }
+
+        .login-attempts-table th:nth-child(2),
+        .login-attempts-table td:nth-child(2) {
+            width: 45%;
+        }
+
+        .login-attempts-table th:nth-child(3),
+        .login-attempts-table td:nth-child(3) {
+            width: 25%;
+        }
+
+    .pagination {
+        flex-wrap: wrap;
+        gap: 0.25rem;
+    }
+}
