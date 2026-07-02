@@ -143,7 +143,7 @@
                 <h6 class="text-danger-custom fw-bold">Zona de Riesgo</h6>
                 <p class="text-muted mb-3"> Desactivar un usuario impide su acceso al sistema. </p>
                 <button type="button"
-                        class="btn btn-outline-danger icon-btn"
+                        class="btn btn-outline-danger"
                         data-bs-toggle="modal"
                         data-bs-target="#disableConfirm">
                     Desactivar Usuario
@@ -158,7 +158,7 @@
                 <h6 class="text-danger fw-bold">Zona de Riesgo</h6>
                 <p class="text-muted mb-3"> Activar un usuario permite su acceso al sistema. </p>
                 <button type="button"
-                        class="btn btn-outline-success icon-btn"
+                        class="btn btn-outline-success"
                         data-bs-toggle="modal"
                         data-bs-target="#enableConfirm">
                     Activar Usuario
@@ -185,6 +185,7 @@
 @await Html.PartialAsync("_EnableConfirm", userId)
 @await Html.PartialAsync("_SuccessModal")
 @await Html.PartialAsync("_ErrorModal")
+@await Html.PartialAsync("_Alert")
 
 @section Scripts {
     <script src="~/js/formSubmits.js" asp-append-version="true"></script>
