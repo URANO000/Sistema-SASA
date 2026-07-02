@@ -225,14 +225,15 @@ $(function () {
                     }, 900);
                 }
 
-                if (response.error) {
+                if (!response.success) {
                     //Limpiar mensajes previos
                     form.find("[data-valmsg-for]").text("");
 
                     //Mostrar errores
                     $.each(response.errors, function (key, messages) {
                         if (key === "_form") {
-                            alert(messages[0]);
+                            $("#alertModal").modal("show")
+                            $("#mensaje").text(messages[0])
                             return;
                         }
 
@@ -505,7 +506,27 @@ $(function () {
 //Little script for clearing out modals :) 
 $(document).ready(function () {
     $('.modal').on('hidden.bs.modal', function (e) {
-        $(this).find('form').trigger('reset');
+        const form = $(this).find('form');
+
+        if (!form.length) return;
+
+        form.trigger('reset');
+
+        const validator = form.validate();
+        validator.resetForm();
+
+        form.find(".input-validation-error")
+            .removeClass("input-validation-error");
+
+        form.find(".is-invalid, .is-valid")
+            .removeClass("is-invalid is-valid");
+
+        form.find("[data-valmsg-for]").each(function () {
+            $(this)
+                .removeClass("field-validation-error")
+                .addClass("field-validation-valid")
+                .empty();
+        });
     });
 });
 

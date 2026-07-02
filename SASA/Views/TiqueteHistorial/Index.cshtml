@@ -50,7 +50,8 @@
                         <input type="date"
                                class="form-control"
                                name="Filtro.Fecha"
-                               id="filter-date-single">
+                               id="filter-date-single"
+                                asp-for="Filtro.Fecha">
                     </div>
 
                     <!-- Range -->
@@ -61,6 +62,7 @@
                                    class="form-control"
                                    name="Filtro.FechaInicio"
                                    id="filter-date-from"
+                                   asp-for="Filtro.FechaInicio"
                                    disabled>
                         </div>
 
@@ -70,6 +72,7 @@
                                    class="form-control"
                                    name="Filtro.FechaFinal"
                                    id="filter-date-to"
+                                   asp-for="Filtro.FechaFinal"
                                    disabled>
                         </div>
                     </div>
@@ -168,3 +171,13 @@
 
     </div>
 </div>
+
+                               
+@await Html.PartialAsync("_SuccessModal")
+@await Html.PartialAsync("_ErrorModal")
+@await Html.PartialAsync("_Alert")
+
+@section Scripts {
+    <script src="~/js/formSubmits.js" asp-append-version="true"></script>
+    <script src="~/js/ticketFunctionality.js" asp-append-version="true"></script>
+}

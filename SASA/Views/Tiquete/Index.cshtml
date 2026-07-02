@@ -112,7 +112,7 @@
             </form>
             @if (User.IsInRole("Administrador"))
             {
-                <div class="d-flex gap-2 mb-3">
+                <div class="d-flex flex-wrap gap-2 mb-3 align-items-center">
 
                     <select id="assigneeSelect" class="form-select w-auto">
                         <option value="">Seleccionar Usuario</option>
@@ -128,7 +128,7 @@
                         Asignar Seleccionados
                     </button>
 
-                    <span id="selectedCount" class="text-muted small"></span>
+                    <span id="selectedCount" class="text-muted smal w-sm-auto mt-1 mt-sm-0"></span>
 
                 </div>
             }
