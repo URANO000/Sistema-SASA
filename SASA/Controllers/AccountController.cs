@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Options;
 using SASA.Configuration;
 using SASA.ViewModels.Auth;
+using System.Security.Claims;
 using System.Text;
 
 namespace SASA.Controllers
@@ -318,14 +319,19 @@ namespace SASA.Controllers
             return (true, user, string.Empty);
         }
 
-
         [AllowAnonymous]
         [HttpGet("/set-password/{token}")]
-        public async Task<IActionResult> SetPassword(string token)
+        public async Task<IActionResult> SetPasswordForm(string token)
         {
-            await _signInManager.SignOutAsync();
+            //permite abrir el link de activación en el mismo navegador donde se hizo la solicitud
+            if (User?.Identity?.IsAuthenticated == true)
+            {
+                await _signInManager.SignOutAsync();
 
-            _antiforgery.GetAndStoreTokens(HttpContext);
+                HttpContext.User = new ClaimsPrincipal(
+                    new ClaimsIdentity()
+                );
+            }
 
             var decoded = DecodeTokenPayload(token);
             if (!decoded.ok)
@@ -341,33 +347,45 @@ namespace SASA.Controllers
                 return RedirectToAction(nameof(Login));
             }
 
-            // Solo permite si ya se confirmó el correo
             if (!user.EmailConfirmed)
             {
                 TempData["Error"] = "Debes activar tu cuenta antes de crear una contraseña.";
                 return RedirectToAction(nameof(Login));
             }
 
-            // Si ya tiene password, omite ese flujo
             if (await _userManager.HasPasswordAsync(user))
             {
                 TempData["Success"] = "Tu cuenta ya tiene contraseña. Puedes iniciar sesión.";
                 return RedirectToAction(nameof(Login));
             }
 
-            return View(new SetPasswordViewModel { Token = token });
+            return View("SetPassword", new SetPasswordViewModel { Token = token });
         }
 
         [AllowAnonymous]
-        [HttpPost("/set-password/{token}")]
+        [HttpPost("/set-password")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> SetPassword(string token, SetPasswordViewModel vm)
+        public async Task<IActionResult> SetPassword(SetPasswordViewModel vm)
         {
-            // Si viene token en la URL, úsalo; si no, usa el hidden
-            vm.Token = token ?? vm.Token;
+
+            var errores = ModelState
+                .Where(x => x.Value != null && x.Value.Errors.Any())
+                .Select(x => new
+                {
+                    Campo = x.Key,
+                    Errores = x.Value!.Errors
+                        .Select(e => e.ErrorMessage)
+                        .ToList()
+                })
+                .ToList();
 
             if (!ModelState.IsValid)
                 return View(vm);
+            if (vm.NewPassword != vm.ConfirmPassword)
+            {
+                ModelState.AddModelError(string.Empty, "Las contraseñas no coinciden.");
+                return View(vm);
+            }
 
             var decoded = DecodeTokenPayload(vm.Token);
             if (!decoded.ok)
@@ -393,12 +411,6 @@ namespace SASA.Controllers
             {
                 TempData["Success"] = "Tu cuenta ya tiene contraseña. Puedes iniciar sesión.";
                 return RedirectToAction(nameof(Login));
-            }
-
-            if (vm.NewPassword != vm.ConfirmPassword)
-            {
-                ModelState.AddModelError(string.Empty, "Las contraseñas no coinciden.");
-                return View(vm);
             }
 
             var result = await _userManager.AddPasswordAsync(user, vm.NewPassword!);
