@@ -1,24 +1,21 @@
-﻿//No mostrar el botón de asignar hasta que un tiquete esté seleccionado y alguien sea elegido
+﻿let assignAll = false;
+$("#assignAllBanner").addClass("d-none");
+
 function validarAsignacion() {
 
-    const selectedTickets = $(".ticket-checkbox:checked").length;
     const assignee = $("#assigneeSelect").val();
-
-    const isValid = selectedTickets > 0 && assignee;
-
+    const selectedCount = $(".ticket-checkbox:checked").length;
+    const isValid = assignee && (assignAll || selectedCount > 0);
     $("#assignTicketsBtn").prop("disabled", !isValid);
 }
 
-//En caso de que algo sale pre-seleccionado
-$(document).ready(function () {
-
-    validarAsignacion();
-    updateSelectedCount();
-
-});
-
-//Función para ver cuántos usuarios hay seleccionados
 function updateSelectedCount() {
+
+    if (assignAll) {
+
+        $("#selectedCount").text("Todos los tiquetes serán asignados.");
+        return;
+    }
 
     const count = $(".ticket-checkbox:checked").length;
 
@@ -28,45 +25,75 @@ function updateSelectedCount() {
         $("#selectedCount").text(count + " tiquete(s) seleccionado(s)");
 }
 
+
 $(document).on("change", ".ticket-checkbox", function () {
 
+    assignAll = false;
+    $("#selectAllTickets").prop("checked", false);
     updateSelectedCount();
     validarAsignacion();
 
 });
 
-//Para seleccionar todos los tiquetes masivamente
 
 $("#selectAllTickets").change(function () {
 
-    const checked = $(this).prop("checked");
+    const checked = $(this).is(":checked");
 
     $(".ticket-checkbox:not(:disabled)")
         .prop("checked", checked);
 
+    assignAll = false;
+
+    if (checked)
+        $("#assignAllBanner").removeClass("d-none");
+    else
+        $("#assignAllBanner").addClass("d-none");
+
     updateSelectedCount();
     validarAsignacion();
+
 });
 
-//Validar al cambiar de asignado
+
+
 $("#assigneeSelect").change(function () {
     validarAsignacion();
 });
 
-//Para asignar, aquí se llama el controlador
+$("#confirmAssignAll").click(function () {
+
+    assignAll = true;
+
+    $("#assignAllBanner")
+        .removeClass("alert-info")
+        .addClass("alert-success");
+
+    $("#assignAllBanner span").text(
+        "Se asignarán todos los tiquetes que coinciden con los filtros actuales."
+    );
+
+    $("#confirmAssignAll").remove();
+
+    updateSelectedCount();
+
+    validarAsignacion();
+});
+
+
 
 $("#assignTicketsBtn").click(function () {
 
-    let selectedTickets = [];
-
-    $(".ticket-checkbox:checked").each(function () {
-        selectedTickets.push(parseInt($(this).val()));
-    });
-
     const assigneeId = $("#assigneeSelect").val();
 
-    if (selectedTickets.length === 0) {
-        mostrarAlerta("Seleccione al menos un tiquete.");
+    const ids = $(".ticket-checkbox:checked")
+        .map(function () {
+            return Number(this.value);
+        })
+        .get();
+
+    if (!assignAll && ids.length === 0) {
+        mostrarAlerta("Seleccione al menos un tiquete.")
         return;
     }
 
@@ -75,41 +102,58 @@ $("#assignTicketsBtn").click(function () {
         return;
     }
 
+
     $.ajax({
+
         url: "/Tiquete/AsignarTiquetes",
         type: "POST",
         contentType: "application/json",
+
         data: JSON.stringify({
-            idsTiquetes: selectedTickets,
-            idAssignee: assigneeId
+            asignacion: {
+                idsTiquetes: ids,
+                idAssignee: assigneeId,
+                assignAll: assignAll
+            },
+
+            filtro: obtenerFiltrosActuales()
         }),
+
         success: function (response) {
-
             if (response.success) {
-
                 mostrarSuccess(response.message);
-
                 setTimeout(function () {
                     location.reload();
                 }, 900);
             }
             else {
-                setTimeout(function () {
-                    mostrarAlerta(response.message);
-                });
+                mostrarAlerta(response.message);
             }
         },
+
         error: function () {
-            setTimeout(function () {
-                mostrarError("Error inesperado asignando los tiquetes.");
-            }, 900);
+            mostrarError("Error inesperado asignando los tiquetes.");
         }
     });
 
 });
 
+//Obtener filtros de la URL
+function obtenerFiltrosActuales() {
 
-//Algunos helpers
+    const params = new URLSearchParams(window.location.search);
+
+    return {
+
+        search: params.get("search"),
+        estatus: params.get("estatus"),
+        fechaInicio: params.get("fechaInicio"),
+        fechaFinal: params.get("fechaFinal"),
+        fecha: params.get("fecha"),
+        vista: 0
+    };
+}
+
 
 function mostrarSuccess(message) {
 
