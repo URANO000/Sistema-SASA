@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Options;
 using SASA.Configuration;
 using SASA.ViewModels.Auth;
@@ -23,6 +24,7 @@ namespace SASA.Controllers
         private readonly AppSettings _appSettings;
         private readonly IAntiforgery _antiforgery;
         private readonly ILoginAttemptService _loginAttemptService;
+        private readonly IDistributedCache _cache;
 
         public AccountController(
             SignInManager<ApplicationUser> signInManager,
@@ -31,7 +33,8 @@ namespace SASA.Controllers
             ICorreoNotificacionesService correoNotificaciones,
             IOptions<AppSettings> appSettings,
             IAntiforgery antiforgery,
-            ILoginAttemptService loginAttemptService)
+            ILoginAttemptService loginAttemptService,
+            IDistributedCache cache)
         {
             _signInManager = signInManager;
             _userManager = userManager;
@@ -40,12 +43,18 @@ namespace SASA.Controllers
             _appSettings = appSettings.Value;
             _antiforgery = antiforgery;
             _loginAttemptService = loginAttemptService;
+            _cache = cache;
         }
 
         [AllowAnonymous]
         [HttpGet("/login")]
         public IActionResult Login()
         {
+            if (User?.Identity?.IsAuthenticated == true)
+            {
+                return Redirect("/Home/Index");
+            }
+
             return View(new LoginViewModel());
         }
 
@@ -92,8 +101,13 @@ namespace SASA.Controllers
 
             if (result.Succeeded)
             {
-                // successful login
+                await _cache.SetStringAsync(
+                    $"last-activity:{user.Id}",
+                    DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString()
+                );
+
                 await _loginAttemptService.RegistrarAsync(vm.Email!, user.Id, true, null, ip, userAgent);
+
                 return Redirect("/Home/Index");
             }
 
@@ -126,7 +140,17 @@ namespace SASA.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Logout()
         {
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (!string.IsNullOrEmpty(userId))
+            {
+                await _cache.RemoveAsync($"last-activity:{userId}");
+            }
+
             await _signInManager.SignOutAsync();
+
+            HttpContext.User = new ClaimsPrincipal(new ClaimsIdentity());
+
             return RedirectToAction(nameof(Login));
         }
 
@@ -158,7 +182,6 @@ namespace SASA.Controllers
 
             var payload = EncodeTokenPayload(user.Id, resetToken);
             var baseUrl = (_appSettings.BaseUrl ?? "").TrimEnd('/');
-            var safePayload = payload.Replace("+", "-").Replace("/", "_").Replace("=", "");
             var resetLink = $"{baseUrl}/reset-password/{payload}";
 
             // Nombre para el correo
@@ -175,7 +198,19 @@ namespace SASA.Controllers
         [HttpGet("/reset-password/{token}")]
         public async Task<IActionResult> ResetPassword(string token)
         {
-            await _signInManager.SignOutAsync();
+            if (User?.Identity?.IsAuthenticated == true)
+            {
+                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+                if (!string.IsNullOrEmpty(userId))
+                {
+                    await _cache.RemoveAsync($"last-activity:{userId}");
+                }
+
+                await _signInManager.SignOutAsync();
+
+                return RedirectToAction(nameof(ResetPassword), new { token });
+            }
 
             _antiforgery.GetAndStoreTokens(HttpContext);
 
@@ -323,17 +358,22 @@ namespace SASA.Controllers
         [HttpGet("/set-password/{token}")]
         public async Task<IActionResult> SetPasswordForm(string token)
         {
-            //permite abrir el link de activación en el mismo navegador donde se hizo la solicitud
             if (User?.Identity?.IsAuthenticated == true)
             {
+                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+                if (!string.IsNullOrEmpty(userId))
+                {
+                    await _cache.RemoveAsync($"last-activity:{userId}");
+                }
+
                 await _signInManager.SignOutAsync();
 
-                HttpContext.User = new ClaimsPrincipal(
-                    new ClaimsIdentity()
-                );
+                return RedirectToAction(nameof(SetPasswordForm), new { token });
             }
 
             var decoded = DecodeTokenPayload(token);
+
             if (!decoded.ok)
             {
                 TempData["Error"] = "Token inválido o mal formado.";
@@ -341,6 +381,7 @@ namespace SASA.Controllers
             }
 
             var user = await _userManager.FindByIdAsync(decoded.userId);
+
             if (user is null)
             {
                 TempData["Error"] = "No se encontró el usuario.";
@@ -367,18 +408,6 @@ namespace SASA.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> SetPassword(SetPasswordViewModel vm)
         {
-
-            var errores = ModelState
-                .Where(x => x.Value != null && x.Value.Errors.Any())
-                .Select(x => new
-                {
-                    Campo = x.Key,
-                    Errores = x.Value!.Errors
-                        .Select(e => e.ErrorMessage)
-                        .ToList()
-                })
-                .ToList();
-
             if (!ModelState.IsValid)
                 return View(vm);
             if (vm.NewPassword != vm.ConfirmPassword)
