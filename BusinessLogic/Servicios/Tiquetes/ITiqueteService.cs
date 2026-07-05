@@ -21,7 +21,7 @@ namespace BusinessLogic.Servicios.Tiquetes
         Task<int> AgregarTiqueteAsync(CrearTiqueteDto dto, string currentUserId, bool esAdministrador);
         //Actualización de tiquetes para el administrador
         Task ActualizarTiqueteAsync(EditarTiqueteDto tiquete, string currentUserId);
-        Task AsignarTiquetesAsync(AsignarTiqueteDto dto, string currentUserId, bool esAdministrador);
+        Task AsignarTiquetesAsync(AsignarTiqueteDto dto, string currentUserId, bool esAdministrador, TiqueteFiltroDto filtro);
 
         //Para dashboard-----------------------------------------------------------------------------------------
         Task<int> ContarTiquetesAsync();

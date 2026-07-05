@@ -301,7 +301,7 @@ namespace BusinessLogic.Servicios.Tiquetes
         }
 
         //--------------------------ASIGNAR DE MANERA MASIVA-----------------------
-        public async Task AsignarTiquetesAsync(AsignarTiqueteDto dto, string currentUserId, bool esAdministrador)
+        public async Task AsignarTiquetesAsync(AsignarTiqueteDto dto, string currentUserId, bool esAdministrador, TiqueteFiltroDto filtro)
         {
             await _helper.ValidarUsuarioEstado(currentUserId);
             _helper.ValidarUsuarioActual(currentUserId);
@@ -318,8 +318,17 @@ namespace BusinessLogic.Servicios.Tiquetes
 
             try
             {
+                List<Tiquete> tiquetes;
+
                 //Obtener todos los tiquetes por la lista de IDs
-                var tiquetes = await _tiqueteRepository.ObtenerTiquetesPorIdsAsync(dto.IdsTiquetes);
+                if (dto.AssignAll)
+                {
+                    tiquetes = await _tiqueteRepository.ObtenerTiquetesPorFiltroAsync(filtro, currentUserId, esAdministrador);
+                }
+                else
+                {
+                    tiquetes = await _tiqueteRepository.ObtenerTiquetesPorIdsAsync(dto.IdsTiquetes);
+                }
 
                 //Si no hay ninguno
                 if (!tiquetes.Any())
