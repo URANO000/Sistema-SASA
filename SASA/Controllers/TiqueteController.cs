@@ -414,16 +414,17 @@ namespace SASA.Controllers
 
         [Authorize(Roles = "Administrador")]
         [HttpPost]
-        public async Task<IActionResult> AsignarTiquetes([FromBody] AsignarTiqueteDto dto)
+        public async Task<IActionResult> AsignarTiquetes([FromBody] AsignarTiquetesViewModel model)
         {
             try
             {
                 var currentUserId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
                 await _tiqueteService.AsignarTiquetesAsync(
-                    dto,
+                    model.Asignacion,
                     currentUserId,
-                    User.IsInRole("Administrador")
+                    User.IsInRole("Administrador"),
+                    model.Filtro
                 );
 
                 return Ok(new { success = true, message = "Tiquetes asignados correctamente." });

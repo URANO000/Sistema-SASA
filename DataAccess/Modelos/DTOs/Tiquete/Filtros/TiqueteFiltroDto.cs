@@ -11,7 +11,7 @@ namespace DataAccess.Modelos.DTOs.Tiquete.Filtros
         public DateTime? Fecha { get; set; }
 
         // Para cola personal
-        public VistaTiquetes Vista { get; set; }
+        public VistaTiquetes? Vista { get; set; }
 
         public int PageNumber { get; set; } = 1;
         public int PageSize { get; set; } = 10; //Se puede cambiar si se desea

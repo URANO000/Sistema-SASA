@@ -20,67 +20,7 @@ namespace DataAccess.Repositorios.Tiquetes
         //Implementación de los métodos del repositorio de tiquetes
         public async Task<PagedResult<ListaTiqueteDTO>> ObtenerTiquetesAsync(TiqueteFiltroDto filtro, string currentUserId, bool esAdmin)
         {
-            var query = _context.Tiquetes
-                .AsNoTracking()
-                .AsQueryable();
-
-            //Check el tipo de vista para hacer un query
-            if (esAdmin)
-            {
-                switch (filtro.Vista)
-                {
-                    case VistaTiquetes.Todos:
-                        //No filtro
-                        break;
-
-                    case VistaTiquetes.AsignadosAMi:
-                        query = query.Where(t => t.IdAsignee == currentUserId);
-                        break;
-                }
-            }
-            else
-            {
-                //Los usuarios normales siempre ven sus propios tiquetes
-                query = query.Where(t => t.IdReportedBy == currentUserId);
-            }
-
-
-            //Filtrar si el searchbar no está vacío
-            if (!string.IsNullOrWhiteSpace(filtro.Search))
-            {
-                query = query.Where(t =>
-                    t.Asunto.Contains(filtro.Search) ||
-                    t.Descripcion.Contains(filtro.Search) ||
-                    t.Asignee.PrimerNombre.Contains(filtro.Search) ||
-                    t.Asignee.PrimerApellido.Contains(filtro.Search)
-                    );
-            }
-
-            //Si el filtro de estatus no es vacío
-            if (!string.IsNullOrWhiteSpace(filtro.Estatus))
-            {
-                query = query.Where(t =>
-                    t.Estatus.NombreEstatus.Replace(" ", "") == filtro.Estatus);
-            }
-
-
-            //Si el filtro de Fecha no es vacío
-            if (filtro.Fecha.HasValue)
-            {
-                var fecha = filtro.Fecha.Value.Date;
-                var fechaSiguiente = fecha.AddDays(1);
-
-                query = query.Where(t => t.CreatedAt >= fecha && t.CreatedAt < fechaSiguiente);
-            }
-            else if (filtro.FechaInicio.HasValue && filtro.FechaFinal.HasValue)
-            {
-                var inicio = filtro.FechaInicio.Value.Date; //Sólo el date, no la hora
-                //Ésta lógica es para atrapar todo ese día de la fecha final
-                var fin = filtro.FechaFinal.Value.Date.AddDays(1);
-
-                query = query.Where(t => t.CreatedAt >= inicio && t.CreatedAt < fin);
-
-            }
+            var query = FiltrarTiquete(_context.Tiquetes.AsNoTracking(), filtro, currentUserId, esAdmin);
 
             var totalRecords = await query.CountAsync();
 
@@ -223,6 +163,16 @@ namespace DataAccess.Repositorios.Tiquetes
         }
 
         //Para asignar masivamente a los tiquetes
+        public async Task<List<Tiquete>> ObtenerTiquetesPorFiltroAsync(TiqueteFiltroDto filtro,string currentUserId,bool esAdmin)
+        {
+            var query = FiltrarTiquete(
+                _context.Tiquetes,
+                filtro,
+                currentUserId,
+                esAdmin);
+
+            return await query.ToListAsync();
+        }
         public async Task<List<Tiquete>> ObtenerTiquetesPorIdsAsync(List<int> ids)
         {
             return await _context.Tiquetes
@@ -304,6 +254,67 @@ namespace DataAccess.Repositorios.Tiquetes
                     Cantidad = g.Count()
                 })
                 .ToListAsync();
+        }
+
+        //Helper
+        private IQueryable<Tiquete> FiltrarTiquete(IQueryable<Tiquete> query, TiqueteFiltroDto filtro, string currentUserId, bool esAdmin)
+        {
+            //Si es admin, filtrar global o asignados a mí, si es usuario normal entonces filtrar solo los reportados por mí
+            if (esAdmin)
+            {
+                switch (filtro.Vista)
+                {
+                    case VistaTiquetes.Todos:
+                        break;
+                    case VistaTiquetes.AsignadosAMi:
+                        query = query.Where(t => t.IdAsignee == currentUserId);
+                        break;
+                }
+            }
+            else
+            {
+                query = query.Where(t => t.IdReportedBy == currentUserId);
+            }
+
+            //Filtrar por búsqueda
+            if (!string.IsNullOrWhiteSpace(filtro.Search))
+            {
+                query = query.Where(t =>
+                    t.Asunto.Contains(filtro.Search) ||
+                    t.Descripcion.Contains(filtro.Search) ||
+                    t.Asignee.PrimerNombre.Contains(filtro.Search) ||
+                    t.Asignee.PrimerApellido.Contains(filtro.Search));
+            }
+
+
+            //Filtrar por estado
+            if (!string.IsNullOrWhiteSpace(filtro.Estatus))
+            {
+                query = query.Where(t => t.Estatus.NombreEstatus.Replace(" ", "") == filtro.Estatus);
+            }
+
+            //Filtrar por fecha
+            if (filtro.Fecha.HasValue)
+            {
+                var fecha = filtro.Fecha.Value.Date;
+                var siguiente = fecha.AddDays(1);
+
+                query = query.Where(t =>
+                    t.CreatedAt >= fecha &&
+                    t.CreatedAt < siguiente);
+            }
+            else if (filtro.FechaInicio.HasValue &&
+                     filtro.FechaFinal.HasValue)
+            {
+                var inicio = filtro.FechaInicio.Value.Date;
+                var fin = filtro.FechaFinal.Value.Date.AddDays(1);
+
+                query = query.Where(t =>
+                    t.CreatedAt >= inicio &&
+                    t.CreatedAt < fin);
+            }
+
+            return query;
         }
 
     }
