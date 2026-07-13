@@ -91,17 +91,21 @@
             }
             else
             {
-                <div class="table-responsive">
+                <div class="d-lg-none small text-muted mb-2">
+                    <i class="bi bi-arrow-left-right me-1"></i>
+                    Deslice horizontalmente para consultar todas las columnas.
+                </div>
+                <div class="table-responsive login-attempts-scroll">
                     <table class="table table-hover align-middle sasa-table login-attempts-table">
                         <thead>
                             <tr>
                                 <th>Fecha</th>
                                 <th>Correo</th>
                                 <th>Resultado</th>
-                                <th class="d-none d-lg-table-cell">Tipo de cuenta</th>
-                                <th class="d-none d-lg-table-cell">Motivo fallo</th>
-                                <th class="d-none d-lg-table-cell">IP</th>
-                                <th class="d-none d-lg-table-cell">User Agent</th>
+                                <th>Tipo de cuenta</th>
+                                <th>Motivo fallo</th>
+                                <th>IP</th>
+                                <th>User Agent</th>
                             </tr>
                         </thead>
 
@@ -109,10 +113,20 @@
                             @foreach (var item in Model.Items)
                             {
                                 <tr>
-                                    <td>@item.FechaUtc.ToString("yyyy-MM-dd")<br />@item.FechaUtc.ToString("HH:mm:ss")</td>
-                                    <td>@item.EmailIngresado</td>
+                                    <td class="date-cell">
+                                        <span class="d-block">
+                                            @item.FechaUtc.ToString("yyyy-MM-dd")
+                                        </span>
+                                        <span class="d-block">
+                                            @item.FechaUtc.ToString("HH:mm:ss")
+                                        </span>
+                                    </td>
 
-                                    <td>
+                                    <td class="email-cell">
+                                        @item.EmailIngresado
+                                    </td>
+
+                                    <td class="text-nowrap">
                                         @if (item.Exitoso)
                                         {
                                             <span class="badge bg-success">Exitoso</span>
@@ -123,7 +137,7 @@
                                         }
                                     </td>
 
-                                    <td class="d-none d-lg-table-cell">
+                                    <td class="text-nowrap">
                                         @if (string.IsNullOrWhiteSpace(item.UserId))
                                         {
                                             <span class="badge bg-secondary">No registrada</span>
@@ -133,9 +147,11 @@
                                             <span class="badge bg-info text-dark">Registrada</span>
                                         }
                                     </td>
-                                    <td class="d-none d-lg-table-cell">
+
+                                    <td class="failure-reason-cell">
                                         @{
                                             string motivo = item.MotivoFallo ?? "";
+
                                             motivo = motivo switch
                                             {
                                                 "InvalidCredentials" => "Credenciales inválidas",
@@ -143,22 +159,32 @@
                                                 "LockedOut" => "Bloqueo temporal",
                                                 "NotAllowed" => "No permitido",
                                                 "Disabled" => "Cuenta desactivada",
-                                                _ => (string.IsNullOrWhiteSpace(motivo) ? "-" : motivo)
+                                                _ => string.IsNullOrWhiteSpace(motivo) ? "-" : motivo
                                             };
                                         }
+
                                         @motivo
                                     </td>
-                                    <td class="d-none d-lg-table-cell">
+
+                                    <td class="text-nowrap">
                                         @{
                                             var ipMostrar =
-                                            (item.IpAddress == "::1" || item.IpAddress == "127.0.0.1")
-                                            ? "Localhost"
-                                            : (string.IsNullOrWhiteSpace(item.IpAddress) ? "-" : item.IpAddress);
+                                                item.IpAddress == "::1" || item.IpAddress == "127.0.0.1"
+                                                    ? "Localhost"
+                                                    : string.IsNullOrWhiteSpace(item.IpAddress)
+                                                        ? "-"
+                                                        : item.IpAddress;
                                         }
-                                        <span class="badge bg-light text-dark">@ipMostrar</span>
+
+                                        <span class="badge bg-light text-dark">
+                                            @ipMostrar
+                                        </span>
                                     </td>
-                                    <td class="d-none d-lg-table-cell user-agent-cell">
-                                        @(string.IsNullOrWhiteSpace(item.UserAgent) ? "-" : item.UserAgent)
+
+                                    <td class="user-agent-cell">
+                                        @(string.IsNullOrWhiteSpace(item.UserAgent)
+                                            ? "-"
+                                            : item.UserAgent)
                                     </td>
                                 </tr>
                             }
@@ -168,7 +194,7 @@
             }
 
             <nav aria-label="Paginación" class="mt-2">
-                <ul class="pagination pagination-sm mb-0 justify-content-center">
+                <ul class="pagination pagination-sm mb-0 justify-content-center flex-wrap gap-1">
 
                     <!-- Previous -->
                     <li class="page-item @(Model.TieneAnterior ? "" : "disabled")">
