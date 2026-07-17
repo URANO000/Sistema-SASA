@@ -265,10 +265,11 @@ namespace SASA.Controllers
         }
 
         [AllowAnonymous]
-        [HttpGet("/activate-account/{token}")]
-        public async Task<IActionResult> ActivateAccount(string token)
+        [HttpGet("/activate-account")]
+        public async Task<IActionResult> ActivateAccount([FromQuery] string token)
         {
             var decoded = DecodeTokenPayload(token);
+
             if (!decoded.ok)
             {
                 TempData["Error"] = "Token inválido o mal formado.";
@@ -276,22 +277,33 @@ namespace SASA.Controllers
             }
 
             var user = await _userManager.FindByIdAsync(decoded.userId);
+
             if (user is null)
             {
                 TempData["Error"] = "No se encontró el usuario.";
                 return RedirectToAction(nameof(Login));
             }
 
-            var result = await _userManager.ConfirmEmailAsync(user, decoded.identityToken);
+            var result = await _userManager.ConfirmEmailAsync(
+                user,
+                decoded.identityToken
+            );
 
             if (!result.Succeeded)
             {
-                TempData["Error"] = "No se pudo activar la cuenta. El enlace podría haber expirado.";
+                TempData["Error"] =
+                    "No se pudo activar la cuenta. El enlace podría haber expirado.";
+
                 return RedirectToAction(nameof(Login));
             }
 
-            TempData["Success"] = "Cuenta activada. Ahora crea tu contraseña.";
-            return Redirect($"/set-password/{token}");
+            TempData["Success"] =
+                "Cuenta activada. Ahora crea tu contraseña.";
+
+            return RedirectToAction(
+                nameof(SetPasswordForm),
+                new { token }
+            );
         }
 
         [AllowAnonymous]
@@ -355,8 +367,8 @@ namespace SASA.Controllers
         }
 
         [AllowAnonymous]
-        [HttpGet("/set-password/{token}")]
-        public async Task<IActionResult> SetPasswordForm(string token)
+        [HttpGet("/set-password")]
+        public async Task<IActionResult> SetPasswordForm([FromQuery] string token)
         {
             if (User?.Identity?.IsAuthenticated == true)
             {
