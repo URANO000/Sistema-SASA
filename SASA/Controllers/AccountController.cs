@@ -182,7 +182,7 @@ namespace SASA.Controllers
 
             var payload = EncodeTokenPayload(user.Id, resetToken);
             var baseUrl = (_appSettings.BaseUrl ?? "").TrimEnd('/');
-            var resetLink = $"{baseUrl}/reset-password/{payload}";
+            var resetLink = $"{baseUrl}/reset-password?token={payload}";
 
             // Nombre para el correo
             var toName = (user.UserName ?? user.Email ?? "Usuario").Trim();
@@ -195,8 +195,8 @@ namespace SASA.Controllers
         }
 
         [AllowAnonymous]
-        [HttpGet("/reset-password/{token}")]
-        public async Task<IActionResult> ResetPassword(string token)
+        [HttpGet("/reset-password")]
+        public async Task<IActionResult> ResetPassword([FromQuery] string token)
         {
             if (User?.Identity?.IsAuthenticated == true)
             {
@@ -225,12 +225,10 @@ namespace SASA.Controllers
         }
 
         [AllowAnonymous]
-        [HttpPost("/reset-password/{token}")]
+        [HttpPost("/reset-password")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> ResetPassword(string token, ResetPasswordViewModel model)
+        public async Task<IActionResult> ResetPassword(ResetPasswordViewModel model)
         {
-            if (token != model.Token)
-                return BadRequest();
 
             if (!ModelState.IsValid)
                 return View(model);
