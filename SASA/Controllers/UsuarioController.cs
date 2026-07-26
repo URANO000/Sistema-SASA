@@ -45,7 +45,6 @@ namespace SASA.Controllers
         }
 
 
-
         [HttpGet]
         public async Task<IActionResult> Index(UsuarioFiltroViewModel filtro)
         {
@@ -75,8 +74,8 @@ namespace SASA.Controllers
                     Rol = u.Roles != null && u.Roles.Count > 0
                         ? string.Join(", ", u.Roles)
                         : "SIN ROL", //Por si no tiene rol, no dejarlo en nulo
-                    CreatedAt = u.CreatedAt.HasValue 
-                    ? _helper.FormatearCRTime(u.CreatedAt.Value) 
+                    CreatedAt = u.CreatedAt.HasValue
+                    ? _helper.FormatearCRTime(u.CreatedAt.Value)
                     : null
                 }).ToList(),
 
@@ -147,11 +146,24 @@ namespace SASA.Controllers
                 return PartialView("_AddModal", model);
             }
 
+
             var raw = $"{result.UserId}|{result.EmailConfirmationToken}";
-            var payload = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(raw));
+
+            var payload = WebEncoders.Base64UrlEncode(
+                Encoding.UTF8.GetBytes(raw)
+            );
 
             var baseUrl = _appSettings.BaseUrl?.TrimEnd('/');
-            var activationLink = $"{baseUrl}/activate-account/{payload}";
+
+            if (string.IsNullOrWhiteSpace(baseUrl))
+            {
+                throw new InvalidOperationException(
+                    "No se configuró AppSettings:BaseUrl."
+                );
+            }
+
+            var activationLink = $"{baseUrl}/activate-account?token={payload}";
+
 
 
             if (string.IsNullOrWhiteSpace(activationLink))
@@ -179,7 +191,6 @@ namespace SASA.Controllers
 
             return RedirectToAction(nameof(Index));
         }
-
 
 
         [HttpGet]

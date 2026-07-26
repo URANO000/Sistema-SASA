@@ -80,7 +80,13 @@
                         <option value="" disabled>Seleccione un departamento</option>
                         <option value="Tecnologías de Información">Tecnologías de Información</option>
                         <option value="Recursos Humanos">Recursos Humanos</option>
-                        <option value="Finanzas">Finanzas</option>
+                        <option value="Bodega">Bodega</option>
+                        <option value="Gerencia">Gerencia</option>
+                        <option value="Ingeniería">Ingeniería</option>
+                        <option value="Jefatura">Jefatura</option>
+                        <option value="Legal">Legal</option>
+                        <option value="Operaciones">Operaciones</option>
+                        <option value="Servicios Generales">Servicios Generales</option>
                         <option value="Ventas">Ventas</option>
                     </select>
                     <span asp-validation-for="Departamento" class="text-danger"></span>
@@ -91,9 +97,11 @@
                     <label asp-for="Puesto" class="form-label required-field"></label>
                     <select asp-for="Puesto" class="form-select">
                         <option value="" disabled>Seleccione un puesto</option>
-                        <option>Analista de Soporte</option>
-                        <option>Administrador</option>
-                        <option>Asesor de ventas</option>
+                         <option>Analista de Soporte</option>
+                                <option>Administrador</option>
+                                <option>Asesor de ventas</option>
+                                <option>Ejecutivo</option>
+                                <option>Agente Senior</option>
                     </select>
                     <span asp-validation-for="Puesto" class="text-danger"></span>
                 </div>
@@ -135,7 +143,7 @@
                 <h6 class="text-danger-custom fw-bold">Zona de Riesgo</h6>
                 <p class="text-muted mb-3"> Desactivar un usuario impide su acceso al sistema. </p>
                 <button type="button"
-                        class="btn btn-outline-danger icon-btn"
+                        class="btn btn-outline-danger"
                         data-bs-toggle="modal"
                         data-bs-target="#disableConfirm">
                     Desactivar Usuario
@@ -150,7 +158,7 @@
                 <h6 class="text-danger fw-bold">Zona de Riesgo</h6>
                 <p class="text-muted mb-3"> Activar un usuario permite su acceso al sistema. </p>
                 <button type="button"
-                        class="btn btn-outline-success icon-btn"
+                        class="btn btn-outline-success"
                         data-bs-toggle="modal"
                         data-bs-target="#enableConfirm">
                     Activar Usuario
@@ -177,6 +185,7 @@
 @await Html.PartialAsync("_EnableConfirm", userId)
 @await Html.PartialAsync("_SuccessModal")
 @await Html.PartialAsync("_ErrorModal")
+@await Html.PartialAsync("_Alert")
 
 @section Scripts {
     <script src="~/js/formSubmits.js" asp-append-version="true"></script>

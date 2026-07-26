@@ -39,6 +39,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Distributed;
 using SASA.Configuration;
 using SASA.Services.Correo;
+using System.Security.Claims;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -54,7 +55,7 @@ builder.Services
 
         options.Lockout.AllowedForNewUsers = true;
         options.Lockout.MaxFailedAccessAttempts = 5;
-        options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(10);
+        options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(1);
 
         options.User.RequireUniqueEmail = true;
 
@@ -76,6 +77,13 @@ builder.Services.Configure<DataProtectionTokenProviderOptions>(options =>
 // Cookies
 builder.Services.ConfigureApplicationCookie(options =>
 {
+    options.Cookie.Name = "SASA.Auth";
+    options.Cookie.HttpOnly = true;
+    options.Cookie.SameSite = SameSiteMode.Lax;
+    options.Cookie.SecurePolicy = builder.Environment.IsDevelopment()
+        ? CookieSecurePolicy.SameAsRequest
+        : CookieSecurePolicy.Always;
+
     options.LoginPath = "/login";
     options.AccessDeniedPath = "/Account/AccessDenied";
     options.ExpireTimeSpan = TimeSpan.FromMinutes(15);
@@ -85,8 +93,13 @@ builder.Services.ConfigureApplicationCookie(options =>
     {
         OnValidatePrincipal = async context =>
         {
+            await SecurityStampValidator.ValidatePrincipalAsync(context);
+
+            if (context.Principal?.Identity?.IsAuthenticated != true)
+                return;
+
             var userId = context.Principal?
-                .FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+                .FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
             if (string.IsNullOrEmpty(userId))
                 return;
@@ -100,16 +113,21 @@ builder.Services.ConfigureApplicationCookie(options =>
                     $"last-activity:{userId}",
                     DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString()
                 );
+
                 return;
             }
 
             var last = DateTimeOffset.FromUnixTimeSeconds(lastUnix);
             var idleTimeout = TimeSpan.FromMinutes(15);
+            var idleTime = DateTimeOffset.UtcNow - last;
 
-            if (DateTimeOffset.UtcNow - last > idleTimeout)
+            if (idleTime > idleTimeout)
             {
                 context.RejectPrincipal();
-                await context.HttpContext.SignOutAsync();
+
+                await context.HttpContext.SignOutAsync(IdentityConstants.ApplicationScheme);
+
+                return;
             }
         }
     };
@@ -200,7 +218,9 @@ builder.Services.AddAntiforgery(o =>
 {
     o.Cookie.Name = "SASA.AntiForgery";
     o.Cookie.SameSite = SameSiteMode.Lax;
-    o.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+    o.Cookie.SecurePolicy = builder.Environment.IsDevelopment()
+        ? CookieSecurePolicy.SameAsRequest
+        : CookieSecurePolicy.Always;
 });
 
 builder.Services.AddDataProtection()
@@ -307,8 +327,39 @@ app.UseStaticFiles();
 app.UseRouting();
 
 app.UseAuthentication();
+
+// Middleware para evitar caché en páginas autenticadas o públicas sensibles.
+// Esto ayuda con el botón atrás/adelante después del logout.
+app.Use(async (ctx, next) =>
+{
+    ctx.Response.OnStarting(() =>
+    {
+        var path = ctx.Request.Path;
+
+        var shouldNoStore =
+            ctx.User?.Identity?.IsAuthenticated == true ||
+            path.StartsWithSegments("/login") ||
+            path.StartsWithSegments("/forgot-password") ||
+            path.StartsWithSegments("/reset-password") ||
+            path.StartsWithSegments("/set-password") ||
+            path.StartsWithSegments("/logout");
+
+        if (shouldNoStore)
+        {
+            ctx.Response.Headers["Cache-Control"] = "no-store, no-cache, max-age=0, must-revalidate";
+            ctx.Response.Headers["Pragma"] = "no-cache";
+            ctx.Response.Headers["Expires"] = "0";
+        }
+
+        return Task.CompletedTask;
+    });
+
+    await next();
+});
+
 app.UseAuthorization();
 
+// Middleware actual de actividad / inactividad.
 app.Use(async (ctx, next) =>
 {
     await next();
@@ -328,11 +379,13 @@ app.Use(async (ctx, next) =>
     if (shouldIgnore)
         return;
 
-    var userId = ctx.User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+    var userId = ctx.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
     if (string.IsNullOrEmpty(userId))
         return;
 
     var cache = ctx.RequestServices.GetRequiredService<IDistributedCache>();
+
     await cache.SetStringAsync(
         $"last-activity:{userId}",
         DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString()

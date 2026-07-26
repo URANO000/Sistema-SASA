@@ -24,7 +24,7 @@
                     <input type="text" asp-for="Filtro.Search"
                         value="@Model.Filtro.Search"
                         class="form-control"
-                        placeholder="Asunto de tiquete/Correo de usuario responsable"/>
+                        placeholder="Asunto de tiquete/Nombre del usuario responsable"/>
                 </div>
 
                 <div class="col-md-2">
@@ -50,7 +50,8 @@
                         <input type="date"
                                class="form-control"
                                name="Filtro.Fecha"
-                               id="filter-date-single">
+                               id="filter-date-single"
+                                asp-for="Filtro.Fecha">
                     </div>
 
                     <!-- Range -->
@@ -61,6 +62,7 @@
                                    class="form-control"
                                    name="Filtro.FechaInicio"
                                    id="filter-date-from"
+                                   asp-for="Filtro.FechaInicio"
                                    disabled>
                         </div>
 
@@ -70,6 +72,7 @@
                                    class="form-control"
                                    name="Filtro.FechaFinal"
                                    id="filter-date-to"
+                                   asp-for="Filtro.FechaFinal"
                                    disabled>
                         </div>
                     </div>
@@ -132,7 +135,7 @@
                                asp-route-PageNumber="@(Model.Filtro.PageNumber - 1)"
                                asp-route-PageSize="@Model.Filtro.PageSize"
                                asp-route-Search="@Model.Filtro.Search"
-                               asp-route-Estatus="@Model.Filtro.TipoEvento"
+                               asp-route-TipoEvento="@Model.Filtro.TipoEvento"
                                asp-route-Fecha="@Model.Filtro.Fecha"
                                asp-route-FechaInicio="@Model.Filtro.FechaInicio"
                                asp-route-FechaFinal="@Model.Filtro.FechaFinal">
@@ -154,7 +157,7 @@
                                asp-route-PageNumber="@(Model.Filtro.PageNumber + 1)"
                                asp-route-PageSize="@Model.Filtro.PageSize"
                                asp-route-Search="@Model.Filtro.Search"
-                               asp-route-Estatus="@Model.Filtro.TipoEvento"
+                               asp-route-TipoEvento="@Model.Filtro.TipoEvento"
                                asp-route-Fecha="@Model.Filtro.Fecha"
                                asp-route-FechaInicio="@Model.Filtro.FechaInicio"
                                asp-route-FechaFinal="@Model.Filtro.FechaFinal">
@@ -168,3 +171,13 @@
 
     </div>
 </div>
+
+                               
+@await Html.PartialAsync("_SuccessModal")
+@await Html.PartialAsync("_ErrorModal")
+@await Html.PartialAsync("_Alert")
+
+@section Scripts {
+    <script src="~/js/formSubmits.js" asp-append-version="true"></script>
+    <script src="~/js/ticketFunctionality.js" asp-append-version="true"></script>
+}

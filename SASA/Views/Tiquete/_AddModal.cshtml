@@ -45,7 +45,7 @@
                                             asp-items="Model.Categorias"
                                             class="form-select"
                                             id="categoriaDropdown">
-                                    <option value="" disabled>Seleccione una categoría</option>
+                                    <option value="" selected disabled>Seleccione una categoría</option>
                                     </select>
                                     <span asp-validation-for="Categoria" class="text-danger"></span>
                                 </div>
@@ -75,7 +75,7 @@
                                         <label asp-for="IdAsignee" class="form-label">Asignar a</label>
                                         <select asp-for="IdAsignee"
                                                 asp-items="Model.Asignees" class="form-select">
-                                            <option value="" disabled>Seleccione al usuario a asignar</option>
+                                            <option value="" selected disabled>Seleccione al usuario a asignar</option>
                                         </select>
                                         <span asp-validation-for="IdAsignee" class="text-danger"></span>
                                     </div>

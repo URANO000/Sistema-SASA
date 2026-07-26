@@ -85,20 +85,24 @@ namespace SASA.Controllers
                 FechaInicio = filtro.FechaInicio,
                 FechaFinal = filtro.FechaFinal,
                 PageNumber = filtro.PageNumber <= 0 ? 1 : filtro.PageNumber,
-                PageSize = filtro.PageSize <= 0 ? 10 : filtro.PageSize
+                PageSize = filtro.PageSize <= 0 ? 10 : filtro.PageSize,
+                Vista = filtro.Vista
             };
 
-            //Condicional, depende de quÈ rol, van a ver una lista diferente de tiquetes
-            var userId = User.IsInRole("Administrador")
-                ? null
-                : User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            //Condicional, depende de qu√© rol, van a ver una lista diferente de tiquetes
+            var currentUserId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var esAdmin = User.IsInRole("Administrador");
+            var result = await _tiqueteService.ObtenerTiquetesAsync(filtroDto, currentUserId, esAdmin);
 
-            var result = await _tiqueteService.ObtenerTiquetesAsync(filtroDto, userId);
+            if (!User.IsInRole("Administrador"))
+            {
+                filtroDto.Vista = VistaTiquetes.ReportadosPorMi;
+            }
 
             //Mapeo de resultado a ViewModel para tabla (con filtros)
             var viewModel = new TiqueteIndexViewModel
             {
-                Tiquetes = result.Items.Select(u => new TiqueteListaViewModel
+                Tiquetes = result.Items.Select(u =>
                 {
                     IdTiquete = u.IdTiquete,
                     Asunto = u.Asunto,
@@ -125,6 +129,7 @@ namespace SASA.Controllers
                     FechaFinal = filtro.FechaFinal,
                     PageNumber = filtro.PageNumber,
                     PageSize = filtro.PageSize,
+                    Vista = filtro.Vista,
                     TotalPages = result.TotalPages
                 },
             };
@@ -146,7 +151,7 @@ namespace SASA.Controllers
 
             await CargarDropdownsAsync(viewModel.CrearTiquete);
 
-            //Una vez que todo est· listo, retornamos vm
+            //Una vez que todo est√° listo, retornamos vm
             return View(viewModel);
 
         }
@@ -180,7 +185,7 @@ namespace SASA.Controllers
                     ArchivoAdjunto = model.ArchivosAdjuntos
                 };
 
-                //Una vez que est· mapeado entonces verificar si el usuario es administrador
+                //Una vez que est√° mapeado entonces verificar si el usuario es administrador
                 var esAdmin = User.IsInRole("Administrador"); //Retorna true o false
 
                 var idTiquete = await _tiqueteService.AgregarTiqueteAsync(dto, currentUserId, esAdmin);
@@ -396,16 +401,17 @@ namespace SASA.Controllers
 
         [Authorize(Roles = "Administrador")]
         [HttpPost]
-        public async Task<IActionResult> AsignarTiquetes([FromBody] AsignarTiqueteDto dto)
+        public async Task<IActionResult> AsignarTiquetes([FromBody] AsignarTiquetesViewModel model)
         {
             try
             {
                 var currentUserId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
                 await _tiqueteService.AsignarTiquetesAsync(
-                    dto,
+                    model.Asignacion,
                     currentUserId,
-                    User.IsInRole("Administrador")
+                    User.IsInRole("Administrador"),
+                    model.Filtro
                 );
 
                 return Ok(new { success = true, message = "Tiquetes asignados correctamente." });

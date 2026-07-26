@@ -13,7 +13,6 @@
         public string? Resolucion { get; set; }
         public DateTime UpdatedAt { get; set; }
         public string UpdatedBy { get; set; }
-
         public string? ReportedByEmail { get; set; }
         public string? ReportedByNombre { get; set; }
         public string? EstatusNombre { get; set; }

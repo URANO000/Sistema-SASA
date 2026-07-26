@@ -1,14 +1,17 @@
 ﻿using BusinessLogic.Servicios.Correo.Plantillas;
+using Microsoft.Extensions.Logging;
 
 namespace BusinessLogic.Servicios.Correo
 {
     public class CorreoNotificacionesService : ICorreoNotificacionesService
     {
         private readonly IEmailService _emailService;
+        private readonly ILogger<CorreoNotificacionesService> _logger;
 
-        public CorreoNotificacionesService(IEmailService emailService)
+        public CorreoNotificacionesService(IEmailService emailService, ILogger<CorreoNotificacionesService> logger)
         {
             _emailService = emailService;
+            _logger = logger;
         }
 
         public async Task<bool> EnviarActivacionCuentaAsync(string toEmail, string nombreUsuario, string activationLink)
@@ -24,6 +27,7 @@ namespace BusinessLogic.Servicios.Correo
             catch
             {
                 // Regla: si falla NO rompe el sistema
+                _logger.LogError("Error al enviar correo de activación a: {Email}", toEmail);
                 return false;
             }
         }

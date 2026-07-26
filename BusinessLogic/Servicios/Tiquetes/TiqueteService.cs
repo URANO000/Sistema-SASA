@@ -4,7 +4,6 @@ using BusinessLogic.Servicios.TiqueteHistoriales;
 using DataAccess;
 using DataAccess.Identity;
 using DataAccess.Modelos.DTOs.Tiquete;
-using DataAccess.Modelos.DTOs.Tiquete.Colas;
 using DataAccess.Modelos.DTOs.Tiquete.Filtros;
 using DataAccess.Modelos.DTOs.Wrappers;
 using DataAccess.Modelos.Entidades.ModTiquete;
@@ -45,9 +44,9 @@ namespace BusinessLogic.Servicios.Tiquetes
         }
         //Implementación de los métodos para el servicio de Tiquete
 
-        public async Task<PagedResult<ListaTiqueteDTO>> ObtenerTiquetesAsync(TiqueteFiltroDto filtro, string? currentUserId)
+        public async Task<PagedResult<ListaTiqueteDTO>> ObtenerTiquetesAsync(TiqueteFiltroDto filtro, string currentUserId, bool esAdmin)
         {
-            return await _tiqueteRepository.ObtenerTiquetesAsync(filtro, currentUserId);
+            return await _tiqueteRepository.ObtenerTiquetesAsync(filtro, currentUserId, esAdmin);
         }
 
         public async Task<IReadOnlyList<ListaTiqueteDTO>> ObtenerTiquetesReporteAsync()
@@ -244,19 +243,6 @@ namespace BusinessLogic.Servicios.Tiquetes
             var categoriaAnterior = tiqueteActual.IdCategoria;
             var estatusAnterior = tiqueteActual.IdEstatus;
 
-            //Validación 8: Si el tiquete cambia de resuelto a en proceso, reinsertar a cola
-            bool entraACola =
-                (estatusAnterior == (int)TiqueteEstatus.Resuelto)
-                &&
-                dto.IdEstatus == (int)TiqueteEstatus.EnProceso;
-
-            if (entraACola && tiqueteActual.IdAsignee != null)
-            {
-                var siguienteOrden = await _tiqueteRepository
-                    .ObtenerSiguienteOrdenColaAsync(tiqueteActual.IdAsignee);
-
-                tiqueteActual.OrdenCola = siguienteOrden;
-            }
 
             //Si el tiquete existe, se actualizan los campos
             tiqueteActual.IdCategoria = dto.IdCategoria;
@@ -317,7 +303,7 @@ namespace BusinessLogic.Servicios.Tiquetes
         }
 
         //--------------------------ASIGNAR DE MANERA MASIVA-----------------------
-        public async Task AsignarTiquetesAsync(AsignarTiqueteDto dto, string currentUserId, bool esAdministrador)
+        public async Task AsignarTiquetesAsync(AsignarTiqueteDto dto, string currentUserId, bool esAdministrador, TiqueteFiltroDto filtro)
         {
             await _helper.ValidarUsuarioEstado(currentUserId);
             _helper.ValidarUsuarioActual(currentUserId);
@@ -334,8 +320,17 @@ namespace BusinessLogic.Servicios.Tiquetes
 
             try
             {
+                List<Tiquete> tiquetes;
+
                 //Obtener todos los tiquetes por la lista de IDs
-                var tiquetes = await _tiqueteRepository.ObtenerTiquetesPorIdsAsync(dto.IdsTiquetes);
+                if (dto.AssignAll)
+                {
+                    tiquetes = await _tiqueteRepository.ObtenerTiquetesPorFiltroAsync(filtro, currentUserId, esAdministrador);
+                }
+                else
+                {
+                    tiquetes = await _tiqueteRepository.ObtenerTiquetesPorIdsAsync(dto.IdsTiquetes);
+                }
 
                 //Si no hay ninguno
                 if (!tiquetes.Any())
@@ -350,15 +345,6 @@ namespace BusinessLogic.Servicios.Tiquetes
                 //Para historial de tiquetes, abajo
                 var nombreCompleto = user.PrimerNombre + " " + user.PrimerApellido;
 
-                //Para colas
-                decimal siguienteOrden = 0;
-
-                if (dto.IdAssignee != null)
-                {
-                    siguienteOrden =
-                        await _tiqueteRepository.ObtenerSiguienteOrdenColaAsync(dto.IdAssignee);
-                }
-
                 //Si todo bien, iterar por cada tiquete en la lista y asignar individualmente
                 foreach (var tiquete in tiquetes)
                 {
@@ -370,27 +356,19 @@ namespace BusinessLogic.Servicios.Tiquetes
 
                     //Para historial y colas
                     var asignadoAnterior = tiquete.IdAsignee;
-                    var usuarioAnterior = await _userManager.FindByIdAsync(asignadoAnterior);
-                    _helper.ValidarUsuarioExiste(usuarioAnterior);
+                    var usuarioAnterior = null as ApplicationUser;
 
-                    var nombreAnterior = usuarioAnterior.PrimerNombre + " " + usuarioAnterior.PrimerApellido;
-
-                    //Para colas nada más
-                    bool cambiaAssignee = asignadoAnterior != dto.IdAssignee;
-
-                    if (cambiaAssignee)
+                    if(asignadoAnterior != null)
                     {
-                        if(dto.IdAssignee == null)
-                        {
-                            tiquete.OrdenCola = null;
-                        }
-                        else
-                        {
-                            tiquete.OrdenCola = siguienteOrden;
-                            siguienteOrden += 1000m;
-                        }
+                        usuarioAnterior = await _userManager.FindByIdAsync(asignadoAnterior);
+                        _helper.ValidarUsuarioExiste(usuarioAnterior);
                     }
 
+                    var nombreAnterior = usuarioAnterior != null
+                        ? $"{usuarioAnterior.PrimerNombre} {usuarioAnterior.PrimerApellido}"
+                        : null;
+
+                  
                     //De la operación para reasignar
                     tiquete.IdAsignee = dto.IdAssignee;
                     tiquete.UpdatedAt = DateTime.UtcNow;
@@ -416,52 +394,6 @@ namespace BusinessLogic.Servicios.Tiquetes
                 await transaction.RollbackAsync();
                 throw;
             }
-        }
-
-
-        //---------------------------Zona de colas ---------------------------------------------
-        public async Task<List<ColaTiqueteDto>> GetColaPersonalAsync(string currentUserId)
-        {
-            //Primeramente, validar y asegurar que usuario es admin
-            _helper.ValidarUsuarioActual(currentUserId);
-
-            return await _tiqueteRepository.GetColaPersonalAsync(currentUserId);
-        }
-
-        public async Task<List<ColaPorAssigneeDto>> GetColasGlobalAsync()
-        {
-            return await _tiqueteRepository.GetColasGlobalAsync();
-        }
-
-        public async Task<decimal> ReordenarAsync(int idTiquete, decimal? ordenAnterior, decimal? ordenSiguiente)
-        {
-            decimal nuevoOrden;
-
-            if (ordenAnterior == null && ordenSiguiente == null)
-                throw new Exception("Lista vacía");
-
-            if (ordenAnterior == null)
-            {
-                //Mover arriba
-                nuevoOrden = ordenSiguiente.Value / 2m;
-            }
-            else if (ordenSiguiente == null)
-            {
-                //Mover abajo
-                nuevoOrden = ordenAnterior.Value + 1000m;
-            }
-            else
-            {
-                // Between two items
-                nuevoOrden = _tiqueteRepository.CalcularOrdenEntre(ordenAnterior.Value, ordenSiguiente.Value);
-            }
-
-            var tiquete = await _context.Tiquetes.FindAsync(idTiquete);
-            tiquete.OrdenCola = nuevoOrden;
-
-            await _context.SaveChangesAsync();
-
-            return nuevoOrden;
         }
 
         //---------------------------Dashboard--------------------------------------------------
@@ -509,16 +441,6 @@ namespace BusinessLogic.Servicios.Tiquetes
             string? idAsignee
         )
         {
-
-            //Un poco de lógica para colas---------------------------------
-            decimal? ordenCola = null;
-
-            //Si el tiquete es assignado, entonces debe de entrar a la cola del usuario asignado
-            if (!string.IsNullOrEmpty(idAsignee))
-            {
-                ordenCola = await _tiqueteRepository.ObtenerSiguienteOrdenColaAsync(idAsignee);
-            }
-
             var tiquete = new Tiquete
             {
                 Asunto = asunto.Trim(),
@@ -527,7 +449,6 @@ namespace BusinessLogic.Servicios.Tiquetes
                 IdSubCategoria = idSubCategoria,
                 IdReportedBy = reportedBy,
                 IdAsignee = idAsignee,
-                OrdenCola = ordenCola,
                 IdEstatus = (int)TiqueteEstatus.Creado,
                 CreatedAt = DateTime.UtcNow
             };

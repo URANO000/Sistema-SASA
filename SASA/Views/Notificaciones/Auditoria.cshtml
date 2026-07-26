@@ -12,11 +12,11 @@
         </div>
 
         <form method="get" class="audit-filters row g-2 mb-3">
-            <div class="col-md-3">
-                <input name="q" value="@Model.Q" class="form-control" placeholder="Buscar por estado o fecha">
+            <div class="col-12 col-md-3">
+                <input name="q" value="@Model.Q" class="form-control" placeholder="Buscar notificación">
             </div>
 
-            <div class="col-md-2">
+            <div class="col-12 col-md-2">
                 <select name="estado" class="form-select">
                     <option value="">Estado</option>
                     <option value="NoLeida" selected="@(Model.Estado == "NoLeida")">NoLeida</option>
@@ -24,33 +24,34 @@
                 </select>
             </div>
 
-            <div class="col-md-2">
+            <div class="col-12 col-md-2">
                 <input name="fecha" value="@(Model.Fecha?.ToString("yyyy-MM-dd"))" class="form-control" type="date">
             </div>
 
-            <div class="col-md-3">
+            <div class="col-12 col-md-3">
                 <button class="btn btn-outline-secondary w-100">
                     <i class="bi bi-funnel"></i> Filtrar
                 </button>
             </div>
         </form>
 
-        <table class="table sasa-table">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle sasa-table">
             <thead>
                 <tr>
+                    <th>Acciones</th>
                     <th>Fecha</th>
                     <th>Tipo</th>
                     <th>Relacionado</th>
                     <th>Destinatario</th>
                     <th>Estado</th>
-                    <th>Detalle</th>
                 </tr>
             </thead>
             <tbody>
                 @if (Model.Elementos.Count == 0)
                 {
                     <tr>
-                        <td colspan="7" class="text-muted">No hay notificaciones con esos filtros.</td>
+                        <td colspan="6" class="text-muted">No hay notificaciones con esos filtros.</td>
                     </tr>
                 }
                 else
@@ -58,10 +59,15 @@
                     foreach (var n in Model.Elementos)
                     {
                         <tr>
+                            <td>
+                                <a class="btn btn-link icon-btn" asp-controller="Notificaciones" asp-action="AuditoriaDetalle" asp-route-id="@n.IdNotificacion">
+                                    <i class="bi bi-eye detail-btn"></i>
+                                </a>
+                            </td>
                             <td>@n.FechaCreacion.ToString("dd/MM/yyyy HH:mm")</td>
                             <td><span class="badge bg-primary">@n.TipoEvento</span></td>
-                            <td>Tiquete #@n.IdTiquete</td>
-                            <td>@n.Destinatario</td>
+                            <td class="text-break">Tiquete #@n.IdTiquete</td>
+                            <td class="text-break">@n.Destinatario</td>
                             <td>
                                 @if (n.Estado == "Leida")
                                 {
@@ -72,64 +78,55 @@
                                     <span class="badge bg-warning text-dark">No leída</span>
                                 }
                             </td>
-                            <td class="sasa-actions">
-                                <a asp-controller="Notificaciones" asp-action="AuditoriaDetalle" asp-route-id="@n.IdNotificacion">
-                                    <i class="bi bi-eye"></i>
-                                </a>
-                            </td>
                         </tr>
                     }
                 }
             </tbody>
         </table>
 
+
         @{
-            var totalPaginas = (int)Math.Ceiling(Model.TotalRegistros / (double)Model.TamanoPagina);
             var desde = (Model.Pagina - 1) * Model.TamanoPagina + 1;
             var hasta = Math.Min(Model.Pagina * Model.TamanoPagina, Model.TotalRegistros);
         }
 
-        <div class="d-flex justify-content-between align-items-center">
-            <span class="text-muted small">
-                Mostrando @desde–@hasta de @Model.TotalRegistros
-            </span>
+        <div class="d-flex flex-column align-items-center gap-3">
+            <nav aria-label="Paginación">
+                <ul class="pagination pagination-sm mb-0 justify-content-center">
+                    <!-- Previous -->
+                    <li class="page-item @(Model.TieneAnterior ? "" : "disabled")">
+                        <a class="page-link"
+                           asp-action="Auditoria"
+                           asp-route-q="@Model.Q"
+                           asp-route-tipo="@Model.Tipo"
+                           asp-route-estado="@Model.Estado"
+                           asp-route-fecha="@(Model.Fecha?.ToString("yyyy-MM-dd"))"
+                           asp-route-pagina="@(Model.Pagina - 1)"
+                           asp-route-tamanoPagina="@Model.TamanoPagina">
+                            Anterior
+                        </a>
+                    </li>
 
-            @if (totalPaginas > 1)
-            {
-                <nav aria-label="Paginación">
-                    <ul class="pagination pagination-sm mb-0">
-                        <li class="page-item @(Model.Pagina > 1 ? "" : "disabled")">
-                            <a class="page-link"
-                               asp-action="Auditoria"
-                               asp-route-q="@Model.Q"
-                               asp-route-tipo="@Model.Tipo"
-                               asp-route-estado="@Model.Estado"
-                               asp-route-fecha="@(Model.Fecha?.ToString("yyyy-MM-dd"))"
-                               asp-route-pagina="@(Model.Pagina - 1)"
-                               asp-route-tamanoPagina="@Model.TamanoPagina">
-                                Anterior
-                            </a>
-                        </li>
+                    <!-- Info -->
+                    <li class="page-item disabled">
+                        <span class="page-link">Página @Model.Pagina de @Model.TotalPaginas</span>
+                    </li>
 
-                        <li class="page-item disabled">
-                            <span class="page-link">Página @Model.Pagina de @totalPaginas</span>
-                        </li>
-
-                        <li class="page-item @(Model.Pagina < totalPaginas ? "" : "disabled")">
-                            <a class="page-link"
-                               asp-action="Auditoria"
-                               asp-route-q="@Model.Q"
-                               asp-route-tipo="@Model.Tipo"
-                               asp-route-estado="@Model.Estado"
-                               asp-route-fecha="@(Model.Fecha?.ToString("yyyy-MM-dd"))"
-                               asp-route-pagina="@(Model.Pagina + 1)"
-                               asp-route-tamanoPagina="@Model.TamanoPagina">
-                                Siguiente
-                            </a>
-                        </li>
-                    </ul>
-                </nav>
-            }
+                    <!-- Next -->
+                    <li class="page-item @(Model.TieneSiguiente ? "" : "disabled")">
+                        <a class="page-link"
+                           asp-action="Auditoria"
+                           asp-route-q="@Model.Q"
+                           asp-route-tipo="@Model.Tipo"
+                           asp-route-estado="@Model.Estado"
+                           asp-route-fecha="@(Model.Fecha?.ToString("yyyy-MM-dd"))"
+                           asp-route-pagina="@(Model.Pagina + 1)"
+                           asp-route-tamanoPagina="@Model.TamanoPagina">
+                            Siguiente
+                        </a>
+                    </li>
+                </ul>
+            </nav>
         </div>
     </div>
 </div>

@@ -8,7 +8,7 @@
 
 <div class="sasa-card">
 
-    <div class="d-flex justify-content-between align-items-start gap-3">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-start gap-3">
         <div>
             <h2 class="mb-1">Detalle de auditoría</h2>
             <div class="text-muted small">
@@ -24,26 +24,26 @@
     <hr />
 
     <div class="notif-detail mb-4">
-        <div class="notif-detail-row">
-            <span class="label">Tipo</span>
-            <span class="value">@n.TipoEvento</span>
+        <div class="row mb-2">
+            <div class="col-12 col-md-3 text-muted small">Tipo</div>
+            <div class="col-12 col-md-9 text-break">@n.TipoEvento</div>
         </div>
 
-        <div class="notif-detail-row">
-            <span class="label">Fecha y hora</span>
-            <span class="value">@n.FechaCreacion.ToString("dd/MM/yyyy HH:mm")</span>
+        <div class="row mb-2">
+            <div class="col-12 col-md-3 text-muted small">Fecha y hora</div>
+            <div class="col-12 col-md-9 text-break">@n.FechaCreacion.ToString("dd/MM/yyyy HH:mm")</div>
         </div>
 
-        <div class="notif-detail-row">
-            <span class="label">Mensaje</span>
-            <span class="value">@n.Mensaje</span>
+        <div class="row mb-2">
+            <div class="col-12 col-md-3 text-muted small">Mensaje</div>
+            <div class="col-12 col-md-9 text-break">@n.Mensaje</div>
         </div>
 
-        <div class="notif-detail-row">
-            <span class="label">Relacionado con</span>
-            <span class="value">
+        <div class="row mb-2">
+            <div class="col-12 col-md-3 text-muted small">Relacionado con</div>
+            <div class="col-12 col-md-9 text-break">
                 <span class="badge bg-primary">Tiquete</span> #@n.IdTiquete
-            </span>
+            </div>
         </div>
     </div>
 
@@ -52,7 +52,7 @@
             <div class="d-flex justify-content-between align-items-start gap-3">
                 <div>
                     <h5 class="mb-1 fw-bold">Información del tiquete</h5>
-                    <div class="text-muted small">Resumen para contexto (auditoría)</div>
+
                 </div>
                 <span class="badge bg-secondary">@Model.Estatus</span>
             </div>
@@ -66,8 +66,6 @@
                 <dt class="col-4 col-md-3">Categoría</dt>
                 <dd class="col-8 col-md-9">@Model.Categoria</dd>
 
-                <dt class="col-4 col-md-3">Cola</dt>
-                <dd class="col-8 col-md-9">@Model.Cola</dd>
 
                 <dt class="col-4 col-md-3">Prioridad</dt>
                 <dd class="col-8 col-md-9">@Model.Prioridad</dd>
