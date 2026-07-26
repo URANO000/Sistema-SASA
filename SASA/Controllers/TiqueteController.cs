@@ -11,7 +11,6 @@ using DataAccess.Modelos.DTOs.Avances;
 using DataAccess.Modelos.DTOs.Tiquete;
 using DataAccess.Modelos.DTOs.Tiquete.Filtros;
 using DataAccess.Modelos.Enums;
-using DataAccess.Modelos.DTOs.Inventario;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -104,20 +103,39 @@ namespace SASA.Controllers
             {
                 Tiquetes = result.Items.Select(u =>
                 {
-                    IdTiquete = u.IdTiquete,
-                    Asunto = u.Asunto,
-                    Descripcion = u.Descripcion,
-                    Resolucion = u.Resolucion,
-                    Estatus = u.Estatus,
-                    Categoria = u.Categoria,
-                    ReportedBy = u.ReportedBy,
-                    ReportedById = u.ReportedById,
-                    Departamento = u.Departamento,
-                    Assignee = u.Assignee,
-                    CreatedAt = _helper.FormatearCRTime(u.CreatedAt),
-                    UpdatedAt = u.UpdatedAt.HasValue
-                        ? _helper.FormatearCRTime(u.UpdatedAt.Value)
-                        : null
+                    string? tiempoRestante = null;
+                    string? tiempoExcedido = null;
+                    bool atrasado = false;
+
+                    if (u.DuracionMinutos.HasValue)
+                    {
+                        (tiempoRestante, tiempoExcedido, atrasado) =
+                            _helper.Calcular(u.CreatedAt, u.DuracionMinutos.Value);
+                    }
+
+                    return new TiqueteListaViewModel
+                    {
+                        IdTiquete = u.IdTiquete,
+                        Asunto = u.Asunto,
+                        Descripcion = u.Descripcion,
+                        Resolucion = u.Resolucion,
+                        Estatus = u.Estatus,
+                        Categoria = u.Categoria,
+                        ReportedBy = u.ReportedBy,
+                        ReportedById = u.ReportedById,
+                        Departamento = u.Departamento,
+                        Assignee = u.Assignee,
+
+                        CreatedAt = _helper.FormatearCRTime(u.CreatedAt),
+                        UpdatedAt = u.UpdatedAt.HasValue
+                            ? _helper.FormatearCRTime(u.UpdatedAt.Value)
+                            : null,
+
+                        DuracionMinutos = u.DuracionMinutos,
+                        TiempoRestante = tiempoRestante,
+                        TiempoExcedido = tiempoExcedido,
+                        EstaAtrasado = atrasado
+                    };
                 }).ToList(),
 
                 Filtro = new TiqueteFiltroViewModel

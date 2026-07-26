@@ -1,4 +1,5 @@
-﻿using BusinessLogic.Servicios.TiqueteHistoriales;
+﻿using BusinessLogic.Servicios.Helpers;
+using BusinessLogic.Servicios.TiqueteHistoriales;
 using DataAccess.Modelos.DTOs.TiqueteHistorial.Filtros;
 using DataAccess.Modelos.Enums;
 using Microsoft.AspNetCore.Authorization;
@@ -11,9 +12,11 @@ namespace SASA.Controllers
     public class TiqueteHistorialController : Controller
     {
         private readonly ITiqueteHistorialService _service;
-        public TiqueteHistorialController(ITiqueteHistorialService service)
+        private readonly IHelper _helper;
+        public TiqueteHistorialController(ITiqueteHistorialService service, IHelper helper)
         {
             _service = service;
+            _helper = helper;
         }
 
 
@@ -50,7 +53,7 @@ namespace SASA.Controllers
                     ValorAnterior = t.ValorAnterior,
                     ValorNuevo = t.ValorNuevo,
                     DescripcionEvento = t.DescripcionEvento,
-                    PerformedAt = t.PerformedAt,
+                    PerformedAt = _helper.FormatearCRTime(t.PerformedAt),
                     PerformedBy = t.PerformedBy
                 }).ToList(),
 
