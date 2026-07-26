@@ -90,8 +90,27 @@
 
                 <div class="text-end small text-muted">
                     <div>Creado: @Model.CreatedAt</div>
-                    <div>Reportado por: @Model.ReportedBy</div>
-                    <div>Asignado a: @Model.Assignee</div>
+                    <div>
+                        Reportado por:
+
+                        @if (!string.IsNullOrWhiteSpace(Model.ReportedById))
+                        {
+                            <a asp-controller="Tiquete"
+                               asp-action="InventarioUsuario"
+                               asp-route-usuarioId="@Model.ReportedById"
+                               asp-route-nombreUsuario="@Model.ReportedBy"
+                               class="text-decoration-none"
+                               title="Ver inventario asignado a este usuario">
+
+                                <i class="bi bi-pc-display me-1"></i>
+                                @Model.ReportedBy
+                            </a>
+                        }
+                        else
+                        {
+                            @Model.ReportedBy
+                        }
+                    </div>                    <div>Asignado a: @Model.Assignee</div>
                 </div>
             </div>
         </div>

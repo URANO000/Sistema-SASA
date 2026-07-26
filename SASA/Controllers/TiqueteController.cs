@@ -6,10 +6,12 @@ using BusinessLogic.Servicios.Prioridad;
 using BusinessLogic.Servicios.SubCategorias;
 using BusinessLogic.Servicios.Tiquetes;
 using BusinessLogic.Servicios.Usuarios;
+using BusinessLogic.Servicios.Inventario;
 using DataAccess.Modelos.DTOs.Avances;
 using DataAccess.Modelos.DTOs.Tiquete;
 using DataAccess.Modelos.DTOs.Tiquete.Filtros;
 using DataAccess.Modelos.Enums;
+using DataAccess.Modelos.DTOs.Inventario;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -38,6 +40,7 @@ namespace SASA.Controllers
         private readonly IAttachmentService _attachmentService;
         private readonly ISubCategoriaService _subCategoriasService;
         private readonly IHelper _helper;
+        private readonly IInventarioService _inventarioService;
 
         private readonly BusinessLogic.Servicios.Correo.ICorreoNotificacionesService _correoNotificaciones;
         private readonly AppSettings _appSettings;
@@ -45,6 +48,7 @@ namespace SASA.Controllers
         public TiqueteController(
             ITiqueteService tiqueteService,
             IUsuarioService usuarioService,
+            IInventarioService inventarioService,
             ICategoriaService categoriaService,
             IPrioridadService prioridadService,
             IAvanceService avanceService,
@@ -65,6 +69,7 @@ namespace SASA.Controllers
             _helper = helper;
             _correoNotificaciones = correoNotificaciones;
             _appSettings = appSettings.Value;
+            _inventarioService = inventarioService;
         }
         //GET: TiqueteController
         [Authorize(Roles = "Administrador, Empleado Normal")]
@@ -102,6 +107,7 @@ namespace SASA.Controllers
                     Estatus = u.Estatus,
                     Categoria = u.Categoria,
                     ReportedBy = u.ReportedBy,
+                    ReportedById = u.ReportedById,
                     Departamento = u.Departamento,
                     Assignee = u.Assignee,
                     CreatedAt = _helper.FormatearCRTime(u.CreatedAt),
@@ -446,6 +452,7 @@ namespace SASA.Controllers
                 Categoria = tiquete.Categoria,
                 SubCategoria = tiquete.SubCategoria,
                 ReportedBy = tiquete.ReportedBy,
+                ReportedById = tiquete.ReportedById,
                 Departamento = tiquete.Departamento,
                 Assignee = tiquete.Assignee,
 
@@ -488,6 +495,42 @@ namespace SASA.Controllers
 
             };
             return View(model);
+        }
+
+        [HttpGet]
+        [Authorize(Roles = "Administrador, Empleado Normal")]
+        public async Task<IActionResult> InventarioUsuario(
+    string usuarioId,
+    string? nombreUsuario)
+        {
+            if (string.IsNullOrWhiteSpace(usuarioId))
+                return BadRequest();
+
+            var currentUserId =
+                User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            var esAdministrador =
+                User.IsInRole("Administrador");
+
+            // Un empleado normal solo puede consultar su propio inventario.
+            if (!esAdministrador &&
+                !string.Equals(
+                    currentUserId,
+                    usuarioId,
+                    StringComparison.Ordinal))
+            {
+                return Forbid();
+            }
+
+            var activos = await _inventarioService
+                .ObtenerActivosPorUsuarioAsync(usuarioId);
+
+            ViewData["NombreUsuario"] =
+                string.IsNullOrWhiteSpace(nombreUsuario)
+                    ? "Usuario"
+                    : nombreUsuario;
+
+            return View(activos);
         }
 
         [Authorize(Roles = "Administrador")]

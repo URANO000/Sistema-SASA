@@ -6,12 +6,26 @@ namespace DataAccess.Repositorios.Inventario
     {
         // Lecturas
         Task<ActivoInventario?> ObtenerPorIdAsync(int id);
-        Task<ActivoInventario?> ObtenerDetalleAsync(int id); // includes (si aplica)
-        Task<List<ActivoInventario>> ListarAsync(string? q, int? estadoId, int? tipoId);
 
-        Task<int> ContarAsync(string? q, int? estadoId, int? tipoId);
+        Task<ActivoInventario?> ObtenerDetalleAsync(int id);
 
-        // ✅ Agregado sortBy/sortDir
+        Task<ActivoInventario?> ObtenerPorSerieONombreAsync(
+        string? serieServicio,
+        string nombreMaquina);
+
+        Task<List<ActivoInventario>> ObtenerPorUsuarioActualAsync(
+            string usuarioActualId);
+
+        Task<List<ActivoInventario>> ListarAsync(
+            string? q,
+            int? estadoId,
+            int? tipoId);
+
+        Task<int> ContarAsync(
+            string? q,
+            int? estadoId,
+            int? tipoId);
+
         Task<List<ActivoInventario>> ListarPaginadoAsync(
             string? q,
             int? estadoId,
@@ -23,19 +37,23 @@ namespace DataAccess.Repositorios.Inventario
 
         // Validaciones / soporte Integración
         Task<bool> ExisteNumeroActivoAsync(string numeroActivo);
-        Task<List<string>> ObtenerNumerosExistentesAsync(IEnumerable<string> numeros);
+
+        Task<List<string>> ObtenerNumerosExistentesAsync(
+            IEnumerable<string> numeros);
 
         // Escrituras
         Task CrearAsync(ActivoInventario entity);
+
         Task ActualizarAsync(ActivoInventario entity);
 
         // Soporte Integración
-        Task AgregarRangoAsync(IEnumerable<ActivoInventario> entities);
+        Task AgregarRangoAsync(
+            IEnumerable<ActivoInventario> entities);
 
         // Unit of Work
         Task GuardarAsync();
 
-        //------------------------Dashboard---------------------------
+        // Dashboard
         Task<int> ContarInventarioAsync();
     }
 }

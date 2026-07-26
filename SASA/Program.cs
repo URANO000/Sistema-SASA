@@ -166,6 +166,8 @@ builder.Services.AddScoped<IActivoInventarioRepository, ActivoInventarioReposito
 builder.Services.AddScoped<IActivoInventarioTiqueteRepository, ActivoInventarioTiqueteRepository>();
 builder.Services.AddScoped<ICatalogosInventarioRepository, CatalogosInventarioRepository>();
 builder.Services.AddScoped<IMantenimientoActivoRepository, MantenimientoActivoRepository>();
+builder.Services.AddScoped<IInventarioAutomatizadoRepository, InventarioAutomatizadoRepository>();
+builder.Services.AddScoped<IInventarioAutomatizadoService, InventarioAutomatizadoService>();
 
 // Inventario Teléfonos
 builder.Services.AddScoped<IActivoTelefonoRepository, ActivoTelefonoRepository>();
@@ -188,6 +190,10 @@ builder.Services.AddScoped<IHelper, Helper>();
 // Configuración general de la aplicación para la dirección base, etc.
 builder.Services.Configure<AppSettings>(
     builder.Configuration.GetSection("AppSettings"));
+
+// Configuración para el inventario automatizado
+builder.Services.Configure<InventarioAutomatizadoSettings>(
+    builder.Configuration.GetSection("InventarioAutomatizado"));
 
 // Antiforgery
 builder.Services.AddAntiforgery(o =>
@@ -285,8 +291,15 @@ if (app.Environment.IsDevelopment())
     }
 }
 
-app.UseExceptionHandler("/Home/Error");
-app.UseHsts();
+if (app.Environment.IsDevelopment())
+{
+    app.UseDeveloperExceptionPage();
+}
+else
+{
+    app.UseExceptionHandler("/Home/Error");
+    app.UseHsts();
+}
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
@@ -332,6 +345,10 @@ app.MapGet("/", (HttpContext ctx) =>
         ? Results.Redirect("/Home/Index")
         : Results.Redirect("/login");
 });
+
+// Mapea los controladores que usan rutas por atributos,
+// por ejemplo: [Route("api/inventario-automatizado")]
+app.MapControllers();
 
 app.MapControllerRoute(
     name: "default",

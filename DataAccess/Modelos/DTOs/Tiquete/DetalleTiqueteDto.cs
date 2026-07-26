@@ -20,6 +20,7 @@ namespace DataAccess.Modelos.DTOs.Tiquete
         public int? DuracionMinutos { get; set; }
 
         public required string ReportedBy { get; set; }
+        public string? ReportedById { get; set; }
         public string? Departamento { get; set; }
         public string? Assignee { get; set; }
 

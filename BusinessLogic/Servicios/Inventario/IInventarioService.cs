@@ -7,6 +7,7 @@ namespace BusinessLogic.Servicios.Inventario
     {
         Task<PagedResult<ActivoTelefonoInventarioListItemDto>> ListarPaginadoAsync(ActivoInventarioFiltroDto filtros);
         Task<ActivoInventarioDetailDto?> ObtenerDetalleAsync(int id);
+        Task<IReadOnlyList<ActivoInventarioDetailDto>> ObtenerActivosPorUsuarioAsync(string usuarioActualId);
         Task<(bool ok, string? error)> CrearAsync(ActivoInventarioCreateDto dto);
         Task<(bool ok, string? error)> ActualizarAsync(int id, ActivoInventarioEditDto dto);
         Task<byte[]> ExportarInventarioExcelAsync(string? q, int? idTipoActivo, int? idEstadoActivo);

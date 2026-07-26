@@ -17,6 +17,7 @@ namespace DataAccess.Repositorios.Inventario
                .Include(a => a.EstadoActivo)
                .FirstOrDefaultAsync(a => a.IdActivo == id);
 
+
         public async Task<List<ActivoInventario>> ListarAsync(string? q, int? estadoId, int? tipoId)
         {
             var query = _db.ActivoInventario
@@ -37,6 +38,43 @@ namespace DataAccess.Repositorios.Inventario
             if (tipoId.HasValue) query = query.Where(a => a.IdTipoActivo == tipoId.Value);
 
             return await query.OrderByDescending(a => a.FechaCreacion).ToListAsync();
+        }
+
+        public async Task<ActivoInventario?> ObtenerPorSerieONombreAsync(
+            string? serieServicio,
+            string nombreMaquina)
+        {
+            var serieNormalizada = serieServicio?.Trim().ToUpper();
+            var nombreNormalizado = nombreMaquina.Trim().ToUpper();
+
+            if (!string.IsNullOrWhiteSpace(serieNormalizada))
+            {
+                return await _db.ActivoInventario
+                    .FirstOrDefaultAsync(a =>
+                        a.SerieServicio != null &&
+                        a.SerieServicio.ToUpper() == serieNormalizada);
+            }
+
+            return await _db.ActivoInventario
+                .FirstOrDefaultAsync(a =>
+                    a.NombreMaquina != null &&
+                    a.NombreMaquina.ToUpper() == nombreNormalizado);
+        }
+
+        public async Task<List<ActivoInventario>> ObtenerPorUsuarioActualAsync(
+            string usuarioActualId)
+        {
+            if (string.IsNullOrWhiteSpace(usuarioActualId))
+                return new List<ActivoInventario>();
+
+            return await _db.ActivoInventario
+                .AsNoTracking()
+                .Include(a => a.TipoActivo)
+                .Include(a => a.EstadoActivo)
+                .Include(a => a.TipoLicencia)
+                .Where(a => a.UsuarioActualId == usuarioActualId)
+                .OrderByDescending(a => a.FechaActualizacion ?? a.FechaCreacion)
+                .ToListAsync();
         }
 
         public async Task<int> ContarAsync(string? q, int? estadoId, int? tipoId)

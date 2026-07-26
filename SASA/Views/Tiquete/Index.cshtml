@@ -188,7 +188,25 @@
                                 }
 
                                 <td>@t.Categoria</td>
-                                <td>@t.ReportedBy</td>
+                                <td>
+                                    @if (!string.IsNullOrWhiteSpace(t.ReportedById))
+                                    {
+                                        <a asp-controller="Tiquete"
+                                           asp-action="InventarioUsuario"
+                                           asp-route-usuarioId="@t.ReportedById"
+                                           asp-route-nombreUsuario="@t.ReportedBy"
+                                           class="text-decoration-none"
+                                           title="Ver inventario asignado a este usuario">
+
+                                            <i class="bi bi-pc-display me-1"></i>
+                                            @t.ReportedBy
+                                        </a>
+                                    }
+                                    else
+                                    {
+                                        @t.ReportedBy
+                                    }
+                                </td>
                                 <td>@t.Departamento</td>
                                 <td>@t.CreatedAt</td>
                                 <td>@t.Assignee</td>

@@ -69,6 +69,7 @@ namespace BusinessLogic.Servicios.Tiquetes
                     Categoria = tiquete.Categoria,
                     SubCategoria = tiquete.SubCategoria,
                     ReportedBy = tiquete.ReportedBy,
+                    ReportedById = tiquete.ReportedById,
                     Assignee = tiquete.Assignee,
                     CreatedAt = tiquete.CreatedAt,
                     UpdatedAt = tiquete.UpdatedAt
@@ -106,6 +107,7 @@ namespace BusinessLogic.Servicios.Tiquetes
                 SubCategoria = dto.SubCategoria,
                 Assignee = dto.Assignee,
                 ReportedBy = dto.ReportedBy,
+                ReportedById = dto.ReportedById,
                 Departamento = dto.Departamento,
                 CreatedAt = dto.CreatedAt,
                 UpdatedAt = dto.UpdatedAt,
