@@ -148,11 +148,21 @@ namespace SASA.Controllers
 
 
             var raw = $"{result.UserId}|{result.EmailConfirmationToken}";
-            var payload = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(raw));
+
+            var payload = WebEncoders.Base64UrlEncode(
+                Encoding.UTF8.GetBytes(raw)
+            );
+
             var baseUrl = _appSettings.BaseUrl?.TrimEnd('/');
 
-            var safePayload = payload.Replace("+", "-").Replace("/", "_").Replace("=", "");
-            var activationLink = $"{baseUrl}/activate-account/{safePayload}";
+            if (string.IsNullOrWhiteSpace(baseUrl))
+            {
+                throw new InvalidOperationException(
+                    "No se configuró AppSettings:BaseUrl."
+                );
+            }
+
+            var activationLink = $"{baseUrl}/activate-account?token={payload}";
 
 
 

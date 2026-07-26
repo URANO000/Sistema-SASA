@@ -214,6 +214,25 @@ namespace BusinessLogic.Servicios.Usuarios
                 throw new InvalidOperationException("Usuario no encontrado.");
             }
 
+            var rolesActuales = await _userManager.GetRolesAsync(usuario);
+            var rolActual = rolesActuales.FirstOrDefault();
+
+            bool sinCambios =
+                string.Equals(usuario.PrimerNombre, dto.PrimerNombre) &&
+                string.Equals(usuario.SegundoNombre, dto.SegundoNombre) &&
+                string.Equals(usuario.PrimerApellido, dto.PrimerApellido) &&
+                string.Equals(usuario.SegundoApellido, dto.SegundoApellido) &&
+                string.Equals(usuario.Departamento, dto.Departamento) &&
+                string.Equals(usuario.Puesto, dto.Puesto) &&
+                string.Equals(usuario.CorreoEmpresa, dto.CorreoEmpresa, StringComparison.OrdinalIgnoreCase) &&
+                string.Equals(rolActual, dto.Rol);
+
+            if (sinCambios)
+            {
+                throw new InvalidOperationException("No se detectaron cambios para actualizar.");
+            }
+
+
             //Else, actualizamos los campos
             usuario.PrimerNombre = dto.PrimerNombre;
             usuario.SegundoNombre = dto.SegundoNombre;
@@ -240,6 +259,10 @@ namespace BusinessLogic.Servicios.Usuarios
                         string.Join("; ", result.Errors.Select(e => e.Description))
                     );
                 }
+
+                //Mantener los cambios de concurrencyStamp más recientes
+                usuario = await _userManager.FindByIdAsync(usuario.Id);
+
 
                 //Mantener UserName sincronizado con el correo
                 usuario.EmailConfirmed = true;
@@ -269,11 +292,15 @@ namespace BusinessLogic.Servicios.Usuarios
                     string.Join(", ", resultado.Errors.Select(e => e.Description)));
             }
 
-            var rolesActuales = await _userManager.GetRolesAsync(usuario);
-
             if (!rolesActuales.Contains(dto.Rol))
             {
-                await _userManager.RemoveFromRolesAsync(usuario, rolesActuales);
+                var removeResult =
+                    await _userManager.RemoveFromRolesAsync(usuario, rolesActuales);
+
+                if (!removeResult.Succeeded)
+                {
+                    throw new InvalidOperationException("El rol no existe.");
+                }
                 var resultadoRol = await _userManager.AddToRoleAsync(usuario, dto.Rol);
 
                 if (!resultadoRol.Succeeded)
@@ -365,5 +392,7 @@ namespace BusinessLogic.Servicios.Usuarios
 
             await _audit.AgregarAuditoria(auditoria);
         }
+
+     
     }
 }

@@ -20,5 +20,11 @@ namespace SASA.ViewModels.Tiquete
 
         public DateTime CreatedAt { get; set; }
         public DateTime? UpdatedAt { get; set; }
+
+        //Para SLA
+        public int? DuracionMinutos { get; init; }
+        public string? TiempoRestante { get; set; }
+        public string? TiempoExcedido { get; set; }
+        public bool EstaAtrasado { get; set; }
     }
 }

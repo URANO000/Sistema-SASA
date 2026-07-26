@@ -1,5 +1,4 @@
 ﻿using DataAccess.Modelos.DTOs.Tiquete;
-using DataAccess.Modelos.DTOs.Tiquete.Colas;
 using DataAccess.Modelos.DTOs.Tiquete.Filtros;
 using DataAccess.Modelos.DTOs.Wrappers;
 
@@ -9,7 +8,7 @@ namespace BusinessLogic.Servicios.Tiquetes
     {
         //Métodos para el servicio de Tiquete
 
-        Task<PagedResult<ListaTiqueteDTO>> ObtenerTiquetesAsync(TiqueteFiltroDto filtro, string? currentUserId);
+        Task<PagedResult<ListaTiqueteDTO>> ObtenerTiquetesAsync(TiqueteFiltroDto filtro, string currentUserId, bool esAdmin);
         Task<IReadOnlyList<ListaTiqueteDTO>> ObtenerTiquetesReporteAsync();
 
         //READ: Nada más para detalle
@@ -22,11 +21,7 @@ namespace BusinessLogic.Servicios.Tiquetes
         Task<int> AgregarTiqueteAsync(CrearTiqueteDto dto, string currentUserId, bool esAdministrador);
         //Actualización de tiquetes para el administrador
         Task ActualizarTiqueteAsync(EditarTiqueteDto tiquete, string currentUserId);
-        Task AsignarTiquetesAsync(AsignarTiqueteDto dto, string currentUserId, bool esAdministrador);
-
-        //Para colas---------------------------------------------------------------------------------------------
-        Task<List<ColaTiqueteDto>> GetColaPersonalAsync(string currentUserId);
-        Task<List<ColaPorAssigneeDto>> GetColasGlobalAsync();
+        Task AsignarTiquetesAsync(AsignarTiqueteDto dto, string currentUserId, bool esAdministrador, TiqueteFiltroDto filtro);
 
         //Para dashboard-----------------------------------------------------------------------------------------
         Task<int> ContarTiquetesAsync();
@@ -35,7 +30,6 @@ namespace BusinessLogic.Servicios.Tiquetes
         Task<double> PromedioResolucionAsync();
         Task<List<TiquetesPorEstadoDto>> ObtenerTiquetesVencidosPorEstadoAsync();
 
-        Task<decimal> ReordenarAsync(int idTiquete, decimal? ordenAnterior, decimal? ordenSiguiente);
 
     }
 }

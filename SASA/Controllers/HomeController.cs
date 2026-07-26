@@ -215,7 +215,7 @@ namespace SASA.Controllers
 
             if (User.IsInRole("Administrador"))
             {
-                return RedirectToAction("Index", "Cola");
+                return RedirectToAction("AdminDashboard", "Home");
             }
             var role = User?.Identity != null && User.Identity.IsAuthenticated
                 ? User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value
