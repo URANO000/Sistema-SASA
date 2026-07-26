@@ -21,7 +21,7 @@ namespace DataAccess.Migrations
                 table: "IntegracionHistorial",
                 type: "BIGINT",
                 nullable: false,
-                defaultValue: "");
+                defaultValue: 0L);
 
             migrationBuilder.AddColumn<string>(
                 name: "TipoMime",

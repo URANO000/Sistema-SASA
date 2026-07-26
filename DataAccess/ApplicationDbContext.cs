@@ -35,6 +35,7 @@ namespace DataAccess
         public DbSet<TipoLicenciaInventario> TipoLicenciaInventario { get; set; }
         public DbSet<MantenimientoActivo> MantenimientosActivos { get; set; }
         public DbSet<ActivoTelefono> ActivoTelefono { get; set; }
+        public DbSet<InventarioAutomatizado> InventariosAutomatizados { get; set; }
         public DbSet<Notificacion> Notificaciones { get; set; }
         public DbSet<NotificacionSilencio> NotificacionSilencios { get; set; }
         public DbSet<IntegracionHistorial> IntegracionHistorial { get; set; }

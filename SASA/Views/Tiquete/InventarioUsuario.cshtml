@@ -1,0 +1,100 @@
+﻿@using DataAccess.Modelos.DTOs.Inventario
+@model IReadOnlyList<ActivoInventarioDetailDto>
+
+@{
+    ViewData["Title"] = "Inventario del usuario";
+
+    var nombreUsuario =
+        ViewData["NombreUsuario"]?.ToString() ?? "Usuario";
+}
+
+<div class="container-fluid">
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+            <h2 class="fw-bold mb-1">Inventario del usuario</h2>
+            <p class="text-muted mb-0">
+                Activos asignados a @nombreUsuario
+            </p>
+        </div>
+
+        <a asp-controller="Tiquete"
+           asp-action="Index"
+           class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i>
+            Volver a tiquetes
+        </a>
+    </div>
+
+    @if (Model == null || !Model.Any())
+    {
+        <div class="alert alert-info">
+            <i class="bi bi-info-circle me-1"></i>
+            Este usuario no tiene activos asignados actualmente.
+        </div>
+    }
+    else
+    {
+        <div class="row g-3">
+            @foreach (var activo in Model)
+            {
+                <div class="col-lg-6">
+                    <div class="card shadow-sm h-100">
+                        <div class="card-header">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <strong>
+                                    @activo.NumeroActivo
+                                </strong>
+
+                                <span class="badge bg-secondary">
+                                    @(activo.EstadoActivoNombre ?? "Sin estado")
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="card-body">
+
+                            <dl class="row mb-0">
+                                <dt class="col-sm-5">Nombre de máquina</dt>
+                                <dd class="col-sm-7">
+                                    @(activo.NombreMaquina ?? "No registrado")
+                                </dd>
+
+                                <dt class="col-sm-5">Tipo</dt>
+                                <dd class="col-sm-7">
+                                    @(activo.TipoActivoNombre ?? "No registrado")
+                                </dd>
+
+                                <dt class="col-sm-5">Marca</dt>
+                                <dd class="col-sm-7">
+                                    @(activo.Marca ?? "No registrada")
+                                </dd>
+
+                                <dt class="col-sm-5">Modelo</dt>
+                                <dd class="col-sm-7">
+                                    @(activo.Modelo ?? "No registrado")
+                                </dd>
+
+                                <dt class="col-sm-5">Serie o Servitag</dt>
+                                <dd class="col-sm-7">
+                                    @(activo.SerieServicio ?? "No registrada")
+                                </dd>
+
+                                <dt class="col-sm-5">Dirección MAC</dt>
+                                <dd class="col-sm-7">
+                                    @(activo.DireccionMAC ?? "No registrada")
+                                </dd>
+
+                                <dt class="col-sm-5">Sistema operativo</dt>
+                                <dd class="col-sm-7">
+                                    @(activo.SistemaOperativo ?? "No registrado")
+                                </dd>
+                            </dl>
+
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>

@@ -39,7 +39,11 @@ namespace DataAccess.Repositorios.Tiquetes
                     Estatus = t.Estatus != null ? t.Estatus.NombreEstatus : "Sin estatus",
                     Categoria = t.Categoria != null ? t.Categoria.NombreCategoria : "Sin categoría",
                     ReportedBy = t.ReportedBy != null ? t.ReportedBy.PrimerNombre + " " + t.ReportedBy.PrimerApellido : "Desconocido",
-                    Departamento = t.ReportedBy.Departamento,
+
+                    ReportedById = t.IdReportedBy,
+
+                    Departamento = t.ReportedBy != null ? t.ReportedBy.Departamento : null,
+
                     Assignee = t.Asignee != null ? t.Asignee.PrimerNombre + " " + t.Asignee.PrimerApellido : "Sin Asignar",
                     CreatedAt = t.CreatedAt,
                     UpdatedAt = t.UpdatedAt,
@@ -73,6 +77,7 @@ namespace DataAccess.Repositorios.Tiquetes
                     SubCategoria = t.SubCategoria != null ? t.SubCategoria.NombreSubCategoria : "Sin subcategoría",
 
                     ReportedBy = t.ReportedBy != null ? t.ReportedBy.CorreoEmpresa : "Desconocido",
+                    ReportedById = t.IdReportedBy,
                     Assignee = t.Asignee != null ? t.Asignee.CorreoEmpresa : "Sin asignar",
 
                     CreatedAt = t.CreatedAt,
@@ -100,8 +105,9 @@ namespace DataAccess.Repositorios.Tiquetes
                     SubCategoria = t.SubCategoria != null
                         ? t.SubCategoria.NombreSubCategoria
                         : "Sin SubCategoria",
-                    ReportedBy = t.ReportedBy.PrimerNombre + " " + t.ReportedBy.PrimerApellido,
-                    Departamento = t.ReportedBy.Departamento,
+                    ReportedBy = t.ReportedBy != null ? t.ReportedBy.PrimerNombre + " " + t.ReportedBy.PrimerApellido : "Desconocido",
+                    ReportedById = t.IdReportedBy,
+                    Departamento = t.ReportedBy != null ? t.ReportedBy.Departamento : null,
                     Assignee = t.Asignee != null ? t.Asignee.PrimerNombre + " " + t.Asignee.PrimerApellido : "Sin asignar",
                     CreatedAt = t.CreatedAt,
                     UpdatedAt = t.UpdatedAt,

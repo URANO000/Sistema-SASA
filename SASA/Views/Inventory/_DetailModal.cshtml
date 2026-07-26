@@ -51,8 +51,14 @@
         <div class="col-md-5">
             <div class="border rounded p-3 h-100 d-flex flex-column align-items-center justify-content-center">
                 <div class="fw-semibold mb-2">QR del Activo</div>
-                <div id="qrcodeModal" data-code="@Model.NumeroActivo" class="mb-2"></div>
-
+                <div id="qrcodeModal"
+                     data-code="@Url.Action(
+                             "Index",
+                             "Inventory",
+                             new { q = Model.NumeroActivo },
+                             Context.Request.Scheme)"
+                     class="mb-2">
+                </div>
                 <div class="text-muted small text-center">
                     Escanee este código para identificar el activo rápidamente.
                 </div>

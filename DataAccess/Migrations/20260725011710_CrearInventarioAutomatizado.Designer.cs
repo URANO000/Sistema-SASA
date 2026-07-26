@@ -4,6 +4,7 @@ using DataAccess;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DataAccess.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260725011710_CrearInventarioAutomatizado")]
+    partial class CrearInventarioAutomatizado
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -300,72 +303,47 @@ namespace DataAccess.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasColumnName("Id");
+                        .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<byte[]>("Archivo")
-                        .HasColumnType("varbinary(max)")
-                        .HasColumnName("Archivo");
-
                     b.Property<string>("DetalleError")
-                        .HasColumnType("nvarchar(max)")
-                        .HasColumnName("DetalleError");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Estado")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)")
-                        .HasColumnName("Estado");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("Fecha")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("Fecha");
+                        .HasColumnType("datetime2");
 
                     b.Property<int>("FilasConError")
-                        .HasColumnType("int")
-                        .HasColumnName("FilasConError");
+                        .HasColumnType("int");
 
                     b.Property<int>("FilasValidas")
-                        .HasColumnType("int")
-                        .HasColumnName("FilasValidas");
+                        .HasColumnType("int");
 
                     b.Property<string>("Modulo")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)")
-                        .HasColumnName("Modulo");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("NombreArchivo")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)")
-                        .HasColumnName("NombreArchivo");
-
-                    b.Property<long>("PesoArchivo")
-                        .HasColumnType("BIGINT")
-                        .HasColumnName("PesoArchivo");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("RutaArchivo")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)")
-                        .HasColumnName("RutaArchivo");
-
-                    b.Property<string>("TipoMime")
-                        .IsRequired()
-                        .HasColumnType("varchar(100)")
-                        .HasColumnName("TipoMime");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("TipoProceso")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)")
-                        .HasColumnName("TipoProceso");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("TotalFilas")
-                        .HasColumnType("int")
-                        .HasColumnName("TotalFilas");
+                        .HasColumnType("int");
 
                     b.Property<string>("UsuarioEjecutorId")
-                        .HasColumnType("varchar(50)")
-                        .HasColumnName("UsuarioEjecutorId");
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 

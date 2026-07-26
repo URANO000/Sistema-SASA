@@ -118,6 +118,38 @@ namespace BusinessLogic.Servicios.Inventario
             };
         }
 
+        public async Task<IReadOnlyList<ActivoInventarioDetailDto>>
+    ObtenerActivosPorUsuarioAsync(string usuarioActualId)
+        {
+            if (string.IsNullOrWhiteSpace(usuarioActualId))
+                return new List<ActivoInventarioDetailDto>();
+
+            var activos = await _repo.ObtenerPorUsuarioActualAsync(usuarioActualId);
+
+            return activos.Select(a => new ActivoInventarioDetailDto
+            {
+                IdActivo = a.IdActivo,
+                NumeroActivo = a.NumeroActivo,
+                NombreMaquina = a.NombreMaquina,
+                Marca = a.Marca,
+                Modelo = a.Modelo,
+                SerieServicio = a.SerieServicio,
+                DireccionMAC = a.DireccionMAC,
+                SistemaOperativo = a.SistemaOperativo,
+                ClaveLicencia = a.ClaveLicencia,
+
+                IdTipoActivo = a.IdTipoActivo,
+                IdEstadoActivo = a.IdEstadoActivo,
+                IdTipoLicencia = a.IdTipoLicencia,
+
+                TipoActivoNombre = a.TipoActivo?.Nombre,
+                EstadoActivoNombre = a.EstadoActivo?.Nombre,
+
+                FechaCreacion = a.FechaCreacion,
+                FechaActualizacion = a.FechaActualizacion
+            }).ToList();
+        }
+
         public async Task<(bool ok, string? error)> CrearAsync(ActivoInventarioCreateDto dto)
         {
             if (string.IsNullOrWhiteSpace(dto.NumeroActivo))

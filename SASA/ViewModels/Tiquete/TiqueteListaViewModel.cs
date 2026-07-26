@@ -15,6 +15,7 @@ namespace SASA.ViewModels.Tiquete
         public string Categoria { get; init; }
 
         public string? ReportedBy { get; init; }
+        public string? ReportedById { get; init; }
         public string? Departamento { get; init; }
         public string? Assignee { get; init; }
 

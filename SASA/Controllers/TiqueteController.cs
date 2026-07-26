@@ -6,10 +6,12 @@ using BusinessLogic.Servicios.Prioridad;
 using BusinessLogic.Servicios.SubCategorias;
 using BusinessLogic.Servicios.Tiquetes;
 using BusinessLogic.Servicios.Usuarios;
+using BusinessLogic.Servicios.Inventario;
 using DataAccess.Modelos.DTOs.Avances;
 using DataAccess.Modelos.DTOs.Tiquete;
 using DataAccess.Modelos.DTOs.Tiquete.Filtros;
 using DataAccess.Modelos.Enums;
+using DataAccess.Modelos.DTOs.Inventario;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -38,6 +40,7 @@ namespace SASA.Controllers
         private readonly IAttachmentService _attachmentService;
         private readonly ISubCategoriaService _subCategoriasService;
         private readonly IHelper _helper;
+        private readonly IInventarioService _inventarioService;
 
         private readonly BusinessLogic.Servicios.Correo.ICorreoNotificacionesService _correoNotificaciones;
         private readonly AppSettings _appSettings;
@@ -45,6 +48,7 @@ namespace SASA.Controllers
         public TiqueteController(
             ITiqueteService tiqueteService,
             IUsuarioService usuarioService,
+            IInventarioService inventarioService,
             ICategoriaService categoriaService,
             IPrioridadService prioridadService,
             IAvanceService avanceService,
@@ -65,6 +69,7 @@ namespace SASA.Controllers
             _helper = helper;
             _correoNotificaciones = correoNotificaciones;
             _appSettings = appSettings.Value;
+            _inventarioService = inventarioService;
         }
         //GET: TiqueteController
         [Authorize(Roles = "Administrador, Empleado Normal")]
@@ -84,7 +89,7 @@ namespace SASA.Controllers
                 Vista = filtro.Vista
             };
 
-            //Condicional, depende de quÈ rol, van a ver una lista diferente de tiquetes
+            //Condicional, depende de qu√© rol, van a ver una lista diferente de tiquetes
             var currentUserId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             var esAdmin = User.IsInRole("Administrador");
             var result = await _tiqueteService.ObtenerTiquetesAsync(filtroDto, currentUserId, esAdmin);
@@ -99,38 +104,20 @@ namespace SASA.Controllers
             {
                 Tiquetes = result.Items.Select(u =>
                 {
-                    string? tiempoRestante = null;
-                    string? tiempoExcedido = null;
-                    bool atrasado = false;
-
-                    if (u.DuracionMinutos.HasValue)
-                    {
-                        (tiempoRestante, tiempoExcedido, atrasado) =
-                            _helper.Calcular(u.CreatedAt, u.DuracionMinutos.Value);
-                    }
-
-                    return new TiqueteListaViewModel
-                    {
-                        IdTiquete = u.IdTiquete,
-                        Asunto = u.Asunto,
-                        Descripcion = u.Descripcion,
-                        Resolucion = u.Resolucion,
-                        Estatus = u.Estatus,
-                        Categoria = u.Categoria,
-                        ReportedBy = u.ReportedBy,
-                        Departamento = u.Departamento,
-                        Assignee = u.Assignee,
-
-                        CreatedAt = _helper.FormatearCRTime(u.CreatedAt),
-                        UpdatedAt = u.UpdatedAt.HasValue
-                            ? _helper.FormatearCRTime(u.UpdatedAt.Value)
-                            : null,
-
-                        DuracionMinutos = u.DuracionMinutos,
-                        TiempoRestante = tiempoRestante,
-                        TiempoExcedido = tiempoExcedido,
-                        EstaAtrasado = atrasado
-                    };
+                    IdTiquete = u.IdTiquete,
+                    Asunto = u.Asunto,
+                    Descripcion = u.Descripcion,
+                    Resolucion = u.Resolucion,
+                    Estatus = u.Estatus,
+                    Categoria = u.Categoria,
+                    ReportedBy = u.ReportedBy,
+                    ReportedById = u.ReportedById,
+                    Departamento = u.Departamento,
+                    Assignee = u.Assignee,
+                    CreatedAt = _helper.FormatearCRTime(u.CreatedAt),
+                    UpdatedAt = u.UpdatedAt.HasValue
+                        ? _helper.FormatearCRTime(u.UpdatedAt.Value)
+                        : null
                 }).ToList(),
 
                 Filtro = new TiqueteFiltroViewModel
@@ -164,7 +151,7 @@ namespace SASA.Controllers
 
             await CargarDropdownsAsync(viewModel.CrearTiquete);
 
-            //Una vez que todo est· listo, retornamos vm
+            //Una vez que todo est√° listo, retornamos vm
             return View(viewModel);
 
         }
@@ -198,7 +185,7 @@ namespace SASA.Controllers
                     ArchivoAdjunto = model.ArchivosAdjuntos
                 };
 
-                //Una vez que est· mapeado entonces verificar si el usuario es administrador
+                //Una vez que est√° mapeado entonces verificar si el usuario es administrador
                 var esAdmin = User.IsInRole("Administrador"); //Retorna true o false
 
                 var idTiquete = await _tiqueteService.AgregarTiqueteAsync(dto, currentUserId, esAdmin);
@@ -471,6 +458,7 @@ namespace SASA.Controllers
                 Categoria = tiquete.Categoria,
                 SubCategoria = tiquete.SubCategoria,
                 ReportedBy = tiquete.ReportedBy,
+                ReportedById = tiquete.ReportedById,
                 Departamento = tiquete.Departamento,
                 Assignee = tiquete.Assignee,
 
@@ -513,6 +501,42 @@ namespace SASA.Controllers
 
             };
             return View(model);
+        }
+
+        [HttpGet]
+        [Authorize(Roles = "Administrador, Empleado Normal")]
+        public async Task<IActionResult> InventarioUsuario(
+    string usuarioId,
+    string? nombreUsuario)
+        {
+            if (string.IsNullOrWhiteSpace(usuarioId))
+                return BadRequest();
+
+            var currentUserId =
+                User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            var esAdministrador =
+                User.IsInRole("Administrador");
+
+            // Un empleado normal solo puede consultar su propio inventario.
+            if (!esAdministrador &&
+                !string.Equals(
+                    currentUserId,
+                    usuarioId,
+                    StringComparison.Ordinal))
+            {
+                return Forbid();
+            }
+
+            var activos = await _inventarioService
+                .ObtenerActivosPorUsuarioAsync(usuarioId);
+
+            ViewData["NombreUsuario"] =
+                string.IsNullOrWhiteSpace(nombreUsuario)
+                    ? "Usuario"
+                    : nombreUsuario;
+
+            return View(activos);
         }
 
         [Authorize(Roles = "Administrador")]
