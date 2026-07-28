@@ -133,6 +133,9 @@ $("#assignTicketsBtn").click(function () {
 
         error: function () {
             mostrarError("Error inesperado asignando los tiquetes.");
+            setTimeout(function () {
+                location.reload();
+            }, 900);
         }
     });
 
