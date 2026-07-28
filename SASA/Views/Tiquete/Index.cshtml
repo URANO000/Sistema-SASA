@@ -212,12 +212,20 @@
                                     </a>
                                     @if (User.IsInRole("Administrador"))
                                     {
+                                        @if (t.Estatus == "Cancelado")
+                                        {
+                                            <a class="btn btn-link icon-btn disabled" asp-area="">
+                                                <i class="fa-regular fa-pen-to-square edit-btn-disabled"></i>
+                                            </a>
+                                        }else
+                                        {
                                         <a class="btn btn-link icon-btn" asp-area=""
                                            asp-controller="Tiquete"
                                            asp-action="Edit"
                                            asp-route-id="@t.IdTiquete">
                                             <i class="fa-regular fa-pen-to-square edit-btn"></i>
                                         </a>
+                                        }
                                     }
                                 </td>
                                 <td>@t.Asunto</td>

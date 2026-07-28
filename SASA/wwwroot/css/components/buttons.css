@@ -48,6 +48,10 @@
     color: var(--accent-1);
 }
 
+.edit-btn-disabled {
+    color: #a1b1ca
+}
+
 /*Buttons*/
 .btn-primary-custom {
     background-color: var(--primary-color);
