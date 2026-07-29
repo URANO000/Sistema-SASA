@@ -16,6 +16,11 @@ namespace SASA.ViewModels.Home
         public int[] PriorityCounts { get; set; } = Array.Empty<int>();
         public int[] PriorityTicketCounts { get; set; } = Array.Empty<int>();
         public string[] PriorityDisplayLabels { get; set; } = Array.Empty<string>();
+        // Subcategory metrics (reemplaza las métricas de prioridad en el dashboard de usuarios normales)
+        public string[] SubcategoryLabels { get; set; } = Array.Empty<string>();
+        public int[] SubcategoryCounts { get; set; } = Array.Empty<int>();
+        public int[] SubcategoryTicketCounts { get; set; } = Array.Empty<int>();
+        public string[] SubcategoryDisplayLabels { get; set; } = Array.Empty<string>();
         public string[] TrendLabels { get; set; } = Array.Empty<string>();
         public int[] TrendAbiertos { get; set; } = Array.Empty<int>();
         public int[] TrendCreados { get; set; } = Array.Empty<int>();

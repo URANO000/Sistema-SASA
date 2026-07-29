@@ -28,65 +28,53 @@
         }
     });
 
-    const rawPriorityLabels = init.PriorityLabels || [];
-    const rawPriorityCounts = init.PriorityCounts || [];
-    const rawPriorityDisplayLabels = init.PriorityDisplayLabels || [];
-    const rawPriorityTicketCounts = init.PriorityTicketCounts || [];
+    const rawSubcategoryLabels = init.SubcategoryLabels || [];
+    const rawSubcategoryCounts = init.SubcategoryCounts || [];
+    const rawSubcategoryDisplayLabels = init.SubcategoryDisplayLabels || [];
+    const rawSubcategoryTicketCounts = init.SubcategoryTicketCounts || [];
 
-    function makeColorsForPriorityNames(names) {
-        var map = {
-            'critica': '#dc3545',
-            'crítica': '#dc3545',
-            'alta': '#fd7e14',
-            'media': '#ffc107',
-            'baja': '#28a745'
-        };
-        return (names || []).map(function (n) {
-            var key = (n || '').toString().trim().toLowerCase();
-            return map[key] || '#0347b8';
+    function makeColorsForNames(names) {
+        var palette = ['#012473', '#0347b8', '#0d6efd', '#6610f2', '#6f42c1', '#198754', '#ffc107', '#fd7e14', '#dc3545', '#6c757d'];
+        return (names || []).map(function (n, i) {
+            return palette[i % palette.length];
         });
     }
 
-    let durationLabelMap = {};
-    if (rawPriorityCounts && rawPriorityCounts.length) {
-        for (let i = 0; i < rawPriorityCounts.length; i++) {
-            const h = rawPriorityCounts[i];
-            const lbl = (rawPriorityDisplayLabels && rawPriorityDisplayLabels[i]) || rawPriorityLabels[i] || '';
-            if (h) durationLabelMap[h] = lbl;
-        }
-    }
-
-    const prioridadCtx = document.getElementById('prioridadChart').getContext('2d');
-    var initialColors = makeColorsForPriorityNames(rawPriorityLabels);
-    const prioridadChart = new Chart(prioridadCtx, {
-        type: 'bar',
-        data: {
-            labels: (rawPriorityDisplayLabels && rawPriorityDisplayLabels.length) ? rawPriorityDisplayLabels : rawPriorityLabels,
-            datasets: [{ data: rawPriorityTicketCounts.length ? rawPriorityTicketCounts : rawPriorityCounts, backgroundColor: initialColors }]
-        },
-        options: {
-            plugins: {
-                legend: { display: false },
-                tooltip: {
-                    callbacks: {
-                        title: function() { return ''; },
-                        label: function (context) {
-                            const idx = (context.dataIndex !== undefined) ? context.dataIndex : -1;
-                            const tickets = (rawPriorityTicketCounts && rawPriorityTicketCounts.length > idx) ? rawPriorityTicketCounts[idx] : ((context.parsed && context.parsed.y !== undefined) ? context.parsed.y : context.raw);
-                            return tickets + ' tiquete(s)';
+    const subcategoriaCtxEl = document.getElementById('subcategoriaChart');
+    var initialSubColors = makeColorsForNames(rawSubcategoryLabels);
+    const subcategoriaCtx = subcategoriaCtxEl ? subcategoriaCtxEl.getContext('2d') : null;
+    var subcategoriaChart = null;
+    if (subcategoriaCtx) {
+        subcategoriaChart = new Chart(subcategoriaCtx, {
+            type: 'bar',
+            data: {
+                labels: (rawSubcategoryDisplayLabels && rawSubcategoryDisplayLabels.length) ? rawSubcategoryDisplayLabels : rawSubcategoryLabels,
+                datasets: [{ data: rawSubcategoryTicketCounts.length ? rawSubcategoryTicketCounts : rawSubcategoryCounts, backgroundColor: initialSubColors }]
+            },
+            options: {
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            title: function() { return ''; },
+                            label: function (context) {
+                                const idx = (context.dataIndex !== undefined) ? context.dataIndex : -1;
+                                const tickets = (rawSubcategoryTicketCounts && rawSubcategoryTicketCounts.length > idx) ? rawSubcategoryTicketCounts[idx] : ((context.parsed && context.parsed.y !== undefined) ? context.parsed.y : context.raw);
+                                return tickets + ' tiquete(s)';
+                            }
                         }
                     }
-                }
-            },
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    ticks: { callback: function() { return ''; } },
-                    title: { display: true, text: 'Cantidad de tiquetes' }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: { callback: function() { return ''; } },
+                        title: { display: true, text: 'Cantidad de tiquetes' }
+                    }
                 }
             }
-        }
-    });
+        });
+    }
 
     const trendCtx = document.getElementById('trendChart').getContext('2d');
     const trendChart = new Chart(trendCtx, {
@@ -132,10 +120,11 @@
             estadoChart.data.datasets[0].data = [abiertos, enProgreso, resueltos, cancelados, enEspera];
             estadoChart.update();
 
-            const priorityLabels = data.priorityLabels ?? data.PriorityLabels ?? [];
-            const priorityCounts = data.priorityCounts ?? data.PriorityCounts ?? [];
-            const priorityDisplayLabels = data.priorityDisplayLabels ?? data.PriorityDisplayLabels ?? rawPriorityDisplayLabels ?? [];
-            const priorityTicketCounts = data.priorityTicketCounts ?? data.PriorityTicketCounts ?? rawPriorityTicketCounts ?? [];
+            const subLabels = data.subcategoryLabels ?? data.SubcategoryLabels ?? [];
+            const subCounts = data.subcategoryCounts ?? data.SubcategoryCounts ?? [];
+            const subDisplayLabels = data.subcategoryDisplayLabels ?? data.SubcategoryDisplayLabels ?? rawSubcategoryDisplayLabels ?? [];
+            const subTicketCounts = data.subcategoryTicketCounts ?? data.SubcategoryTicketCounts ?? rawSubcategoryTicketCounts ?? [];
+
             function normalizeArray(arr, len) {
                 arr = arr || [];
                 const out = new Array(len);
@@ -143,26 +132,13 @@
                 return out;
             }
 
-            prioridadChart.data.labels = priorityDisplayLabels.length ? priorityDisplayLabels : priorityLabels;
-            const lenPri = (prioridadChart.data.labels || []).length;
-            prioridadChart.data.datasets[0].data = normalizeArray((priorityTicketCounts && priorityTicketCounts.length) ? priorityTicketCounts : priorityCounts, lenPri);
-
-            durationLabelMap = {};
-            if (priorityCounts && priorityCounts.length) {
-                for (let i = 0; i < priorityCounts.length; i++) {
-                    const h = priorityCounts[i];
-                    const lbl = (priorityDisplayLabels && priorityDisplayLabels[i]) || priorityLabels[i] || '';
-                    if (h) durationLabelMap[h] = lbl;
-                }
+            if (subcategoriaChart) {
+                subcategoriaChart.data.labels = subDisplayLabels.length ? subDisplayLabels : subLabels;
+                const len = (subcategoriaChart.data.labels || []).length;
+                subcategoriaChart.data.datasets[0].data = normalizeArray((subTicketCounts && subTicketCounts.length) ? subTicketCounts : subCounts, len);
+                subcategoriaChart.data.datasets[0].backgroundColor = makeColorsForNames(subLabels);
+                subcategoriaChart.update();
             }
-
-            rawPriorityTicketCounts.length = 0;
-            if (priorityTicketCounts && priorityTicketCounts.length) {
-                for (let i = 0; i < priorityTicketCounts.length; i++) rawPriorityTicketCounts.push(priorityTicketCounts[i]);
-            }
-
-            prioridadChart.data.datasets[0].backgroundColor = makeColorsForPriorityNames(priorityLabels);
-            prioridadChart.update();
 
             const trendLabels = data.trendLabels ?? data.TrendLabels ?? [];
             const trendAbiertos = data.trendAbiertos ?? data.TrendAbiertos ?? [];

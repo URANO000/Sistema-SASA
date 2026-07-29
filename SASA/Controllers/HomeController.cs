@@ -69,58 +69,41 @@ namespace SASA.Controllers
                 EnEsperaDelUsuario = counts.FirstOrDefault(x => x.Status == (int)DataAccess.Modelos.Enums.TiqueteEstatus.EnEsperaDelUsuario)?.Count ?? 0,
                 Rol = role
             };
-            var prioridades = _db.Prioridades.AsNoTracking().ToList();
-            var orderMap = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase)
-            {
-                ["critica"] = 0,
-                ["crítica"] = 0,
-                ["alta"] = 1,
-                ["media"] = 2,
-                ["baja"] = 3
-            };
-            prioridades = prioridades
-                .OrderBy(p => orderMap.TryGetValue((p.NombrePrioridad ?? string.Empty).Trim().ToLowerInvariant(), out var r) ? r : 99)
-                .ThenBy(p => p.IdPrioridad)
+
+            var subcategoriasAll = (from sc in _db.SubCategorias.AsNoTracking()
+                                     select new { sc.IdSubCategoria, sc.NombreSubCategoria }).ToList();
+
+            var subcategoryCountsList = (from t in tiquetesQuery
+                                         join sc in _db.SubCategorias.AsNoTracking() on t.IdSubCategoria equals sc.IdSubCategoria into scj
+                                         from sc in scj.DefaultIfEmpty()
+                                         where sc != null
+                                         group t by new { sc.IdSubCategoria, sc.NombreSubCategoria } into g
+                                         select new { Id = g.Key.IdSubCategoria, Name = g.Key.NombreSubCategoria, Count = g.Count() })
+                                        .ToList();
+
+   
+            var countsDict = subcategoryCountsList.ToDictionary(x => x.Id, x => x.Count);
+            var allWithCounts = subcategoriasAll
+                .Select(s => new { Id = s.IdSubCategoria, Name = s.NombreSubCategoria, Count = countsDict.ContainsKey(s.IdSubCategoria) ? countsDict[s.IdSubCategoria] : 0 })
                 .ToList();
 
-            var durationMap = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase)
+            int topN = 5;
+            var ordered = allWithCounts.OrderByDescending(x => x.Count).ThenBy(x => x.Name).ToList();
+            var top = ordered.Take(topN).ToList();
+            var labels = top.Select(x => x.Name).ToList();
+            var countsTop = top.Select(x => x.Count).ToList();
+
+            if (ordered.Count > topN)
             {
-                ["baja"] = 168,
-                ["media"] = 24,
-                ["alta"] = 4,
-                ["critica"] = 1,
-                ["crítica"] = 1
-            };
+                var othersTotal = ordered.Skip(topN).Sum(x => x.Count);
+                labels.Add("Otros");
+                countsTop.Add(othersTotal);
+            }
 
-            vm.PriorityLabels = prioridades.Select(p => p.NombrePrioridad).ToArray();
-            vm.PriorityCounts = prioridades.Select(p =>
-            {
-                var name = (p.NombrePrioridad ?? string.Empty).Trim();
-                return durationMap.TryGetValue(name, out var hours) ? hours : 0;
-            }).ToArray();
-            var priorityTicketCountsDict = (from t in tiquetesQuery
-                                            join sc in _db.SubCategorias.AsNoTracking() on t.IdSubCategoria equals sc.IdSubCategoria into scj
-                                            from sc in scj.DefaultIfEmpty()
-                                            where sc != null && sc.IdPrioridad.HasValue
-                                            group t by sc.IdPrioridad into g
-                                            select new { PrioridadId = g.Key, Count = g.Count() })
-                                         .ToDictionary(x => x.PrioridadId.Value, x => x.Count);
-
-            vm.PriorityTicketCounts = prioridades.Select(p => priorityTicketCountsDict.ContainsKey(p.IdPrioridad) ? priorityTicketCountsDict[p.IdPrioridad] : 0).ToArray();
-            vm.PriorityDisplayLabels = prioridades.Select((p, i) =>
-            {
-                var hours = vm.PriorityCounts.ElementAtOrDefault(i);
-                var dur = hours > 0 ? DateTimeHelper.FormatearDuracionHoras(hours) : string.Empty;
-                return string.IsNullOrEmpty(dur) ? p.NombrePrioridad : $"{p.NombrePrioridad} ({dur})";
-            }).ToArray();
-
-            //var prioridadCounts = _db.Tiquetes.AsNoTracking()
-            //    .GroupBy(t => t.IdPrioridad)
-            //    .Select(g => new { Id = g.Key, Count = g.Count() })
-            //    .ToList();
-
-            //vm.PriorityLabels = prioridades.Select(p => p.NombrePrioridad).ToArray();
-            //vm.PriorityCounts = prioridades.Select(p => prioridadCounts.FirstOrDefault(pc => pc.Id == p.IdPrioridad)?.Count ?? 0).ToArray();
+            vm.SubcategoryDisplayLabels = labels.ToArray();
+            vm.SubcategoryTicketCounts = countsTop.ToArray();
+            vm.SubcategoryLabels = vm.SubcategoryDisplayLabels;
+            vm.SubcategoryCounts = vm.SubcategoryTicketCounts;
 
             var days = 7;
             var today = DateTime.Today;
@@ -157,7 +140,7 @@ namespace SASA.Controllers
                 .Select(g => new { Date = g.Key, Count = g.Count() })
                 .ToList();
 
-            var labels = new List<string>();
+            var labelsTrend = new List<string>();
             var creadosList = new List<int>();
             var resueltosList = new List<int>();
             var esperaList = new List<int>();
@@ -167,7 +150,7 @@ namespace SASA.Controllers
             for (int i = 0; i < days; i++)
             {
                 var d = from.AddDays(i);
-                labels.Add(d.ToString("MMM d"));
+                labelsTrend.Add(d.ToString("MMM d"));
                 creadosList.Add(created.FirstOrDefault(x => x.Date == d)?.Count ?? 0);
                 resueltosList.Add(resolved.FirstOrDefault(x => x.Date == d)?.Count ?? 0);
                 esperaList.Add(waiting.FirstOrDefault(x => x.Date == d)?.Count ?? 0);
@@ -175,7 +158,7 @@ namespace SASA.Controllers
                 canceladosList.Add(cancelled.FirstOrDefault(x => x.Date == d)?.Count ?? 0);
             }
 
-            vm.TrendLabels = labels.ToArray();
+            vm.TrendLabels = labelsTrend.ToArray();
             vm.TrendAbiertos = creadosList.ToArray();
             vm.TrendResueltos = resueltosList.ToArray();
             vm.TrendEnProgreso = enprogresoList.ToArray();
@@ -191,10 +174,10 @@ namespace SASA.Controllers
                 EnEsperaDelUsuario = vm.EnEsperaDelUsuario,
                 EnEspera = vm.EnEsperaDelUsuario,
                 enEspera = vm.EnEsperaDelUsuario,
-                PriorityLabels = vm.PriorityLabels,
-                PriorityCounts = vm.PriorityCounts,
-                PriorityDisplayLabels = vm.PriorityDisplayLabels,
-                PriorityTicketCounts = vm.PriorityTicketCounts,
+                SubcategoryLabels = vm.SubcategoryLabels,
+                SubcategoryCounts = vm.SubcategoryCounts,
+                SubcategoryDisplayLabels = vm.SubcategoryDisplayLabels,
+                SubcategoryTicketCounts = vm.SubcategoryTicketCounts,
                 TrendLabels = vm.TrendLabels,
                 TrendAbiertos = vm.TrendAbiertos,
                 TrendCreados = vm.TrendAbiertos,
@@ -246,67 +229,39 @@ namespace SASA.Controllers
                 Rol = role
             };
 
+            var subcategoriesAllView = (from sc in _db.SubCategorias.AsNoTracking()
+                                        select new { sc.IdSubCategoria, sc.NombreSubCategoria }).ToList();
 
-            var prioridades = _db.Prioridades.AsNoTracking().ToList();
+            var subcategoryCountsListView = (from t in tiquetesQuery
+                                             join sc in _db.SubCategorias.AsNoTracking() on t.IdSubCategoria equals sc.IdSubCategoria into scj
+                                             from sc in scj.DefaultIfEmpty()
+                                             where sc != null
+                                             group t by new { sc.IdSubCategoria, sc.NombreSubCategoria } into g
+                                             select new { Id = g.Key.IdSubCategoria, Name = g.Key.NombreSubCategoria, Count = g.Count() })
+                                            .ToList();
 
-            var orderMap2 = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase)
-            {
-                ["critica"] = 0,
-                ["crítica"] = 0,
-                ["alta"] = 1,
-                ["media"] = 2,
-                ["baja"] = 3
-            };
-            prioridades = prioridades
-                .OrderBy(p => orderMap2.TryGetValue((p.NombrePrioridad ?? string.Empty).Trim().ToLowerInvariant(), out var r2) ? r2 : 99)
-                .ThenBy(p => p.IdPrioridad)
+            var countsDictView = subcategoryCountsListView.ToDictionary(x => x.Id, x => x.Count);
+            var allWithCountsView = subcategoriesAllView
+                .Select(s => new { Id = s.IdSubCategoria, Name = s.NombreSubCategoria, Count = countsDictView.ContainsKey(s.IdSubCategoria) ? countsDictView[s.IdSubCategoria] : 0 })
                 .ToList();
-            var priorityCountsDictInit = (from t in tiquetesQuery
-                                      join sc in _db.SubCategorias.AsNoTracking() on t.IdSubCategoria equals sc.IdSubCategoria into scj
-                                      from sc in scj.DefaultIfEmpty()
-                                      where sc != null && sc.IdPrioridad.HasValue
-                                      group t by sc.IdPrioridad into g
-                                      select new { PrioridadId = g.Key, Count = g.Count() })
-                                     .ToDictionary(x => x.PrioridadId.Value, x => x.Count);
 
-            var durationMap = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase)
+            var orderedView = allWithCountsView.OrderByDescending(x => x.Count).ThenBy(x => x.Name).ToList();
+            var topView = orderedView.Take(5).ToList();
+            var labelsView = topView.Select(x => x.Name).ToList();
+            var countsView = topView.Select(x => x.Count).ToList();
+
+            if (orderedView.Count > 5)
             {
-                ["baja"] = 168,
-                ["media"] = 24,
-                ["alta"] = 4,
-                ["critica"] = 1,
-                ["crítica"] = 1
-            };
+                var othersTotalView = orderedView.Skip(5).Sum(x => x.Count);
+                labelsView.Add("Otros");
+                countsView.Add(othersTotalView);
+            }
 
-            vm.PriorityLabels = prioridades.Select(p => p.NombrePrioridad).ToArray();
-            vm.PriorityCounts = prioridades.Select(p =>
-            {
-                var name = (p.NombrePrioridad ?? string.Empty).Trim();
-                return durationMap.TryGetValue(name, out var hours) ? hours : 0;
-            }).ToArray();
-            var priorityTicketCountsDictInit = (from t in tiquetesQuery
-                                            join sc in _db.SubCategorias.AsNoTracking() on t.IdSubCategoria equals sc.IdSubCategoria into scj
-                                            from sc in scj.DefaultIfEmpty()
-                                            where sc != null && sc.IdPrioridad.HasValue
-                                            group t by sc.IdPrioridad into g
-                                            select new { PrioridadId = g.Key, Count = g.Count() })
-                                         .ToDictionary(x => x.PrioridadId.Value, x => x.Count);
+            vm.SubcategoryDisplayLabels = labelsView.ToArray();
+            vm.SubcategoryTicketCounts = countsView.ToArray();
+            vm.SubcategoryLabels = vm.SubcategoryDisplayLabels;
+            vm.SubcategoryCounts = vm.SubcategoryTicketCounts;
 
-            vm.PriorityTicketCounts = prioridades.Select(p => priorityTicketCountsDictInit.ContainsKey(p.IdPrioridad) ? priorityTicketCountsDictInit[p.IdPrioridad] : 0).ToArray();
-            vm.PriorityDisplayLabels = prioridades.Select((p, i) =>
-            {
-                var hours = vm.PriorityCounts.ElementAtOrDefault(i);
-                var dur = hours > 0 ? DateTimeHelper.FormatearDuracionHoras(hours) : string.Empty;
-                return string.IsNullOrEmpty(dur) ? p.NombrePrioridad : $"{p.NombrePrioridad} ({dur})";
-            }).ToArray();
-            //var prioridades = _db.Prioridades.AsNoTracking().OrderBy(p => p.IdPrioridad).ToList();
-            //var prioridadCounts = _db.Tiquetes.AsNoTracking()
-            //    .GroupBy(t => t.IdPrioridad)
-            //    .Select(g => new { Id = g.Key, Count = g.Count() })
-            //    .ToList();
-
-            //vm.PriorityLabels = prioridades.Select(p => p.NombrePrioridad).ToArray();
-            //vm.PriorityCounts = prioridades.Select(p => prioridadCounts.FirstOrDefault(pc => pc.Id == p.IdPrioridad)?.Count ?? 0).ToArray();
             var days = 7;
             var today = DateTime.Today;
             var from = today.AddDays(-(days - 1));
@@ -341,7 +296,7 @@ namespace SASA.Controllers
                 .Select(g => new { Date = g.Key, Count = g.Count() })
                 .ToList();
 
-            var labels = new List<string>();
+            var labels2 = new List<string>();
             var creadosList = new List<int>();
             var resueltosList = new List<int>();
             var enprogresoList = new List<int>();
@@ -351,7 +306,7 @@ namespace SASA.Controllers
             for (int i = 0; i < days; i++)
             {
                 var d = from.AddDays(i);
-                labels.Add(d.ToString("MMM d"));
+                labels2.Add(d.ToString("MMM d"));
                 creadosList.Add(created.FirstOrDefault(x => x.Date == d)?.Count ?? 0);
                 resueltosList.Add(resolved.FirstOrDefault(x => x.Date == d)?.Count ?? 0);
                 enprogresoList.Add(inProgress.FirstOrDefault(x => x.Date == d)?.Count ?? 0);
@@ -359,7 +314,7 @@ namespace SASA.Controllers
                 canceladosList.Add(cancelled.FirstOrDefault(x => x.Date == d)?.Count ?? 0);
             }
 
-            vm.TrendLabels = labels.ToArray();
+            vm.TrendLabels = labels2.ToArray();
             vm.TrendAbiertos = creadosList.ToArray();
             vm.TrendResueltos = resueltosList.ToArray();
             vm.TrendEnProgreso = enprogresoList.ToArray();

@@ -77,8 +77,8 @@
         <div class="col-md-8">
             <div class="card">
                 <div class="card-body">
-                    <h6 class="section-title">Tiquetes por Prioridad</h6>
-                    <canvas id="prioridadChart"></canvas>
+                    <h6 class="section-title">Tiquetes por Subcategoría</h6>
+                    <canvas id="subcategoriaChart"></canvas>
                 </div>
             </div>
         </div>
@@ -102,10 +102,10 @@
             Resueltos: @Model.Resueltos,
             Cancelados: @Model.Cancelados,
             EnEsperaDelUsuario: @Model.EnEsperaDelUsuario,
-            PriorityLabels: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.PriorityLabels)),
-            PriorityCounts: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.PriorityCounts)),
-            PriorityDisplayLabels: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.PriorityDisplayLabels)),
-            PriorityTicketCounts: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.PriorityTicketCounts)),
+            SubcategoryLabels: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.SubcategoryLabels)),
+            SubcategoryCounts: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.SubcategoryCounts)),
+            SubcategoryDisplayLabels: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.SubcategoryDisplayLabels)),
+            SubcategoryTicketCounts: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.SubcategoryTicketCounts)),
             TrendLabels: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.TrendLabels)),
             TrendAbiertos: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.TrendAbiertos)),
             TrendEspera: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.TrendEspera)),
