@@ -2,11 +2,11 @@ using BusinessLogic.Servicios.Attachments;
 using BusinessLogic.Servicios.Avances;
 using BusinessLogic.Servicios.Categorias;
 using BusinessLogic.Servicios.Helpers;
+using BusinessLogic.Servicios.Inventario;
 using BusinessLogic.Servicios.Prioridad;
 using BusinessLogic.Servicios.SubCategorias;
 using BusinessLogic.Servicios.Tiquetes;
 using BusinessLogic.Servicios.Usuarios;
-using BusinessLogic.Servicios.Inventario;
 using DataAccess.Modelos.DTOs.Avances;
 using DataAccess.Modelos.DTOs.Tiquete;
 using DataAccess.Modelos.DTOs.Tiquete.Filtros;
@@ -23,6 +23,8 @@ using SASA.ViewModels.Tiquete;
 using SASA.ViewModels.Tiquete.Extras;
 using SASA.ViewModels.Tiquete.Filtro;
 using SASA.ViewModels.TiqueteHistoriales;
+using System.ComponentModel.DataAnnotations;
+using System.Reflection;
 using System.Security.Claims;
 
 namespace SASA.Controllers
@@ -700,11 +702,25 @@ namespace SASA.Controllers
 
             model.Estatuses = estatuses.Select(e => new SelectListItem
             {
-                Value = e.ToString(),
-                Text = e.ToString(),
+                Value = e.ToString(), 
+                Text = e.GetDisplayName(), 
                 Selected = e.ToString() == model.Estatus
             });
         }
 
+    }
+}
+
+//Para cargar los filtros
+public static class EnumExtensions
+{
+    public static string GetDisplayName(this Enum value)
+    {
+        return value.GetType()
+                    .GetMember(value.ToString())
+                    .First()
+                    .GetCustomAttribute<DisplayAttribute>()?
+                    .GetName()
+               ?? value.ToString();
     }
 }
