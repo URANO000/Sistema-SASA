@@ -285,14 +285,37 @@ namespace SASA.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> History()
+        public async Task<IActionResult> History(int pageNumber = 1, int pageSize = 10)
         {
             _logger.LogInformation(
                 "Consulta de historial de integración. Usuario: {UsuarioId}",
                 User.FindFirstValue(ClaimTypes.NameIdentifier));
 
-            var data = await _integracion.ObtenerHistorialAsync();
-            return View(data);
+            if (pageNumber < 1) pageNumber = 1;
+            if (pageSize < 5) pageSize = 5;
+            if (pageSize > 50) pageSize = 50;
+
+            var all = await _integracion.ObtenerHistorialAsync();
+            var totalRecords = all.Count;
+            var totalPages = (int)Math.Ceiling(totalRecords / (double)pageSize);
+            if (totalPages < 1) totalPages = 1;
+            if (pageNumber > totalPages) pageNumber = totalPages;
+
+            var pageItems = all
+                .OrderByDescending(x => x.Fecha)
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToList();
+
+            var vm = new ViewModels.Integracion.IntegracionHistoryIndexViewModel
+            {
+                Historial = pageItems,
+                PageNumber = pageNumber,
+                PageSize = pageSize,
+                TotalPages = totalPages
+            };
+
+            return View(vm);
         }
 
         [HttpPost]

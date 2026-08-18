@@ -1,4 +1,4 @@
-@model List<DataAccess.Modelos.Entidades.Integracion.IntegracionHistorial>
+@model SASA.ViewModels.Integracion.IntegracionHistoryIndexViewModel
 
 @{
     ViewData["Title"] = "Historial de Integraciones";
@@ -41,7 +41,7 @@
             </div>
 
             <div class="table-responsive">
-                <table class="table table-hover align-middle">
+                <table class="table table-hover align-middle sasa-table">
                     <thead class="table-light">
                         <tr>
                             <th>Fecha</th>
@@ -54,7 +54,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @if (Model == null || !Model.Any())
+                        @if (Model == null || Model.Historial == null || !Model.Historial.Any())
                         {
                             <tr>
                                 <td colspan="7" class="text-center text-muted py-4">
@@ -64,7 +64,7 @@
                         }
                         else
                         {
-                            foreach (var h in Model)
+                            foreach (var h in Model.Historial)
                             {
                                 <tr>
                                     <td>@h.Fecha.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</td>
@@ -129,6 +129,38 @@
                         }
                     </tbody>
                 </table>
+                <nav aria-label="Paginación" class="align-content-center justify-content-center">
+                    <ul class="pagination pagination-sm mb-0 justify-content-center">
+
+                        <!-- Previous -->
+                        <li class="page-item @(Model.TieneAnterior ? "" : "disabled")">
+                            <a class="page-link"
+                               asp-action="History"
+                               asp-route-pageNumber="@(Model.PageNumber - 1)"
+                               asp-route-pageSize="@Model.PageSize">
+                                Anterior
+                            </a>
+                        </li>
+
+                        <!-- Info -->
+                        <li class="page-item disabled">
+                            <span class="page-link">
+                                Página @Model.PageNumber de @Model.TotalPages
+                            </span>
+                        </li>
+
+                        <!-- Next -->
+                        <li class="page-item @(Model.TieneSiguiente ? "" : "disabled")">
+                            <a class="page-link"
+                               asp-action="History"
+                               asp-route-pageNumber="@(Model.PageNumber + 1)"
+                               asp-route-pageSize="@Model.PageSize">
+                                Siguiente
+                            </a>
+                        </li>
+
+                    </ul>
+                </nav>
             </div>
 
         </div>
