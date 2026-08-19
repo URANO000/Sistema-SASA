@@ -5,10 +5,15 @@ $(function () {
         e.preventDefault();
 
         const form = $(this);
+        const $submitButton = $("#btnCrearUsuario");
 
         if (!form.valid()) {
             return;
         }
+
+        $submitButton
+            .prop("disabled", true)
+            .text("Creando...");
 
         $.ajax({
             url: form.attr("action"),
@@ -29,6 +34,10 @@ $(function () {
                 }
                 else {
                     //caso 2, falla
+                    $submitButton
+                        .prop("disabled", false)
+                        .text("Crear Tiquete");
+
                     $("#addUserModal .modal-content").html(response);
 
                     $.validator.unobtrusive.parse("#createUserForm");
@@ -42,6 +51,10 @@ $(function () {
                 }
             },
             error: function () {
+                $submitButton
+                    .prop("disabled", false)
+                    .text("Crear Tiquete");
+
                 $("#addUserModal").modal("hide");
                 $("#errorModal").modal("show")
                 setTimeout(() => {
@@ -264,6 +277,7 @@ $(function () {
         const form = document.getElementById("crearTiqueteForm");
         const files = form.querySelector('input[type="file"]').files;
         const extensionesPermitidas = [".jpg", ".jpeg", ".png", ".pdf"];
+        const $submitButton = $("#btnCrearTiquete");
 
         for (let i = 0; i < files.length; i++) {
 
@@ -293,6 +307,10 @@ $(function () {
             return;
         }
 
+
+        $submitButton.prop("disabled", true);
+        $submitButton.text("Creando...");
+
         const formData = new FormData(form);
 
         $.ajax({
@@ -313,6 +331,11 @@ $(function () {
                     }, 900);
                 }
                 else {
+
+                    $submitButton
+                        .prop("disabled", false)
+                        .text("Crear Tiquete");
+
                     $("#addTicket .modal-content").html(response);
                     $.validator.unobtrusive.parse("#crearTiqueteForm");
 
@@ -333,6 +356,10 @@ $(function () {
             },
 
             error: function () {
+                $("#btnCrearTiquete")
+                    .prop("disabled", false)
+                    .text("Crear Tiquete");
+
                 $("#addTicket").modal("hide");
                 $("#errorModal").modal("show");
 

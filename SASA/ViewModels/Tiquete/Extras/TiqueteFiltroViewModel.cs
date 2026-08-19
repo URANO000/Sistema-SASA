@@ -17,7 +17,7 @@ namespace SASA.ViewModels.Tiquete.Filtro
         public int TotalPages { get; set; }
 
         // Para cola personal
-        public VistaTiquetes Vista { get; set; } = VistaTiquetes.AsignadosAMi;
+        public VistaTiquetes Vista { get; set; } = VistaTiquetes.Todos;
 
         public bool TieneAnterior => PageNumber > 1;
         public bool TieneSiguiente => PageNumber < TotalPages;
