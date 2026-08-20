@@ -25,7 +25,7 @@
 
                 <div class="row g-3">
                     <div class="col-md-6">
-                        <label asp-for="NombreColaborador" class="form-label"></label>
+                        <label asp-for="NombreColaborador" class="form-label"> Nombre del colaborador <span class="text-danger">*</span></label>
                         <input asp-for="NombreColaborador" class="form-control" maxlength="80" />
                         <span asp-validation-for="NombreColaborador" class="text-danger"></span>
                     </div>
@@ -49,7 +49,7 @@
                     </div>
 
                     <div class="col-md-6">
-                        <label asp-for="CorreoSistemasAnaliticos" class="form-label"></label>
+                        <label asp-for="CorreoSistemasAnaliticos" class="form-label"> Correo Sistemas Analíticos <span class="text-danger"></span></label>
                         <input asp-for="CorreoSistemasAnaliticos" class="form-control" maxlength="100" />
                         <span asp-validation-for="CorreoSistemasAnaliticos" class="text-danger"></span>
                     </div>

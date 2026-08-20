@@ -15,6 +15,7 @@ namespace DataAccess.Repositorios.Usuarios
         Task ActualizarUsuarioAsync(ApplicationUser usuario); //Actualizar
         Task DesactivarUsuario(string id); //Desactivar. Nunca eliminar
         Task ActivarUsuario(string id); //Activar usuario desactivado
+        Task<ApplicationUser?> ObtenerPorUsuarioWindowsAsync(string usuarioWindows);
 
         Task<IReadOnlyList<UsuarioTIDropdownDto?>> ObtenerUsuariosTIAsync(); //Obtener usuarios de TI
 

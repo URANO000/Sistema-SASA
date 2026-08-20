@@ -24,7 +24,8 @@ namespace SASA.ViewModels.Usuario
 
         //Estado para editarlo
         public bool Estado { get; set; }
-
+        [Display(Name = "Usuario de Windows")]
+        public string? UsuarioWindows { get; set; }
         //POST para seleccionar rol
         [Required]
         public required string Rol { get; set; }

@@ -19,14 +19,19 @@
                 @Html.AntiForgeryToken()
 
                 <div class="row mb-3">
+                    <div class="mb-3">
+                        <small class="text-muted">
+                            Los campos marcados con <span class="text-danger">*</span> son obligatorios.
+                        </small>
+                    </div>
                     <div class="col-md-4">
-                        <label asp-for="NumeroActivo" class="form-label">Código del Activo</label>
+                        <label asp-for="NumeroActivo" class="form-label"> Código del Activo <span class="text-danger">*</span></label>                        
                         <input asp-for="NumeroActivo" class="form-control" placeholder="INV-002" maxlength="40" />
                         <span asp-validation-for="NumeroActivo" class="text-danger"></span>
                     </div>
 
                     <div class="col-md-8">
-                        <label asp-for="NombreMaquina" class="form-label">Nombre del Activo</label>
+                        <label asp-for="NombreMaquina" class="form-label"> Nombre del Activo <span class="text-danger">*</span></label>                        
                         <input asp-for="NombreMaquina" class="form-control" placeholder="Nombre del activo" maxlength="50" />
                         <span asp-validation-for="NombreMaquina" class="text-danger"></span>
                     </div>
@@ -34,15 +39,15 @@
 
                 <div class="row mb-3">
                     <div class="col-md-6">
-                        <label asp-for="IdTipoActivo" class="form-label">Tipo de Activo</label>
-                        <select asp-for="IdTipoActivo" asp-items="ViewBag.Tipos" class="form-select">
+                        <label asp-for="IdTipoActivo" class="form-label"> Tipo de Activo <span class="text-danger">*</span></label>                        
+                            <select asp-for="IdTipoActivo" asp-items="ViewBag.Tipos" class="form-select">
                             <option value="">Seleccione un tipo</option>
                         </select>
                         <span asp-validation-for="IdTipoActivo" class="text-danger"></span>
                     </div>
 
                     <div class="col-md-6">
-                        <label asp-for="IdEstadoActivo" class="form-label">Estado</label>
+                        <label asp-for="IdEstadoActivo" class="form-label"> Estado <span class="text-danger">*</span></label>
                         <select asp-for="IdEstadoActivo" asp-items="ViewBag.Estados" class="form-select">
                             <option value="">Seleccione un estado</option>
                         </select>

@@ -56,7 +56,8 @@ namespace DataAccess.Identity
 
         [Column("UserName")]
         public override string? UserName { get; set; }
-
+        [Column("usuarioWindows")]
+        public string? UsuarioWindows { get; set; }
         [Column("CreatedAt")]
         public DateTime? CreatedAt { get; set; }
         [Column("CreatedBy")]

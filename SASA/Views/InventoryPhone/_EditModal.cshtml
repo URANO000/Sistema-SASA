@@ -21,7 +21,7 @@
 
         <div class="row g-3">
             <div class="col-md-6">
-                <label class="form-label">Nombre del colaborador</label>
+                <label asp-for="NombreColaborador" class="form-label"> Nombre del colaborador <span class="text-danger">*</span></label>
                 <input asp-for="NombreColaborador" class="form-control" maxlength="80" />
                 <span asp-validation-for="NombreColaborador" class="text-danger"></span>
             </div>

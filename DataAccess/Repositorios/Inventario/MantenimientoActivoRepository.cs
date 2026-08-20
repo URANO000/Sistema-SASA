@@ -16,7 +16,7 @@ namespace DataAccess.Repositorios.Inventario
         {
             return await _db.MantenimientosActivos
                 .Include(x => x.Activo)
-                .OrderByDescending(x => x.FechaMantenimiento)
+                .OrderByDescending(x => x.FechaCreacion)
                 .ToListAsync();
         }
 
@@ -25,7 +25,7 @@ namespace DataAccess.Repositorios.Inventario
             return await _db.MantenimientosActivos
                 .Include(x => x.Activo)
                 .Where(x => x.IdActivo == idActivo)
-                .OrderByDescending(x => x.FechaMantenimiento)
+                .OrderByDescending(x => x.FechaCreacion)
                 .ToListAsync();
         }
 
