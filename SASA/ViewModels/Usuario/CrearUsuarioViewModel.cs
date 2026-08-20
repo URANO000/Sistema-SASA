@@ -19,7 +19,8 @@ namespace SASA.ViewModels.Usuario
         public required string Departamento { get; set; }
         [Required(ErrorMessage = "El puesto es obligatorio.")]
         public required string Puesto { get; set; }
-
+        [Display(Name = "Usuario de Windows")]
+        public string? UsuarioWindows { get; set; }
         //POST para seleccionar rol
         [Required(ErrorMessage ="El rol es obligatorio.")]
         public required string Rol { get; set; }

@@ -69,6 +69,7 @@ namespace DataAccess.Repositorios.Usuarios
                     CorreoEmpresa = u.CorreoEmpresa,
                     Estado = u.Estado,
                     CreatedAt = u.CreatedAt,
+                    UsuarioWindows = u.UsuarioWindows,
                     CreatedById = u.CreatedById
 
                 })
@@ -118,6 +119,7 @@ namespace DataAccess.Repositorios.Usuarios
                     Departamento = u.Departamento,
                     Puesto = u.Puesto,
                     CorreoEmpresa = u.CorreoEmpresa,
+                    UsuarioWindows = u.UsuarioWindows,
                     Estado = u.Estado
                 })
                 .ToListAsync();
@@ -138,6 +140,7 @@ namespace DataAccess.Repositorios.Usuarios
                     Departamento = u.Departamento,
                     Puesto = u.Puesto,
                     CorreoEmpresa = u.CorreoEmpresa,
+                    UsuarioWindows = u.UsuarioWindows,
                     Estado = u.Estado
                 })
                 .FirstOrDefaultAsync();
@@ -162,6 +165,19 @@ namespace DataAccess.Repositorios.Usuarios
                     Estado = u.Estado
                 })
                 .FirstOrDefaultAsync();
+        }
+        public async Task<ApplicationUser?> ObtenerPorUsuarioWindowsAsync(
+            string usuarioWindows)
+        {
+            if (string.IsNullOrWhiteSpace(usuarioWindows))
+                return null;
+
+            var usuarioNormalizado = usuarioWindows.Trim().ToUpper();
+
+            return await _context.Users
+                .FirstOrDefaultAsync(u =>
+                    u.UsuarioWindows != null &&
+                    u.UsuarioWindows.ToUpper() == usuarioNormalizado);
         }
 
         public async Task ActualizarUsuarioAsync(ApplicationUser usuario)

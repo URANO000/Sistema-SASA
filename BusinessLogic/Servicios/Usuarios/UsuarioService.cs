@@ -99,6 +99,7 @@ namespace BusinessLogic.Servicios.Usuarios
                 Puesto = dto.Puesto,
                 CorreoEmpresa = dto.CorreoEmpresa,
                 Estado = dto.Estado,
+
                 Roles = roles is IReadOnlyCollection<string> readOnlyRoles ? readOnlyRoles : roles.ToList()
             };
         }
@@ -149,6 +150,7 @@ namespace BusinessLogic.Servicios.Usuarios
                 CreatedAt = DateTime.UtcNow,
                 CreatedById = currentUserId,
 
+                UsuarioWindows = NormalizarUsuarioWindows(dto.UsuarioWindows),
                 Estado = true,           // usuario activo por defecto
                 EmailConfirmed = false,  // importante para RequireConfirmedEmail
                 LockoutEnabled = true    // por si aplica lockout
@@ -225,6 +227,7 @@ namespace BusinessLogic.Servicios.Usuarios
                 string.Equals(usuario.Departamento, dto.Departamento) &&
                 string.Equals(usuario.Puesto, dto.Puesto) &&
                 string.Equals(usuario.CorreoEmpresa, dto.CorreoEmpresa, StringComparison.OrdinalIgnoreCase) &&
+                string.Equals(NormalizarUsuarioWindows(usuario.UsuarioWindows), NormalizarUsuarioWindows(dto.UsuarioWindows), StringComparison.OrdinalIgnoreCase) &&
                 string.Equals(rolActual, dto.Rol);
 
             if (sinCambios)
@@ -241,6 +244,7 @@ namespace BusinessLogic.Servicios.Usuarios
 
             usuario.Departamento = dto.Departamento;
             usuario.Puesto = dto.Puesto;
+            usuario.UsuarioWindows = NormalizarUsuarioWindows(dto.UsuarioWindows);
 
             //Manejo especial de cambio de correo de Identity -- de cuidado
             if (!string.Equals(usuario.Email, dto.CorreoEmpresa, StringComparison.OrdinalIgnoreCase))
@@ -392,7 +396,15 @@ namespace BusinessLogic.Servicios.Usuarios
 
             await _audit.AgregarAuditoria(auditoria);
         }
+        private static string? NormalizarUsuarioWindows(string? usuarioWindows)
+        {
+            if (string.IsNullOrWhiteSpace(usuarioWindows))
+                return null;
 
-     
+            return usuarioWindows.Trim();
+        }
+
+
+
     }
 }

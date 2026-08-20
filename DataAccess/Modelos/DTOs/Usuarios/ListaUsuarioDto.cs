@@ -15,6 +15,7 @@ namespace DataAccess.Modelos.DTOs.Usuarios
         public bool Estado { get; init; }
         public DateTime? CreatedAt { get; init; }
         public string? CreatedById { get; init; }
+        public string? UsuarioWindows { get; init; }
 
         [Required]
         //Roles asignados al usuario

@@ -25,7 +25,7 @@
         }
 
         <div class="mb-3">
-            <label class="form-label">Código del activo</label>
+            <label asp-for="NumeroActivo" class="form-label"> Código del Activo <span class="text-danger">*</span></label>
             <input class="form-control" value="@Model.NumeroActivo" disabled />
             <div class="form-text">* El código no se puede modificar.</div>
         </div>
@@ -33,7 +33,7 @@
         <div class="row g-3">
 
             <div class="col-md-6">
-                <label class="form-label">Nombre del activo</label>
+                <label asp-for="NombreMaquina" class="form-label"> Nombre del Activo <span class="text-danger">*</span></label>
                 <input asp-for="NombreMaquina" class="form-control" maxlength="50" />
                 <span asp-validation-for="NombreMaquina" class="text-danger"></span>
             </div>
@@ -45,7 +45,7 @@
             </div>
 
             <div class="col-md-6">
-                <label class="form-label">Tipo</label>
+                <label asp-for="IdTipoActivo" class="form-label"> Tipo de Activo <span class="text-danger">*</span></label>
                 <select asp-for="IdTipoActivo" class="form-select" asp-items="ViewBag.Tipos">
                     <option value="">Seleccione</option>
                 </select>
@@ -53,7 +53,7 @@
             </div>
 
             <div class="col-md-6">
-                <label class="form-label">Estado</label>
+                <label asp-for="IdEstadoActivo" class="form-label"> Estado <span class="text-danger">*</span></label>
                 <select asp-for="IdEstadoActivo" class="form-select" asp-items="ViewBag.Estados">
                     <option value="">Seleccione</option>
                 </select>

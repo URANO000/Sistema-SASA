@@ -126,6 +126,7 @@ namespace SASA.Controllers
                 CorreoEmpresa = model.CorreoEmpresa,
                 Departamento = model.Departamento,
                 Puesto = model.Puesto,
+                UsuarioWindows = model.UsuarioWindows,
                 Rol = model.Rol
             };
 
@@ -220,6 +221,7 @@ namespace SASA.Controllers
                 Departamento = usuario.Departamento,
                 Puesto = usuario.Puesto,
                 Estado = usuario.Estado,
+                UsuarioWindows = usuario.UsuarioWindows,
                 Rol = usuario.Roles?.FirstOrDefault() ?? string.Empty,
 
                 RolesDisponibles = roles
@@ -269,6 +271,7 @@ namespace SASA.Controllers
                     CorreoEmpresa = model.CorreoEmpresa,
                     Departamento = model.Departamento,
                     Puesto = model.Puesto,
+                    UsuarioWindows = model.UsuarioWindows,
                     Rol = model.Rol
                 };
 

@@ -49,9 +49,21 @@ namespace DataAccess.Repositorios.InventarioTelefono
                     (x.NumeroCelular != null && x.NumeroCelular.Contains(texto)));
             }
 
-            query = sortDir == "desc"
-                ? query.OrderByDescending(x => x.NombreColaborador)
-                : query.OrderBy(x => x.NombreColaborador);
+            bool desc = string.Equals(
+                sortDir,
+                "desc",
+                StringComparison.OrdinalIgnoreCase);
+
+            query = (sortBy ?? "Fecha") switch
+            {
+                "Nombre" => desc
+                    ? query.OrderByDescending(x => x.NombreColaborador)
+                    : query.OrderBy(x => x.NombreColaborador),
+
+                _ => desc
+                    ? query.OrderByDescending(x => x.FechaCreacion)
+                    : query.OrderBy(x => x.FechaCreacion)
+            };
 
             return await query
                 .Skip(skip)

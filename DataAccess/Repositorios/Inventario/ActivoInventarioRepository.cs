@@ -125,19 +125,27 @@ namespace DataAccess.Repositorios.Inventario
 
             bool desc = string.Equals(sortDir, "desc", StringComparison.OrdinalIgnoreCase);
 
-            query = (sortBy ?? "Codigo") switch
+            query = (sortBy ?? "Fecha") switch
             {
-                "Nombre" => desc ? query.OrderByDescending(a => a.NombreMaquina)
-                                 : query.OrderBy(a => a.NombreMaquina),
+                "Nombre" => desc
+                    ? query.OrderByDescending(a => a.NombreMaquina)
+                    : query.OrderBy(a => a.NombreMaquina),
 
-                "Tipo" => desc ? query.OrderByDescending(a => a.TipoActivo!.Nombre)
-                                 : query.OrderBy(a => a.TipoActivo!.Nombre),
+                "Tipo" => desc
+                    ? query.OrderByDescending(a => a.TipoActivo!.Nombre)
+                    : query.OrderBy(a => a.TipoActivo!.Nombre),
 
-                "Estado" => desc ? query.OrderByDescending(a => a.EstadoActivo!.Nombre)
-                                 : query.OrderBy(a => a.EstadoActivo!.Nombre),
+                "Estado" => desc
+                    ? query.OrderByDescending(a => a.EstadoActivo!.Nombre)
+                    : query.OrderBy(a => a.EstadoActivo!.Nombre),
 
-                _ => desc ? query.OrderByDescending(a => a.NumeroActivo)   // "Codigo"
-                                 : query.OrderBy(a => a.NumeroActivo),
+                "Codigo" => desc
+                    ? query.OrderByDescending(a => a.NumeroActivo)
+                    : query.OrderBy(a => a.NumeroActivo),
+
+                _ => desc
+                    ? query.OrderByDescending(a => a.FechaCreacion)
+                    : query.OrderBy(a => a.FechaCreacion),
             };
 
             return await query

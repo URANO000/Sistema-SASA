@@ -36,7 +36,7 @@ namespace SASA.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Index(string? q, int? estadoId, int? tipoId, int pageNumber = 1, int pageSize = 10, string sortBy = "Codigo", string sortDir = "desc")
+        public async Task<IActionResult> Index(string? q, int? estadoId, int? tipoId, int pageNumber = 1, int pageSize = 10, string sortBy = "Fecha", string sortDir = "desc")
         {
             ViewData["Title"] = "Gestión de Activos de Equipos";
 

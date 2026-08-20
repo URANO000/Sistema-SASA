@@ -28,6 +28,7 @@ namespace DataAccess.Modelos.DTOs.Usuarios
         [Required]
         [EmailAddress]
         public required string CorreoEmpresa { get; init; }
+        public string? UsuarioWindows { get; init; }
 
         [Required]
         public required string Rol { get; init; }

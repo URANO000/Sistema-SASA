@@ -1,6 +1,7 @@
 ﻿using DataAccess.Modelos.DTOs.Inventario;
 using DataAccess.Modelos.Entidades.Inventario;
 using DataAccess.Repositorios.Inventario;
+using DataAccess.Repositorios.Usuarios;
 using Microsoft.Extensions.Logging;
 using System.Text.RegularExpressions;
 
@@ -13,16 +14,19 @@ namespace BusinessLogic.Servicios.Inventario
         private readonly IActivoInventarioRepository _activoRepository;
         private readonly ICatalogosInventarioRepository _catalogosRepository;
         private readonly ILogger<InventarioAutomatizadoService> _logger;
+        private readonly IUsuarioRepository _usuarioRepository;
 
         public InventarioAutomatizadoService(
             IInventarioAutomatizadoRepository repository,
             IActivoInventarioRepository activoRepository,
             ICatalogosInventarioRepository catalogosRepository,
+            IUsuarioRepository usuarioRepository,
             ILogger<InventarioAutomatizadoService> logger)
         {
             _repository = repository;
             _activoRepository = activoRepository;
             _catalogosRepository = catalogosRepository;
+            _usuarioRepository = usuarioRepository;
             _logger = logger;
         }
 
@@ -31,11 +35,13 @@ namespace BusinessLogic.Servicios.Inventario
         {
             try
             {
-                var nombreEquipo =
-                    NormalizarRequerido(request.NombreEquipo);
+                var nombreEquipo = NormalizarRequerido(request.NombreEquipo);
 
-                var serialPC =
-                    Normalizar(request.SerialPC);
+                var serialPC = Normalizar(request.SerialPC);
+
+                var nombreUsuarioWindows = Normalizar(request.NombreUsuario);
+
+                var usuarioSasa = await _usuarioRepository.ObtenerPorUsuarioWindowsAsync(nombreUsuarioWindows);
 
                 var fechaActual = DateTime.UtcNow;
 
@@ -138,7 +144,8 @@ namespace BusinessLogic.Servicios.Inventario
                     request,
                     nombreEquipo,
                     serialPC,
-                    fechaActual);
+                    fechaActual,
+                    usuarioSasa?.Id);
 
                 /*
                  * Ambos repositorios utilizan el mismo DbContext
@@ -186,7 +193,8 @@ namespace BusinessLogic.Servicios.Inventario
             InventarioAutomatizadoRequestDto request,
             string nombreEquipo,
             string serialPC,
-            DateTime fechaActual)
+            DateTime fechaActual,
+            string? usuarioSasaId)
         {
             var activo = await _activoRepository
                 .ObtenerPorSerieONombreAsync(
@@ -232,6 +240,18 @@ namespace BusinessLogic.Servicios.Inventario
 
                 activo.FechaActualizacion =
                     fechaActual;
+
+                // Si HawkEye logró identificar un usuario de SASA,
+                // asociar el activo con ese usuario.
+                if (!string.IsNullOrWhiteSpace(usuarioSasaId) &&
+                    !string.Equals(
+                        activo.UsuarioActualId,
+                        usuarioSasaId,
+                        StringComparison.Ordinal))
+                {
+                    activo.UsuarioAnteriorId = activo.UsuarioActualId;
+                    activo.UsuarioActualId = usuarioSasaId;
+                }
 
                 return;
             }
@@ -305,6 +325,8 @@ namespace BusinessLogic.Servicios.Inventario
                 SerieServicio = serialPC,
                 DireccionMAC = direccionMac,
                 SistemaOperativo = Normalizar(request.So),
+                UsuarioActualId = usuarioSasaId,
+                UsuarioAnteriorId = null,
 
                 IdTipoActivo =
                     tipoActivo.IdTipoActivo,
