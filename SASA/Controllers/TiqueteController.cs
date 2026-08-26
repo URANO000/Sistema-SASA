@@ -44,6 +44,7 @@ namespace SASA.Controllers
         private readonly IInventarioService _inventarioService;
 
         private readonly BusinessLogic.Servicios.Correo.ICorreoNotificacionesService _correoNotificaciones;
+        private readonly BusinessLogic.Servicios.Notificaciones.INotificacionService _notificacionService;
         private readonly AppSettings _appSettings;
 
         public TiqueteController(
@@ -57,6 +58,7 @@ namespace SASA.Controllers
             ISubCategoriaService subCategoriaService,
             IHelper helper,
             BusinessLogic.Servicios.Correo.ICorreoNotificacionesService correoNotificaciones,
+            BusinessLogic.Servicios.Notificaciones.INotificacionService notificacionService,
             IOptions<AppSettings> appSettings)
 
         {
@@ -69,6 +71,7 @@ namespace SASA.Controllers
             _subCategoriasService = subCategoriaService;
             _helper = helper;
             _correoNotificaciones = correoNotificaciones;
+            _notificacionService = notificacionService;
             _appSettings = appSettings.Value;
             _inventarioService = inventarioService;
         }
@@ -339,6 +342,22 @@ namespace SASA.Controllers
                     var estadoNuevo = model.IdEstatus;
 
                     var cambioEstado = estadoAnterior != estadoNuevo;
+
+                    if (cambioEstado)
+                    {
+                        // Notificar cambio de estado al assignee (in-app)
+                        try
+                        {
+                            var actualizado = await _tiqueteService.ObtenerTiquetePorIdAsync(model.IdTiquete);
+                            var estadoNombre = actualizado?.EstatusNombre ?? estadoNuevo.ToString();
+                            var mensajeNotif = $"Estado cambiado a {estadoNombre}";
+                            await _notificacionService.NotificarCambioEstadoAsync(model.IdTiquete, currentUserId, mensajeNotif);
+                        }
+                        catch
+                        {
+                            // No bloquear la operación si falla la notificación
+                        }
+                    }
 
                     var esResuelto = estadoNuevo == (int)TiqueteEstatus.Resuelto;
                     var esCancelado = estadoNuevo == (int)TiqueteEstatus.Cancelado;

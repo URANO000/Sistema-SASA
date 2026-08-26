@@ -21,5 +21,17 @@ namespace SASA.ViewModels.Notificaciones
         public bool EstaSilenciado { get; set; }
         public DateTime? SilenciadoHasta { get; set; }
 
+        // Indica si el usuario actual tiene permiso para ver el detalle completo del tiquete
+        public bool TieneAccesoTiquete { get; set; } = true;
+
+        // Valores para preservar filtros / paginación al volver al índice
+        public string? ReturnQ { get; set; }
+        public string? ReturnTipo { get; set; }
+        public string? ReturnEstado { get; set; }
+        // Fecha en formato yyyy-MM-dd para pasar por query string
+        public string? ReturnFecha { get; set; }
+        public int ReturnPagina { get; set; } = 1;
+        public int ReturnTamanoPagina { get; set; } = 10;
+
     }
 }

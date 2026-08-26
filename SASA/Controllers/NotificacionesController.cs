@@ -101,7 +101,13 @@ namespace SASA.Controllers
             return Json(total);
         }
 
-        public async Task<IActionResult> Detalle(long id)
+        public async Task<IActionResult> Detalle(long id,
+            string? returnQ = null,
+            string? returnTipo = null,
+            string? returnEstado = null,
+            string? returnFecha = null,
+            int returnPagina = 1,
+            int returnTamanoPagina = 10)
         {
             var userId = await GetUserIdRealAsync();
             if (string.IsNullOrWhiteSpace(userId))
@@ -119,9 +125,8 @@ namespace SASA.Controllers
                 text = text.Trim();
                 return text.Length <= max ? text : text.Substring(0, max) + "…";
             }
-
-            var t = await _tiqueteService.ObtenerTiquetePorIdReadAsync(n.IdTiquete);
-
+            // Determinar si el usuario actual puede ver el detalle completo del tiquete.
+            // Se permite si es administrador, si es el assignee actual o si es el reportado (comparando email si está disponible).
             var vm = new NotificacionDetalleViewModel
             {
                 Notificacion = n,
@@ -129,21 +134,34 @@ namespace SASA.Controllers
                 CreatedAt = null,
             };
 
-            if (t != null)
-            {
-                vm.CreatedAt = t.CreatedAt;
-                vm.Asunto = t.Asunto;
-                vm.Estatus = t.Estatus ?? "—";
-                vm.Categoria = t.Categoria ?? "—";
-                vm.AsignadoA = !string.IsNullOrWhiteSpace(t.Assignee) ? t.Assignee : null;
-                vm.Prioridad = t.Prioridad ?? "—";
-                vm.ReportadoPor = !string.IsNullOrWhiteSpace(t.ReportedBy) ? t.ReportedBy : null;
+            var tiqueteSummary = await _tiqueteService.ObtenerTiquetePorIdAsync(n.IdTiquete);
 
-                vm.DescripcionPreview = Shorten(t.Descripcion, 220);
-                vm.ResolucionPreview = Shorten(t.Resolucion, 220);
-                var silenciadoHasta = await _service.ObtenerSilencioActivoAsync(userId, n.IdTiquete);
-                vm.EstaSilenciado = silenciadoHasta.HasValue;
-                vm.SilenciadoHasta = silenciadoHasta;
+            var puedeVer = tiqueteSummary != null
+                           && !string.IsNullOrWhiteSpace(tiqueteSummary.IdAsignee)
+                           && tiqueteSummary.IdAsignee == userId;
+
+            vm.TieneAccesoTiquete = puedeVer;
+
+            var silenciadoHastaGlobal = await _service.ObtenerSilencioActivoAsync(userId, n.IdTiquete);
+            vm.EstaSilenciado = silenciadoHastaGlobal.HasValue;
+            vm.SilenciadoHasta = silenciadoHastaGlobal;
+
+            if (puedeVer)
+            {
+                var t = await _tiqueteService.ObtenerTiquetePorIdReadAsync(n.IdTiquete);
+                if (t != null)
+                {
+                    vm.CreatedAt = t.CreatedAt;
+                    vm.Asunto = t.Asunto;
+                    vm.Estatus = t.Estatus ?? "—";
+                    vm.Categoria = t.Categoria ?? "—";
+                    vm.AsignadoA = !string.IsNullOrWhiteSpace(t.Assignee) ? t.Assignee : null;
+                    vm.Prioridad = t.Prioridad ?? "—";
+                    vm.ReportadoPor = !string.IsNullOrWhiteSpace(t.ReportedBy) ? t.ReportedBy : null;
+
+                    vm.DescripcionPreview = Shorten(t.Descripcion, 220);
+                    vm.ResolucionPreview = Shorten(t.Resolucion, 220);
+                }
             }
 
             return View(vm);

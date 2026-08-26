@@ -30,6 +30,8 @@ namespace BusinessLogic.Servicios.Notificaciones
             => _repo.ContarNoLeidasAsync(userId);
         public Task NotificarNuevoComentarioAsync(int idTiquete, string autorUserId, string mensaje)
             => _repo.NotificarNuevoComentarioAsync(idTiquete, autorUserId, mensaje);
+        public Task NotificarCambioEstadoAsync(int idTiquete, string actorUserId, string mensaje)
+            => _repo.NotificarCambioEstadoAsync(idTiquete, actorUserId, mensaje);
         public Task<DateTime?> ObtenerSilencioActivoAsync(string userId, int idTiquete)
     => _repo.ObtenerSilencioActivoAsync(userId, idTiquete);
 

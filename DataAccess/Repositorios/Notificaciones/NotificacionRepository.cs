@@ -107,6 +107,53 @@ namespace DataAccess.Repositorios.Notificaciones
                 await _db.SaveChangesAsync();
             }
         }
+        public async Task NotificarCambioEstadoAsync(int idTiquete, string actorUserId, string mensaje)
+        {
+            var t = await _db.Tiquetes
+                .AsNoTracking()
+                .FirstOrDefaultAsync(x => x.IdTiquete == idTiquete);
+
+            if (t == null) return;
+
+            var responsableId = t.IdAsignee;
+
+            if (string.IsNullOrWhiteSpace(responsableId)) return;
+
+            if (responsableId == actorUserId) return;
+
+            var ahora = DateTime.UtcNow;
+
+            var estaSilenciado = await _db.NotificacionSilencios
+                .AsNoTracking()
+                .AnyAsync(s =>
+                    s.UserId == responsableId &&
+                    s.idTiquete == idTiquete &&
+                    (s.fechaFin == null || s.fechaFin > ahora)
+                );
+
+            if (estaSilenciado) return;
+
+            _db.Notificaciones.Add(new Notificacion
+            {
+                UserId = responsableId,
+                IdTiquete = idTiquete,
+                TipoEvento = "CambioEstado",
+                Mensaje = mensaje,
+                Leida = false,
+                FechaCreacion = ahora
+            });
+
+            _db.Auditorias.Add(new Auditoria
+            {
+                Fecha = DateOnly.FromDateTime(ahora),
+                Hora = ahora.TimeOfDay,
+                Usuario = actorUserId,
+                Tabla = "Notificaciones",
+                Accion = $"Emitida CambioEstado -> Tiquete {idTiquete} -> Destino {responsableId}"
+            });
+
+            await _db.SaveChangesAsync();
+        }
 
         public async Task AlternarLeidaAsync(long idNotificacion, string userId)
         {

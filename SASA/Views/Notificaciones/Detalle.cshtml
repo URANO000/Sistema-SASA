@@ -17,7 +17,14 @@
             </div>
         </div>
 
-        <a asp-controller="Notificaciones" asp-action="Index" class="btn btn-outline-primary btn-sm">
+        <a asp-controller="Notificaciones" asp-action="Index" 
+           asp-route-q="@Model.ReturnQ"
+           asp-route-tipo="@Model.ReturnTipo"
+           asp-route-estado="@Model.ReturnEstado"
+           asp-route-fecha="@Model.ReturnFecha"
+           asp-route-pagina="@Model.ReturnPagina"
+           asp-route-tamanoPagina="@Model.ReturnTamanoPagina"
+           class="btn btn-outline-primary btn-sm">
             <i class="bi bi-arrow-left me-1"></i> Volver
         </a>
     </div>
@@ -125,62 +132,69 @@
 
     <div class="card shadow-sm">
         <div class="card-body">
-            <div class="d-flex justify-content-between align-items-start gap-3">
-                <div>
-                    <h5 class="mb-1 fw-bold">Información del tiquete</h5>
-                    <div class="text-muted small">Detalles completos tiquete</div>
+            @if (!Model.TieneAccesoTiquete)
+            {
+                <div class="alert alert-warning mb-0">
+                    No tiene acceso actual para ver la información completa de este tiquete. Esto suele ocurrir cuando el tiquete fue reasignado a otro usuario.
                 </div>
-                <span class="badge bg-secondary">@Model.Estatus</span>
-                @if (!string.IsNullOrWhiteSpace(Model.Prioridad) && Model.Prioridad != "—")
-                {
-                    @switch (Model.Prioridad)
+            }
+            else
+            {
+                <div class="d-flex justify-content-between align-items-start gap-3">
+                    <div>
+                        <h5 class="mb-1 fw-bold">Información del tiquete</h5>
+                        <div class="text-muted small">Detalles completos tiquete</div>
+                    </div>
+                    <span class="badge bg-secondary">@Model.Estatus</span>
+                    @if (!string.IsNullOrWhiteSpace(Model.Prioridad) && Model.Prioridad != "—")
                     {
-                        case "Baja":
-                            <span class="badge bg-secondary ms-2">Prioridad: @Model.Prioridad</span>
-                            break;
-                        case "Media":
-                            <span class="badge bg-primary ms-2">Prioridad: @Model.Prioridad</span>
-                            break;
-                        case "Alta":
-                            <span class="badge bg-warning text-dark ms-2">Prioridad: @Model.Prioridad</span>
-                            break;
-                        case "Critica":
-                        case "Crítica":
-                            <span class="badge bg-danger ms-2">Prioridad: @Model.Prioridad</span>
-                            break;
-                        default:
-                            <span class="badge bg-danger ms-2">Prioridad: @Model.Prioridad</span>
-                            break;
+                        @switch (Model.Prioridad)
+                        {
+                            case "Baja":
+                                <span class="badge bg-secondary ms-2">Prioridad: @Model.Prioridad</span>
+                                break;
+                            case "Media":
+                                <span class="badge bg-primary ms-2">Prioridad: @Model.Prioridad</span>
+                                break;
+                            case "Alta":
+                                <span class="badge bg-warning text-dark ms-2">Prioridad: @Model.Prioridad</span>
+                                break;
+                            case "Critica":
+                            case "Crítica":
+                                <span class="badge bg-danger ms-2">Prioridad: @Model.Prioridad</span>
+                                break;
+                            default:
+                                <span class="badge bg-danger ms-2">Prioridad: @Model.Prioridad</span>
+                                break;
+                        }
                     }
-                }
-            </div>
+                </div>
 
-            <hr class="my-3" />
+                <hr class="my-3" />
 
-            <dl class="row mb-0">
-                <dt class="col-4 col-md-3">Asunto</dt>
-                <dd class="col-8 col-md-9">@Model.Asunto</dd>
+                <dl class="row mb-0">
+                    <dt class="col-4 col-md-3">Asunto</dt>
+                    <dd class="col-8 col-md-9">@Model.Asunto</dd>
 
-                <dt class="col-4 col-md-3">Categoría</dt>
-                <dd class="col-8 col-md-9">@Model.Categoria</dd>
+                    <dt class="col-4 col-md-3">Categoría</dt>
+                    <dd class="col-8 col-md-9">@Model.Categoria</dd>
 
- 
+                    <dt class="col-4 col-md-3">Reportado por</dt>
+                    <dd class="col-8 col-md-9">@Model.ReportadoPor</dd>
 
-                <dt class="col-4 col-md-3">Reportado por</dt>
-                <dd class="col-8 col-md-9">@Model.ReportadoPor</dd>
+                    <dt class="col-4 col-md-3">Asignado a</dt>
+                    <dd class="col-8 col-md-9">@Model.AsignadoA</dd>
 
-                <dt class="col-4 col-md-3">Asignado a</dt>
-                <dd class="col-8 col-md-9">@Model.AsignadoA</dd>
+                    <dt class="col-4 col-md-3">Creado</dt>
+                    <dd class="col-8 col-md-9">@(Model.CreatedAt.HasValue? DateTimeHelper.ToLocalString(Model.CreatedAt.Value, "dd/MM/yyyy HH:mm") : "—")</dd>
 
-                <dt class="col-4 col-md-3">Creado</dt>
-                <dd class="col-8 col-md-9">@(Model.CreatedAt.HasValue? DateTimeHelper.ToLocalString(Model.CreatedAt.Value, "dd/MM/yyyy HH:mm") : "—")</dd>
+                    <dt class="col-4 col-md-3">Descripción</dt>
+                    <dd class="col-8 col-md-9">@Model.DescripcionPreview</dd>
 
-                <dt class="col-4 col-md-3">Descripción</dt>
-                <dd class="col-8 col-md-9">@Model.DescripcionPreview</dd>
-
-                <dt class="col-4 col-md-3">Resolución</dt>
-                <dd class="col-8 col-md-9">@Model.ResolucionPreview</dd>
-            </dl>
+                    <dt class="col-4 col-md-3">Resolución</dt>
+                    <dd class="col-8 col-md-9">@Model.ResolucionPreview</dd>
+                </dl>
+            }
         </div>
     </div>
 

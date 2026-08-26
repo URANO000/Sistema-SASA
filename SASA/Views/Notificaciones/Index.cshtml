@@ -137,6 +137,12 @@
                                    asp-controller="Notificaciones"
                                    asp-action="Detalle"
                                    asp-route-id="@n.IdNotificacion"
+                                   asp-route-returnQ="@Model.Q"
+                                   asp-route-returnTipo="@Model.Tipo"
+                                   asp-route-returnEstado="@Model.Estado"
+                                   asp-route-returnFecha="@(Model.Fecha?.ToString("yyyy-MM-dd"))"
+                                   asp-route-returnPagina="@Model.Pagina"
+                                   asp-route-returnTamanoPagina="@Model.TamanoPagina"
                                    title="Ver detalle">
 
                                     <i class="bi bi-eye"></i>
