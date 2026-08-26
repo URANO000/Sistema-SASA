@@ -125,14 +125,21 @@ namespace SASA.Controllers
                 text = text.Trim();
                 return text.Length <= max ? text : text.Substring(0, max) + "…";
             }
-            // Determinar si el usuario actual puede ver el detalle completo del tiquete.
-            // Se permite si es administrador, si es el assignee actual o si es el reportado (comparando email si está disponible).
+
             var vm = new NotificacionDetalleViewModel
             {
                 Notificacion = n,
                 IdTiquete = n.IdTiquete,
                 CreatedAt = null,
             };
+
+            // Preserve return filters/pagination so "Volver" returns to the same view
+            vm.ReturnQ = returnQ;
+            vm.ReturnTipo = returnTipo;
+            vm.ReturnEstado = returnEstado;
+            vm.ReturnFecha = returnFecha;
+            vm.ReturnPagina = returnPagina;
+            vm.ReturnTamanoPagina = returnTamanoPagina;
 
             var tiqueteSummary = await _tiqueteService.ObtenerTiquetePorIdAsync(n.IdTiquete);
 

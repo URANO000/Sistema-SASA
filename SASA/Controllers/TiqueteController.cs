@@ -345,7 +345,6 @@ namespace SASA.Controllers
 
                     if (cambioEstado)
                     {
-                        // Notificar cambio de estado al assignee (in-app)
                         try
                         {
                             var actualizado = await _tiqueteService.ObtenerTiquetePorIdAsync(model.IdTiquete);
@@ -355,7 +354,6 @@ namespace SASA.Controllers
                         }
                         catch
                         {
-                            // No bloquear la operación si falla la notificación
                         }
                     }
 
