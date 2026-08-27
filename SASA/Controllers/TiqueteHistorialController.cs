@@ -86,9 +86,9 @@ namespace SASA.Controllers
 
             model.TipoEventoOptions = tipos.Select(t => new SelectListItem
             {
-                Value = ((int)t).ToString(),   
-                Text = t.ToString(),           
-                Selected = model.TipoEvento == ((int)t).ToString()
+                Value = t.ToString(),   
+                Text = t.GetDisplayName(),           
+                Selected = t.ToString() == model.TipoEvento
             });
 
             return Task.CompletedTask;
@@ -97,3 +97,5 @@ namespace SASA.Controllers
 
     
 }
+
+

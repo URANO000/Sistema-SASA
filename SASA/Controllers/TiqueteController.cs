@@ -707,7 +707,7 @@ namespace SASA.Controllers
             model.Estatuses = estatuses.Select(e => new SelectListItem
             {
                 Value = ((int)e).ToString(),
-                Text = e.ToString()
+                Text = e.GetDisplayName()
             });
 
         }
