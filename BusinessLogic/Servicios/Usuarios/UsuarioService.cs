@@ -6,9 +6,7 @@ using DataAccess.Modelos.DTOs.Wrappers;
 using DataAccess.Modelos.Entidades;
 using DataAccess.Repositorios.Auditorias;
 using DataAccess.Repositorios.Usuarios;
-using DocumentFormat.OpenXml.Spreadsheet;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.IdentityModel.Tokens;
 
 
 namespace BusinessLogic.Servicios.Usuarios
@@ -343,6 +341,7 @@ namespace BusinessLogic.Servicios.Usuarios
             }
 
             var usuario = await _usuarioRepository.ObtenerUsuarioPorIdAsync(id);
+
             if (usuario == null)
             {
                 throw new InvalidOperationException("Usuario no encontrado.");
@@ -350,16 +349,33 @@ namespace BusinessLogic.Servicios.Usuarios
 
             await _usuarioRepository.DesactivarUsuario(id);
 
-            var user = await _userManager.FindByIdAsync(usuario.Id);
+            var user = await _userManager.FindByIdAsync(id);
 
-            //Auditoria
+            if (user == null)
+            {
+                throw new InvalidOperationException("Usuario no encontrado.");
+            }
+
+            // Invalidar todas las sesiones/cookies existentes del usuario.
+            var stampResult = await _userManager.UpdateSecurityStampAsync(user);
+
+            if (!stampResult.Succeeded)
+            {
+                throw new InvalidOperationException(
+                    "El usuario fue desactivado, pero no se pudieron invalidar sus sesiones activas."
+                );
+            }
+
+            // Auditoria
             var auditoria = new Auditoria
             {
                 Fecha = _helper.ObtenerFechaHoyCR(),
                 Hora = _helper.ObtenerHoraCR(),
                 Usuario = user.nombreCompleto,
                 Tabla = "Usuario",
-                Accion = "Cambio de Estado de " + usuario.PrimerNombre + " " + usuario.PrimerApellido
+                Accion = "Cambio de Estado de " +
+                         usuario.PrimerNombre + " " +
+                         usuario.PrimerApellido
             };
 
             await _audit.AgregarAuditoria(auditoria);
