@@ -136,7 +136,9 @@ builder.Services.ConfigureApplicationCookie(options =>
 // Security Stamp
 builder.Services.Configure<SecurityStampValidatorOptions>(options =>
 {
-    options.ValidationInterval = TimeSpan.FromMinutes(5);
+    // Validar el SecurityStamp en cada solicitud autenticada.
+    // Así una desactivación invalida SASA.Auth desde la siguiente petición.
+    options.ValidationInterval = TimeSpan.Zero;
 });
 
 // Repositories y servicios de negocio

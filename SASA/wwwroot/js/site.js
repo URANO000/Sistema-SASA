@@ -1,9 +1,19 @@
 ﻿//Contador de notificacione
 async function actualizarIndicadorNotificaciones() {
     try {
-        const res = await fetch('/Notificaciones/Contador', { credentials: 'same-origin' });
+        const res = await fetch('/Notificaciones/Contador', {
+            credentials: 'same-origin'
+        });
 
-        if (res.redirected) return;
+        if (res.redirected) {
+            window.location.href = res.url || '/login';
+            return;
+        }
+
+        if (res.status === 401 || res.status === 403) {
+            window.location.href = '/login';
+            return;
+        }
 
         const total = await res.json();
         const badge = document.getElementById('notifBadge');
